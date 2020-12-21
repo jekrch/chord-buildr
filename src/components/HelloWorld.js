@@ -4,8 +4,8 @@ import {helloWorld} from "../utils/noteManager"
 export const HelloWorld = () => {
     return (
         <div>  
-            <h1>Hello World</h1>
-            {helloWorld()}
+            <h1>Welcome to Chord Buildr</h1>
+            
         </div>
     )
 }
