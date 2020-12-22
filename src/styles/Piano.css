@@ -1,0 +1,12 @@
+.piano-container {
+    width: 100%;
+    border: 5px dotted dodgerblue;
+    display: flex;
+    justify-content: space-evenly;
+}
+
+.key {
+    border: solid 2px white;
+    height: 100px;
+    width: 2em;
+}

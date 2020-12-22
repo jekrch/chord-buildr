@@ -1,13 +1,16 @@
-import logo from './logo.svg';
-import './App.css';
-import {HelloWorld} from "./components/HelloWorld"
+import logo from "./logo.svg"
+import "./App.css"
+import { HelloWorld } from "./components/HelloWorld"
+import { PianoComponent } from "./components/PianoComponent"
+import { HeaderComponent } from "./components/Layout"
 
 function App() {
   return (
     <div className="App">
-      <HelloWorld/>
+      <HeaderComponent />
+      <PianoComponent />
     </div>
-  );
+  )
 }
 
-export default App;
+export default App
