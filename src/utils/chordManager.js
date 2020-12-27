@@ -1,4 +1,4 @@
-import {getNoteLetter} from "./utils/noteManager"
+import {getNoteLetter} from "./noteManager"
 
 const chordMap = {
     "" : [0, 4, 7],
@@ -16,15 +16,15 @@ const chordMap = {
     "aug" : [0, 4, 8],
     "add9" : [0, 4, 7, 14],
     "add2" : [0, 2, 4, 7],
-    "5" : [0, 7]
+    "5" : [0, 7],
+    "+": [0, 4, 8]
 }
 
 // returns the note numbers for the specified chord (1, 5, 8)
-function getNoteNumberChord(rootNoteNumber, chordType) {
+export function getNoteNumberChord(rootNoteNumber, chordType) {
         
     var intervalList = chordMap[chordType];
     var chordNoteNumbers = []
-    
 
     for (var i = 0; i < intervalList.length; i++) {
     
@@ -36,7 +36,7 @@ function getNoteNumberChord(rootNoteNumber, chordType) {
 }
 
 // returns the note letters for the specified chord (e.g. C, E, G)
-function getNoteLettersChord(rootNoteNumber, chordType) {
+export function getNoteLettersChord(key, rootNoteNumber, chordType) {
         
     var intervalList = chordMap[chordType];
     var chordNoteLetters = []
@@ -44,7 +44,7 @@ function getNoteLettersChord(rootNoteNumber, chordType) {
     for (var i = 0; i < intervalList.length; i++) {
     
         var noteNumber = rootNoteNumber + intervalList[i] 
-        var noteLetter = getNoteLetter(noteNumber);
+        var noteLetter = getNoteLetter(key, noteNumber);
 
     	chordNoteLetters.push(noteLetter)
     }
