@@ -1,34 +1,35 @@
 import React from "react"
 import "../styles/Piano.css"
+import { Key } from "./Key"
 
 export const PianoComponent = () => {
   return (
     <>
       <div className="piano-container">
-        <div className="key"></div>
-        <div className="key"></div>
-        <div className="key"></div>
-        <div className="key"></div>
-        <div className="key"></div>
-        <div className="key"></div>
-        <div className="key"></div>
-        <div className="key"></div>
-        <div className="key"></div>
-        <div className="key"></div>
-        <div className="key"></div>
-        <div className="key"></div>
-        <div className="key"></div>
-        <div className="key"></div>
-        <div className="key"></div>
-        <div className="key"></div>
-        <div className="key"></div>
-        <div className="key"></div>
-        <div className="key"></div>
-        <div className="key"></div>
-        <div className="key"></div>
-        <div className="key"></div>
-        <div className="key"></div>
-        <div className="key"></div>
+        <Key />
+        <Key />
+        <Key />
+        <Key />
+        <Key />
+        <Key />
+        <Key />
+        <Key />
+        <Key />
+        <Key />
+        <Key />
+        <Key />
+        <Key />
+        <Key />
+        <Key />
+        <Key />
+        <Key />
+        <Key />
+        <Key />
+        <Key />
+        <Key />
+        <Key />
+        <Key />
+        <Key />
       </div>
     </>
   )
