@@ -1,5 +1,5 @@
 
-const noteLetterMapWithSharps = {
+export const noteLetterMapWithSharps = {
 	1: "C",
 	2: "C#",
 	3: "D",
@@ -14,7 +14,7 @@ const noteLetterMapWithSharps = {
     12: "B",
 }
 
-const noteLetterMapWithFlats = {
+export const noteLetterMapWithFlats = {
 	1: "C",
 	2: "Db",
 	3: "D",

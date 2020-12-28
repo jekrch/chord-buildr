@@ -32,10 +32,10 @@ export function shiftChord(originalKeyNumber, newKeyNumber, chordNoteNumbers) {
 // if the note goes above or below the keyboard range, move it
 function sanitizeKeyLocation(noteNumber) {
     if (noteNumber < 0)
-        return noteNumber + 12;
+        return (noteNumber + 12);
 
     if (noteNumber > 24)
-        return noteNumber - 12;
+        return (noteNumber - 12);
 
     return noteNumber;
 }

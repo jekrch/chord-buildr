@@ -1,6 +1,6 @@
-import {getNoteLetter} from "./noteManager"
+import { getNoteLetter } from "./noteManager"
 
-const chordMap = {
+export const chordMap = {
     "" : [0, 4, 7],
     "m" : [0, 3, 7],
     "m7" : [0, 3, 6, 10],

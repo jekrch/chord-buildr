@@ -1,14 +1,17 @@
 import logo from "./logo.svg"
 import "./App.css"
-import { HelloWorld } from "./components/HelloWorld"
+
 import { PianoComponent } from "./components/PianoComponent"
+import { ChordInput } from "./components/ChordInput"
 import { HeaderComponent } from "./components/Layout"
 
 function App() {
   return (
     <div className="App">
       <HeaderComponent />
+      <ChordInput/>
       <PianoComponent />
+
     </div>
   )
 }
