@@ -9,9 +9,8 @@ function App() {
   return (
     <div className="App">
       <HeaderComponent />
-      <ChordInput/>
+      <ChordInput />
       <PianoComponent />
-
     </div>
   )
 }
