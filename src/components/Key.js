@@ -1,9 +1,14 @@
 import React from "react"
+import PropTypes from "prop-types"
 
-export const Key = () => {
+export const Key = ({ pianoKey }) => {
   return (
     <>
-      <div className="key"></div>
+      <li className={pianoKey.color + " " + pianoKey.note}></li>
     </>
   )
+}
+
+Key.propTypes = {
+  pianoKey: PropTypes.object.isRequired
 }
