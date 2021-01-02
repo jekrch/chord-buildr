@@ -1,14 +1,18 @@
 import React from "react"
 import PropTypes from "prop-types"
 
-export const Key = ({ pianoKey }) => {
+export const Key = ({ pianoKey, handleClick }) => {
   return (
     <>
-      <li className={pianoKey.color + " " + pianoKey.note}></li>
+      <li
+        className={pianoKey.color + " " + pianoKey.note}
+        onClick={() => handleClick(pianoKey.note)}
+      ></li>
     </>
   )
 }
 
 Key.propTypes = {
-  pianoKey: PropTypes.object.isRequired
+  pianoKey: PropTypes.object.isRequired,
+  handleClick: PropTypes.func
 }
