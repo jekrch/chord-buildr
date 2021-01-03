@@ -1,29 +1,48 @@
 import {React, useState } from "react"
 import Form from "react-bootstrap/Form"
-import { noteLetterMapWithSharps, noteLetterArray } from '../utils/noteManager'
-import { chordMap } from '../utils/chordManager'
-//import { options } from "./ChordInput"
-
-
+import { noteLetterMapWithSharps, getNoteNumber } from '../utils/noteManager'
+import { chordMap, getNoteLettersChord } from '../utils/chordManager'
   
 export const ChordInput = () => {
 
-    // const handleSelectChange = ([]) => {
-    //     console.log('yo')
-    //     return ["1", ["1", "2"]];
-    //     // 
-    // }
+    var noteKey = 1;
+    var type = '';
+
+    const handleKeySelectChange = (e) => {
+
+        noteKey = getNoteNumber(e.target.value);
+         console.log(e.target.value);
+        console.log(getNoteLettersChord('C', noteKey, type));
+
+        return;
+    }
+
+    const handleTypeSelectChange = (e) => {
+
+        type = e.target.value;
+        console.log(e.target.value);
+        console.log(getNoteLettersChord('C', noteKey, type));
+
+        return;
+    }
 
     var chordTypeArray = Object.keys(chordMap);
     var noteArray = Object.values(noteLetterMapWithSharps);
 
-    //<!--<Form.Label>Note: </Form.Label><Form.Label>Type: </Form.Label><br/>-->
+
     return ( 
 
+        
         <Form>
-        <Form.Group controlId="exampleForm.SelectCustom">
+        <Form.Group controlId="chordSelection">
             
-            <Form.Control as="select" custom> 
+        <div class="chordInput">
+            <Form.Control 
+                as="select" 
+                defaultValue='C'
+                custom 
+                onChange={(e) => handleKeySelectChange(e)}
+            > 
                 {
                     noteArray.map((option, index) => {
                         return (
@@ -32,7 +51,14 @@ export const ChordInput = () => {
                 }
 
             </Form.Control><b>   </b>
-            <Form.Control as="select" custom> 
+            </div>
+            <div class="chordInput">
+            <Form.Control 
+                as="select" 
+                defaultValue=''
+                custom
+                onChange={(e) => handleTypeSelectChange(e)}
+            > 
                 {
                     chordTypeArray.map((option, index) => {
                         return (
@@ -41,10 +67,12 @@ export const ChordInput = () => {
                 }
 
             </Form.Control>
+            </div>
         </Form.Group>
 
         <br/>
         </Form>
+
     )
 
 }
