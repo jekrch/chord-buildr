@@ -30,3 +30,11 @@ code {
   font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
     monospace;
 }
+
+.chordInput {
+  width: 5em;
+  margin-bottom: .5em;
+  position: relative;
+  left: 50%;
+  right: auto;
+}
