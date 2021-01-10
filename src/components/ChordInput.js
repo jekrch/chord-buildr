@@ -1,9 +1,13 @@
-import { React, useState } from "react"
+import { React, useContext } from "react"
 import Form from "react-bootstrap/Form"
 import { noteLetterMapWithSharps, getNoteNumber } from "../utils/noteManager"
+import { clearPianoSelections } from "../utils/pianoHelper"
 import { chordMap, getNoteLettersChord } from "../utils/chordManager"
+import { AppContext } from "../components/context/AppContext"
 
 export const ChordInput = () => {
+  const { state, dispatch } = useContext(AppContext)
+
   var noteKey = 1
   var type = ""
 
@@ -12,7 +16,15 @@ export const ChordInput = () => {
     console.log(e.target.value)
     console.log(getNoteLettersChord("C", noteKey, type))
 
-    return
+    var pianoControl = state.piano
+
+    clearPianoSelections(pianoControl)
+
+    //console.log(pianoControl)
+    pianoControl[1][noteKey - 1].selected = true
+    console.log(pianoControl[1][noteKey - 1])
+
+    dispatch({ type: "UPDATE_PIANO", payload: pianoControl })
   }
 
   const handleTypeSelectChange = (e) => {

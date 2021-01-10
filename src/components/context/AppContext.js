@@ -5,7 +5,8 @@ import { pianoGenerator } from "../../utils/pianoHelper"
 export const STATE_NAME = "PIANO_STATE"
 
 const initialState = {
-  piano: pianoGenerator()
+  piano: pianoGenerator(),
+  selectedKey: "C"
 }
 
 const persistedState = JSON.parse(sessionStorage.getItem(STATE_NAME))
@@ -23,7 +24,7 @@ const appReducer = (state, action) => {
 
 export const AppContext = createContext()
 
-export const AppProvider = props => {
+export const AppProvider = (props) => {
   const [state, dispatch] = useReducer(appReducer, finalInitialState)
 
   useEffect(() => {

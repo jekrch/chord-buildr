@@ -5,14 +5,14 @@ import { AppContext } from "../components/context/AppContext"
 
 export const PianoComponent = () => {
   const { state } = useContext(AppContext)
-  const handleClick = note => {
+  const handleClick = (note) => {
     console.log(`You've clicked note: ${note}`)
   }
 
   const renderPiano = () => {
     let piano = state.piano
     return piano.map((octave, i) => {
-      return octave.map(pianoKey => {
+      return octave.map((pianoKey) => {
         return (
           <Key
             key={`${pianoKey.note}-${i}`}
