@@ -5,9 +5,9 @@ export const Key = ({ pianoKey, handleClick }) => {
   return (
     <>
       <li
-        key-selected={`${pianoKey.selected ?? false}`}
+        key-selected={`${pianoKey.selected}`}
         className={pianoKey.color + " " + pianoKey.note}
-        onClick={() => handleClick(pianoKey.note)}
+        onClick={() => handleClick(pianoKey.note, pianoKey.noteNumber)}
       ></li>
     </>
   )

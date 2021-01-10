@@ -74,6 +74,7 @@ export const pianoGenerator = () => {
       newKey.note = key.note
       newKey.color = key.color
       newKey.selected = false
+      newKey.noteNumber = z + 1
 
       pianoKeysOctave.push(newKey)
     }

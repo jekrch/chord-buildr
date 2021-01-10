@@ -1,4 +1,4 @@
-import { React, useContext } from "react"
+import { React, useContext, useEffect } from "react"
 import Form from "react-bootstrap/Form"
 import { noteLetterMapWithSharps, getNoteNumber } from "../utils/noteManager"
 import { clearPianoSelections } from "../utils/pianoHelper"
@@ -7,6 +7,10 @@ import { AppContext } from "../components/context/AppContext"
 
 export const ChordInput = () => {
   const { state, dispatch } = useContext(AppContext)
+
+  useEffect(() => {
+    console.log("UseEffect rendered")
+  }, [state.selectedKey])
 
   var noteKey = 1
   var type = ""
@@ -41,7 +45,7 @@ export const ChordInput = () => {
   return (
     <Form>
       <Form.Group controlId="chordSelection">
-        <div class="chordInput">
+        <div className="chordInput">
           <Form.Control
             as="select"
             defaultValue="C"
@@ -58,7 +62,7 @@ export const ChordInput = () => {
           </Form.Control>
           <b> </b>
         </div>
-        <div class="chordInput">
+        <div className="chordInput">
           <Form.Control
             as="select"
             defaultValue=""

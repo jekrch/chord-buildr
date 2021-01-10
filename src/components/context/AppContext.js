@@ -16,7 +16,10 @@ const finalInitialState = { ...initialState, ...persistedState }
 const appReducer = (state, action) => {
   switch (action.type) {
     case "UPDATE_PIANO":
+      console.log(action.payload)
       return { ...state, piano: action.payload }
+    case "UPDATE_KEY":
+      return { ...state, selectedKey: action.payload }
     default:
       return state
   }
