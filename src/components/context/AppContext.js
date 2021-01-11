@@ -6,7 +6,7 @@ export const STATE_NAME = "PIANO_STATE"
 
 const initialState = {
   piano: pianoGenerator(),
-  selectedKey: "C"
+  selectedKey: { noteLetter: "C", noteOctave: 1 }
 }
 
 const persistedState = JSON.parse(sessionStorage.getItem(STATE_NAME))
@@ -19,6 +19,7 @@ const appReducer = (state, action) => {
       console.log(action.payload)
       return { ...state, piano: action.payload }
     case "UPDATE_KEY":
+      console.log(action.payload)
       return { ...state, selectedKey: action.payload }
     default:
       return state

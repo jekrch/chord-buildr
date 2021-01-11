@@ -1,63 +1,51 @@
 const pianoKeys = [
   {
     note: "c",
-    color: "white",
-    selected: false
+    color: "white"
   },
   {
     note: "cs",
-    color: "black",
-    selected: false
+    color: "black"
   },
   {
     note: "d",
-    color: "white",
-    selected: false
+    color: "white"
   },
   {
     note: "ds",
-    color: "black",
-    selected: false
+    color: "black"
   },
   {
     note: "e",
-    color: "white",
-    selected: false
+    color: "white"
   },
   {
     note: "f",
-    color: "white",
-    selected: false
+    color: "white"
   },
   {
     note: "fs",
-    color: "black",
-    selected: false
+    color: "black"
   },
   {
     note: "g",
-    color: "white",
-    selected: false
+    color: "white"
   },
   {
     note: "gs",
-    color: "black",
-    selected: false
+    color: "black"
   },
   {
     note: "a",
-    color: "white",
-    selected: false
+    color: "white"
   },
   {
     note: "as",
-    color: "black",
-    selected: false
+    color: "black"
   },
   {
     note: "b",
-    color: "white",
-    selected: false
+    color: "white"
   }
 ]
 
@@ -71,11 +59,12 @@ export const pianoGenerator = () => {
     for (let z = 0; z < pianoKeys.length; z++) {
       var newKey = {}
       var key = pianoKeys[z]
+
       newKey.note = key.note
       newKey.color = key.color
       newKey.selected = false
       newKey.noteNumber = z + 1
-
+      newKey.octave = i
       pianoKeysOctave.push(newKey)
     }
 

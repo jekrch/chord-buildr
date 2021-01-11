@@ -6,10 +6,17 @@ import { getNoteLetter } from "../utils/noteManager"
 
 export const PianoComponent = () => {
   const { state, dispatch } = useContext(AppContext)
-  const handleClick = (note, noteNumber) => {
-    console.log(`You've clicked note: ${note}`)
+  const handleClick = (note, noteNumber, octave) => {
     const noteLetter = getNoteLetter("C", noteNumber)
-    dispatch({ type: "UPDATE_KEY", payload: noteLetter })
+    console.log(`You've clicked note: ${octave} - ${noteLetter}`)
+
+    var selectedKey = {}
+    selectedKey.noteLetter = noteLetter
+    selectedKey.noteOctave = octave
+    dispatch({
+      type: "UPDATE_KEY",
+      payload: selectedKey
+    })
   }
 
   const renderPiano = () => {
@@ -21,7 +28,9 @@ export const PianoComponent = () => {
           <Key
             key={`${pianoKey.note}-${i}`}
             pianoKey={pianoKey}
-            handleClick={handleClick}
+            handleClick={() =>
+              handleClick(pianoKey.note, pianoKey.noteNumber, pianoKey.octave)
+            }
           />
         )
       })

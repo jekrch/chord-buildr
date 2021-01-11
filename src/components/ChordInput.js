@@ -8,33 +8,46 @@ import { AppContext } from "../components/context/AppContext"
 export const ChordInput = () => {
   const { state, dispatch } = useContext(AppContext)
 
-  useEffect(() => {
-    console.log("UseEffect rendered")
-  }, [state.selectedKey])
+  var selectedValue = state.selectedKey.noteLetter
 
-  var noteKey = 1
+  useEffect(() => {
+    console.log("UseEffect rendered: " + state.selectedKey.noteLetter)
+
+    //if (!selectedValue || !state.selectedKey) return
+    //if (selectedValue == state.selectedKey.noteLetter) return
+
+    console.log("UseEffect rendered: " + state.selectedKey)
+
+    selectedValue = state.selectedKey.noteLetter
+    var selectedOctave = state.selectedKey.noteOctave
+
+    if (selectedOctave == null) selectedOctave = 0
+    var noteNumber = getNoteNumber(selectedValue)
+    selectSingleNote(selectedOctave, noteNumber, state, dispatch)
+  }, [state])
+
+  var noteNumber = 1
   var type = ""
 
   const handleKeySelectChange = (e) => {
-    noteKey = getNoteNumber(e.target.value)
-    console.log(e.target.value)
-    console.log(getNoteLettersChord("C", noteKey, type))
+    var noteLetter = e.target.value
 
-    var pianoControl = state.piano
+    if (noteLetter == null) return
 
-    clearPianoSelections(pianoControl)
+    var noteNumber = getNoteNumber(noteLetter)
+    console.log(getNoteLettersChord("C", noteNumber, type))
 
-    //console.log(pianoControl)
-    pianoControl[1][noteKey - 1].selected = true
-    console.log(pianoControl[1][noteKey - 1])
-
-    dispatch({ type: "UPDATE_PIANO", payload: pianoControl })
+    dispatch({
+      type: "UPDATE_KEY",
+      payload: { noteLetter: noteLetter, noteOctave: 1 }
+    })
+    noteNumber = selectSingleNote(1, noteNumber, state, dispatch)
   }
 
   const handleTypeSelectChange = (e) => {
     type = e.target.value
     console.log(e.target.value)
-    console.log(getNoteLettersChord("C", noteKey, type))
+    console.log(getNoteLettersChord("C", noteNumber, type))
 
     return
   }
@@ -48,6 +61,7 @@ export const ChordInput = () => {
         <div className="chordInput">
           <Form.Control
             as="select"
+            value={selectedValue}
             defaultValue="C"
             custom
             onChange={(e) => handleKeySelectChange(e)}
@@ -83,4 +97,21 @@ export const ChordInput = () => {
       <br />
     </Form>
   )
+}
+
+function selectSingleNote(octave, noteNumber, state, dispatch) {
+  var pianoControl = state.piano
+
+  var noteKey = pianoControl[octave][noteNumber - 1]
+
+  if (noteKey.selected) return
+
+  clearPianoSelections(pianoControl)
+
+  noteKey.selected = true
+  console.log(noteKey)
+
+  dispatch({ type: "UPDATE_PIANO", payload: pianoControl })
+
+  return noteNumber
 }
