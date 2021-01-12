@@ -10,8 +10,7 @@ const initialState = {
   selectedChord: {
     noteLetter: "",
     type: "",
-    octave: 1,
-    processingChord: false
+    octave: 1
   }
 }
 
@@ -24,12 +23,15 @@ const appReducer = (state, action) => {
     case "UPDATE_PIANO":
       console.log(action.payload)
       return { ...state, piano: action.payload }
+
     case "UPDATE_KEY":
       console.log(action.payload)
       return { ...state, selectedKey: action.payload }
+
     case "UPDATE_CHORD":
       console.log(action.payload)
       return { ...state, selectedChord: action.payload }
+
     default:
       return state
   }

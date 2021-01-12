@@ -13,8 +13,7 @@ export const ChordInput = () => {
   var type = ""
 
   useEffect(() => {
-    if (state.selectedChord.processingChord) return
-    //if (selectedValue == state.selectedKey.noteLetter) return
+    //if (state.selectedChord.processingChord) return
 
     console.log("UseEffect rendered: " + state.selectedKey.noteLetter)
 
@@ -53,7 +52,7 @@ export const ChordInput = () => {
 
     var noteLetter = state.selectedKey.noteLetter
 
-    selectChordKeys(1, noteLetter, type, state, dispatch)
+    selectChordKeys(null, noteLetter, type, state, dispatch)
 
     return
   }
@@ -102,60 +101,58 @@ export const ChordInput = () => {
   )
 }
 
-function selectChordKeys(selectedOctave, noteLetter, type, state, dispatch) {
+function selectChordKeys(octave, noteLetter, type, state, dispatch) {
   var selectedChord = state.selectedChord
 
-  if (
-    selectedChord.processingChord ||
-    (selectedChord.type == type &&
-      selectedChord.noteLetter == noteLetter &&
-      selectedChord.octave == selectedOctave)
-  )
-    return
+  if (octave == null) octave = selectedChord.octave
 
-  selectedChord.processingChord = true
-  dispatch({ type: "UPDATE_CHORD", payload: selectedChord })
+  if (chordIsAlreadySelected(selectedChord, type, noteLetter, octave)) return
 
-  console.log("HERE: " + type)
   var noteNumber = getNoteNumber(noteLetter)
   var chordNoteNumbers = getNoteNumberChord(noteNumber, type)
 
   clearPianoSelections(state.piano)
 
-  console.log(chordNoteNumbers)
-
   for (let i = 0; i < chordNoteNumbers.length; i++) {
     var noteNumber = chordNoteNumbers[i]
     console.log(noteNumber)
-
-    noteNumber = selectNote(selectedOctave, noteNumber, state, dispatch)
+    noteNumber = selectNote(octave, noteNumber, state, dispatch)
   }
 
+  updateSelectedChord(selectedChord, noteLetter, type, octave, dispatch)
+}
+
+function updateSelectedChord(
+  selectedChord,
+  noteLetter,
+  type,
+  octave,
+  dispatch
+) {
   var selectedChord = {
     noteLetter: noteLetter,
     type: type,
-    octave: selectedOctave
+    octave: octave
   }
 
   dispatch({ type: "UPDATE_CHORD", payload: selectedChord })
+  return selectedChord
 }
 
-function selectSingleNote(octave, noteNumber, state, dispatch) {
-  var pianoControl = state.piano
-
-  console.log("number to select: " + octave + " - " + noteNumber)
-
-  var noteKey = pianoControl[octave][noteNumber - 1]
-
-  if (!noteKey || noteKey.selected) return
-
-  clearPianoSelections(pianoControl)
-
-  noteKey.selected = true
-
-  dispatch({ type: "UPDATE_PIANO", payload: pianoControl })
-
-  return noteNumber
+/**
+ * Determines whether the currently selected chord matches the provided
+ * type, letter, and octave
+ * @param {*} selectedChord
+ * @param {*} type
+ * @param {*} letter
+ * @param {*} octave
+ */
+function chordIsAlreadySelected(selectedChord, type, letter, octave) {
+  return (
+    selectedChord.type == type &&
+    selectedChord.noteLetter == letter &&
+    selectedChord.octave == octave
+  )
 }
 
 function selectNote(octave, noteNumber, state, dispatch) {
