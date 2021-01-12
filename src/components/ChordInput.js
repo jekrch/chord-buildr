@@ -29,7 +29,7 @@ export const ChordInput = () => {
     )
 
     //selectSingleNote(selectedOctave, noteNumber, state, dispatch)
-  }, [state.selectedKey.noteLetter])
+  }, [state.selectedKey])
 
   const handleKeySelectChange = (e) => {
     var noteLetter = e.target.value
