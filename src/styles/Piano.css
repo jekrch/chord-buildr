@@ -6,7 +6,7 @@
 ul {
     height:18.875em;
     width:100vw;
-    margin:5em auto;
+    margin:1em auto;
     padding:3em 0 0 3em;
     position:relative;
     border:1px solid #160801;
@@ -24,8 +24,8 @@ ul {
   }
   
   ul .white {
-    height:16em;
-    width:4em;
+    height:15em;
+    width:3em;
     z-index:1;
     border-left:1px solid #bbb;
     border-bottom:1px solid #bbb;

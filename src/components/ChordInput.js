@@ -13,8 +13,6 @@ export const ChordInput = () => {
   var type = ""
 
   useEffect(() => {
-    //if (state.selectedChord.processingChord) return
-
     console.log("UseEffect rendered: " + state.selectedKey.noteLetter)
 
     selectedValue = state.selectedKey.noteLetter
@@ -61,7 +59,7 @@ export const ChordInput = () => {
   var noteArray = Object.values(noteLetterMapWithSharps)
 
   return (
-    <Form>
+    <Form className="chordInputForm">
       <Form.Group controlId="chordSelection">
         <div className="chordInput">
           <Form.Control
