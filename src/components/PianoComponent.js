@@ -39,7 +39,9 @@ export const PianoComponent = () => {
 
   return (
     <>
-      <ul className="set">{renderPiano()}</ul>
+      <div className="pianoBox">
+        <ul className="set">{renderPiano()}</ul>
+      </div>
     </>
   )
 }

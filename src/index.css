@@ -1,7 +1,7 @@
 html {
   box-sizing: border-box;
   font-family: "Arial";
-  height: 100vh;
+
 }
 
 /**
@@ -31,11 +31,40 @@ code {
     monospace;
 }
 
-.chordInput {
-  width: 5em;
-  margin-bottom: .5em;
-  position: relative;
-  left: 50%;
-  right: auto;
+.chordInputSelection {
+  width: 5.5em;
+  height: 50px;
+  margin-left: 1em;
 }
 
+.pianoChordBox {
+  top: 1em;
+  height: 350px;
+}
+
+.chordInputForm {
+  margin-top: 4.2em;
+  position: relative;
+  width: 120px;
+  color: white;
+}
+
+.pianoBox {
+  position: absolute;
+  margin-top: 0em;
+  top: 0;
+  left: 150px;
+  background:  whitesmoke;
+  border-radius: 5px;
+}
+
+.contentBox {
+  margin-top: 10px;
+  position: absolute;
+}
+
+.mainHeader {
+  margin: auto;
+  margin-top: 10px;
+  height: 90px;
+}  

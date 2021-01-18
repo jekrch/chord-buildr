@@ -6,11 +6,11 @@ export const STATE_NAME = "PIANO_STATE"
 
 const initialState = {
   piano: pianoGenerator(),
-  selectedKey: { noteLetter: "C", noteOctave: 1 },
+  selectedKey: { noteLetter: "C", noteOctave: 0 },
   selectedChord: {
     noteLetter: "",
     type: "",
-    octave: 1
+    octave: 0
   }
 }
 

@@ -4,7 +4,7 @@ import "../../styles/Layout.css"
 export const HeaderComponent = () => {
   return (
     <>
-      <header>
+      <header class="mainHeader">
         <h1>Chord Buildr</h1>
       </header>
     </>

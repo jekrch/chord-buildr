@@ -9,9 +9,9 @@ export const ChordInput = () => {
   const { state, dispatch } = useContext(AppContext)
 
   var selectedValue = state.selectedKey.noteLetter
-  var noteNumber = 1
   var type = ""
 
+  // triggers whenever the user selects a new key
   useEffect(() => {
     console.log("UseEffect rendered: " + state.selectedKey.noteLetter)
 
@@ -27,10 +27,9 @@ export const ChordInput = () => {
       state,
       dispatch
     )
-
-    //selectSingleNote(selectedOctave, noteNumber, state, dispatch)
   }, [state.selectedKey])
 
+  // processes new key selections
   const handleKeySelectChange = (e) => {
     var noteLetter = e.target.value
 
@@ -38,12 +37,13 @@ export const ChordInput = () => {
 
     dispatch({
       type: "UPDATE_KEY",
-      payload: { noteLetter: noteLetter, noteOctave: 1 }
+      payload: { noteLetter: noteLetter, noteOctave: 0 }
     })
 
-    selectChordKeys(1, noteLetter, type, state, dispatch)
+    selectChordKeys(0, noteLetter, type, state, dispatch)
   }
 
+  // processes new chord type selections
   const handleTypeSelectChange = (e) => {
     type = e.target.value
     console.log(e.target.value)
@@ -61,7 +61,7 @@ export const ChordInput = () => {
   return (
     <Form className="chordInputForm">
       <Form.Group controlId="chordSelection">
-        <div className="chordInput">
+        <div className="chordInputSelection">
           <Form.Control
             as="select"
             value={selectedValue}
@@ -78,7 +78,7 @@ export const ChordInput = () => {
             })}
           </Form.Control>
         </div>
-        <div className="chordInput">
+        <div className="chordInputSelection">
           <Form.Control
             as="select"
             defaultValue=""
@@ -102,8 +102,10 @@ export const ChordInput = () => {
 function selectChordKeys(octave, noteLetter, type, state, dispatch) {
   var selectedChord = state.selectedChord
 
+  // if not ocatave is provided, use the currently selected octave
   if (octave == null) octave = selectedChord.octave
 
+  // don't select the same chord multiple times
   if (chordIsAlreadySelected(selectedChord, type, noteLetter, octave)) return
 
   var noteNumber = getNoteNumber(noteLetter)
@@ -157,7 +159,7 @@ function selectNote(octave, noteNumber, state, dispatch) {
   var pianoControl = state.piano
 
   // if the note is over 12, find the corresponding note in the next octave
-  if (noteNumber > 12) {
+  while (noteNumber > 12) {
     noteNumber = noteNumber - 12
 
     if (octave != 2) octave++
@@ -165,7 +167,10 @@ function selectNote(octave, noteNumber, state, dispatch) {
 
   var noteKey = pianoControl[octave][noteNumber - 1]
 
-  if (!noteKey || noteKey.selected) return
+  if (!noteKey || noteKey.selected) {
+    console.log("SKIPPED INVALID NOTE: " + noteNumber)
+    return
+  }
 
   noteKey.selected = true
 

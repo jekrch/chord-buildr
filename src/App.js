@@ -8,9 +8,15 @@ function App() {
   return (
     <div className="App">
       <AppProvider>
-        <HeaderComponent />
-        <ChordInput />
-        <PianoComponent />
+        <div class="container">
+          <HeaderComponent class="row" />
+          <div class="contentBox row">
+            <div class="pianoChordBox">
+              <ChordInput class="chordBox" />
+              <PianoComponent class="pianoBox" />
+            </div>
+          </div>
+        </div>
       </AppProvider>
     </div>
   )
