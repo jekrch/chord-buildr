@@ -43,7 +43,13 @@ export const ChordInput = () => {
       payload: { noteLetter: noteLetter, noteOctave: 0 }
     })
 
-    selectChordKeys(0, noteLetter, type, state.chordPianoSet[0], dispatch)
+    selectChordKeys(
+      0,
+      noteLetter,
+      state.chordPianoSet[0].selectedChord.type,
+      state.chordPianoSet[0],
+      dispatch
+    )
   }
 
   // processes new chord type selections
