@@ -50,16 +50,17 @@ code {
 }
 
 .chordInputForm {
-  margin-top: 4.2em;
+  top: 7em;
+  margin-top: 0em;
   position: relative;
   width: 120px;
   color: white;
 }
 
 .pianoBox {
-  position: absolute;
-  margin-top: 0em;
-  top: 0;
+  position: relative;
+  margin-top: -5em;
+  top: 0em;
   left: 150px;
   background:  rgb(80, 79, 79);
   border-radius: 5px;
@@ -67,8 +68,8 @@ code {
 }
 
 .contentBox {
-  margin-top: 10px;
-  position: absolute;
+  margin-top: 2em;
+  position: relative;
 }
 
 .mainHeader {
@@ -76,3 +77,13 @@ code {
   margin-top: 10px;
   height: 90px;
 }  
+
+.chordPiano :first-child{
+  margin-top: 0;
+}
+
+.chordPiano{
+  margin-top: 0em;
+  position: relative;
+  display:flex;
+}
