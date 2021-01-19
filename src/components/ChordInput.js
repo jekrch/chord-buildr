@@ -67,6 +67,7 @@ export const ChordInput = () => {
             value={selectedValue}
             defaultValue="C"
             custom
+            className="selectorBox"
             onChange={(e) => handleKeySelectChange(e)}
           >
             {noteArray.map((option, index) => {
@@ -80,6 +81,7 @@ export const ChordInput = () => {
         </div>
         <div className="chordInputSelection">
           <Form.Control
+            className="selectorBox"
             as="select"
             defaultValue=""
             custom

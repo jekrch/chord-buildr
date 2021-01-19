@@ -42,10 +42,12 @@ ul {
   
   .white[key-selected='true'] {
     background: #8BC34A;
+    /* transition: 0.1s; */
   }
 
   .black[key-selected='true'] {
     background: #8BC34A;
+    /* transition: 0.1s; */
   }
 
   .black {
