@@ -15,12 +15,13 @@ export const PianoComponent = () => {
     selectedKey.noteOctave = octave
     dispatch({
       type: "UPDATE_KEY",
+      index: 0,
       payload: selectedKey
     })
   }
 
   const renderPiano = () => {
-    let piano = state.piano
+    let piano = state.chordPianoSet[0].piano
     console.log(piano)
     return piano.map((octave, i) => {
       return octave.map((pianoKey) => {
