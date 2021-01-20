@@ -22,8 +22,8 @@ ul {
   }
   
   ul .white {
-    height:14em;
-    width:3em;
+    height:9.2em;
+    width:2.4em;
     z-index:1;
     border-left:1px solid #bbb;
     border-bottom:1px solid #bbb;
@@ -51,8 +51,8 @@ ul {
   }
 
   .black {
-    height:8em;
-    width:2em;
+    height:5em;
+    width:1.5em;
     margin:0 0 0 -1em;
     z-index:2;
     border:1px solid #000;
