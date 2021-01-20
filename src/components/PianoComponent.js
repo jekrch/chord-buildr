@@ -3,25 +3,29 @@ import "../styles/Piano.css"
 import { Key } from "./Key"
 import { AppContext } from "../components/context/AppContext"
 import { getNoteLetter } from "../utils/noteManager"
+import PropTypes from "prop-types"
 
-export const PianoComponent = () => {
+export const PianoComponent = ({ index }) => {
   const { state, dispatch } = useContext(AppContext)
+  const pianoIndex = index
   const handleClick = (note, noteNumber, octave) => {
     const noteLetter = getNoteLetter("C", noteNumber)
-    console.log(`You've clicked note: ${octave} - ${noteLetter}`)
+    console.log(
+      `You've clicked note: ${pianoIndex} - ${octave} - ${noteLetter}`
+    )
 
     var selectedKey = {}
     selectedKey.noteLetter = noteLetter
     selectedKey.noteOctave = octave
     dispatch({
       type: "UPDATE_KEY",
-      index: 0,
+      index: pianoIndex,
       payload: selectedKey
     })
   }
 
   const renderPiano = () => {
-    let piano = state.chordPianoSet[0].piano
+    let piano = state.chordPianoSet[pianoIndex].piano
     console.log(piano)
     return piano.map((octave, i) => {
       return octave.map((pianoKey) => {
@@ -45,4 +49,8 @@ export const PianoComponent = () => {
       </div>
     </>
   )
+}
+
+PianoComponent.propTypes = {
+  index: PropTypes.object.isRequired
 }

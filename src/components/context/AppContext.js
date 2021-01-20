@@ -5,17 +5,22 @@ import { pianoGenerator } from "../../utils/pianoHelper"
 export const STATE_NAME = "PIANO_STATE"
 
 const initialState = {
-  chordPianoSet: [
-    {
-      piano: pianoGenerator(),
-      selectedKey: { noteLetter: "C", noteOctave: 0 },
-      selectedChord: {
-        noteLetter: "",
-        type: "",
-        octave: 0
-      }
+  chordPianoSet: [getChordPiano(0)]
+}
+
+function getChordPiano(index) {
+  var chordPiano = {
+    index: index,
+    piano: pianoGenerator(),
+    selectedKey: { noteLetter: "C", noteOctave: 0 },
+    selectedChord: {
+      noteLetter: "",
+      type: "",
+      octave: 0
     }
-  ]
+  }
+
+  return chordPiano
 }
 
 const persistedState = JSON.parse(sessionStorage.getItem(STATE_NAME))
@@ -60,6 +65,15 @@ const appReducer = (state, action) => {
           i === pianoIndex
             ? { ...chordPiano, selectedChord: action.payload }
             : chordPiano
+        )
+      }
+
+    case "ADD_CHORD_PIANO":
+      var nextChordPianoIndex = state.chordPianoSet.length
+      return {
+        ...state,
+        chordPianoSet: state.chordPianoSet.concat(
+          getChordPiano(nextChordPianoIndex)
         )
       }
 

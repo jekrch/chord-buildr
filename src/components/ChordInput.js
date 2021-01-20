@@ -4,32 +4,34 @@ import { noteLetterMapWithSharps, getNoteNumber } from "../utils/noteManager"
 import { clearPianoSelections } from "../utils/pianoHelper"
 import { chordMap, getNoteNumberChord } from "../utils/chordManager"
 import { AppContext } from "../components/context/AppContext"
+import PropTypes from "prop-types"
 
-export const ChordInput = () => {
+export const ChordInput = ({ index }) => {
   const { state, dispatch } = useContext(AppContext)
 
-  var selectedValue = state.chordPianoSet[0].selectedKey.noteLetter
+  const chordPiano = state.chordPianoSet[index]
+  var selectedValue = state.chordPianoSet[index].selectedKey.noteLetter
   var type = ""
 
   // triggers whenever the user selects a new key
   useEffect(() => {
-    console.log(
-      "UseEffect rendered: " + state.chordPianoSet[0].selectedKey.noteLetter
-    )
+    console.log(chordPiano)
+    console.log("UseEffect rendered: " + chordPiano.selectedKey.noteLetter)
 
-    selectedValue = state.chordPianoSet[0].selectedKey.noteLetter
-    var selectedOctave = state.chordPianoSet[0].selectedKey.noteOctave
+    selectedValue = chordPiano.selectedKey.noteLetter
+    var selectedOctave = chordPiano.selectedKey.noteOctave
 
     if (selectedOctave == null) selectedOctave = 0
 
     selectChordKeys(
+      chordPiano.index,
       selectedOctave,
       selectedValue,
-      state.chordPianoSet[0].selectedChord.type,
-      state.chordPianoSet[0],
+      chordPiano.selectedChord.type,
+      chordPiano,
       dispatch
     )
-  }, [state.chordPianoSet[0].selectedKey])
+  }, [chordPiano.selectedKey])
 
   // processes new key selections
   const handleKeySelectChange = (e) => {
@@ -39,15 +41,16 @@ export const ChordInput = () => {
 
     dispatch({
       type: "UPDATE_KEY",
-      index: 0,
+      index: chordPiano.index,
       payload: { noteLetter: noteLetter, noteOctave: 0 }
     })
 
     selectChordKeys(
+      chordPiano.index,
       0,
       noteLetter,
-      state.chordPianoSet[0].selectedChord.type,
-      state.chordPianoSet[0],
+      chordPiano.selectedChord.type,
+      chordPiano,
       dispatch
     )
   }
@@ -57,9 +60,9 @@ export const ChordInput = () => {
     type = e.target.value
     console.log(e.target.value)
 
-    var noteLetter = state.chordPianoSet[0].selectedKey.noteLetter
+    var noteLetter = chordPiano.selectedKey.noteLetter
 
-    selectChordKeys(null, noteLetter, type, state.chordPianoSet[0], dispatch)
+    selectChordKeys(index, null, noteLetter, type, chordPiano, dispatch)
 
     return
   }
@@ -110,7 +113,14 @@ export const ChordInput = () => {
   )
 }
 
-function selectChordKeys(octave, noteLetter, type, chordPiano, dispatch) {
+function selectChordKeys(
+  index,
+  octave,
+  noteLetter,
+  type,
+  chordPiano,
+  dispatch
+) {
   var selectedChord = chordPiano.selectedChord
 
   // if not ocatave is provided, use the currently selected octave
@@ -127,13 +137,14 @@ function selectChordKeys(octave, noteLetter, type, chordPiano, dispatch) {
   for (let i = 0; i < chordNoteNumbers.length; i++) {
     var noteNumber = chordNoteNumbers[i]
     console.log(noteNumber)
-    noteNumber = selectNote(octave, noteNumber, chordPiano, dispatch)
+    noteNumber = selectNote(index, octave, noteNumber, chordPiano, dispatch)
   }
 
-  updateSelectedChord(selectedChord, noteLetter, type, octave, dispatch)
+  updateSelectedChord(index, selectedChord, noteLetter, type, octave, dispatch)
 }
 
 function updateSelectedChord(
+  index,
   selectedChord,
   noteLetter,
   type,
@@ -146,7 +157,7 @@ function updateSelectedChord(
     octave: octave
   }
 
-  dispatch({ type: "UPDATE_CHORD", index: 0, payload: selectedChord })
+  dispatch({ type: "UPDATE_CHORD", index: index, payload: selectedChord })
   return selectedChord
 }
 
@@ -160,13 +171,14 @@ function updateSelectedChord(
  */
 function chordIsAlreadySelected(selectedChord, type, letter, octave) {
   return (
+    selectedChord != null &&
     selectedChord.type == type &&
     selectedChord.noteLetter == letter &&
     selectedChord.octave == octave
   )
 }
 
-function selectNote(octave, noteNumber, state, dispatch) {
+function selectNote(index, octave, noteNumber, state, dispatch) {
   var pianoControl = state.piano
 
   // if the note is over 12, find the corresponding note in the next octave
@@ -185,7 +197,11 @@ function selectNote(octave, noteNumber, state, dispatch) {
 
   noteKey.selected = true
 
-  dispatch({ type: "UPDATE_PIANO", index: 0, payload: pianoControl })
+  dispatch({ type: "UPDATE_PIANO", index: index, payload: pianoControl })
 
   return noteNumber
+}
+
+ChordInput.propTypes = {
+  index: PropTypes.object.isRequired
 }
