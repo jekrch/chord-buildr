@@ -3,8 +3,9 @@ import "../styles/Piano.css"
 import { AppContext } from "../components/context/AppContext"
 import { ChordPianoComponent } from "../components/ChordPianoComponent"
 import Button from "react-bootstrap/Button"
+import PropTypes from "prop-types"
 
-export const PianoBoardComponent = () => {
+export const PianoBoardComponent = ({history}) => {
   const { state, dispatch } = useContext(AppContext)
 
   const handleClick = () => {
@@ -14,6 +15,13 @@ export const PianoBoardComponent = () => {
       type: "ADD_CHORD_PIANO",
       payload: "selectedKey"
     })
+
+    console.log("LOOK HERE")
+    console.log(history)
+    history.push({
+      search: "?chord=chordName"
+    })
+    
   }
   const renderChordPianoSet = () => {
     let i = 0
@@ -33,4 +41,8 @@ export const PianoBoardComponent = () => {
       {/* <ChordPianoComponent class="row" /> */}
     </>
   )
+}
+
+PianoBoardComponent.propTypes = {
+  history: PropTypes.object.isRequired
 }

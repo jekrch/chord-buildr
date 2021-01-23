@@ -1,5 +1,7 @@
 import "./App.css"
 import React, { useContext } from "react"
+import { Route, Switch } from "react-router"
+import { BrowserRouter as Router } from 'react-router-dom'
 import { AppProvider, AppContext } from "./components/context/AppContext"
 
 import { ChordPianoComponent } from "./components/ChordPianoComponent"
@@ -12,8 +14,12 @@ export const App = () => {
     <div className="App">
       <AppProvider>
         <div class="container">
-          <HeaderComponent class="row" />
-          <PianoBoardComponent />
+          <Router>
+            <HeaderComponent class="row" />
+            <Switch>
+              <Route exact path="/" component={PianoBoardComponent}/>
+            </Switch>
+          </Router>
         </div>
       </AppProvider>
     </div>
