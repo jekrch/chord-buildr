@@ -41,6 +41,7 @@ code {
 .pianoChordBox {
   top: 1em;
   height: 250px;
+  margin-right: 3em;
 }
 
 .selectorBox{
@@ -85,5 +86,5 @@ code {
 .chordPiano{
   margin-top: 0em;
   position: relative;
-  display:flex;
+  display: flex;
 }

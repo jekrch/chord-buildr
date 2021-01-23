@@ -8,9 +8,22 @@ const initialState = {
   chordPianoSet: [getChordPiano(0)]
 }
 
-function getChordPiano(index) {
+/***
+ * Gets the next available sequential piano id from the current state
+ */
+export function getPianoById(state, pianoId) {
+  var chordPianoResults = state.chordPianoSet.filter(
+    (chordPiano) => chordPiano.id == pianoId
+  )
+
+  if (chordPianoResults.length > 0) return chordPianoResults[0]
+
+  return null
+}
+
+function getChordPiano(pianoId) {
   var chordPiano = {
-    index: index,
+    id: pianoId,
     piano: pianoGenerator(),
     selectedKey: { noteLetter: "C", noteOctave: 0 },
     selectedChord: {
@@ -23,24 +36,34 @@ function getChordPiano(index) {
   return chordPiano
 }
 
+function getNextId(state) {
+  var nextId = Math.max(
+    ...state.chordPianoSet.map((chordPiano) => chordPiano.id)
+  )
+
+  if (nextId == null || nextId == -Infinity) return 0
+
+  return nextId + 1
+}
+
 const persistedState = JSON.parse(sessionStorage.getItem(STATE_NAME))
 
 const finalInitialState = { ...initialState, ...persistedState }
 
 const appReducer = (state, action) => {
-  var pianoIndex = action.index
+  var pianoid = action.id
 
-  console.log("piano index: " + pianoIndex)
+  console.log("piano id: " + pianoid)
 
-  if (!pianoIndex) pianoIndex = 0
+  if (!pianoid) pianoid = 0
 
   switch (action.type) {
     case "UPDATE_PIANO":
       console.log(action.payload)
       return {
         ...state,
-        chordPianoSet: state.chordPianoSet.map((chordPiano, i) =>
-          i === pianoIndex
+        chordPianoSet: state.chordPianoSet.map((chordPiano) =>
+          chordPiano.id === pianoid
             ? { ...chordPiano, piano: action.payload }
             : chordPiano
         )
@@ -50,8 +73,8 @@ const appReducer = (state, action) => {
       console.log(action.payload)
       return {
         ...state,
-        chordPianoSet: state.chordPianoSet.map((chordPiano, i) =>
-          i === pianoIndex
+        chordPianoSet: state.chordPianoSet.map((chordPiano) =>
+          chordPiano.id === pianoid
             ? { ...chordPiano, selectedKey: action.payload }
             : chordPiano
         )
@@ -61,19 +84,27 @@ const appReducer = (state, action) => {
       console.log(action.payload)
       return {
         ...state,
-        chordPianoSet: state.chordPianoSet.map((chordPiano, i) =>
-          i === pianoIndex
+        chordPianoSet: state.chordPianoSet.map((chordPiano) =>
+          chordPiano.id === pianoid
             ? { ...chordPiano, selectedChord: action.payload }
             : chordPiano
         )
       }
 
     case "ADD_CHORD_PIANO":
-      var nextChordPianoIndex = state.chordPianoSet.length
+      var nextChordPianoid = getNextId(state) //state.chordPianoSet.length
       return {
         ...state,
         chordPianoSet: state.chordPianoSet.concat(
-          getChordPiano(nextChordPianoIndex)
+          getChordPiano(nextChordPianoid)
+        )
+      }
+
+    case "REMOVE_PIANO":
+      return {
+        ...state,
+        chordPianoSet: state.chordPianoSet.filter(
+          (item) => item.id !== action.id
         )
       }
 

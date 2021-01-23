@@ -1,7 +1,8 @@
 .set {
     display: flex;
     justify-content: center;
-    margin: 0 0 0 0
+    margin: 0 0 0 0;
+    margin-right: 0.5em;
 }
 
 ul {
@@ -69,6 +70,7 @@ ul {
   .a,.b,.g,.d,.e {
     margin:0 0 0 -1em
   }
+
   
   ul li:first-child {
     border-radius:5px 0 5px 5px
@@ -76,4 +78,25 @@ ul {
   
   ul li:last-child {
     border-radius:0 5px 5px 5px
+  }
+
+  .pianoCloseButton {
+    position: relative;
+    margin-right: -0.5em;
+    margin-left: 0.2em;
+    z-index: 3;
+    float: left;
+    /* background-color: black !important; */
+    color: white;
+    border-width: 0 !important;
+    border: none !important;
+    outline:none !important;
+  }
+
+  .pianoCloseButton:hover {
+    color: rgb(204, 146, 146);
+  }
+
+  .pianoCloseButton:active {
+    color: rgb(129, 93, 93);;
   }

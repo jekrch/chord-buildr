@@ -1,31 +1,36 @@
 import React, { useContext } from "react"
 import "../styles/Piano.css"
 import { Key } from "./Key"
-import { AppContext } from "../components/context/AppContext"
+import { AppContext, getPianoById } from "../components/context/AppContext"
 import { getNoteLetter } from "../utils/noteManager"
 import PropTypes from "prop-types"
 
-export const PianoComponent = ({ index }) => {
+export const PianoComponent = ({ pianoComponentId }) => {
   const { state, dispatch } = useContext(AppContext)
-  const pianoIndex = index
+  const pianoId = pianoComponentId
   const handleClick = (note, noteNumber, octave) => {
     const noteLetter = getNoteLetter("C", noteNumber)
-    console.log(
-      `You've clicked note: ${pianoIndex} - ${octave} - ${noteLetter}`
-    )
+    console.log(`You've clicked note: ${pianoId} - ${octave} - ${noteLetter}`)
 
     var selectedKey = {}
     selectedKey.noteLetter = noteLetter
     selectedKey.noteOctave = octave
     dispatch({
       type: "UPDATE_KEY",
-      index: pianoIndex,
+      id: pianoId,
       payload: selectedKey
     })
   }
 
+  const handleClickRemovePiano = () => {
+    dispatch({
+      type: "REMOVE_PIANO",
+      id: pianoId
+    })
+  }
+
   const renderPiano = () => {
-    let piano = state.chordPianoSet[pianoIndex].piano
+    let piano = getPianoById(state, pianoId).piano
     console.log(piano)
     return piano.map((octave, i) => {
       return octave.map((pianoKey) => {
@@ -45,6 +50,14 @@ export const PianoComponent = ({ index }) => {
   return (
     <>
       <div className="pianoBox">
+        <button
+          type="button"
+          class="close pianoCloseButton"
+          aria-label="Close"
+          onClick={() => handleClickRemovePiano()}
+        >
+          <span aria-hidden="true">&times;</span>
+        </button>
         <ul className="set">{renderPiano()}</ul>
       </div>
     </>
@@ -52,5 +65,5 @@ export const PianoComponent = ({ index }) => {
 }
 
 PianoComponent.propTypes = {
-  index: PropTypes.object.isRequired
+  pianoComponentId: PropTypes.object.isRequired
 }

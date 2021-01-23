@@ -3,7 +3,9 @@ import { getNoteLetter } from "./noteManager"
 export const chordMap = {
   "": [0, 4, 7],
   m: [0, 3, 7],
+  m6: [0, 3, 7, 9],
   m7: [0, 3, 6, 10],
+  m9: [0, 3, 7, 10, 14],
   maj7: [0, 4, 7, 11],
   6: [0, 4, 7, 9],
   5: [0, 7],
