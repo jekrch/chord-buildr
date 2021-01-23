@@ -36,11 +36,13 @@ export const ChordInput = ({ pianoComponentId, history }) => {
       chordPiano,
       dispatch
     )
+  }, [chordPiano.selectedKey])
 
+  useEffect(() => {
     urlHistory.push({
       search: "?prog=" + getProgressionCode(state)
     })
-  }, [chordPiano.selectedKey])
+  }, [chordPiano])
 
   // processes new key selections
   const handleKeySelectChange = (e) => {
@@ -62,10 +64,6 @@ export const ChordInput = ({ pianoComponentId, history }) => {
       chordPiano,
       dispatch
     )
-
-    urlHistory.push({
-      search: "?prog=" + getProgressionCode(state)
-    })
   }
 
   // processes new chord type selections
@@ -76,10 +74,6 @@ export const ChordInput = ({ pianoComponentId, history }) => {
     var noteLetter = chordPiano.selectedKey.noteLetter
 
     selectChordKeys(chordPiano.id, null, noteLetter, type, chordPiano, dispatch)
-
-    urlHistory.push({
-      search: "?prog=" + getProgressionCode(state)
-    })
 
     return
   }

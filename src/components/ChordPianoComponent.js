@@ -18,6 +18,7 @@ export const ChordPianoComponent = ({ pianoComponentId, history }) => {
             <PianoComponent
               class="pianoBox"
               pianoComponentId={pianoComponentId}
+              history={history}
             />
           </div>
         </div>
