@@ -3,12 +3,17 @@ import Form from "react-bootstrap/Form"
 import { noteLetterMapWithSharps, getNoteNumber } from "../utils/noteManager"
 import { clearPianoSelections } from "../utils/pianoHelper"
 import { chordMap, getNoteNumberChord } from "../utils/chordManager"
-import { AppContext, getPianoById } from "../components/context/AppContext"
+import {
+  AppContext,
+  getPianoById,
+  getProgressionCode
+} from "../components/context/AppContext"
 import PropTypes from "prop-types"
 
-export const ChordInput = ({ pianoComponentId }) => {
+export const ChordInput = ({ pianoComponentId, history }) => {
   const { state, dispatch } = useContext(AppContext)
 
+  const urlHistory = history
   const chordPiano = getPianoById(state, pianoComponentId)
   var selectedValue = chordPiano.selectedKey.noteLetter
   var type = ""
@@ -31,6 +36,10 @@ export const ChordInput = ({ pianoComponentId }) => {
       chordPiano,
       dispatch
     )
+
+    urlHistory.push({
+      search: "?prog=" + getProgressionCode(state)
+    })
   }, [chordPiano.selectedKey])
 
   // processes new key selections
@@ -53,6 +62,10 @@ export const ChordInput = ({ pianoComponentId }) => {
       chordPiano,
       dispatch
     )
+
+    urlHistory.push({
+      search: "?prog=" + getProgressionCode(state)
+    })
   }
 
   // processes new chord type selections
@@ -63,6 +76,10 @@ export const ChordInput = ({ pianoComponentId }) => {
     var noteLetter = chordPiano.selectedKey.noteLetter
 
     selectChordKeys(chordPiano.id, null, noteLetter, type, chordPiano, dispatch)
+
+    urlHistory.push({
+      search: "?prog=" + getProgressionCode(state)
+    })
 
     return
   }
@@ -196,5 +213,6 @@ function selectNote(id, octave, noteNumber, state, dispatch) {
 }
 
 ChordInput.propTypes = {
-  pianoComponentId: PropTypes.object.isRequired
+  pianoComponentId: PropTypes.object.isRequired,
+  history: PropTypes.object.isRequired
 }

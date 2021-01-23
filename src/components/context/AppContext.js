@@ -21,6 +21,22 @@ export function getPianoById(state, pianoId) {
   return null
 }
 
+export function getProgressionCode(state) {
+  var code = ""
+  for (let i = 0; i < state.chordPianoSet.length; i++) {
+    var chordPiano = state.chordPianoSet[i]
+    var selectedChord = chordPiano.selectedChord
+
+    if (!selectedChord) continue
+
+    code += "(" + selectedChord.noteLetter + ";"
+    code += "" + selectedChord.type + ";"
+    code += "" + selectedChord.octave + ");"
+  }
+
+  return code
+}
+
 function getChordPiano(pianoId) {
   var chordPiano = {
     id: pianoId,
