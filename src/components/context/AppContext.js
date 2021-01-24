@@ -29,9 +29,8 @@ export function getProgressionCode(state) {
 
     if (!selectedChord) continue
 
-    code += "(" + selectedChord.noteLetter + ";"
-    code += "" + selectedChord.type + ";"
-    code += "" + selectedChord.octave + ");"
+    code += "(" + selectedChord.octave + selectedChord.noteLetter
+    code += selectedChord.type + ")"
   }
 
   return code
