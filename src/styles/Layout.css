@@ -1,4 +1,9 @@
 header {
-    margin-bottom: 1em;
-    margin-left: 4em;
+  margin-bottom: 1em;
+  margin-left: 4em;
+  position: sticky;
+  top: 0;
+  width: 100%;
+  background-color: rgb(44, 43, 43);
+  z-index: 9999;
 }
