@@ -1,18 +1,13 @@
 import React, { useContext, useEffect } from "react"
 import "../styles/Piano.css"
 import { Key } from "./Key"
-import {
-  AppContext,
-  getPianoById,
-  getProgressionCode
-} from "../components/context/AppContext"
+import { AppContext, getPianoById } from "../components/context/AppContext"
 import { getNoteLetter } from "../utils/noteManager"
 import PropTypes from "prop-types"
 
-export const PianoComponent = ({ pianoComponentId, history }) => {
+export const PianoComponent = ({ pianoComponentId }) => {
   const { state, dispatch } = useContext(AppContext)
   const pianoId = pianoComponentId
-  const urlHistory = history
   const handleClick = (note, noteNumber, octave) => {
     const noteLetter = getNoteLetter("C", noteNumber)
     console.log(`You've clicked note: ${pianoId} - ${octave} - ${noteLetter}`)
@@ -34,11 +29,11 @@ export const PianoComponent = ({ pianoComponentId, history }) => {
     })
   }
 
-  useEffect(() => {
-    urlHistory.push({
-      search: "?prog=" + getProgressionCode(state)
-    })
-  }, [state, urlHistory])
+  // useEffect(() => {
+  //   urlHistory.push({
+  //     search: "?prog=" + getProgressionCode(state)
+  //   })
+  // }, [state, urlHistory])
 
   const renderPiano = () => {
     let piano = getPianoById(state, pianoId).piano
@@ -76,6 +71,5 @@ export const PianoComponent = ({ pianoComponentId, history }) => {
 }
 
 PianoComponent.propTypes = {
-  pianoComponentId: PropTypes.number.isRequired,
-  history: PropTypes.object.isRequired
+  pianoComponentId: PropTypes.number.isRequired
 }

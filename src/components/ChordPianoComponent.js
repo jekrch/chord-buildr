@@ -4,7 +4,7 @@ import { PianoComponent } from "./PianoComponent"
 import { ChordInput } from "./ChordInput"
 import PropTypes from "prop-types"
 
-export const ChordPianoComponent = ({ pianoComponentId, history }) => {
+export const ChordPianoComponent = ({ pianoComponentId }) => {
   return (
     <>
       <div className="container chordPiano">
@@ -13,13 +13,11 @@ export const ChordPianoComponent = ({ pianoComponentId, history }) => {
             <ChordInput
               className="chordBox"
               pianoComponentId={pianoComponentId}
-              history={history}
             />
             <PianoComponent
               key={Number(pianoComponentId)}
               className="pianoBox"
               pianoComponentId={Number(pianoComponentId)}
-              history={history}
             />
           </div>
         </div>
@@ -29,6 +27,5 @@ export const ChordPianoComponent = ({ pianoComponentId, history }) => {
 }
 
 ChordPianoComponent.propTypes = {
-  pianoComponentId: PropTypes.number.isRequired,
-  history: PropTypes.object.isRequired
+  pianoComponentId: PropTypes.number.isRequired
 }

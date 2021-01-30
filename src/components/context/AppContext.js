@@ -5,6 +5,8 @@ import { pianoGenerator } from "../../utils/pianoHelper"
 export const STATE_NAME = "PIANO_STATE"
 
 const initialState = {
+  history: null,
+  building: false,
   chordPianoSet: [getChordPiano(0)]
 }
 
@@ -21,6 +23,59 @@ export function getPianoById(state, pianoId) {
   return null
 }
 
+export function buildProgFromCode(state, code) {
+  if (state.building) return
+
+  var chordArray = code.replace(")", "").split("(")
+
+  var chordPianoSet = []
+
+  state.building = true
+
+  for (let i = 0; i < chordArray.length; i++) {
+    var chordCode = chordArray[i]
+
+    if (chordCode === "") continue
+
+    console.log(chordCode)
+
+    var octave = chordCode.substring(0, 1)
+    var chord = getChordFromCode(chordCode)
+
+    var chordPiano = {
+      id: i,
+      piano: pianoGenerator(),
+      selectedKey: { noteLetter: chord.noteLetter, noteOctave: octave },
+      selectedChord: {
+        noteLetter: chord.noteLetter,
+        type: chord.type,
+        octave: octave
+      }
+    }
+
+    chordPianoSet.push(chordPiano)
+  }
+
+  state.chordPianoSet = chordPianoSet
+  state.building = false
+  updateUrlProgressionCode(state)
+
+  return state
+}
+
+function getChordFromCode(chordCode) {
+  var chord = {}
+
+  if (chordCode.substring(2, 3) === "#") {
+    chord.noteLetter = chordCode.substring(1, 3)
+    chord.type = chordCode.substring(3).replace(")", "")
+  } else {
+    chord.noteLetter = chordCode.substring(1, 2)
+    chord.type = chordCode.substring(2).replace(")", "")
+  }
+  return chord
+}
+
 export function getProgressionCode(state) {
   var code = ""
   for (let i = 0; i < state.chordPianoSet.length; i++) {
@@ -34,6 +89,14 @@ export function getProgressionCode(state) {
   }
 
   return code
+}
+
+export function updateUrlProgressionCode(state) {
+  if (state.building) return
+
+  state.history.push({
+    search: "?prog=" + getProgressionCode(state)
+  })
 }
 
 function getChordPiano(pianoId) {
@@ -75,52 +138,93 @@ const appReducer = (state, action) => {
   switch (action.type) {
     case "UPDATE_PIANO":
       console.log(action.payload)
+
+      state.chordPianoSet = state.chordPianoSet.map((chordPiano) =>
+        chordPiano.id === pianoid
+          ? { ...chordPiano, piano: action.payload }
+          : chordPiano
+      )
+
+      updateUrlProgressionCode(state)
+
       return {
         ...state,
-        chordPianoSet: state.chordPianoSet.map((chordPiano) =>
-          chordPiano.id === pianoid
-            ? { ...chordPiano, piano: action.payload }
-            : chordPiano
-        )
+        chordPianoSet: state.chordPianoSet
       }
 
     case "UPDATE_KEY":
       console.log(action.payload)
+
+      state.chordPianoSet = state.chordPianoSet.map((chordPiano) =>
+        chordPiano.id === pianoid
+          ? { ...chordPiano, selectedKey: action.payload }
+          : chordPiano
+      )
+
+      updateUrlProgressionCode(state)
+
       return {
         ...state,
-        chordPianoSet: state.chordPianoSet.map((chordPiano) =>
-          chordPiano.id === pianoid
-            ? { ...chordPiano, selectedKey: action.payload }
-            : chordPiano
-        )
+        chordPianoSet: state.chordPianoSet
       }
 
     case "UPDATE_CHORD":
       console.log(action.payload)
+
+      state.chordPianoSet = state.chordPianoSet.map((chordPiano) =>
+        chordPiano.id === pianoid
+          ? { ...chordPiano, selectedChord: action.payload }
+          : chordPiano
+      )
+
+      updateUrlProgressionCode(state)
+
       return {
         ...state,
-        chordPianoSet: state.chordPianoSet.map((chordPiano) =>
-          chordPiano.id === pianoid
-            ? { ...chordPiano, selectedChord: action.payload }
-            : chordPiano
-        )
+        chordPianoSet: state.chordPianoSet
       }
 
     case "ADD_CHORD_PIANO":
-      var nextChordPianoid = getNextId(state) //state.chordPianoSet.length
-      return {
-        ...state,
-        chordPianoSet: state.chordPianoSet.concat(
+      if (action.payload !== null) {
+        action.payload = null
+        var nextChordPianoid = getNextId(state)
+
+        state.chordPianoSet = state.chordPianoSet.concat(
           getChordPiano(nextChordPianoid)
         )
+
+        updateUrlProgressionCode(state)
+      }
+
+      return {
+        ...state,
+        chordPianoSet: state.chordPianoSet
       }
 
     case "REMOVE_PIANO":
+      state.chordPianoSet = state.chordPianoSet.filter(
+        (item) => item.id !== action.id
+      )
+
+      updateUrlProgressionCode(state)
+
       return {
         ...state,
-        chordPianoSet: state.chordPianoSet.filter(
-          (item) => item.id !== action.id
-        )
+        chordPianoSet: state.chordPianoSet
+      }
+
+    case "BUILD_PROG_FROM_CODE":
+      if (action.payload !== null) {
+        var code = action.payload
+
+        action.payload = null
+
+        state = buildProgFromCode(state, code)
+      }
+
+      return {
+        ...state,
+        chordPianoSet: state.chordPianoSet
       }
 
     default:
