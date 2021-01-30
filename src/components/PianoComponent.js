@@ -38,7 +38,7 @@ export const PianoComponent = ({ pianoComponentId, history }) => {
     urlHistory.push({
       search: "?prog=" + getProgressionCode(state)
     })
-  }, [state])
+  }, [state, urlHistory])
 
   const renderPiano = () => {
     let piano = getPianoById(state, pianoId).piano
@@ -63,7 +63,7 @@ export const PianoComponent = ({ pianoComponentId, history }) => {
       <div className="pianoBox">
         <button
           type="button"
-          class="close pianoCloseButton"
+          className="close pianoCloseButton"
           aria-label="Close"
           onClick={() => handleClickRemovePiano()}
         >
@@ -76,6 +76,6 @@ export const PianoComponent = ({ pianoComponentId, history }) => {
 }
 
 PianoComponent.propTypes = {
-  pianoComponentId: PropTypes.object.isRequired,
+  pianoComponentId: PropTypes.number.isRequired,
   history: PropTypes.object.isRequired
 }

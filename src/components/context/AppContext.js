@@ -13,7 +13,7 @@ const initialState = {
  */
 export function getPianoById(state, pianoId) {
   var chordPianoResults = state.chordPianoSet.filter(
-    (chordPiano) => chordPiano.id == pianoId
+    (chordPiano) => chordPiano.id === pianoId
   )
 
   if (chordPianoResults.length > 0) return chordPianoResults[0]
@@ -56,7 +56,7 @@ function getNextId(state) {
     ...state.chordPianoSet.map((chordPiano) => chordPiano.id)
   )
 
-  if (nextId == null || nextId == -Infinity) return 0
+  if (nextId === null || nextId === -Infinity) return 0
 
   return nextId + 1
 }

@@ -10,11 +10,11 @@ export const App = () => {
   return (
     <div className="App">
       <AppProvider>
-        <div class="container">
+        <div className="container">
           <Router>
-            <HeaderComponent class="row" />
+            <HeaderComponent className="row" />
             <Switch>
-              <Route exact path="/" component={PianoBoardComponent}/>
+              <Route exact path="/" component={PianoBoardComponent} />
             </Switch>
           </Router>
         </div>

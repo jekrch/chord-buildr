@@ -1,4 +1,4 @@
-import { React, useContext, useEffect } from "react"
+import { React, useContext, useEffect, useRef } from "react"
 import Form from "react-bootstrap/Form"
 import { noteLetterMapWithSharps, getNoteNumber } from "../utils/noteManager"
 import { clearPianoSelections } from "../utils/pianoHelper"
@@ -13,42 +13,45 @@ import PropTypes from "prop-types"
 export const ChordInput = ({ pianoComponentId, history }) => {
   const { state, dispatch } = useContext(AppContext)
 
+  const chordRef = useRef({ selectedValue: null, type: null })
+
   const urlHistory = history
-  const chordPiano = getPianoById(state, pianoComponentId)
-  var selectedValue = chordPiano.selectedKey.noteLetter
-  var type = ""
+  var chordPiano = getPianoById(state, pianoComponentId)
+  chordRef.current.selectedValue = chordPiano.selectedKey.noteLetter
+  chordRef.current.type = chordPiano.selectedChord.type
 
   // triggers whenever the user selects a new key
   useEffect(() => {
     console.log(chordPiano)
     console.log("UseEffect rendered: " + chordPiano.selectedKey.noteLetter)
 
-    selectedValue = chordPiano.selectedKey.noteLetter
+    chordRef.current.selectedValue = chordPiano.selectedKey.noteLetter
+    chordRef.current.type = chordPiano.selectedChord.type
     var selectedOctave = chordPiano.selectedKey.noteOctave
 
-    if (selectedOctave == null) selectedOctave = 0
+    if (selectedOctave === null) selectedOctave = 0
 
     selectChordKeys(
       chordPiano.id,
       selectedOctave,
-      selectedValue,
+      chordRef.current.selectedValue,
       chordPiano.selectedChord.type,
       chordPiano,
       dispatch
     )
-  }, [chordPiano.selectedKey])
+  }, [chordPiano, dispatch])
 
   useEffect(() => {
     urlHistory.push({
       search: "?prog=" + getProgressionCode(state)
     })
-  }, [chordPiano])
+  }, [chordPiano, state, urlHistory])
 
   // processes new key selections
   const handleKeySelectChange = (e) => {
     var noteLetter = e.target.value
 
-    if (noteLetter == null) return
+    if (noteLetter === null) return
 
     dispatch({
       type: "UPDATE_KEY",
@@ -68,12 +71,19 @@ export const ChordInput = ({ pianoComponentId, history }) => {
 
   // processes new chord type selections
   const handleTypeSelectChange = (e) => {
-    type = e.target.value
+    chordRef.current.type = e.target.value
     console.log(e.target.value)
 
     var noteLetter = chordPiano.selectedKey.noteLetter
 
-    selectChordKeys(chordPiano.id, null, noteLetter, type, chordPiano, dispatch)
+    selectChordKeys(
+      chordPiano.id,
+      null,
+      noteLetter,
+      chordRef.current.type,
+      chordPiano,
+      dispatch
+    )
 
     return
   }
@@ -87,8 +97,7 @@ export const ChordInput = ({ pianoComponentId, history }) => {
         <div className="chordInputSelection">
           <Form.Control
             as="select"
-            value={selectedValue}
-            defaultValue="C"
+            value={chordRef.current.selectedValue}
             custom
             className="selectorBox"
             onChange={(e) => handleKeySelectChange(e)}
@@ -106,7 +115,7 @@ export const ChordInput = ({ pianoComponentId, history }) => {
           <Form.Control
             className="selectorBox"
             as="select"
-            defaultValue=""
+            value={chordRef.current.type}
             custom
             onChange={(e) => handleTypeSelectChange(e)}
           >
@@ -128,7 +137,7 @@ function selectChordKeys(id, octave, noteLetter, type, chordPiano, dispatch) {
   var selectedChord = chordPiano.selectedChord
 
   // if not ocatave is provided, use the currently selected octave
-  if (octave == null) octave = selectedChord.octave
+  if (octave === null) octave = selectedChord.octave
 
   // don't select the same chord multiple times
   if (chordIsAlreadySelected(selectedChord, type, noteLetter, octave)) return
@@ -139,9 +148,15 @@ function selectChordKeys(id, octave, noteLetter, type, chordPiano, dispatch) {
   clearPianoSelections(chordPiano.piano)
 
   for (let i = 0; i < chordNoteNumbers.length; i++) {
-    var noteNumber = chordNoteNumbers[i]
-    console.log(noteNumber)
-    noteNumber = selectNote(id, octave, noteNumber, chordPiano, dispatch)
+    var chordNoteNumber = chordNoteNumbers[i]
+    console.log(chordNoteNumber)
+    chordNoteNumber = selectNote(
+      id,
+      octave,
+      chordNoteNumber,
+      chordPiano,
+      dispatch
+    )
   }
 
   updateSelectedChord(id, selectedChord, noteLetter, type, octave, dispatch)
@@ -155,14 +170,14 @@ function updateSelectedChord(
   octave,
   dispatch
 ) {
-  var selectedChord = {
+  var newSelectedChord = {
     noteLetter: noteLetter,
     type: type,
     octave: octave
   }
 
-  dispatch({ type: "UPDATE_CHORD", id: id, payload: selectedChord })
-  return selectedChord
+  dispatch({ type: "UPDATE_CHORD", id: id, payload: newSelectedChord })
+  return newSelectedChord
 }
 
 /**
@@ -175,10 +190,10 @@ function updateSelectedChord(
  */
 function chordIsAlreadySelected(selectedChord, type, letter, octave) {
   return (
-    selectedChord != null &&
-    selectedChord.type == type &&
-    selectedChord.noteLetter == letter &&
-    selectedChord.octave == octave
+    selectedChord !== null &&
+    selectedChord.type === type &&
+    selectedChord.noteLetter === letter &&
+    selectedChord.octave === octave
   )
 }
 
@@ -189,7 +204,7 @@ function selectNote(id, octave, noteNumber, state, dispatch) {
   while (noteNumber > 12) {
     noteNumber = noteNumber - 12
 
-    if (octave != 2) octave++
+    if (octave !== 2) octave++
   }
 
   var noteKey = pianoControl[octave][noteNumber - 1]
@@ -207,6 +222,6 @@ function selectNote(id, octave, noteNumber, state, dispatch) {
 }
 
 ChordInput.propTypes = {
-  pianoComponentId: PropTypes.object.isRequired,
+  pianoComponentId: PropTypes.number.isRequired,
   history: PropTypes.object.isRequired
 }

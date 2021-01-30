@@ -1,4 +1,4 @@
-import React, { useContext } from "react"
+import React from "react"
 import "../styles/Piano.css"
 import { PianoComponent } from "./PianoComponent"
 import { ChordInput } from "./ChordInput"
@@ -7,17 +7,18 @@ import PropTypes from "prop-types"
 export const ChordPianoComponent = ({ pianoComponentId, history }) => {
   return (
     <>
-      <div class="container chordPiano">
-        <div class="contentBox row">
-          <div class="pianoChordBox">
+      <div className="container chordPiano">
+        <div className="contentBox row">
+          <div className="pianoChordBox">
             <ChordInput
-              class="chordBox"
+              className="chordBox"
               pianoComponentId={pianoComponentId}
               history={history}
             />
             <PianoComponent
-              class="pianoBox"
-              pianoComponentId={pianoComponentId}
+              key={Number(pianoComponentId)}
+              className="pianoBox"
+              pianoComponentId={Number(pianoComponentId)}
               history={history}
             />
           </div>
@@ -28,6 +29,6 @@ export const ChordPianoComponent = ({ pianoComponentId, history }) => {
 }
 
 ChordPianoComponent.propTypes = {
-  pianoComponentId: PropTypes.object.isRequired,
+  pianoComponentId: PropTypes.number.isRequired,
   history: PropTypes.object.isRequired
 }

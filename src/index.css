@@ -32,7 +32,7 @@ code {
 }
 
 .chordInputSelection {
-  width: 6.0em;
+  width: 6.2em;
   height: 50px;
   margin-left: 0em;
   margin-top: 1em;
@@ -41,7 +41,6 @@ code {
 .pianoChordBox {
   top: 1em;
   height: 250px;
-  margin-right: 3em;
 }
 
 .selectorBox{

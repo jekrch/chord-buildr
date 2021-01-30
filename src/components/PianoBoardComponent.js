@@ -1,9 +1,6 @@
 import React, { useContext } from "react"
 import "../styles/Piano.css"
-import {
-  AppContext,
-  getProgressionCode
-} from "../components/context/AppContext"
+import { AppContext } from "../components/context/AppContext"
 import { ChordPianoComponent } from "../components/ChordPianoComponent"
 import Button from "react-bootstrap/Button"
 import PropTypes from "prop-types"
@@ -24,8 +21,9 @@ export const PianoBoardComponent = ({ history }) => {
   const renderChordPianoSet = () => {
     return state.chordPianoSet.map((chordPiano) => (
       <ChordPianoComponent
+        key={Number(chordPiano.id)}
         class="row"
-        pianoComponentId={chordPiano.id}
+        pianoComponentId={Number(chordPiano.id)}
         history={history}
       />
     ))
