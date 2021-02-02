@@ -1,73 +1,77 @@
+.btn-main {
+	margin-top: 1em;
+}
+
 .set {
-  display: flex;
-  justify-content: center;
-  margin: 0 0 0 0;
-  margin-right: 0.5em;
+	display: flex;
+	justify-content: center;
+	margin: 0 0 0 0;
+	margin-right: 0.5em;
 }
 
 ul {
-  height: auto;
-  width: auto;
-  margin: 1em auto;
-  padding: 1em 1em 1em 1em;
-  position: relative;
+	height: auto;
+	width: auto;
+	margin: 1em auto;
+	padding: 1em 1em 1em 1em;
+	position: relative;
 }
 
 li {
-  margin: 0;
-  padding: 0;
-  list-style: none;
-  position: relative;
-  float: left;
+	margin: 0;
+	padding: 0;
+	list-style: none;
+	position: relative;
+	float: left;
 }
 
 ul .white {
-  height: 9.2em;
-  width: 2.4em;
-  z-index: 1;
-  border-left: 1px solid #bbb;
-  border-bottom: 1px solid #bbb;
-  border-radius: 0 0 5px 5px;
-  box-shadow: -1px 0 0 rgba(255, 255, 255, 0.8) inset, 0 0 5px #ccc inset,
-    0 0 3px rgba(0, 0, 0, 0.2);
-  background: linear-gradient(to bottom, #eee 0%, #fff 100%);
+	height: 9.2em;
+	width: 2.4em;
+	z-index: 1;
+	border-left: 1px solid #bbb;
+	border-bottom: 1px solid #bbb;
+	border-radius: 0 0 5px 5px;
+	box-shadow: -1px 0 0 rgba(255, 255, 255, 0.8) inset, 0 0 5px #ccc inset,
+		0 0 3px rgba(0, 0, 0, 0.2);
+	background: linear-gradient(to bottom, #eee 0%, #fff 100%);
 }
 
 ul .white:active {
-  border-top: 1px solid #777;
-  border-left: 1px solid #999;
-  border-bottom: 1px solid #999;
-  box-shadow: 2px 0 3px rgba(0, 0, 0, 0.1) inset,
-    -5px 5px 20px rgba(0, 0, 0, 0.2) inset, 0 0 3px rgba(0, 0, 0, 0.2);
-  background: linear-gradient(to bottom, #fff 0%, #e9e9e9 100%);
+	border-top: 1px solid #777;
+	border-left: 1px solid #999;
+	border-bottom: 1px solid #999;
+	box-shadow: 2px 0 3px rgba(0, 0, 0, 0.1) inset,
+		-5px 5px 20px rgba(0, 0, 0, 0.2) inset, 0 0 3px rgba(0, 0, 0, 0.2);
+	background: linear-gradient(to bottom, #fff 0%, #e9e9e9 100%);
 }
 
 .white[key-selected="true"] {
-  background: #007bff;
-  /* transition: 0.1s; */
+	background: #007bff;
+	/* transition: 0.1s; */
 }
 
 .black[key-selected="true"] {
-  background: #007bff;
-  /* transition: 0.1s; */
+	background: #007bff;
+	/* transition: 0.1s; */
 }
 
 .black {
-  height: 5em;
-  width: 1.5em;
-  margin: 0 0 0 -1em;
-  z-index: 2;
-  border: 1px solid #000;
-  border-radius: 0 0 3px 3px;
-  box-shadow: -1px -1px 2px rgba(255, 255, 255, 0.2) inset,
-    0 -5px 2px 3px rgba(0, 0, 0, 0.6) inset, 0 2px 4px rgba(0, 0, 0, 0.5);
-  background: linear-gradient(45deg, #222 0%, #555 100%);
+	height: 5em;
+	width: 1.5em;
+	margin: 0 0 0 -1em;
+	z-index: 2;
+	border: 1px solid #000;
+	border-radius: 0 0 3px 3px;
+	box-shadow: -1px -1px 2px rgba(255, 255, 255, 0.2) inset,
+		0 -5px 2px 3px rgba(0, 0, 0, 0.6) inset, 0 2px 4px rgba(0, 0, 0, 0.5);
+	background: linear-gradient(45deg, #222 0%, #555 100%);
 }
 
 .black:active {
-  box-shadow: -1px -1px 2px rgba(255, 255, 255, 0.2) inset,
-    0 -2px 2px 3px rgba(0, 0, 0, 0.6) inset, 0 1px 2px rgba(0, 0, 0, 0.5);
-  background: linear-gradient(to right, #444 0%, #222 100%);
+	box-shadow: -1px -1px 2px rgba(255, 255, 255, 0.2) inset,
+		0 -2px 2px 3px rgba(0, 0, 0, 0.6) inset, 0 1px 2px rgba(0, 0, 0, 0.5);
+	background: linear-gradient(to right, #444 0%, #222 100%);
 }
 
 .a,
@@ -75,34 +79,34 @@ ul .white:active {
 .g,
 .d,
 .e {
-  margin: 0 0 0 -1em;
+	margin: 0 0 0 -1em;
 }
 
 ul li:first-child {
-  border-radius: 5px 0 5px 5px;
+	border-radius: 5px 0 5px 5px;
 }
 
 ul li:last-child {
-  border-radius: 0 5px 5px 5px;
+	border-radius: 0 5px 5px 5px;
 }
 
 .pianoCloseButton {
-  position: relative;
-  margin-right: -0.5em;
-  margin-left: 0.2em;
-  z-index: 3;
-  float: left;
-  /* background-color: black !important; */
-  color: white;
-  border-width: 0 !important;
-  border: none !important;
-  outline: none !important;
+	position: relative;
+	margin-right: -0.5em;
+	margin-left: 0.2em;
+	z-index: 3;
+	float: left;
+	/* background-color: black !important; */
+	color: white;
+	border-width: 0 !important;
+	border: none !important;
+	outline: none !important;
 }
 
 .pianoCloseButton:hover {
-  color: rgb(204, 146, 146);
+	color: rgb(204, 146, 146);
 }
 
 .pianoCloseButton:active {
-  color: rgb(129, 93, 93);
+	color: rgb(129, 93, 93);
 }

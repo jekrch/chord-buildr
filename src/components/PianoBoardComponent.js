@@ -36,7 +36,7 @@ export const PianoBoardComponent = ({ history }) => {
     return state.chordPianoSet.map((chordPiano) => (
       <ChordPianoComponent
         key={Number(chordPiano.id)}
-        class="row"
+        className="row"
         pianoComponentId={Number(chordPiano.id)}
         history={history}
       />
@@ -45,7 +45,7 @@ export const PianoBoardComponent = ({ history }) => {
 
   return (
     <>
-      <Button variant="primary" onClick={() => handleClickAddChord()}>
+      <Button variant="primary" className="btn-main" onClick={() => handleClickAddChord()}>
         Add Chord
       </Button>
       {renderChordPianoSet()}
