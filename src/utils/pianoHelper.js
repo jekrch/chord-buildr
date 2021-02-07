@@ -1,50 +1,50 @@
 const pianoKeys = [
   {
-    note: "c",
+    note: "C",
     color: "white"
   },
   {
-    note: "cs",
+    note: "C#",
     color: "black"
   },
   {
-    note: "d",
+    note: "D",
     color: "white"
   },
   {
-    note: "ds",
+    note: "D#",
     color: "black"
   },
   {
-    note: "e",
+    note: "E",
     color: "white"
   },
   {
-    note: "f",
+    note: "F",
     color: "white"
   },
   {
-    note: "fs",
+    note: "F#",
     color: "black"
   },
   {
-    note: "g",
+    note: "G",
     color: "white"
   },
   {
-    note: "gs",
+    note: "G#",
     color: "black"
   },
   {
-    note: "a",
+    note: "A",
     color: "white"
   },
   {
-    note: "as",
+    note: "A#",
     color: "black"
   },
   {
-    note: "b",
+    note: "B",
     color: "white"
   }
 ]

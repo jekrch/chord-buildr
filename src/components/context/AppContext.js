@@ -1,6 +1,10 @@
 import React, { useReducer, createContext, useEffect } from "react"
 import PropTypes from "prop-types"
 import { pianoGenerator } from "../../utils/pianoHelper"
+import {
+  getProgressionCode,
+  getChordFromCode
+} from "../../utils/chordCodeHandler"
 
 export const STATE_NAME = "PIANO_STATE"
 
@@ -39,17 +43,31 @@ export function buildProgFromCode(state, code) {
 
     console.log(chordCode)
 
-    var octave = chordCode.substring(0, 1)
     var chord = getChordFromCode(chordCode)
+    var chordPiano
 
-    var chordPiano = {
-      id: i,
-      piano: pianoGenerator(),
-      selectedKey: { noteLetter: chord.noteLetter, noteOctave: octave },
-      selectedChord: {
-        noteLetter: chord.noteLetter,
-        type: chord.type,
-        octave: octave
+    if (chord !== undefined) {
+      chordPiano = {
+        id: i,
+        piano: pianoGenerator(),
+        selectedKey: { noteLetter: chord.noteLetter, noteOctave: chord.octave },
+        selectedChord: {
+          noteLetter: chord.noteLetter,
+          type: chord.type,
+          octave: chord.octave
+        }
+      }
+    } else {
+      chordPiano = {
+        id: i,
+        piano: pianoGenerator(),
+        selectedKey: { noteLetter: "C", noteOctave: 0 },
+        selectedChord: {
+          noteLetter: "C",
+          type: "x",
+          octave: 0,
+          invalidCode: chordCode
+        }
       }
     }
 
@@ -61,34 +79,6 @@ export function buildProgFromCode(state, code) {
   updateUrlProgressionCode(state)
 
   return state
-}
-
-function getChordFromCode(chordCode) {
-  var chord = {}
-
-  if (chordCode.substring(2, 3) === "#") {
-    chord.noteLetter = chordCode.substring(1, 3)
-    chord.type = chordCode.substring(3).replace(")", "")
-  } else {
-    chord.noteLetter = chordCode.substring(1, 2)
-    chord.type = chordCode.substring(2).replace(")", "")
-  }
-  return chord
-}
-
-export function getProgressionCode(state) {
-  var code = ""
-  for (let i = 0; i < state.chordPianoSet.length; i++) {
-    var chordPiano = state.chordPianoSet[i]
-    var selectedChord = chordPiano.selectedChord
-
-    if (!selectedChord) continue
-
-    code += "(" + selectedChord.octave + selectedChord.noteLetter
-    code += selectedChord.type + ")"
-  }
-
-  return code
 }
 
 export function updateUrlProgressionCode(state) {

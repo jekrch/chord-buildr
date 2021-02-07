@@ -1,9 +1,7 @@
 import React, { useContext } from "react"
 import "../styles/Piano.css"
-import {
-  AppContext,
-  getProgressionCode
-} from "../components/context/AppContext"
+import { AppContext } from "../components/context/AppContext"
+import { getProgressionCode } from "../utils/chordCodeHandler"
 import { ChordPianoComponent } from "../components/ChordPianoComponent"
 import Button from "react-bootstrap/Button"
 import PropTypes from "prop-types"
