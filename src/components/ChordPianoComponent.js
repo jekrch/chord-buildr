@@ -11,6 +11,7 @@ export const ChordPianoComponent = ({ pianoComponentId }) => {
         <div className="contentBox row">
           <div className="pianoChordBox">
             <ChordInput
+              // key={`c-${pianoComponentId}`}
               className="chordBox"
               pianoComponentId={pianoComponentId}
             />

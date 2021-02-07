@@ -1,4 +1,4 @@
-import React, { useContext, useEffect } from "react"
+import React, { useContext } from "react"
 import "../styles/Piano.css"
 import { Key } from "./Key"
 import { AppContext, getPianoById } from "../components/context/AppContext"
@@ -28,12 +28,6 @@ export const PianoComponent = ({ pianoComponentId }) => {
       id: pianoId
     })
   }
-
-  // useEffect(() => {
-  //   urlHistory.push({
-  //     search: "?prog=" + getProgressionCode(state)
-  //   })
-  // }, [state, urlHistory])
 
   const renderPiano = () => {
     let piano = getPianoById(state, pianoId).piano

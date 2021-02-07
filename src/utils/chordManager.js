@@ -26,7 +26,12 @@ export const chordMap = {
   m11: [0, 3, 7, 10, 14, 17],
   "7#5": [0, 4, 8, 10],
   maj13: [0, 4, 7, 11, 14, 21],
-  "+": [0, 4, 8]
+  "+": [0, 4, 8],
+  x: [0]
+}
+
+export const isValidChordType = (type) => {
+  return chordMap[type] != undefined
 }
 
 // returns the note numbers for the specified chord (1, 5, 8)
