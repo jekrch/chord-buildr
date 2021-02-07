@@ -4,6 +4,7 @@ import { noteLetterMapWithSharps, getNoteNumber } from "../utils/noteManager"
 import { clearPianoSelections } from "../utils/pianoHelper"
 import { chordMap, getNoteNumberChord } from "../utils/chordManager"
 import { AppContext, getPianoById } from "../components/context/AppContext"
+//import { playPiano } from "../utils/synthPlayer"
 import PropTypes from "prop-types"
 
 export const ChordInput = ({ pianoComponentId }) => {
@@ -133,6 +134,7 @@ function selectChordKeysWithType(chordPiano, type, dispatch) {
   }
 
   updateSelectedChord(chordPiano.id, noteLetter, type, octave, dispatch)
+  //playPiano(chordPiano)
 }
 
 function updateSelectedChord(id, noteLetter, type, octave, dispatch) {
@@ -143,6 +145,7 @@ function updateSelectedChord(id, noteLetter, type, octave, dispatch) {
   }
 
   dispatch({ type: "UPDATE_CHORD", id: id, payload: newSelectedChord })
+
   return newSelectedChord
 }
 
