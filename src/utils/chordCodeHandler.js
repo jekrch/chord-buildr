@@ -19,12 +19,14 @@ export function getChordFromCode(chordCode) {
   try {
     chord.octave = extractOctave(chordCode, chord)
 
+    chordCode = chordCode.replace(")", "")
+
     if (chordCode.substring(2, 3) === "#") {
-      chord.noteLetter = chordCode.substring(1, 3)
-      chord.type = chordCode.substring(3).replace(")", "")
+      chord.noteLetter = chordCode.substring(1, 3).toUpperCase()
+      chord.type = chordCode.substring(3)
     } else {
-      chord.noteLetter = chordCode.substring(1, 2)
-      chord.type = chordCode.substring(2).replace(")", "")
+      chord.noteLetter = chordCode.substring(1, 2).toUpperCase()
+      chord.type = chordCode.substring(2)
     }
   } catch (ex) {
     console.log("Exception - invalid chord code: " + chordCode)
