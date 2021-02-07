@@ -3,6 +3,7 @@ import "../styles/Piano.css"
 import { Key } from "./Key"
 import { AppContext, getPianoById } from "../components/context/AppContext"
 import { getNoteLetter } from "../utils/noteManager"
+import { playPiano } from "../utils/synthPlayer"
 import PropTypes from "prop-types"
 
 export const PianoComponent = ({ pianoComponentId }) => {
@@ -29,6 +30,11 @@ export const PianoComponent = ({ pianoComponentId }) => {
     })
   }
 
+  const handlePlayClick = () => {
+    var pianoComponent = getPianoById(state, pianoId)
+    playPiano(pianoComponent)
+  }
+
   const renderPiano = () => {
     let piano = getPianoById(state, pianoId).piano
     console.log(piano)
@@ -49,6 +55,11 @@ export const PianoComponent = ({ pianoComponentId }) => {
 
   return (
     <>
+      <button
+        type="button"
+        className="piano-play-button"
+        onClick={() => handlePlayClick()}
+      ></button>
       <div className="pianoBox">
         <button
           type="button"

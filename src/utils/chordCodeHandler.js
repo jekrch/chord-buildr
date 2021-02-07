@@ -1,6 +1,9 @@
 import { isValidChordType } from "./chordManager"
-import { isValidLetter, getNoteLetter } from "./noteManager"
+import { isValidLetter } from "./noteManager"
 
+/***
+ * get the octave from the start of the code
+ */
 export function extractOctave(chordCode, chord) {
   var octave = chordCode.substring(0, 1)
 
@@ -21,13 +24,10 @@ export function getChordFromCode(chordCode) {
 
     chordCode = chordCode.replace(")", "")
 
-    if (chordCode.substring(2, 3) === "#") {
-      chord.noteLetter = chordCode.substring(1, 3).toUpperCase()
-      chord.type = chordCode.substring(3)
-    } else {
-      chord.noteLetter = chordCode.substring(1, 2).toUpperCase()
-      chord.type = chordCode.substring(2)
-    }
+    var indexOfType = chordCode.substring(2, 3) === "#" ? 3 : 2
+
+    chord.noteLetter = chordCode.substring(1, indexOfType).toUpperCase()
+    chord.type = chordCode.substring(indexOfType)
   } catch (ex) {
     console.log("Exception - invalid chord code: " + chordCode)
     return
@@ -43,6 +43,7 @@ export function getChordFromCode(chordCode) {
 
 export function getProgressionCode(state) {
   var code = ""
+
   for (let i = 0; i < state.chordPianoSet.length; i++) {
     var chordPiano = state.chordPianoSet[i]
     var selectedChord = chordPiano.selectedChord

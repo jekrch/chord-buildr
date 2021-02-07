@@ -70,11 +70,11 @@ ul .white:active {
   background: linear-gradient(to right, #444 0%, #222 100%);
 }
 
-.a,
-.b,
-.g,
-.d,
-.e {
+.A,
+.B,
+.G,
+.D,
+.E {
   margin: 0 0 0 -1em;
 }
 
@@ -92,7 +92,6 @@ ul li:last-child {
   margin-left: 0.2em;
   z-index: 3;
   float: left;
-  /* background-color: black !important; */
   color: white;
   border-width: 0 !important;
   border: none !important;
@@ -105,4 +104,47 @@ ul li:last-child {
 
 .pianoCloseButton:active {
   color: rgb(129, 93, 93);
+}
+
+.piano-play-button:active {
+  color: rgb(103, 149, 187);
+  background: linear-gradient(45deg, #222 0%, #555 100%);
+  box-shadow: -1px -1px 2px rgba(255, 255, 255, 0.2) inset,
+    0 -5px 2px 3px rgba(56, 56, 56, 0.6) inset, 0 2px 4px rgba(0, 0, 0, 0.5);
+}
+.piano-play-button {
+  color:rgb(133, 133, 133);
+  margin-right: 30em;
+  box-sizing: border-box;
+  position: relative;
+  display: block;
+  transform: scale(var(--ggs,1));
+  width: 30px;
+  height: 100px;
+  border: 2px solid;
+  border-radius: 20px;
+  background-color: transparent;
+  background: rgb(80, 79, 79);
+  left: 109px;
+  top: 53px;
+  margin-top: -90px;
+  outline: none !important;
+  box-shadow: -1px -1px 2px rgba(255, 255, 255, 0.2) inset,
+    0 -5px 2px 3px rgba(56, 56, 56, 0.6) inset, 0 2px 4px rgba(0, 0, 0, 0.5);
+  
+}
+.piano-play-button::before {
+  content: "";
+  display: block;
+  box-sizing: border-box;
+  position: relative;
+  width: 0;
+  height: 10px;
+  border-top: 5px solid transparent;
+  border-bottom: 5px solid transparent;
+  border-left: 6px solid;
+  top: 1px;
+  left: 5px;
+  outline: none !important;
+  
 }

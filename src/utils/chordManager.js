@@ -31,7 +31,7 @@ export const chordMap = {
 }
 
 export const isValidChordType = (type) => {
-  return chordMap[type] != undefined
+  return chordMap[type] !== undefined
 }
 
 // returns the note numbers for the specified chord (1, 5, 8)
