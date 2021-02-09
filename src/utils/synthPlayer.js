@@ -30,7 +30,7 @@ export function playPiano(pianoComponent) {
 
   var selectedNotes = getSelectedNotes(pianoComponent.piano)
 
-  sampler.triggerAttackRelease(selectedNotes, "1.1", "+0.05", "0.3")
+  sampler.triggerAttackRelease(selectedNotes, "1.1", "+0.003", "0.3")
 
   //synth.triggerAttackRelease(selectedNotes, 0.2)
 }
