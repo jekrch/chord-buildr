@@ -27,6 +27,19 @@ export function getPianoById(state, pianoId) {
   return null
 }
 
+export function clearProgKey(state) {
+  for (let i = 0; i < state.chordPianoSet.length; i++) {
+    var chordPiano = state.chordPianoSet[i]
+    chordPiano.isProgKey = false
+  }
+}
+
+export function setProgKey(state, pianoId) {
+  clearProgKey(state)
+  var chordPiano = getPianoById(state, pianoId)
+  chordPiano.isProgKey = true
+}
+
 export function buildProgFromCode(state, code) {
   if (state.building) return
 
@@ -51,6 +64,7 @@ export function buildProgFromCode(state, code) {
         id: i,
         piano: pianoGenerator(),
         selectedKey: { noteLetter: chord.noteLetter, noteOctave: chord.octave },
+        isProgKey: false,
         selectedChord: {
           noteLetter: chord.noteLetter,
           type: chord.type,
@@ -62,6 +76,7 @@ export function buildProgFromCode(state, code) {
         id: i,
         piano: pianoGenerator(),
         selectedKey: { noteLetter: "C", noteOctave: 0 },
+        isProgKey: false,
         selectedChord: {
           noteLetter: "C",
           type: "x",
@@ -197,6 +212,21 @@ const appReducer = (state, action) => {
       )
 
       updateUrlProgressionCode(state)
+
+      return {
+        ...state,
+        chordPianoSet: state.chordPianoSet
+      }
+
+    case "SET_PROG_KEY":
+      console.log(action.payload)
+
+      if (action.keyChecked) {
+        setProgKey(state, action.id)
+      } else {
+        var chordPiano = getPianoById(state, action.id)
+        chordPiano.isProgKey = false
+      }
 
       return {
         ...state,

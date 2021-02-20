@@ -46,6 +46,7 @@ code {
 	border-color: var(--gray-lighter);
 	font-weight: bold;
 	font-size: 20px;
+	height:45px;
 }
 
 .chordInputForm {
@@ -64,6 +65,13 @@ code {
 	background: rgb(80, 79, 79);
 	border-radius: 5px;
 	box-shadow: 2px 5px #888888;
+}
+
+.keyCheckBox {
+	text-align: left;
+	font-size: 0.8em;
+	position: left;
+	margin-bottom: -9px;
 }
 
 .contentBox {

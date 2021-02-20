@@ -4,7 +4,7 @@ import { noteLetterMapWithSharps, getNoteNumber } from "../utils/noteManager"
 import { clearPianoSelections } from "../utils/pianoHelper"
 import { chordMap, getNoteNumberChord } from "../utils/chordManager"
 import { AppContext, getPianoById } from "../components/context/AppContext"
-//import { playPiano } from "../utils/synthPlayer"
+import { playPiano } from "../utils/synthPlayer"
 import PropTypes from "prop-types"
 
 export const ChordInput = ({ pianoComponentId }) => {
@@ -13,6 +13,7 @@ export const ChordInput = ({ pianoComponentId }) => {
 
   var chordPiano = getPianoById(state, pianoComponentId)
 
+  chordRef.current.isProgKey = chordPiano.isProgKey
   chordRef.current.selectedValue = chordPiano.selectedKey.noteLetter
   chordRef.current.type = chordPiano.selectedChord.type
 
@@ -27,6 +28,7 @@ export const ChordInput = ({ pianoComponentId }) => {
 
     chordRef.current.selectedValue = chordPiano.selectedKey.noteLetter
     chordRef.current.type = chordPiano.selectedChord.type
+    chordRef.current.isProgKey = chordPiano.isProgKey
 
     if (state.building) return
 
@@ -51,9 +53,22 @@ export const ChordInput = ({ pianoComponentId }) => {
   // processes new chord type selections
   const handleTypeSelectChange = (e) => {
     chordRef.current.type = e.target.value
+
     console.log(chordRef.current.type)
 
     selectChordKeysWithType(chordPiano, chordRef.current.type, dispatch)
+  }
+
+  // set whether this chord has the progression key
+  const handleIsKeySelectChange = (e) => {
+    console.log(e.target.checked)
+    console.log(chordRef.current.type)
+
+    dispatch({
+      type: "SET_PROG_KEY",
+      keyChecked: e.target.checked,
+      id: chordPiano.id
+    })
   }
 
   var chordTypeArray = Object.keys(chordMap)
@@ -62,6 +77,13 @@ export const ChordInput = ({ pianoComponentId }) => {
   return (
     <Form className="chordInputForm">
       <Form.Group controlId="chordSelection">
+        <Form.Check
+          type="checkbox"
+          label="key"
+          checked={chordRef.current.isProgKey}
+          className="keyCheckBox"
+          onChange={(e) => handleIsKeySelectChange(e)}
+        />
         <div className="chordInputSelection">
           <Form.Control
             as="select"

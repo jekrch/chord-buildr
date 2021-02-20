@@ -5,10 +5,14 @@ const sampler = getSampler()
 function getSampler() {
   var sampler = new Tone.Sampler({
     urls: {
+      C2: "C2.mp3",
+      "D#2": "Ds2.mp3",
+      "F#2": "Fs2.mp3",
       C3: "C3.mp3",
+      A2: "A2.mp3",
       "D#3": "Ds3.mp3",
       "F#3": "Fs3.mp3",
-      A3: "A4.mp3",
+      A3: "A3.mp3",
       C4: "C4.mp3",
       "D#4": "Ds4.mp3",
       "F#4": "Fs4.mp3",
@@ -25,14 +29,11 @@ function getSampler() {
 }
 
 export function playPiano(pianoComponent) {
-  console.log("play piano " + pianoComponent)
-  console.log(pianoComponent)
+  console.log("playing piano: " + pianoComponent)
 
   var selectedNotes = getSelectedNotes(pianoComponent.piano)
 
   sampler.triggerAttackRelease(selectedNotes, "1.1", "+0.003", "0.3")
-
-  //synth.triggerAttackRelease(selectedNotes, 0.2)
 }
 
 function getSelectedNotes(piano) {
