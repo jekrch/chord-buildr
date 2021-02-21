@@ -99,8 +99,10 @@ export function buildProgFromCode(state, code) {
 export function updateUrlProgressionCode(state) {
   if (state.building) return
 
+  var porgressionCode = "?prog=" + getProgressionCode(state)
+
   state.history.push({
-    search: "?prog=" + getProgressionCode(state)
+    search: porgressionCode
   })
 }
 
@@ -141,6 +143,19 @@ const appReducer = (state, action) => {
   if (!pianoid) pianoid = 0
 
   switch (action.type) {
+    // case "LOAD_HISTORY":
+    //   //console.log(action.history)
+
+    //   if (state.history === null) console.log("!!!!!!!!!!!!!!!no history")
+
+    //   state.history = action.history
+
+    //   return {
+    //     ...state,
+    //     chordPianoSet: state.chordPianoSet
+    //     //history: state.history
+    //   }
+
     case "UPDATE_PIANO":
       console.log(action.payload)
 
@@ -150,11 +165,13 @@ const appReducer = (state, action) => {
           : chordPiano
       )
 
-      updateUrlProgressionCode(state)
+      //updateUrlProgressionCode(state)
 
       return {
         ...state,
-        chordPianoSet: state.chordPianoSet
+        chordPianoSet: state.chordPianoSet,
+        history: state.history,
+        building: state.building
       }
 
     case "UPDATE_KEY":
@@ -170,7 +187,8 @@ const appReducer = (state, action) => {
 
       return {
         ...state,
-        chordPianoSet: state.chordPianoSet
+        chordPianoSet: state.chordPianoSet,
+        history: state.history
       }
 
     case "UPDATE_CHORD":
@@ -186,7 +204,8 @@ const appReducer = (state, action) => {
 
       return {
         ...state,
-        chordPianoSet: state.chordPianoSet
+        chordPianoSet: state.chordPianoSet,
+        history: state.history
       }
 
     case "ADD_CHORD_PIANO":
@@ -203,7 +222,8 @@ const appReducer = (state, action) => {
 
       return {
         ...state,
-        chordPianoSet: state.chordPianoSet
+        chordPianoSet: state.chordPianoSet,
+        history: state.history
       }
 
     case "REMOVE_PIANO":
@@ -215,7 +235,8 @@ const appReducer = (state, action) => {
 
       return {
         ...state,
-        chordPianoSet: state.chordPianoSet
+        chordPianoSet: state.chordPianoSet,
+        history: state.history
       }
 
     case "SET_PROG_KEY":
@@ -239,12 +260,14 @@ const appReducer = (state, action) => {
 
         action.payload = null
 
-        state = buildProgFromCode(state, code)
+        buildProgFromCode(state, code)
       }
 
       return {
         ...state,
-        chordPianoSet: state.chordPianoSet
+        chordPianoSet: state.chordPianoSet,
+        history: state.history,
+        building: state.building
       }
 
     default:

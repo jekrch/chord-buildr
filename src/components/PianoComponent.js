@@ -9,6 +9,7 @@ import PropTypes from "prop-types"
 export const PianoComponent = ({ pianoComponentId }) => {
   const { state, dispatch } = useContext(AppContext)
   const pianoId = pianoComponentId
+
   const handleClick = (note, noteNumber, octave) => {
     const noteLetter = getNoteLetter("C", noteNumber)
     console.log(`You've clicked note: ${pianoId} - ${octave} - ${noteLetter}`)

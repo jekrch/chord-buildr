@@ -1,28 +1,32 @@
-import React, { useContext } from "react"
+import React, { useContext, useEffect } from "react"
 import "../styles/Piano.css"
 import { AppContext } from "../components/context/AppContext"
 import { getProgressionCode } from "../utils/chordCodeHandler"
 import { ChordPianoComponent } from "../components/ChordPianoComponent"
 import Button from "react-bootstrap/Button"
-import PropTypes from "prop-types"
+import { useHistory } from "react-router-dom"
 
-export const PianoBoardComponent = ({ history }) => {
+export const PianoBoardComponent = () => {
   const { state, dispatch } = useContext(AppContext)
 
+  const history = useHistory()
   state.history = history
-  var currentCode = getProgressionCode(state)
 
-  var newParams = history.location.search.replace("?prog=", "")
-  newParams += history.location.hash
+  useEffect(() => {
+    var currentCode = getProgressionCode(state)
 
-  if (!state.building && currentCode !== newParams) {
-    console.log("New chord code provided " + currentCode + " vs " + newParams)
+    var newParams = history.location.search.replace("?prog=", "")
+    newParams += history.location.hash
 
-    dispatch({
-      type: "BUILD_PROG_FROM_CODE",
-      payload: newParams
-    })
-  }
+    if (!state.building && currentCode !== newParams) {
+      console.log("New chord code provided " + currentCode + " vs " + newParams)
+
+      dispatch({
+        type: "BUILD_PROG_FROM_CODE",
+        payload: newParams
+      })
+    }
+  })
 
   const handleClickAddChord = () => {
     dispatch({
@@ -43,14 +47,14 @@ export const PianoBoardComponent = ({ history }) => {
 
   return (
     <>
-      <Button variant="primary" className="btn-main" onClick={() => handleClickAddChord()}>
+      <Button
+        variant="primary"
+        className="btn-main"
+        onClick={() => handleClickAddChord()}
+      >
         Add Chord
       </Button>
       {renderChordPianoSet()}
     </>
   )
-}
-
-PianoBoardComponent.propTypes = {
-  history: PropTypes.object.isRequired
 }

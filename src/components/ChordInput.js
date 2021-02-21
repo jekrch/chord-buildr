@@ -1,39 +1,37 @@
-import { React, useContext, useEffect, useRef } from "react"
+import { React, useContext, useRef, useEffect } from "react"
 import Form from "react-bootstrap/Form"
-import { noteLetterMapWithSharps, getNoteNumber } from "../utils/noteManager"
-import { clearPianoSelections } from "../utils/pianoHelper"
-import { chordMap, getNoteNumberChord } from "../utils/chordManager"
+import { noteLetterMapWithSharps } from "../utils/noteManager"
+import { chordMap } from "../utils/chordManager"
+import {
+  selectChordKeys,
+  selectChordKeysWithType,
+  hasSelectedNotes
+} from "../utils/chordPianoHandler"
 import { AppContext, getPianoById } from "../components/context/AppContext"
-import { playPiano } from "../utils/synthPlayer"
+//import { playPiano } from "../utils/synthPlayer"
 import PropTypes from "prop-types"
 
 export const ChordInput = ({ pianoComponentId }) => {
   const { state, dispatch } = useContext(AppContext)
-  const chordRef = useRef({ selectedValue: null, type: null })
+  const chordRef = useRef({})
 
+  //console.log("RENDERED =====> " + pianoComponentId)
   var chordPiano = getPianoById(state, pianoComponentId)
 
-  chordRef.current.isProgKey = chordPiano.isProgKey
+  chordRef.current.isProgKey = chordPiano.isProgKey ?? false
   chordRef.current.selectedValue = chordPiano.selectedKey.noteLetter
   chordRef.current.type = chordPiano.selectedChord.type
 
-  // if no keys are selected, load the selected chord
-  if (!hasSelectedNotes(chordPiano.piano)) {
-    selectChordKeys(chordPiano, dispatch)
-  }
-
-  // triggers whenever the user selects a new key
   useEffect(() => {
-    console.log("UseEffect rendered: " + chordPiano.selectedKey.noteLetter)
+    // if no keys are selected, load the selected chord
+    if (!hasSelectedNotes(chordPiano.piano)) {
+      selectChordKeys(chordPiano, dispatch)
+    }
 
-    chordRef.current.selectedValue = chordPiano.selectedKey.noteLetter
-    chordRef.current.type = chordPiano.selectedChord.type
-    chordRef.current.isProgKey = chordPiano.isProgKey
-
-    if (state.building) return
-
-    selectChordKeys(chordPiano, dispatch)
-  }, [chordPiano])
+    if (!state.building) {
+      selectChordKeys(chordPiano, dispatch)
+    }
+  })
 
   // processes new key selections
   const handleKeySelectChange = (e) => {
@@ -123,126 +121,6 @@ export const ChordInput = ({ pianoComponentId }) => {
   )
 }
 
-function selectChordKeys(chordPiano, dispatch) {
-  return selectChordKeysWithType(
-    chordPiano,
-    chordPiano.selectedChord.type,
-    dispatch
-  )
-}
-
-function selectChordKeysWithType(chordPiano, type, dispatch) {
-  var noteLetter = chordPiano.selectedKey.noteLetter
-
-  // if not octave is provided, use the currently selected octave
-  var octave = chordPiano.selectedKey.noteOctave
-
-  if (!octave || octave === null) {
-    octave = 0
-  }
-
-  // don't select the same chord multiple times
-  if (chordIsAlreadySelected(chordPiano, type, noteLetter, octave)) return
-
-  var noteNumber = getNoteNumber(noteLetter)
-  var chordNoteNumbers = getNoteNumberChord(noteNumber, type)
-
-  clearPianoSelections(chordPiano.piano)
-
-  for (let i = 0; i < chordNoteNumbers.length; i++) {
-    var chordNoteNumber = chordNoteNumbers[i]
-    console.log(chordNoteNumber)
-    selectNote(chordPiano, octave, chordNoteNumber, dispatch)
-  }
-
-  updateSelectedChord(chordPiano.id, noteLetter, type, octave, dispatch)
-  //playPiano(chordPiano)
-}
-
-function updateSelectedChord(id, noteLetter, type, octave, dispatch) {
-  var newSelectedChord = {
-    noteLetter: noteLetter,
-    type: type,
-    octave: octave
-  }
-
-  dispatch({ type: "UPDATE_CHORD", id: id, payload: newSelectedChord })
-
-  return newSelectedChord
-}
-
-/**
- * Determines whether the currently selected chord matches the provided
- * type, letter, and octave
- */
-function chordIsAlreadySelected(chordPiano, type, letter, octave) {
-  var selectedChord = chordPiano.selectedChord
-  return (
-    hasSelectedNotes(chordPiano.piano) &&
-    selectedChord !== null &&
-    selectedChord.type === type &&
-    selectedChord.noteLetter === letter &&
-    selectedChord.octave === octave
-  )
-}
-
-function selectNote(chordPiano, octave, noteNumber, dispatch) {
-  ;({ noteNumber, octave } = normalizeNote(noteNumber, octave))
-
-  var piano = chordPiano.piano
-
-  if (noteIsInvalid(piano, octave, noteNumber)) {
-    console.log("skipped invalid note: " + octave + " : " + noteNumber)
-    return
-  }
-
-  var noteKey = piano[octave][noteNumber - 1]
-
-  if (!noteKey || noteKey.selected) {
-    console.log("SKIPPED INVALID NOTE: " + octave + " : " + noteNumber)
-    return
-  }
-
-  noteKey.selected = true
-
-  dispatch({
-    type: "UPDATE_PIANO",
-    id: chordPiano.id,
-    payload: piano
-  })
-}
-
 ChordInput.propTypes = {
   pianoComponentId: PropTypes.number.isRequired
-}
-
-/***
- * if the note is over 12, find the corresponding note in the next octave
-   or if we're at the highest octave, bring the note down 12
- */
-function normalizeNote(noteNumber, octave) {
-  while (noteNumber > 12) {
-    noteNumber = noteNumber - 12
-
-    if (!(octave >= 2)) {
-      octave++
-    }
-  }
-  return { noteNumber, octave }
-}
-
-function noteIsInvalid(pianoControl, octave, noteNumber) {
-  if (!pianoControl || !pianoControl[octave]) return true
-}
-
-function hasSelectedNotes(pianoControl) {
-  for (let i = 0; i < pianoControl.length; i++) {
-    var pianoOctave = pianoControl[i]
-
-    for (let j = 0; j < pianoOctave.length; j++) {
-      if (pianoOctave[j].selected) return true
-    }
-  }
-
-  return false
 }
