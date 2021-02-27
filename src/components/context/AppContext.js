@@ -2,7 +2,7 @@ import React, { useReducer, createContext, useEffect } from "react"
 import PropTypes from "prop-types"
 import { pianoGenerator } from "../../utils/pianoHelper"
 import { getProgressionCode } from "../../utils/chordCodeHandler"
-import { createChordPiano } from "../../utils/chordPianoHandler"
+import { createChordPiano, transposeBoard } from "../../utils/chordPianoHandler"
 
 export const STATE_NAME = "PIANO_STATE"
 
@@ -122,18 +122,18 @@ const persistedState = JSON.parse(sessionStorage.getItem(STATE_NAME))
 const finalInitialState = { ...initialState, ...persistedState }
 
 const appReducer = (state, action) => {
-  var pianoid = action.id
+  var pianoId = action.id
 
-  console.log("piano id: " + pianoid)
+  console.log("piano id: " + pianoId)
 
-  if (!pianoid) pianoid = 0
+  if (!pianoId) pianoId = 0
 
   switch (action.type) {
     case "UPDATE_PIANO":
       console.log(action.payload)
 
       state.chordPianoSet = state.chordPianoSet.map((chordPiano) =>
-        chordPiano.id === pianoid
+        chordPiano.id === pianoId
           ? { ...chordPiano, piano: action.payload }
           : chordPiano
       )
@@ -148,8 +148,21 @@ const appReducer = (state, action) => {
     case "UPDATE_KEY":
       console.log(action.payload)
 
+      var originalChordPiano = getPianoById(state, pianoId)
+
+      if (originalChordPiano.isProgKey) {
+        var newSelectedKey = action.payload
+
+        transposeBoard(
+          pianoId,
+          state.chordPianoSet,
+          originalChordPiano,
+          newSelectedKey
+        )
+      }
+
       state.chordPianoSet = state.chordPianoSet.map((chordPiano) =>
-        chordPiano.id === pianoid
+        chordPiano.id === pianoId
           ? { ...chordPiano, selectedKey: action.payload }
           : chordPiano
       )
@@ -166,7 +179,7 @@ const appReducer = (state, action) => {
       console.log(action.payload)
 
       state.chordPianoSet = state.chordPianoSet.map((chordPiano) =>
-        chordPiano.id === pianoid
+        chordPiano.id === pianoId
           ? { ...chordPiano, selectedChord: action.payload }
           : chordPiano
       )
@@ -182,10 +195,10 @@ const appReducer = (state, action) => {
     case "ADD_CHORD_PIANO":
       if (action.payload !== null) {
         action.payload = null
-        var nextChordPianoid = getNextId(state)
+        var nextChordpianoId = getNextId(state)
 
         state.chordPianoSet = state.chordPianoSet.concat(
-          getChordPiano(nextChordPianoid)
+          getChordPiano(nextChordpianoId)
         )
 
         updateUrlProgressionCode(state)

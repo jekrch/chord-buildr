@@ -1,6 +1,6 @@
 import { getNoteNumberChord } from "./chordManager"
 import { clearPianoSelections } from "./pianoHelper"
-import { getNoteNumber } from "./noteManager"
+import { getNoteNumber, getNoteLetter } from "./noteManager"
 import { pianoGenerator } from "./pianoHelper"
 import { getChordFromCode } from "./chordCodeHandler"
 
@@ -105,6 +105,15 @@ export function normalizeNote(noteNumber, octave) {
       octave++
     }
   }
+
+  while (noteNumber < 1) {
+    noteNumber = noteNumber + 12
+
+    if (!(octave = 0)) {
+      octave--
+    }
+  }
+
   return { noteNumber, octave }
 }
 
@@ -153,4 +162,56 @@ export function createChordPiano(i, chordCode) {
       }
     }
   }
+}
+
+export function transposeBoard(
+  pianoId,
+  chordPianoSet,
+  originalChordPiano,
+  newSelectedKey
+) {
+  var stepsChanged = getStepsChanged(originalChordPiano, newSelectedKey)
+
+  if (stepsChanged !== 0) {
+    for (let i = 0; i < chordPianoSet.length; i++) {
+      var chordPiano = chordPianoSet[i]
+
+      if (chordPiano.id === pianoId) continue
+
+      chordPiano.selectedKey = getTransposedSelectedKey(
+        chordPiano,
+        stepsChanged
+      )
+    }
+  }
+}
+
+function getStepsChanged(chordPiano, newSelectedKey) {
+  var originalNoteLetter = chordPiano.selectedKey.noteLetter
+  var newNoteLetter = newSelectedKey.noteLetter
+
+  var originalNoteNumber = getNoteNumber(originalNoteLetter)
+  var newNoteNumber = getNoteNumber(newNoteLetter)
+
+  var stepsDown = newNoteNumber - originalNoteNumber
+
+  //console.log("STEPS CHANGED >>>> " + stepsDown)
+  return stepsDown
+}
+
+function getTransposedSelectedKey(chordPiano, stepsChanged) {
+  var selectedKey = {}
+
+  var originalNoteLetter = chordPiano.selectedKey.noteLetter
+  var originalOctave = chordPiano.selectedKey.octave ?? 0
+
+  var originalNoteNumber = getNoteNumber(originalNoteLetter)
+  var newNoteNumber = originalNoteNumber + stepsChanged
+
+  var newNote = normalizeNote(newNoteNumber, originalOctave)
+
+  selectedKey.noteLetter = getNoteLetter("C", newNote.noteNumber)
+  selectedKey.octave = newNote.octave
+
+  return selectedKey
 }

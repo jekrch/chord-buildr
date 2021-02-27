@@ -21,6 +21,7 @@ export const ChordInput = ({ pianoComponentId }) => {
   chordRef.current.isProgKey = chordPiano.isProgKey ?? false
   chordRef.current.selectedValue = chordPiano.selectedKey.noteLetter
   chordRef.current.type = chordPiano.selectedChord.type
+  chordRef.current.id = chordPiano.id
 
   useEffect(() => {
     // if no keys are selected, load the selected chord
@@ -77,6 +78,7 @@ export const ChordInput = ({ pianoComponentId }) => {
       <Form.Group controlId="chordSelection">
         <Form.Check
           type="checkbox"
+          key={Number(chordRef.current.id)}
           label="key"
           checked={chordRef.current.isProgKey}
           className="keyCheckBox"
