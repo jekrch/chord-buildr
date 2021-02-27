@@ -2,7 +2,10 @@ import React, { useReducer, createContext, useEffect } from "react"
 import PropTypes from "prop-types"
 import { pianoGenerator } from "../../utils/pianoHelper"
 import { getProgressionCode } from "../../utils/chordCodeHandler"
-import { createChordPiano, transposeBoard } from "../../utils/chordPianoHandler"
+import {
+  createChordPiano,
+  transposePianoBoard
+} from "../../utils/chordPianoHandler"
 
 export const STATE_NAME = "PIANO_STATE"
 
@@ -96,7 +99,7 @@ function getChordPiano(pianoId) {
   var chordPiano = {
     id: pianoId,
     piano: pianoGenerator(),
-    selectedKey: { noteLetter: "C", noteOctave: 0 },
+    selectedKey: { noteLetter: "C", octave: 0 },
     selectedChord: {
       noteLetter: "",
       type: "",
@@ -124,6 +127,7 @@ const finalInitialState = { ...initialState, ...persistedState }
 const appReducer = (state, action) => {
   var pianoId = action.id
 
+  console.log(action.type)
   console.log("piano id: " + pianoId)
 
   if (!pianoId) pianoId = 0
@@ -153,7 +157,7 @@ const appReducer = (state, action) => {
       if (originalChordPiano.isProgKey) {
         var newSelectedKey = action.payload
 
-        transposeBoard(
+        transposePianoBoard(
           pianoId,
           state.chordPianoSet,
           originalChordPiano,
@@ -161,11 +165,7 @@ const appReducer = (state, action) => {
         )
       }
 
-      state.chordPianoSet = state.chordPianoSet.map((chordPiano) =>
-        chordPiano.id === pianoId
-          ? { ...chordPiano, selectedKey: action.payload }
-          : chordPiano
-      )
+      originalChordPiano.selectedKey = action.payload
 
       updateUrlProgressionCode(state)
 
@@ -178,11 +178,25 @@ const appReducer = (state, action) => {
     case "UPDATE_CHORD":
       console.log(action.payload)
 
-      state.chordPianoSet = state.chordPianoSet.map((chordPiano) =>
-        chordPiano.id === pianoId
-          ? { ...chordPiano, selectedChord: action.payload }
-          : chordPiano
-      )
+      var newSelectedKey = {
+        noteLetter: action.payload.noteLetter,
+        octave: action.payload.octave
+      }
+
+      var originalChordPiano = getPianoById(state, pianoId)
+
+      if (originalChordPiano.isProgKey) {
+        transposePianoBoard(
+          pianoId,
+          state.chordPianoSet,
+          originalChordPiano,
+          newSelectedKey
+        )
+      }
+
+      // update the chord and selected key
+      originalChordPiano.selectedChord = action.payload
+      originalChordPiano.selectedKey = newSelectedKey
 
       updateUrlProgressionCode(state)
 

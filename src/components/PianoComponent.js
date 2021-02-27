@@ -16,7 +16,7 @@ export const PianoComponent = ({ pianoComponentId }) => {
 
     var selectedKey = {}
     selectedKey.noteLetter = noteLetter
-    selectedKey.noteOctave = octave
+    selectedKey.octave = octave
     dispatch({
       type: "UPDATE_KEY",
       id: pianoId,
@@ -38,7 +38,7 @@ export const PianoComponent = ({ pianoComponentId }) => {
 
   const renderPiano = () => {
     let piano = getPianoById(state, pianoId).piano
-    console.log(piano)
+    //console.log(piano)
     return piano.map((octave, i) => {
       return octave.map((pianoKey) => {
         return (

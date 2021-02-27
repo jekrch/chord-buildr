@@ -16,7 +16,7 @@ export function selectChordKeysWithType(chordPiano, type, dispatch) {
   var noteLetter = chordPiano.selectedKey.noteLetter
 
   // if not octave is provided, use the currently selected octave
-  var octave = chordPiano.selectedKey.noteOctave
+  var octave = chordPiano.selectedKey.octave
 
   if (!octave || octave === null) {
     octave = 0
@@ -32,7 +32,7 @@ export function selectChordKeysWithType(chordPiano, type, dispatch) {
 
   for (let i = 0; i < chordNoteNumbers.length; i++) {
     var chordNoteNumber = chordNoteNumbers[i]
-    console.log(chordNoteNumber)
+    //console.log(chordNoteNumber)
     selectNote(chordPiano, octave, chordNoteNumber, dispatch)
   }
 
@@ -43,6 +43,7 @@ export function selectChordKeysWithType(chordPiano, type, dispatch) {
   })
 
   updateSelectedChord(chordPiano.id, noteLetter, type, octave, dispatch)
+
   //playPiano(chordPiano)
 }
 
@@ -101,7 +102,7 @@ export function normalizeNote(noteNumber, octave) {
   while (noteNumber > 12) {
     noteNumber = noteNumber - 12
 
-    if (!(octave >= 2)) {
+    if (octave < 2) {
       octave++
     }
   }
@@ -109,7 +110,7 @@ export function normalizeNote(noteNumber, octave) {
   while (noteNumber < 1) {
     noteNumber = noteNumber + 12
 
-    if (!(octave = 0)) {
+    if (octave !== 0) {
       octave--
     }
   }
@@ -140,7 +141,7 @@ export function createChordPiano(i, chordCode) {
     return {
       id: i,
       piano: pianoGenerator(),
-      selectedKey: { noteLetter: chord.noteLetter, noteOctave: chord.octave },
+      selectedKey: { noteLetter: chord.noteLetter, octave: chord.octave },
       isProgKey: chord.isKey,
       selectedChord: {
         noteLetter: chord.noteLetter,
@@ -152,8 +153,8 @@ export function createChordPiano(i, chordCode) {
     return {
       id: i,
       piano: pianoGenerator(),
-      selectedKey: { noteLetter: "C", noteOctave: 0 },
-      isProgKey: chord.isKey,
+      selectedKey: { noteLetter: "C", octave: 0 },
+      isProgKey: false,
       selectedChord: {
         noteLetter: "C",
         type: "x",
@@ -164,7 +165,7 @@ export function createChordPiano(i, chordCode) {
   }
 }
 
-export function transposeBoard(
+export function transposePianoBoard(
   pianoId,
   chordPianoSet,
   originalChordPiano,
@@ -176,6 +177,7 @@ export function transposeBoard(
     for (let i = 0; i < chordPianoSet.length; i++) {
       var chordPiano = chordPianoSet[i]
 
+      // don't change the root chord
       if (chordPiano.id === pianoId) continue
 
       chordPiano.selectedKey = getTransposedSelectedKey(
@@ -187,7 +189,7 @@ export function transposeBoard(
 }
 
 function getStepsChanged(chordPiano, newSelectedKey) {
-  var originalNoteLetter = chordPiano.selectedKey.noteLetter
+  var originalNoteLetter = chordPiano.selectedChord.noteLetter
   var newNoteLetter = newSelectedKey.noteLetter
 
   var originalNoteNumber = getNoteNumber(originalNoteLetter)
@@ -202,8 +204,8 @@ function getStepsChanged(chordPiano, newSelectedKey) {
 function getTransposedSelectedKey(chordPiano, stepsChanged) {
   var selectedKey = {}
 
-  var originalNoteLetter = chordPiano.selectedKey.noteLetter
-  var originalOctave = chordPiano.selectedKey.octave ?? 0
+  var originalNoteLetter = chordPiano.selectedChord.noteLetter
+  var originalOctave = chordPiano.selectedChord.octave ?? 0
 
   var originalNoteNumber = getNoteNumber(originalNoteLetter)
   var newNoteNumber = originalNoteNumber + stepsChanged

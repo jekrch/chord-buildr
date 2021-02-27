@@ -43,7 +43,7 @@ export const ChordInput = ({ pianoComponentId }) => {
     dispatch({
       type: "UPDATE_KEY",
       id: chordPiano.id,
-      payload: { noteLetter: e.target.value, noteOctave: 0 }
+      payload: { noteLetter: e.target.value, octave: 0 }
     })
 
     selectChordKeys(chordPiano, dispatch)
