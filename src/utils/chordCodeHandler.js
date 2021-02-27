@@ -26,9 +26,11 @@ export function getChordFromCode(chordCode) {
 
     var indexOfType = chordCode.substring(2, 3) === "#" ? 3 : 2
 
+    chord.isKey = chordCode.includes("*")
+    chordCode = chordCode.replace("*", "")
+
     chord.noteLetter = chordCode.substring(1, indexOfType).toUpperCase()
     chord.type = chordCode.substring(indexOfType)
-    chord.isKey = chordCode.contains("*")
   } catch (ex) {
     console.log("Exception - invalid chord code: " + chordCode)
     return
@@ -59,6 +61,8 @@ export function getProgressionCode(state) {
     } else {
       chordCode = selectedChord.invalidCode
     }
+
+    if (chordPiano.isProgKey) chordCode += "*"
 
     code += `(${chordCode})`
   }

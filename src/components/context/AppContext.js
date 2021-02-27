@@ -47,6 +47,8 @@ export function buildProgFromCode(state, code) {
 
   state.building = true
 
+  var progKeySet = false
+
   for (let i = 0; i < chordArray.length; i++) {
     var chordCode = chordArray[i]
 
@@ -55,6 +57,8 @@ export function buildProgFromCode(state, code) {
     console.log(chordCode)
 
     var chordPiano = createChordPiano(i, chordCode)
+
+    progKeySet = validateProgKey(chordPiano, progKeySet)
 
     chordPianoSet.push(chordPiano)
   }
@@ -65,6 +69,17 @@ export function buildProgFromCode(state, code) {
   updateUrlProgressionCode(state)
 
   return state
+}
+
+function validateProgKey(chordPiano, progKeySet) {
+  // if the prog key is set here, only accept it
+  // if we haven't already set the progKey
+
+  if (chordPiano.isProgKey) {
+    if (progKeySet) chordPiano.isProgKey = false
+    else progKeySet = true
+  }
+  return progKeySet
 }
 
 export function updateUrlProgressionCode(state) {
@@ -204,6 +219,8 @@ const appReducer = (state, action) => {
         var chordPiano = getPianoById(state, action.id)
         chordPiano.isProgKey = false
       }
+
+      updateUrlProgressionCode(state)
 
       return {
         ...state,

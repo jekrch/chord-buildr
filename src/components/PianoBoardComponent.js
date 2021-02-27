@@ -12,35 +12,21 @@ export const PianoBoardComponent = () => {
   const history = useHistory()
   state.history = history
 
-  // useEffect(() => {
-  //   var currentCode = getProgressionCode(state)
+  useEffect(() => {
+    var currentCode = getProgressionCode(state)
 
-  //   var newParams = history.location.search.replace("?prog=", "")
-  //   newParams += history.location.hash
+    var newParams = history.location.search.replace("?prog=", "")
+    newParams += history.location.hash
 
-  //   if (!state.building && currentCode !== newParams) {
-  //     console.log("New chord code provided " + currentCode + " vs " + newParams)
+    if (!state.building && currentCode !== newParams) {
+      console.log("New chord code provided " + currentCode + " vs " + newParams)
 
-  //     dispatch({
-  //       type: "BUILD_PROG_FROM_CODE",
-  //       payload: newParams
-  //     })
-  //   }
-  // })
-
-  var currentCode = getProgressionCode(state)
-
-  var newParams = history.location.search.replace("?prog=", "")
-  newParams += history.location.hash
-
-  if (!state.building && currentCode !== newParams) {
-    console.log("New chord code provided " + currentCode + " vs " + newParams)
-
-    dispatch({
-      type: "BUILD_PROG_FROM_CODE",
-      payload: newParams
-    })
-  }
+      dispatch({
+        type: "BUILD_PROG_FROM_CODE",
+        payload: newParams
+      })
+    }
+  })
 
   const handleClickAddChord = () => {
     dispatch({
