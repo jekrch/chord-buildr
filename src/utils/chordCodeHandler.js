@@ -28,6 +28,7 @@ export function getChordFromCode(chordCode) {
 
     chord.noteLetter = chordCode.substring(1, indexOfType).toUpperCase()
     chord.type = chordCode.substring(indexOfType)
+    chord.isKey = chordCode.contains("*")
   } catch (ex) {
     console.log("Exception - invalid chord code: " + chordCode)
     return

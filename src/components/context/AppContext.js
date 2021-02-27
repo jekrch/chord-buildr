@@ -1,10 +1,8 @@
 import React, { useReducer, createContext, useEffect } from "react"
 import PropTypes from "prop-types"
 import { pianoGenerator } from "../../utils/pianoHelper"
-import {
-  getProgressionCode,
-  getChordFromCode
-} from "../../utils/chordCodeHandler"
+import { getProgressionCode } from "../../utils/chordCodeHandler"
+import { createChordPiano } from "../../utils/chordPianoHandler"
 
 export const STATE_NAME = "PIANO_STATE"
 
@@ -56,41 +54,14 @@ export function buildProgFromCode(state, code) {
 
     console.log(chordCode)
 
-    var chord = getChordFromCode(chordCode)
-    var chordPiano
-
-    if (chord !== undefined) {
-      chordPiano = {
-        id: i,
-        piano: pianoGenerator(),
-        selectedKey: { noteLetter: chord.noteLetter, noteOctave: chord.octave },
-        isProgKey: false,
-        selectedChord: {
-          noteLetter: chord.noteLetter,
-          type: chord.type,
-          octave: chord.octave
-        }
-      }
-    } else {
-      chordPiano = {
-        id: i,
-        piano: pianoGenerator(),
-        selectedKey: { noteLetter: "C", noteOctave: 0 },
-        isProgKey: false,
-        selectedChord: {
-          noteLetter: "C",
-          type: "x",
-          octave: 0,
-          invalidCode: chordCode
-        }
-      }
-    }
+    var chordPiano = createChordPiano(i, chordCode)
 
     chordPianoSet.push(chordPiano)
   }
 
   state.chordPianoSet = chordPianoSet
   state.building = false
+
   updateUrlProgressionCode(state)
 
   return state
@@ -143,19 +114,6 @@ const appReducer = (state, action) => {
   if (!pianoid) pianoid = 0
 
   switch (action.type) {
-    // case "LOAD_HISTORY":
-    //   //console.log(action.history)
-
-    //   if (state.history === null) console.log("!!!!!!!!!!!!!!!no history")
-
-    //   state.history = action.history
-
-    //   return {
-    //     ...state,
-    //     chordPianoSet: state.chordPianoSet
-    //     //history: state.history
-    //   }
-
     case "UPDATE_PIANO":
       console.log(action.payload)
 
@@ -164,8 +122,6 @@ const appReducer = (state, action) => {
           ? { ...chordPiano, piano: action.payload }
           : chordPiano
       )
-
-      //updateUrlProgressionCode(state)
 
       return {
         ...state,

@@ -1,6 +1,8 @@
 import { getNoteNumberChord } from "./chordManager"
 import { clearPianoSelections } from "./pianoHelper"
 import { getNoteNumber } from "./noteManager"
+import { pianoGenerator } from "./pianoHelper"
+import { getChordFromCode } from "./chordCodeHandler"
 
 export function selectChordKeys(chordPiano, dispatch) {
   return selectChordKeysWithType(
@@ -120,4 +122,35 @@ export function hasSelectedNotes(pianoControl) {
   }
 
   return false
+}
+
+export function createChordPiano(i, chordCode) {
+  var chord = getChordFromCode(chordCode)
+
+  if (chord !== undefined) {
+    return {
+      id: i,
+      piano: pianoGenerator(),
+      selectedKey: { noteLetter: chord.noteLetter, noteOctave: chord.octave },
+      isProgKey: chord.isKey,
+      selectedChord: {
+        noteLetter: chord.noteLetter,
+        type: chord.type,
+        octave: chord.octave
+      }
+    }
+  } else {
+    return {
+      id: i,
+      piano: pianoGenerator(),
+      selectedKey: { noteLetter: "C", noteOctave: 0 },
+      isProgKey: chord.isKey,
+      selectedChord: {
+        noteLetter: "C",
+        type: "x",
+        octave: 0,
+        invalidCode: chordCode
+      }
+    }
+  }
 }
