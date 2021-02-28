@@ -128,18 +128,17 @@ ul .white:active {
 	color: rgb(133, 133, 133);
 	margin-right: 30em;
 	box-sizing: border-box;
-	position: relative;
+	position: absolute;
 	display: block;
 	transform: scale(var(--ggs, 1));
 	width: 30px;
-	height: 100px;
+	height: 11em;
 	border: 2px solid;
 	border-radius: 5px;
 	background-color: transparent;
 	background: rgb(80, 79, 79);
 	left: 109px;
-	top: 53px;
-	margin-top: -90px;
+	margin-top: -8.7em;
 	outline: none !important;
 	box-shadow: -1px -1px 2px rgba(255, 255, 255, 0.2) inset,
 		0 -5px 2px 3px rgba(56, 56, 56, 0.6) inset, 0 2px 4px rgba(0, 0, 0, 0.5);

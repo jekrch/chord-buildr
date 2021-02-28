@@ -208,6 +208,22 @@ const appReducer = (state, action) => {
         history: state.history
       }
 
+    case "UPDATE_SLASH_CHORD":
+      console.log(action)
+
+      var chordPiano = getPianoById(state, pianoId)
+
+      if (chordPiano) {
+        chordPiano.selectedChord.slash = action.isSlashChord
+      }
+      //updateUrlProgressionCode(state)
+
+      return {
+        ...state,
+        chordPianoSet: state.chordPianoSet,
+        history: state.history
+      }
+
     case "ADD_CHORD_PIANO":
       if (action.payload !== null) {
         action.payload = null

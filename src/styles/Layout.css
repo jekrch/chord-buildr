@@ -23,6 +23,8 @@ header {
 
 .pianoBoard {
 	margin-top: -2em;
+	padding-top: 2em;
+	margin-bottom: 5em;
 }
 
 .chordListItem{
@@ -60,7 +62,9 @@ header {
 		0 3px 0 rgb(40, 124, 78); */
 	/* font-weight: 400; */
 	cursor: pointer;
-	text-decoration: underline ;
+	text-decoration: underline;
+	text-underline-offset: 3px;
+	/* text-underline-position: 20px 2px; */
 	/* text-shadow: 0 1px 0 rgb(124, 122, 216),
 	0 2px 0 #2384ce; */
 	transition: 0.1s ease-in;

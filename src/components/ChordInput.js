@@ -22,6 +22,7 @@ export const ChordInput = ({ pianoComponentId }) => {
   chordRef.current.selectedValue = chordPiano.selectedKey.noteLetter
   chordRef.current.type = chordPiano.selectedChord.type
   chordRef.current.id = chordPiano.id
+  chordRef.current.slashChord = chordPiano.selectedChord.slash ?? false
 
   useEffect(() => {
     // if no keys are selected, load the selected chord
@@ -70,21 +71,26 @@ export const ChordInput = ({ pianoComponentId }) => {
     })
   }
 
+  // set whether this chord has the progression key
+  const handleIsSlachChordSelectChange = (e) => {
+    console.log(e.target.checked)
+    console.log(chordRef.current.type)
+
+    chordRef.current.slashChord = e.target.checked
+    dispatch({
+      type: "UPDATE_SLASH_CHORD",
+      isSlashChord: chordRef.current.slashChord,
+      id: chordPiano.id
+    })
+  }
+
   var chordTypeArray = Object.keys(chordMap)
   var noteArray = Object.values(noteLetterMapWithSharps)
 
   return (
     <Form className="chordInputForm">
       <Form.Group controlId="chordSelection">
-        <Form.Check
-          type="checkbox"
-          key={Number(chordRef.current.id)}
-          label="key"
-          checked={chordRef.current.isProgKey}
-          className="keyCheckBox"
-          onChange={(e) => handleIsKeySelectChange(e)}
-        />
-        <div className="chordInputSelection">
+        <div className="chordInputSelection keySelection">
           <Form.Control
             as="select"
             value={chordRef.current.selectedValue}
@@ -101,7 +107,7 @@ export const ChordInput = ({ pianoComponentId }) => {
             })}
           </Form.Control>
         </div>
-        <div className="chordInputSelection">
+        <div className="chordInputSelection typeSelection">
           <Form.Control
             className="selectorBox"
             as="select"
@@ -110,6 +116,48 @@ export const ChordInput = ({ pianoComponentId }) => {
             onChange={(e) => handleTypeSelectChange(e)}
           >
             {chordTypeArray.map((option, index) => {
+              return (
+                <option key={index} value={option}>
+                  {option}
+                </option>
+              )
+            })}
+          </Form.Control>
+        </div>
+        <Form.Check
+          type="checkbox"
+          key={Number(chordRef.current.id)}
+          label="key"
+          checked={chordRef.current.isProgKey}
+          className="keyCheckBox chordCheckBox"
+          onChange={(e) => handleIsKeySelectChange(e)}
+        />
+        <Form.Check
+          type="checkbox"
+          key={"slash" + chordRef.current.id}
+          label="slash"
+          checked={chordRef.current.slashChord}
+          className="slashCheckBox chordCheckBox"
+          onChange={(e) => handleIsSlachChordSelectChange(e)}
+        />
+        <div
+          className="slashSymbol"
+          display-option={`${chordRef.current.slashChord}`}
+        >
+          {"/"}
+        </div>
+        <div
+          className="slashChordSelection"
+          display-option={`${chordRef.current.slashChord}`}
+        >
+          <Form.Control
+            className="selectorBox"
+            as="select"
+            value={chordRef.current.type}
+            custom
+            // onChange={(e) => handleTypeSelectChange(e)}
+          >
+            {noteArray.map((option, index) => {
               return (
                 <option key={index} value={option}>
                   {option}

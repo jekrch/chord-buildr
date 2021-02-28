@@ -1,7 +1,7 @@
 import React from "react"
 import PropTypes from "prop-types"
 
-export const Key = ({ pianoKey, handleClick, key }) => {
+export const Key = ({ pianoKey, handleClick }) => {
   return (
     <>
       <li
