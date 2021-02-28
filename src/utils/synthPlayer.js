@@ -25,6 +25,8 @@ function getSampler() {
     baseUrl: "https://tonejs.github.io/audio/salamander/"
   }).toDestination()
 
+  //sampler = new Tone.PolySynth().toDestination()
+
   return sampler
 }
 
@@ -33,6 +35,7 @@ export function playPiano(pianoComponent) {
 
   var selectedNotes = getSelectedNotes(pianoComponent.piano)
 
+  //sampler.releaseAll()
   sampler.triggerAttackRelease(selectedNotes, "1.1", "+0.003", "0.3")
 }
 

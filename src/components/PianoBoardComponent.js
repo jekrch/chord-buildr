@@ -3,7 +3,6 @@ import "../styles/Piano.css"
 import { AppContext } from "../components/context/AppContext"
 import { getProgressionCode } from "../utils/chordCodeHandler"
 import { ChordPianoComponent } from "../components/ChordPianoComponent"
-import Button from "react-bootstrap/Button"
 import { useHistory } from "react-router-dom"
 
 export const PianoBoardComponent = () => {
@@ -28,33 +27,23 @@ export const PianoBoardComponent = () => {
     }
   })
 
-  const handleClickAddChord = () => {
-    dispatch({
-      type: "ADD_CHORD_PIANO",
-      payload: "selectedKey"
-    })
-  }
   const renderChordPianoSet = () => {
     return state.chordPianoSet.map((chordPiano) => (
-      <ChordPianoComponent
-        key={Number(chordPiano.id)}
-        className="row"
-        pianoComponentId={Number(chordPiano.id)}
-        history={history}
-      />
+      <>
+        <ChordPianoComponent
+          key={Number(chordPiano.id)}
+          className="row chordPianoComponent"
+          pianoComponentId={Number(chordPiano.id)}
+          history={history}
+        />
+        <div className="pianoStrip" />
+      </>
     ))
   }
 
   return (
     <>
-      <Button
-        variant="primary"
-        className="btn-main"
-        onClick={() => handleClickAddChord()}
-      >
-        Add Chord
-      </Button>
-      {renderChordPianoSet()}
+      <div className="pianoBoard">{renderChordPianoSet()} </div>
     </>
   )
 }
