@@ -32,8 +32,7 @@ export const PianoComponent = ({ pianoComponentId }) => {
   }
 
   const handlePlayClick = () => {
-    var pianoComponent = getPianoById(state, pianoId)
-    playPiano(pianoComponent)
+    playPiano(state, pianoId)
   }
 
   const renderPiano = () => {
@@ -41,6 +40,7 @@ export const PianoComponent = ({ pianoComponentId }) => {
     //console.log(piano)
     return piano.map((octave, i) => {
       return octave.map((pianoKey) => {
+        pianoKey.octave = i
         return (
           <Key
             key={`${pianoKey.note}-${i}`}

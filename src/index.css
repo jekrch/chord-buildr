@@ -88,8 +88,10 @@ code {
 	margin-top: 0;
 }
 
+
 .chordPiano {
 	margin-top: 0em;
+	padding-right: 2em;
 	position: relative;
 	display: flex;
 }

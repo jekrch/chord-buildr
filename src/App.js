@@ -10,13 +10,15 @@ export const App = () => {
   return (
     <div className="App">
       <AppProvider>
-        <HeaderComponent className="row" />
-        <div className="container">
-          <Router>
-            <Switch>
-              <Route exact path="/" component={PianoBoardComponent} />
-            </Switch>
-          </Router>
+        <div>
+          <HeaderComponent className="row" />
+          <div className="container">
+            <Router>
+              <Switch>
+                <Route exact path="/" component={PianoBoardComponent} />
+              </Switch>
+            </Router>
+          </div>
         </div>
       </AppProvider>
     </div>

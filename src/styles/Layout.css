@@ -6,6 +6,7 @@ header {
 	background-color: rgb(44, 43, 43);
 	z-index: 9999;
 
+
 }
 
 .add-chord-btn {
@@ -32,17 +33,18 @@ header {
 	background: transparent;
 	background-color: transparent;
 	z-index: 9999;
-	color:white;
+	
 }
 
 .titleText {
 	margin-bottom: -0.1em;
 	font-weight: 700;
+	color: white;
 	/* text-shadow: 5px 5px 0px #2b95eb; */
 	text-shadow: 0 1px 0 #ccc,
-	0 2px 0 #324b5f,
+	0 2px 0 #517491,
 	0 3px 0 rgb(40, 124, 78),
-	0 4px 0 #cf7171,
+	0 4px 0 rgb(103, 149, 187),
 	0 5px 0 rgb(117, 142, 179),
 	0 6px 1px rgba(0,0,0,.1),
 	0 0 5px rgba(0,0,0,.1),
@@ -58,9 +60,15 @@ header {
 		0 3px 0 rgb(40, 124, 78); */
 	/* font-weight: 400; */
 	cursor: pointer;
-	text-shadow: 0 1px 0 rgb(124, 122, 216),
-	0 2px 0 #2384ce;
+	text-decoration: underline ;
+	/* text-shadow: 0 1px 0 rgb(124, 122, 216),
+	0 2px 0 #2384ce; */
 	transition: 0.1s ease-in;
+}
+
+.chordListItem:active {
+	 color: rgb(103, 149, 187);
+	  
 }
 
   

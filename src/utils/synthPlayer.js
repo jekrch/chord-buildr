@@ -1,4 +1,5 @@
 import * as Tone from "tone"
+import { getPianoById } from "../components/context/AppContext"
 
 const sampler = getSampler()
 
@@ -25,18 +26,32 @@ function getSampler() {
     baseUrl: "https://tonejs.github.io/audio/salamander/"
   }).toDestination()
 
-  //sampler = new Tone.PolySynth().toDestination()
+  sampler = new Tone.PolySynth().toDestination()
 
   return sampler
 }
 
-export function playPiano(pianoComponent) {
+export function playPiano(state, pianoId) {
+  var pianoComponent = getPianoById(state, pianoId)
+  var synth
+
+  if (!state.synth) synth = state.synth
+  else {
+    synth = getSampler()
+    state.synth = synth
+  }
+  synth = getSampler()
+
+  playPianoWithSynth(synth, pianoComponent)
+}
+
+export function playPianoWithSynth(synth, pianoComponent) {
   console.log("playing piano: " + pianoComponent)
 
   var selectedNotes = getSelectedNotes(pianoComponent.piano)
 
-  //sampler.releaseAll()
-  sampler.triggerAttackRelease(selectedNotes, "1.1", "+0.003", "0.3")
+  sampler.releaseAll()
+  sampler.triggerAttackRelease(selectedNotes, "1.1", "+0.003", "0.1")
 }
 
 function getSelectedNotes(piano) {

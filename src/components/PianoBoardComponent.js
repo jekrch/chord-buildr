@@ -1,4 +1,4 @@
-import React, { useContext, useEffect } from "react"
+import React, { useContext, useEffect, useRef, useLayoutEffect } from "react"
 import "../styles/Piano.css"
 import { AppContext } from "../components/context/AppContext"
 import { getProgressionCode } from "../utils/chordCodeHandler"
@@ -8,42 +8,52 @@ import { useHistory } from "react-router-dom"
 export const PianoBoardComponent = () => {
   const { state, dispatch } = useContext(AppContext)
 
+  //const chordRef = useRef({})
+
   const history = useHistory()
   state.history = history
 
   useEffect(() => {
-    var currentCode = getProgressionCode(state)
+    buildChordsFromUrl(state, history, dispatch)
+  })
 
-    var newParams = history.location.search.replace("?prog=", "")
-    newParams += history.location.hash
-
-    if (!state.building && currentCode !== newParams) {
-      console.log("New chord code provided " + currentCode + " vs " + newParams)
-
-      dispatch({
-        type: "BUILD_PROG_FROM_CODE",
-        payload: newParams
-      })
-    }
+  useLayoutEffect(() => {
+    buildChordsFromUrl(state, history, dispatch)
   })
 
   const renderChordPianoSet = () => {
     return state.chordPianoSet.map((chordPiano) => (
-      <>
+      <div key={chordPiano.id}>
         <ChordPianoComponent
-          key={Number(chordPiano.id)}
+          key={"piano-" + chordPiano.id}
           className="row chordPianoComponent"
           pianoComponentId={Number(chordPiano.id)}
           history={history}
         />
-        <div className="pianoStrip" />
-      </>
+        <div key={"strip-" + chordPiano.id} className="pianoStrip" />
+      </div>
     ))
   }
 
   return (
-    <>
-      <div className="pianoBoard">{renderChordPianoSet()} </div>
-    </>
+    <div key="pianoBoard" className="pianoBoard">
+      {renderChordPianoSet()}
+    </div>
   )
+}
+
+function buildChordsFromUrl(state, history, dispatch) {
+  var currentCode = getProgressionCode(state)
+
+  var newParams = history.location.search.replace("?prog=", "")
+  newParams += history.location.hash
+
+  if (!state.building && currentCode !== newParams) {
+    console.log("New chord code provided " + currentCode + " vs " + newParams)
+
+    dispatch({
+      type: "BUILD_PROG_FROM_CODE",
+      payload: newParams
+    })
+  }
 }

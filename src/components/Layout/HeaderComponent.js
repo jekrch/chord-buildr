@@ -16,8 +16,8 @@ export const HeaderComponent = () => {
 
   const handleItemClick = (id) => {
     console.log("clicked " + id)
-    var chordPiano = getPianoById(state, id)
-    playPiano(chordPiano)
+
+    playPiano(state, id)
   }
 
   const renderProgression = () => {

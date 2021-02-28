@@ -154,19 +154,20 @@ const appReducer = (state, action) => {
 
       var originalChordPiano = getPianoById(state, pianoId)
 
-      if (originalChordPiano.isProgKey) {
-        var newSelectedKey = action.payload
+      if (originalChordPiano) {
+        if (originalChordPiano.isProgKey) {
+          var newSelectedKey = action.payload
 
-        transposePianoBoard(
-          pianoId,
-          state.chordPianoSet,
-          originalChordPiano,
-          newSelectedKey
-        )
+          transposePianoBoard(
+            pianoId,
+            state.chordPianoSet,
+            originalChordPiano,
+            newSelectedKey
+          )
+        }
+
+        originalChordPiano.selectedKey = action.payload
       }
-
-      originalChordPiano.selectedKey = action.payload
-
       updateUrlProgressionCode(state)
 
       return {
@@ -185,19 +186,20 @@ const appReducer = (state, action) => {
 
       var originalChordPiano = getPianoById(state, pianoId)
 
-      if (originalChordPiano.isProgKey) {
-        transposePianoBoard(
-          pianoId,
-          state.chordPianoSet,
-          originalChordPiano,
-          newSelectedKey
-        )
+      if (originalChordPiano) {
+        if (originalChordPiano.isProgKey) {
+          transposePianoBoard(
+            pianoId,
+            state.chordPianoSet,
+            originalChordPiano,
+            newSelectedKey
+          )
+        }
+
+        // update the chord and selected key
+        originalChordPiano.selectedChord = action.payload
+        originalChordPiano.selectedKey = newSelectedKey
       }
-
-      // update the chord and selected key
-      originalChordPiano.selectedChord = action.payload
-      originalChordPiano.selectedKey = newSelectedKey
-
       updateUrlProgressionCode(state)
 
       return {
