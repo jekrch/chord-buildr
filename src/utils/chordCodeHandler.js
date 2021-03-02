@@ -87,7 +87,7 @@ export function getProgressionCode(state) {
   return code
 }
 
-function isSlashChord(selectedChord) {
+export function isSlashChord(selectedChord) {
   return (
     selectedChord.slash &&
     selectedChord.slashNote &&

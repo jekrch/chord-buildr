@@ -1,8 +1,9 @@
 import React, { useContext } from "react"
 import Button from "react-bootstrap/Button"
 import "../../styles/Layout.css"
-import { AppContext, getPianoById } from "../context/AppContext"
+import { AppContext } from "../context/AppContext"
 import { playPiano } from "../../utils/synthPlayer"
+import { isSlashChord } from "../../utils/chordCodeHandler"
 
 export const HeaderComponent = () => {
   const { state, dispatch } = useContext(AppContext)
@@ -30,8 +31,11 @@ export const HeaderComponent = () => {
         >
           <div className="chordItem">
             &nbsp;{piano.selectedChord.noteLetter}
-            {piano.selectedChord.type}&nbsp;
-            {i !== state.chordPianoSet.length - 1 ? "|" : ""}
+            {piano.selectedChord.type}
+            {isSlashChord(piano.selectedChord)
+              ? "/" + piano.selectedChord.slashNote
+              : ""}
+            &nbsp;{i !== state.chordPianoSet.length - 1 ? "|" : ""}
           </div>
         </li>
       )
