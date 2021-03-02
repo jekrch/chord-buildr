@@ -156,16 +156,18 @@ export function transposePianoBoard(
     for (let i = 0; i < chordPianoSet.length; i++) {
       var chordPiano = chordPianoSet[i]
 
-      // don't change the root chord
-      if (chordPiano.id === pianoId) continue
-
-      chordPiano.selectedKey = getTransposedSelectedKey(
-        chordPiano,
+      chordPiano.selectedChord.slashNote = getTransposedNote(
+        chordPiano.selectedChord.slashNote,
         stepsChanged
       )
 
-      chordPiano.selectedChord.slashNote = getTransposedNote(
-        chordPiano.selectedChord.slashNote,
+      // don't change the root chord
+      if (chordPiano.id === pianoId) {
+        continue
+      }
+
+      chordPiano.selectedKey = getTransposedSelectedKey(
+        chordPiano,
         stepsChanged
       )
 

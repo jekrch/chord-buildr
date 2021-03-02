@@ -27,16 +27,7 @@ export function getChordFromCode(chordCode) {
     chord.isKey = chordCode.includes("*")
     chordCode = chordCode.replace("*", "")
 
-    //var slashNoteMatches = chordCode.match(/\:(.*)/)
-
-    if (chordCode.includes(":")) {
-      var slashNote = chordCode.split(":").pop()
-
-      chord.slashNote = slashNote
-      chord.slash = true
-
-      chordCode = chordCode.replace(":" + slashNote, "")
-    }
+    chordCode = processSlashChord(chordCode, chord)
 
     var indexOfType = chordCode.substring(2, 3) === "#" ? 3 : 2
 
@@ -55,6 +46,18 @@ export function getChordFromCode(chordCode) {
   }
 
   return chord
+}
+
+function processSlashChord(chordCode, chord) {
+  if (chordCode.includes(":")) {
+    var slashNote = chordCode.split(":").pop()
+
+    chord.slashNote = slashNote
+    chord.slash = true
+
+    chordCode = chordCode.replace(":" + slashNote, "")
+  }
+  return chordCode
 }
 
 export function getProgressionCode(state) {
