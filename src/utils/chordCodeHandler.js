@@ -22,23 +22,23 @@ export function getChordFromCode(chordCode) {
   try {
     chord.octave = extractOctave(chordCode, chord)
 
-    var slashNoteMatches = chordCode.match(/\[(.*)\]/)
+    chordCode = chordCode.replace(")", "")
 
-    if (slashNoteMatches) {
-      var slashNote = slashNoteMatches[1]
+    chord.isKey = chordCode.includes("*")
+    chordCode = chordCode.replace("*", "")
+
+    //var slashNoteMatches = chordCode.match(/\:(.*)/)
+
+    if (chordCode.includes(":")) {
+      var slashNote = chordCode.split(":").pop()
 
       chord.slashNote = slashNote
       chord.slash = true
 
-      chordCode = chordCode.replace("[" + slashNote + "]", "")
+      chordCode = chordCode.replace(":" + slashNote, "")
     }
 
-    chordCode = chordCode.replace(")", "")
-
     var indexOfType = chordCode.substring(2, 3) === "#" ? 3 : 2
-
-    chord.isKey = chordCode.includes("*")
-    chordCode = chordCode.replace("*", "")
 
     chord.noteLetter = chordCode.substring(1, indexOfType).toUpperCase()
     chord.type = chordCode.substring(indexOfType)
@@ -78,7 +78,7 @@ export function getProgressionCode(state) {
     if (chordPiano.isProgKey) chordCode += "*"
 
     if (isSlashChord(selectedChord)) {
-      chordCode += "[" + selectedChord.slashNote + "]"
+      chordCode += ":" + selectedChord.slashNote
     }
 
     code += `(${chordCode})`
