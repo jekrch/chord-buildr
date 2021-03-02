@@ -15,7 +15,7 @@ export const ChordInput = ({ pianoComponentId }) => {
   var chordPiano = getPianoById(state, pianoComponentId)
 
   chordRef.current.isProgKey = chordPiano.isProgKey ?? false
-  chordRef.current.selectedChordKey = chordPiano.selectedKey.noteLetter
+  chordRef.current.selectedChordKey = chordPiano.selectedKey.noteLetter ?? "C"
   chordRef.current.type = chordPiano.selectedChord.type
   chordRef.current.id = chordPiano.id
   chordRef.current.slashChord = chordPiano.selectedChord.slash ?? false

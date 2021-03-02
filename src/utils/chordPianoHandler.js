@@ -138,7 +138,8 @@ export function createChordPiano(i, chordCode) {
         noteLetter: "C",
         type: "x",
         octave: 0,
-        invalidCode: chordCode
+        invalidCode: chordCode,
+        slash: false
       }
     }
   }

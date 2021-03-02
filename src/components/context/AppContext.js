@@ -102,7 +102,7 @@ function getChordPiano(pianoId) {
     piano: pianoGenerator(),
     selectedKey: { noteLetter: "C", octave: 0 },
     selectedChord: {
-      noteLetter: "",
+      noteLetter: "C",
       type: "",
       octave: 0
     }
