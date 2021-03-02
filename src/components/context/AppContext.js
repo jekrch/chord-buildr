@@ -4,7 +4,8 @@ import { pianoGenerator } from "../../utils/pianoHelper"
 import { getProgressionCode } from "../../utils/chordCodeHandler"
 import {
   createChordPiano,
-  transposePianoBoard
+  transposePianoBoard,
+  selectChordKeys
 } from "../../utils/chordPianoHandler"
 
 export const STATE_NAME = "PIANO_STATE"
@@ -158,6 +159,7 @@ const appReducer = (state, action) => {
         if (originalChordPiano.isProgKey) {
           var newSelectedKey = action.payload
 
+          console.log("transposing for piano id: " + pianoId)
           transposePianoBoard(
             pianoId,
             state.chordPianoSet,
@@ -167,7 +169,16 @@ const appReducer = (state, action) => {
         }
 
         originalChordPiano.selectedKey = action.payload
+        originalChordPiano.selectedChord.noteLetter = action.payload.noteLetter
+        originalChordPiano.selectedChord.octave = action.payload.octave
+
+        originalChordPiano.rendered = false
+
+        selectChordKeys(originalChordPiano)
+      } else {
+        console.log("Piano not found: " + pianoId)
       }
+
       updateUrlProgressionCode(state)
 
       return {
@@ -176,30 +187,18 @@ const appReducer = (state, action) => {
         history: state.history
       }
 
-    case "UPDATE_CHORD":
+    case "UPDATE_CHORD_TYPE":
       console.log(action.payload)
-
-      var newSelectedKey = {
-        noteLetter: action.payload.noteLetter,
-        octave: action.payload.octave
-      }
 
       var originalChordPiano = getPianoById(state, pianoId)
 
       if (originalChordPiano) {
-        if (originalChordPiano.isProgKey) {
-          transposePianoBoard(
-            pianoId,
-            state.chordPianoSet,
-            originalChordPiano,
-            newSelectedKey
-          )
-        }
+        originalChordPiano.selectedChord.type = action.chordType
+        originalChordPiano.rendered = false
 
-        // update the chord and selected key
-        originalChordPiano.selectedChord = action.payload
-        originalChordPiano.selectedKey = newSelectedKey
+        selectChordKeys(originalChordPiano)
       }
+
       updateUrlProgressionCode(state)
 
       return {
@@ -215,8 +214,9 @@ const appReducer = (state, action) => {
 
       if (chordPiano) {
         chordPiano.selectedChord.slash = action.isSlashChord
+        chordPiano.selectedChord.slashNote = action.slashNote
       }
-      //updateUrlProgressionCode(state)
+      updateUrlProgressionCode(state)
 
       return {
         ...state,

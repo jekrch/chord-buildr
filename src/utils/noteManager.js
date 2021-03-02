@@ -102,18 +102,23 @@ export function getNoteNumber(letter) {
 
 // get the letter corresponding to the provided note number
 export function getNoteLetter(key, number) {
-  var noteIndex = number
-
-  if (number > 12) {
-    var modulo = number % 12
-
-    if (modulo === 0) noteIndex = 12
-    else noteIndex = modulo
-  }
+  var noteIndex = normalizeNoteNumber(number)
 
   var noteLetterMap = getNoteLetterMapByKey(key)
 
   var letter = noteLetterMap[noteIndex]
 
   return formatNoteName(letter)
+}
+
+export function normalizeNoteNumber(noteNumber) {
+  while (noteNumber > 12) {
+    noteNumber = noteNumber - 12
+  }
+
+  while (noteNumber < 1) {
+    noteNumber = noteNumber + 12
+  }
+
+  return noteNumber
 }

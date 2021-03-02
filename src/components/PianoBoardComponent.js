@@ -8,18 +8,10 @@ import { useHistory } from "react-router-dom"
 export const PianoBoardComponent = () => {
   const { state, dispatch } = useContext(AppContext)
 
-  //const chordRef = useRef({})
-
   const history = useHistory()
   state.history = history
 
-  useEffect(() => {
-    buildChordsFromUrl(state, history, dispatch)
-  })
-
-  useLayoutEffect(() => {
-    buildChordsFromUrl(state, history, dispatch)
-  })
+  buildChordsFromUrl(state, history, dispatch)
 
   const renderChordPianoSet = () => {
     return state.chordPianoSet.map((chordPiano) => (
