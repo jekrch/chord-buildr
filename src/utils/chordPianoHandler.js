@@ -82,11 +82,16 @@ function getOctaveAdjustedChordNumbersWithFirstNote(
 
     if (firstNoteIsLowest) {
       // if the first note is already the lowest just add the chord notes on top
-      chordNotes.notes = chordNotes.notes.concat(chordNoteNumbers)
+      //chordNotes.notes = chordNotes.notes.concat(chordNoteNumbers)
+
+      chordNoteNumbers.forEach((note) => {
+        if (note - 12 > firstNote) note -= 12
+        chordNotes.notes.push(note)
+      })
     } else {
       // if the first note isn't the lowest, shift the rest of the chord notes up
       // one octave
-      shiftChordNotesUpOctave(chordNoteNumbers, chordNotes)
+      shiftChordNotesUpIfBelowFirstNote(firstNote, chordNoteNumbers, chordNotes)
     }
 
     // determine whether our base (requested octave)
@@ -102,9 +107,14 @@ function getOctaveAdjustedChordNumbersWithFirstNote(
   return chordNotes
 }
 
-function shiftChordNotesUpOctave(chordNoteNumbers, chordNotes) {
+function shiftChordNotesUpIfBelowFirstNote(
+  firstNote,
+  chordNoteNumbers,
+  chordNotes
+) {
   chordNoteNumbers.forEach((note) => {
-    note += 12
+    if (firstNote > note) note += 12
+
     chordNotes.notes.push(note)
   })
 }
