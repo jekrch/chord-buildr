@@ -69,16 +69,7 @@ export function getProgressionCode(state) {
 
     if (!selectedChord) continue
 
-    var chordCode
-
-    // if (selectedChord.invalidCode === undefined) {
-    //   chordCode =
-    //     selectedChord.octave + selectedChord.noteLetter + selectedChord.type
-    // } else {
-    //   chordCode = selectedChord.invalidCode
-    // }
-
-    chordCode =
+    var chordCode =
       selectedChord.octave + selectedChord.noteLetter + selectedChord.type
 
     if (chordPiano.isProgKey) chordCode += "*"

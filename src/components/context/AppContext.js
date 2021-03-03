@@ -216,6 +216,11 @@ const appReducer = (state, action) => {
         chordPiano.selectedChord.slash = action.isSlashChord
         chordPiano.selectedChord.slashNote = action.slashNote
       }
+
+      chordPiano.rendered = false
+
+      selectChordKeys(chordPiano)
+
       updateUrlProgressionCode(state)
 
       return {

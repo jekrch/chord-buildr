@@ -95,6 +95,8 @@ export function formatNoteName(letter) {
 
 // Get the number corresponding to the provide note letter
 export function getNoteNumber(letter) {
+  if (!letter) return
+
   letter = formatNoteName(letter)
 
   return noteNumberMap[letter]

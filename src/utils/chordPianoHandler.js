@@ -5,55 +5,154 @@ import { pianoGenerator } from "./pianoHelper"
 import { getChordFromCode } from "./chordCodeHandler"
 
 export function selectChordKeys(chordPiano) {
-  return selectChordKeysWithType(chordPiano, chordPiano.selectedChord.type)
+  return selectChordKeysWithType(chordPiano, chordPiano.selectedChord)
 }
 
-export function selectChordKeysWithType(chordPiano, type) {
-  var noteLetter = chordPiano.selectedKey.noteLetter
+export function selectChordKeysWithType(chordPiano, selectedChord) {
+  var noteLetter = selectedChord.noteLetter
+  var type = selectedChord.type
+  var octave = selectedChord.octave
+  var slashNote = selectedChord.slashNote
 
   // if not octave is provided, use the currently selected octave
-  var octave = chordPiano.selectedKey.octave
-
   if (!octave || octave === null) {
     octave = 0
   }
 
   // don't select the same chord multiple times
-  if (chordIsAlreadySelected(chordPiano, type, noteLetter, octave)) return
+  if (chordIsAlreadySelected(chordPiano)) return
 
-  var noteNumber = getNoteNumber(noteLetter)
-  var chordNoteNumbers = getNoteNumberChord(noteNumber, type)
+  var chordNoteNumber = getNoteNumber(noteLetter)
+  var slashNoteNumber = getNoteNumber(slashNote)
+
+  var chordNoteNumbers = getNoteNumberChord(chordNoteNumber, type)
 
   clearPianoSelections(chordPiano.piano)
 
-  for (let i = 0; i < chordNoteNumbers.length; i++) {
-    var chordNoteNumber = chordNoteNumbers[i]
+  var chordNotes = getOctaveAdjustedChordNumbersWithFirstNote(
+    octave,
+    chordNoteNumbers,
+    slashNoteNumber
+  )
 
-    selectNote(chordPiano, octave, chordNoteNumber)
-  }
+  chordNotes.notes.forEach((chordNoteNumber) => {
+    var note = normalizeNote(chordNoteNumber, chordNotes.octave)
+
+    selectNote(chordPiano, note.octave, note.noteNumber)
+  })
 
   chordPiano.rendered = true
+}
+
+/**
+ * If there is a first note provided, this arranges the chordNoteNumbers such that
+ * the firstNote comes first, while considering the octaves available for the
+ * subsequent notes
+ *
+ * @param {*} octave
+ * @param {*} chordNoteNumbers
+ * @param {*} firstNote
+ */
+function getOctaveAdjustedChordNumbersWithFirstNote(
+  octave,
+  chordNoteNumbers,
+  firstNote
+) {
+  var chordNotes = {}
+
+  // determine how many octaves we can increment berfor running off the keyboard
+  var octaveAllowance = 2 - octave
+
+  if (!firstNote) {
+    // if we don't have a first note, just return what we have
+    chordNotes.notes = chordNoteNumbers
+    chordNotes.octave = octave
+  } else {
+    // the following arranges the chord notes such that firstNote comes
+    // first and the number of octaves required to captured the top notes
+    // doesn't exceed the octave allowance
+    chordNotes.notes = []
+
+    chordNoteNumbers = removeNoteFromArray(chordNoteNumbers, firstNote)
+
+    // start the new array with our first note
+    chordNotes.notes.push(firstNote)
+
+    var firstNoteIsLowest = chordNoteNumbers.every((n) => n > firstNote)
+
+    if (firstNoteIsLowest) {
+      // if the first note is already the lowest just add the chord notes on top
+      chordNotes.notes = chordNotes.notes.concat(chordNoteNumbers)
+    } else {
+      // if the first note isn't the lowest, shift the rest of the chord notes up
+      // one octave
+      shiftChordNotesUpOctave(chordNoteNumbers, chordNotes)
+    }
+
+    // determine whether our base (requested octave)
+    // needs to be reduced
+    var octaveDecrement = getOctaveDecrementIfNeeded(
+      chordNotes,
+      octaveAllowance
+    )
+
+    chordNotes.octave = octave - octaveDecrement
+  }
+
+  return chordNotes
+}
+
+function shiftChordNotesUpOctave(chordNoteNumbers, chordNotes) {
+  chordNoteNumbers.forEach((note) => {
+    note += 12
+    chordNotes.notes.push(note)
+  })
+}
+
+/**
+ * Given the provided octaveAllowance, determine whether the base octave
+ * needs to be reduced (without altering the note order) and if so
+ * by how much (the octave decrement)
+ *
+ * @param {*} chordNotes      the note numbers for the chord
+ * @param {*} octaveAllowance additional octaves that may be accessed
+ *                            without running off keyboard
+ */
+function getOctaveDecrementIfNeeded(chordNotes, octaveAllowance) {
+  var octaveDecrement = 0
+
+  chordNotes.notes.forEach((note) => {
+    var octaveIncrementRequired = Math.ceil(note / 12) - 1
+
+    if (octaveIncrementRequired >= octaveAllowance) {
+      var noteOctaveDecrement = octaveIncrementRequired - octaveAllowance
+      if (noteOctaveDecrement > octaveDecrement)
+        octaveDecrement = noteOctaveDecrement
+    }
+  })
+
+  return octaveDecrement
+}
+
+/**
+ * this removes any instances of the provided note in the array
+ * whether in the first or any later octave (factors of 12)
+ * @param {*} array
+ * @param {*} note
+ */
+function removeNoteFromArray(array, note) {
+  return array.filter((n) => !((n - note) % 12 === 0))
 }
 
 /**
  * Determines whether the currently selected chord matches the provided
  * type, letter, and octave
  */
-export function chordIsAlreadySelected(chordPiano, type, letter, octave) {
-  var selectedChord = chordPiano.selectedChord
-  return (
-    hasSelectedNotes(chordPiano.piano) &&
-    selectedChord !== null &&
-    selectedChord.type === type &&
-    selectedChord.noteLetter === letter &&
-    selectedChord.octave === octave &&
-    chordPiano.rendered === true
-  )
+export function chordIsAlreadySelected(chordPiano) {
+  return hasSelectedNotes(chordPiano.piano) && chordPiano.rendered === true
 }
 
 export function selectNote(chordPiano, octave, noteNumber) {
-  ;({ noteNumber, octave } = normalizeNote(noteNumber, octave))
-
   var piano = chordPiano.piano
 
   if (noteIsInvalid(piano, octave, noteNumber)) {

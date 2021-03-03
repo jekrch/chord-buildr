@@ -1,4 +1,4 @@
-import React, { useContext, useEffect, useRef, useLayoutEffect } from "react"
+import React, { useContext } from "react"
 import "../styles/Piano.css"
 import { AppContext } from "../components/context/AppContext"
 import { getProgressionCode } from "../utils/chordCodeHandler"
