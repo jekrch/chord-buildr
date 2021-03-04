@@ -1,12 +1,16 @@
 import * as Tone from "tone"
 import { getPianoById } from "../components/context/AppContext"
 
-const synth = new Tone.PolySynth().toDestination()
+const synth = getSynth()
+
+function getSynth() {
+  return new Tone.PolySynth().toDestination()
+}
 
 export function playPiano(state, pianoId) {
   var pianoComponent = getPianoById(state, pianoId)
 
-  console.log("playing piano: " + pianoComponent)
+  getSynth()
 
   var selectedNotes = getSelectedNotes(pianoComponent.piano)
 
