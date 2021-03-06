@@ -15,7 +15,7 @@ export function playPiano(state, pianoId) {
   var selectedNotes = getSelectedNotes(pianoComponent.piano)
 
   synth.releaseAll()
-  synth.set({ volume: 10 })
+  synth.set({ volume: 5 })
   synth.triggerAttackRelease(selectedNotes, "1.1", "+0.003", "0.1")
 }
 
