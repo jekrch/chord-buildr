@@ -183,7 +183,7 @@ function shiftChordNotesUpIfBelowFirstNote(
     chordNotes.notes.push(note)
   })
 
-  console.log("shifted")
+  //console.log("shifted")
   return shiftedUp
 }
 
@@ -434,6 +434,6 @@ function moveChordTowardTonicIfNeeded(
 function getLowestAbsoluteNoteFromSelectedChord(selectedChord, transposing) {
   var originalChordNotes = getChordNotes(selectedChord, !transposing)
 
-  console.log(originalChordNotes)
+  //console.log(originalChordNotes)
   return originalChordNotes.notes[0] + originalChordNotes.octave * 12
 }
