@@ -2,7 +2,7 @@ header {
 	position: sticky;
 	top: 0em;
 	height:auto;
-	width: 100%;
+	width: 100vw;
 	background-color: rgb(44, 43, 43);
 	z-index: 9999;
 

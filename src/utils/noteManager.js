@@ -124,3 +124,27 @@ export function normalizeNoteNumber(noteNumber) {
 
   return noteNumber
 }
+
+/***
+ * if the note is over 12, find the corresponding note in the next octave
+   or if we're at the highest octave, bring the note down 12
+ */
+export function normalizeNote(noteNumber, octave) {
+  while (noteNumber > 12) {
+    noteNumber = noteNumber - 12
+
+    if (octave < 2) {
+      octave++
+    }
+  }
+
+  while (noteNumber < 1) {
+    noteNumber = noteNumber + 12
+
+    if (octave !== 0) {
+      octave--
+    }
+  }
+
+  return { noteNumber, octave }
+}

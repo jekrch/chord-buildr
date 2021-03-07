@@ -2,7 +2,11 @@ import { React, useContext, useRef, useEffect } from "react"
 import Form from "react-bootstrap/Form"
 import { noteLetterMapWithSharps } from "../utils/noteManager"
 import { chordMap } from "../utils/chordManager"
-import { selectChordKeys, hasSelectedNotes } from "../utils/chordPianoHandler"
+import {
+  selectChordKeys,
+  hasSelectedNotes,
+  selectAutomatedChordKeys
+} from "../utils/chordPianoHandler"
 import { AppContext, getPianoById } from "../components/context/AppContext"
 //import { playPiano } from "../utils/synthPlayer"
 import PropTypes from "prop-types"
@@ -24,11 +28,11 @@ export const ChordInput = ({ pianoComponentId }) => {
   useEffect(() => {
     // if no keys are selected, load the selected chord
     if (!hasSelectedNotes(chordPiano.piano)) {
-      selectChordKeys(chordPiano, dispatch)
+      selectAutomatedChordKeys(chordPiano)
     }
 
     if (!state.building) {
-      selectChordKeys(chordPiano, dispatch)
+      selectChordKeys(chordPiano)
     }
   })
 
