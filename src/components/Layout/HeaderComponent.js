@@ -51,19 +51,21 @@ export const HeaderComponent = () => {
   return (
     <>
       <Nav fixed="top" fill className="flex-column mainHeader">
-        <h1 className="titleText">Chord Buildr</h1>
+        <div className="headerContainer container">
+          <h1 className="titleText">Chord Buildr</h1>
 
-        <ul className="progression row" style={{ listStyle: "none" }}>
-          {renderProgression()}
-        </ul>
-        <Button
-          variant="primary"
-          size="sm"
-          className="btn-main add-chord-btn row"
-          onClick={() => handleClickAddChord()}
-        >
-          Add Chord
-        </Button>
+          <ul className="progression row" style={{ listStyle: "none" }}>
+            {renderProgression()}
+          </ul>
+          <Button
+            variant="primary"
+            size="sm"
+            className="btn-main add-chord-btn row"
+            onClick={() => handleClickAddChord()}
+          >
+            Add Chord
+          </Button>
+        </div>
       </Nav>
     </>
   )
