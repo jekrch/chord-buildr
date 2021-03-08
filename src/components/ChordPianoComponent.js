@@ -7,7 +7,7 @@ import PropTypes from "prop-types"
 export const ChordPianoComponent = ({ pianoComponentId }) => {
   return (
     <>
-      <div className="container chordPiano">
+      <div className="container chordPiano" id={"piano-" + pianoComponentId}>
         <div className="contentBox row">
           <div className="pianoChordBox">
             <ChordInput

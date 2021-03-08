@@ -17,6 +17,7 @@ export const PianoBoardComponent = () => {
     return state.chordPianoSet.map((chordPiano) => (
       <div key={chordPiano.id}>
         <ChordPianoComponent
+          id={"piano-" + chordPiano.id}
           key={"piano-" + chordPiano.id}
           className="row chordPianoComponent"
           pianoComponentId={Number(chordPiano.id)}
@@ -30,6 +31,7 @@ export const PianoBoardComponent = () => {
   return (
     <div key="pianoBoard" className="pianoBoard">
       {renderChordPianoSet()}
+      <div className="pianoBoardGutter" />
     </div>
   )
 }

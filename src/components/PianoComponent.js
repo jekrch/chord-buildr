@@ -32,7 +32,7 @@ export const PianoComponent = ({ pianoComponentId }) => {
   }
 
   const handlePlayClick = () => {
-    playPiano(state, pianoId)
+    playPiano(dispatch, state, pianoId)
   }
 
   const renderPiano = () => {

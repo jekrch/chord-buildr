@@ -1,13 +1,36 @@
 header {
 	position: sticky;
 	top: 0em;
-	height:auto;
-	width: 100vw;
+	height: auto;
+	/* min-width: 100% !important;
+	width: 100vh !important; */
 	background-color: rgb(44, 43, 43);
 	z-index: 9999;
+	
+}
 
+.mainHeader {
+	width: 100%;
+	min-width: 100%;
+	padding-right: 1px;
+	padding-left: 1px;
+	/* margin: auto; */
+	/* margin-top: 10px; */
+	background-color: rgb(44, 43, 43);
+	z-index: 9999;
+	position: sticky !important;
+	top: 0em;
+	height: auto;
+	text-align: center;
+	align-items: center;
+	min-width: 100% !important;
+	/* min-width: 100% !important;
+	width: 100vh !important; */
+	background-color: rgb(44, 43, 43);
+	
 
 }
+
 
 .add-chord-btn {
 	top: -2em;
@@ -23,8 +46,12 @@ header {
 
 .pianoBoard {
 	margin-top: -2em;
-	padding-top: 2em;
+	padding-top: 5em;
 	margin-bottom: 5em;
+}
+
+.pianoBoardGutter{
+	height: 100vh;
 }
 
 .chordListItem{
@@ -35,7 +62,6 @@ header {
 	background: transparent;
 	background-color: transparent;
 	z-index: 9999;
-	
 }
 
 .titleText {
@@ -73,7 +99,7 @@ header {
 
 .chordListItem:active {
 	 color: rgb(103, 149, 187);
-	  
+  
 }
 
   

@@ -10,9 +10,9 @@ export const App = () => {
   return (
     <div className="App">
       <AppProvider>
+        <HeaderComponent className="row" />
         <div>
-          <HeaderComponent className="row" />
-          <div className="container">
+          <div className="container mainContainer">
             <Router>
               <Switch>
                 <Route exact path="/" component={PianoBoardComponent} />
