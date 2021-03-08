@@ -6,7 +6,8 @@
   padding: 0 0em;
   margin-top: -1.1em;
   width: 100%;
-  min-width: 900px;
+  /* width: 100%;
+  min-width: 900px; */
 }
 
 .App-logo {
