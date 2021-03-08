@@ -1,11 +1,13 @@
 import React, { useContext } from "react"
 import Nav from "react-bootstrap/Nav"
+import Navbar from "react-bootstrap/Navbar"
 import Button from "react-bootstrap/Button"
 import "../../styles/Layout.css"
 import { AppContext } from "../context/AppContext"
 import { playPiano } from "../../utils/synthPlayer"
 import { isSlashChord } from "../../utils/chordCodeHandler"
 import { Link } from "react-scroll"
+import GitHub120 from "../../public/images/GitHub120.png"
 
 export const HeaderComponent = () => {
   const { state, dispatch } = useContext(AppContext)
@@ -50,6 +52,11 @@ export const HeaderComponent = () => {
   }
   return (
     <>
+      <Navbar className="footNav" fixed="bottom">
+        <Navbar.Brand href="https://github.com/jekrch/chord-buildr">
+          <img className="gitSrc" src={GitHub120} />
+        </Navbar.Brand>
+      </Navbar>
       <Nav fixed="top" fill className="flex-column mainHeader">
         <div className="headerContainer container">
           <h1 className="titleText">Chord Buildr</h1>

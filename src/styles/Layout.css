@@ -1,15 +1,6 @@
 .headerContainer {
-	/* position: sticky;
-	top: 0em;
-	height: auto;
-	/* min-width: 100% !important;
-	width: 100vh !important; */
-	/* margin: 0 auto;
-	width: 100%;
-	float: left !important;
-	text-align: center; */
 	float: left;
-	width: auto;
+	width: 100%;
 }
 
 .mainHeader {
@@ -17,8 +8,6 @@
 	min-width: 100%;
 	padding-right: 1px;
 	padding-left: 1px;
-	/* margin: auto; */
-	/* margin-top: 10px; */
 	background-color: rgb(44, 43, 43);
 	z-index: 9999;
 	position: sticky !important;
@@ -27,13 +16,23 @@
 	text-align: center;
 	align-items: center;
 	min-width: 100% !important;
-	/* min-width: 100% !important;
-	width: 100vh !important; */
 	background-color: rgb(44, 43, 43);
 	
-
 }
 
+.footNav{
+	background-color: rgb(44, 43, 43);
+	height: 2.5em;
+}
+
+.gitSrc{
+	height: 1.2em;
+	margin-bottom: .15em;
+}
+
+.gitSrc:hover {
+	opacity: 50%;
+}
 
 .add-chord-btn {
 	top: -2em;
@@ -92,17 +91,18 @@
 		0 3px 0 rgb(40, 124, 78); */
 	/* font-weight: 400; */
 	cursor: pointer;
-	text-decoration: underline;
+	text-decoration: underline !important;
 	text-underline-offset: 3px;
 	/* text-underline-position: 20px 2px; */
 	/* text-shadow: 0 1px 0 rgb(124, 122, 216),
 	0 2px 0 #2384ce; */
 	transition: 0.1s ease-in;
+	color: rgb(137, 175, 206);
 }
 
 .chordListItem:active {
-	 color: rgb(103, 149, 187);
-  
+	color: rgb(38, 115, 179);
+
 }
 
   

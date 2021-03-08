@@ -7,6 +7,7 @@ export const Key = ({ pianoKey, handleClick }) => {
       <li
         key-selected={`${pianoKey.selected}`}
         key-playing={`${pianoKey.isPlaying}`}
+        key-stopping={`${pianoKey.isStopping}`}
         className={`${pianoKey.color} ${pianoKey.note} ${pianoKey.note}-${pianoKey.octave}`}
         onClick={() =>
           handleClick(pianoKey.note, pianoKey.noteNumber, pianoKey.octave)
