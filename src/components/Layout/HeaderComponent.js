@@ -55,8 +55,10 @@ export const HeaderComponent = () => {
       <Navbar className="footNav" fixed="bottom">
         <Navbar.Brand href="https://github.com/jekrch/chord-buildr">
           <img className="gitSrc" src={GitHub120} />
-        </Navbar.Brand>
+        </Navbar.Brand>{" "}
+        <div className="footNavText">v1.0</div>
       </Navbar>
+
       <Nav fixed="top" fill className="flex-column mainHeader">
         <div className="headerContainer container">
           <h1 className="titleText">Chord Buildr</h1>

@@ -20,12 +20,16 @@
 	
 }
 
-.footNav{
+.footNav {
 	background-color: rgb(44, 43, 43);
 	height: 2.5em;
 }
 
-.gitSrc{
+.footNavText {
+	font-size: 0.75em;
+}
+
+.gitSrc {
 	height: 1.2em;
 	margin-bottom: .15em;
 }
