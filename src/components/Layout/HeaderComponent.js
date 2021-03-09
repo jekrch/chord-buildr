@@ -43,7 +43,7 @@ export const HeaderComponent = () => {
           </Modal.Title> */}
         </Modal.Header>
         <Modal.Body>
-          <p>
+          <p className="aboutDescriptionText">
             Chord Buildr provides an easy way for musicians and music lovers to
             create and share chord progressions.
           </p>
@@ -89,15 +89,27 @@ export const HeaderComponent = () => {
             </div>
             <br />
           </p>
-          <p>
+          <p className="creditsText">
             Chord Buildr is an{" "}
-            <a href="https://github.com/jekrch/chord-buildr">open source</a>{" "}
-            project started by{" "}
-            <a href="https://www.jacobkrch.com">Jacob Krch</a> and{" "}
-            <a href="https://www.linkedin.com/in/teran-keith-210941107/">
+            <a
+              className="modalText"
+              href="https://github.com/jekrch/chord-buildr"
+            >
+              open source
+            </a>{" "}
+            project started by <br />
+            <a className="modalText" href="https://www.jacobkrch.com">
+              Jacob Krch
+            </a>{" "}
+            and{" "}
+            <a
+              className="modalText"
+              href="https://www.linkedin.com/in/teran-keith-210941107/"
+            >
               Teran Keith
             </a>{" "}
-            using Node.Js, React, and Tone.js.
+            <br />
+            using Node.js, React, and Tone.js.
           </p>
         </Modal.Body>
       </Modal>

@@ -20,6 +20,17 @@
 	
 }
 
+.aboutDescriptionText {
+	margin-top: 1em;
+	text-align: center;
+}
+
+.creditsText {
+	margin-top: 1.1em;
+	text-align: center;
+	line-height: 1.8em;
+}
+
 .footNav {
 	background-color: rgb(44, 43, 43);
 	height: 2.5em;
@@ -60,11 +71,20 @@
 .modal-content {
 	padding: 0.8em 2em 2em 2em;
  	/* background: rgb(44, 43, 43); */
+	 
 	 background: rgb(52, 59, 55);
 	 color: white;
 	 box-shadow: 4px 8px 4px rgba(16, 19, 26, 0.404) !important;
 }
 
+.modalText {
+	color:#80c0fc !important
+}
+
+
+.modalText:hover {
+	color:#6ca4da !important
+}
 
 .modal-backdrop {
     z-index: 9999 !important;
