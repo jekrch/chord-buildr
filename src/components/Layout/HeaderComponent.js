@@ -38,14 +38,14 @@ export const HeaderComponent = () => {
         centered
       >
         <Modal.Header closeButton>
-          <Modal.Title id="contained-modal-title-vcenter">
+          {/* <Modal.Title id="contained-modal-title-vcenter">
             Chord Buildr
-          </Modal.Title>
+          </Modal.Title> */}
         </Modal.Header>
         <Modal.Body>
           <p>
             Chord Buildr provides an easy way for musicians and music lovers to
-            create, share, and experiment with chord progressions.
+            create and share chord progressions.
           </p>
           <br />
           <p>
@@ -62,11 +62,11 @@ export const HeaderComponent = () => {
                 <path fill-rule="evenodd" d="M9 3v10H8V3h1z" />
                 <path d="M8 2.82a1 1 0 0 1 .804-.98l3-.6A1 1 0 0 1 13 2.22V4L8 5V2.82z" />
               </svg>{" "}
-              tranpose
+              transpose
             </h5>
             <div className="aboutFeatureText">
-              Mark a chord as the <b>key</b> and the rest of your progression
-              will transpose as you change its root note.{" "}
+              Mark a chord as the key and the rest of your progression will
+              transpose as you change its root note.{" "}
             </div>
             <br />
             <h5>

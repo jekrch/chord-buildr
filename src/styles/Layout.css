@@ -57,7 +57,7 @@
 }
 
 .modal-content {
-	padding: 2em;
+	padding: 0.8em 2em 2em 2em;
  	/* background: rgb(44, 43, 43); */
 	 background: rgb(52, 59, 55);
 	 color: white;
