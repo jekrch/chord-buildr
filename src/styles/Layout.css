@@ -29,13 +29,47 @@
 	font-size: 0.75em;
 }
 
+.footNavAbout {
+	font-size: 0.75em;
+	margin-left: 1em;
+}
+
+
 .gitSrc {
 	height: 1.2em;
 	margin-bottom: .15em;
 }
 
+.aboutFeatureText {
+	margin-left: 1.4em;
+}
+
+.modal-open { 
+	overflow-y: auto !important;
+	overflow-x: auto !important;
+	margin-right: -0em !important;
+	padding-right: -0em !important;
+	z-index: 9999;
+}
+
+.modal {
+	z-index: 9999;
+}
+
+.modal-content {
+ 	/* background: rgb(44, 43, 43); */
+	 background: rgb(41, 53, 45);
+	 color: white;
+}
+
+.modal-header .close {
+	color: white;
+}
+
+.footNavAbout:hover,
 .gitSrc:hover {
 	opacity: 50%;
+	cursor: pointer;
 }
 
 .add-chord-btn {
@@ -72,7 +106,7 @@
 
 .titleText {
 	margin-bottom: -0.1em;
-	font-size: 2em;
+	font-size: 1.8em;
 	font-weight: 700;
 	color: white;
 	/* text-shadow: 5px 5px 0px #2b95eb; */
