@@ -53,7 +53,7 @@
 }
 
 .modal {
-	z-index: 9999;
+	z-index: 10000;
 }
 
 .modal-content {
@@ -63,6 +63,10 @@
 	 color: white;
 }
 
+.modal-backdrop {
+    z-index: 9999 !important;
+  }
+  
 .modal-header .close {
 	color: white;
 }
