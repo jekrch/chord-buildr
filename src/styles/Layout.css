@@ -56,12 +56,15 @@
 	z-index: 10000;
 }
 
+
 .modal-content {
 	padding: 0.8em 2em 2em 2em;
  	/* background: rgb(44, 43, 43); */
 	 background: rgb(52, 59, 55);
 	 color: white;
+	 box-shadow: 4px 8px 4px rgba(16, 19, 26, 0.404) !important;
 }
+
 
 .modal-backdrop {
     z-index: 9999 !important;
