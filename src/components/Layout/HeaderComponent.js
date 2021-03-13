@@ -149,7 +149,7 @@ export const HeaderComponent = () => {
             <Button
               variant="primary"
               size="sm"
-              className="btn-main add-chord-btn "
+              className="btn-main chord-btn "
               onClick={() => handleClickAddChord()}
             >
               Add
@@ -157,7 +157,7 @@ export const HeaderComponent = () => {
             <Button
               variant="primary"
               size="sm"
-              className="btn-main add-chord-btn"
+              className="btn-main chord-btn"
               onClick={() => handleClickAddChord()}
             >
               Undo
@@ -165,7 +165,7 @@ export const HeaderComponent = () => {
             <Button
               variant="primary"
               size="sm"
-              className="btn-main add-chord-btn"
+              className="btn-main chord-btn"
               onClick={() => handleClickAddChord()}
             >
               Clear

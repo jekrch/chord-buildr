@@ -13,7 +13,7 @@
 	/* top: 0em; */
 	/* height: auto; */
 	padding-top: 0em;
-	padding-bottom: 1em;
+	padding-bottom: 0em;
 	text-align: center;
 	align-items: center;
 	/* min-width: 100% !important; */
@@ -62,7 +62,7 @@
 	position:relative;
 	padding-left:2em;
 	
-	padding-top: 6em;
+	padding-top: 5em;
 	/* margin-top: 0 !important;
 	margin-bottom: 0 !important; */
 	/* height: 100%;
@@ -133,18 +133,15 @@ body {
 	cursor: pointer;
 }
 
-.add-chord-btn {
-	/* margin-top:0em !important; */
-	/* display: flex; */
+.chord-btn {
 	display: inline-block;
 	margin: 1em 2em;
-	/* position: relative; */
 }
 
 .buttonContainer {
 	justify-content: center !important;
 	text-align: center;
-	margin-top: 1em;
+	margin-top: 0em;
 }
 
 .progression {
@@ -152,6 +149,12 @@ body {
 	margin-top: 0em;
 	margin-bottom: 0em;
 	justify-content: center;
+	border: 20 20 20 20;
+	border-style: ridge;
+	border-color: rgb(40, 70, 109);
+	/* background-color:black; */
+
+	/* background-color: rgb(25, 88, 72); */
 	/* padding: 0 0 1em 0; */
 }
 
