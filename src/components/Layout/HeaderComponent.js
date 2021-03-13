@@ -145,9 +145,6 @@ export const HeaderComponent = () => {
     <>
       <Navbar fixed="top" className="flex-column mainHeader">
         <div className="headerContainer">
-          <ul className="progression row" style={{ listStyle: "none" }}>
-            {renderProgression()}
-          </ul>
           <div className="buttonContainer row">
             <Button
               variant="primary"
@@ -174,6 +171,9 @@ export const HeaderComponent = () => {
               Clear
             </Button>
           </div>
+          <ul className="progression row" style={{ listStyle: "none" }}>
+            {renderProgression()}
+          </ul>
         </div>
       </Navbar>
     </>

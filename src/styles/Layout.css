@@ -62,12 +62,12 @@
 	position:relative;
 	padding-left:2em;
 	
-	padding-top: 5em;
+	padding-top: 6em;
 	/* margin-top: 0 !important;
 	margin-bottom: 0 !important; */
 	/* height: 100%;
 	width: 100%; */
-	margin-top: 0em;
+	margin-top: 2em;
 	bottom: auto;
 	/* margin-bottom: 2.4em !important; */
 	/* top: 7.3em !important; */
@@ -134,21 +134,23 @@ body {
 }
 
 .add-chord-btn {
-	margin-top:0em !important;
+	/* margin-top:0em !important; */
 	/* display: flex; */
 	display: inline-block;
-	margin: 0 2em;
+	margin: 1em 2em;
 	/* position: relative; */
 }
 
 .buttonContainer {
 	justify-content: center !important;
 	text-align: center;
+	margin-top: 1em;
 }
 
 .progression {
 	/* display: flex; */
-	margin: 0em;
+	margin-top: 0em;
+	margin-bottom: 0em;
 	justify-content: center;
 	/* padding: 0 0 1em 0; */
 }
@@ -179,10 +181,9 @@ body {
 	font-size: 1.1em;
 	font-weight: 400;
 	color: white;
-
 	text-shadow: 0 1px 0 #ccc,
 	0 2px 0 #061929,
-	0 3px 0 rgb(40, 124, 78);;
+	0 3px 0 rgb(40, 124, 78);
 }
 .chordListItem:hover {
 	/* text-shadow: 

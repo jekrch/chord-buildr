@@ -1,17 +1,24 @@
 import * as Tone from "tone"
 import { getPianoById } from "../components/context/AppContext"
 
-const synth = getSynth()
+var synth = null
 
 function getSynth() {
-  return new Tone.PolySynth().toDestination()
+  if (synth !== null) {
+    return synth
+  }
+  synth = new Tone.PolySynth().toDestination()
+  Tone.setContext(new Tone.Context({ latencyHint: "balanced" }))
+  return synth
 }
 
 export function playPiano(dispatch, state, pianoId) {
   var pianoComponent = getPianoById(state, pianoId)
 
-  getSynth()
+  var synth = getSynth()
 
+  console.log("test")
+  synth.toDestination()
   var selectedNotes = getSelectedNotes(pianoComponent.piano)
 
   dispatch({
@@ -20,7 +27,6 @@ export function playPiano(dispatch, state, pianoId) {
     payload: pianoComponent.piano
   })
 
-  Tone.setContext(new Tone.Context({ latencyHint: "balanced" }))
   synth.releaseAll()
   // synth.set({ volume: 0.5 })
 
