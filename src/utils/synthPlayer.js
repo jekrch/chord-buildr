@@ -20,9 +20,11 @@ export function playPiano(dispatch, state, pianoId) {
     payload: pianoComponent.piano
   })
 
+  Tone.setContext(new Tone.Context({ latencyHint: "balanced" }))
   synth.releaseAll()
-  synth.set({ volume: 5 })
-  synth.triggerAttackRelease(selectedNotes, "1.1", "+0.003", "0.1")
+  // synth.set({ volume: 0.5 })
+
+  synth.triggerAttackRelease(selectedNotes, "1.1", "+0.03", "0.9")
 
   clearPianoKeyPlaying(dispatch, pianoComponent)
 }

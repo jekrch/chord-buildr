@@ -10,25 +10,12 @@ import { isSlashChord } from "../../utils/chordCodeHandler"
 import { Link } from "react-scroll"
 import GitHub120 from "../../public/images/GitHub120.png"
 
-export const HeaderComponent = () => {
+export const FooterComponent = () => {
   const { state, dispatch } = useContext(AppContext)
 
   const [modalShow, setModalShow] = React.useState(false)
 
-  const handleClickAddChord = () => {
-    dispatch({
-      type: "ADD_CHORD_PIANO",
-      payload: "selectedKey"
-    })
-  }
-
-  const handleItemClick = (id) => {
-    console.log("clicked " + id)
-
-    playPiano(dispatch, state, id)
-  }
-
-  function MyVerticallyCenteredModal(props) {
+  function AboutModal(props) {
     return (
       <Modal
         {...props}
@@ -116,65 +103,18 @@ export const HeaderComponent = () => {
     )
   }
 
-  const renderProgression = () => {
-    return state.chordPianoSet.map((piano, i) => {
-      return (
-        <Link
-          className="chordListItem"
-          to={"piano-" + piano.id}
-          spy={true}
-          offset={-100}
-          duration={500}
-          smooth={true}
-          key={piano.id}
-          onClick={(id) => handleItemClick(piano.id)}
-        >
-          <div className="chordItem">
-            &nbsp;{piano.selectedChord.noteLetter}
-            {piano.selectedChord.type}
-            {isSlashChord(piano.selectedChord)
-              ? "/" + piano.selectedChord.slashNote
-              : ""}
-            &nbsp;{i !== state.chordPianoSet.length - 1 ? "|" : ""}
-          </div>
-        </Link>
-      )
-    })
-  }
   return (
     <>
-      <Navbar fixed="top" className="flex-column mainHeader">
-        <div className="headerContainer">
-          <ul className="progression row" style={{ listStyle: "none" }}>
-            {renderProgression()}
-          </ul>
-          <div className="buttonContainer row">
-            <Button
-              variant="primary"
-              size="sm"
-              className="btn-main add-chord-btn "
-              onClick={() => handleClickAddChord()}
-            >
-              Add
-            </Button>
-            <Button
-              variant="primary"
-              size="sm"
-              className="btn-main add-chord-btn"
-              onClick={() => handleClickAddChord()}
-            >
-              Undo
-            </Button>
-            <Button
-              variant="primary"
-              size="sm"
-              className="btn-main add-chord-btn"
-              onClick={() => handleClickAddChord()}
-            >
-              Clear
-            </Button>
-          </div>
+      <Navbar className="footNav" fixed="bottom">
+        <Navbar.Brand href="https://github.com/jekrch/chord-buildr">
+          <img className="gitSrc" src={GitHub120} />
+        </Navbar.Brand>{" "}
+        <div className="footNavText">v1.0</div>
+        <div className="footNavAbout" onClick={() => setModalShow(true)}>
+          About
         </div>
+        <AboutModal show={modalShow} onHide={() => setModalShow(false)} />
+        <h1 className="titleText">chord buildr</h1>
       </Navbar>
     </>
   )

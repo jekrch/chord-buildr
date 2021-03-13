@@ -1,21 +1,22 @@
 .headerContainer {
-	float: left;
+	/* float: left; */
 	width: 100%;
 }
 
 .mainHeader {
-	width: 100%;
-	min-width: 100%;
-	padding-right: 1px;
-	padding-left: 1px;
-	background-color: rgb(44, 43, 43);
+	/* width: 100%;
+	min-width: 100%; */
+	/* padding-right: 1px;
+	padding-left: 1px; */
 	z-index: 9999;
-	position: sticky !important;
-	top: 0em;
-	height: auto;
+	/* position: sticky !important; */
+	/* top: 0em; */
+	/* height: auto; */
+	padding-top: 0em;
+	padding-bottom: 1em;
 	text-align: center;
 	align-items: center;
-	min-width: 100% !important;
+	/* min-width: 100% !important; */
 	background-color: rgb(44, 43, 43);
 	
 }
@@ -30,6 +31,8 @@
 	line-height: 1.8em;
 	text-align: center;
 }
+
+
 
 .footNav {
 	background-color: rgb(44, 43, 43);
@@ -54,6 +57,36 @@
 .aboutFeatureText {
 	margin-left: 1.4em;
 }
+
+.mainContainer {
+	position:relative;
+	padding-left:2em;
+	
+	padding-top: 5em;
+	/* margin-top: 0 !important;
+	margin-bottom: 0 !important; */
+	/* height: 100%;
+	width: 100%; */
+	margin-top: 0em;
+	bottom: auto;
+	/* margin-bottom: 2.4em !important; */
+	/* top: 7.3em !important; */
+	overflow: auto;
+	/* margin-left: auto !important;
+	margin-right: auto !important;
+	overflow-y: scroll !important;
+	overflow-x: scroll !important; */
+	/* align-items: center; */
+	/* bottom: 2.4em !important; */
+
+}
+
+/* 
+body {
+	overflow:hidden;
+} */
+
+
 
 .modal-open { 
 	overflow-y: auto !important;
@@ -101,20 +134,28 @@
 }
 
 .add-chord-btn {
-	top: -2em;
-	margin-bottom: -1em;
-	position: relative;
+	margin-top:0em !important;
+	/* display: flex; */
+	display: inline-block;
+	margin: 0 2em;
+	/* position: relative; */
+}
+
+.buttonContainer {
+	justify-content: center !important;
+	text-align: center;
 }
 
 .progression {
-	display: flex;
+	/* display: flex; */
+	margin: 0em;
 	justify-content: center;
-	padding: 0 0 1em 0;
+	/* padding: 0 0 1em 0; */
 }
 
 .pianoBoard {
 
-	padding-top: 0em;
+	/* padding-top: 4em; */
 	margin-bottom: 5em;
 }
 
@@ -133,23 +174,15 @@
 }
 
 .titleText {
-	margin-bottom: -0.1em;
-	font-size: 1.8em;
-	font-weight: 700;
+	margin-top: 0.2em;
+	margin-left: 1em;
+	font-size: 1.1em;
+	font-weight: 400;
 	color: white;
 	/* text-shadow: 5px 5px 0px #2b95eb; */
 	text-shadow: 0 1px 0 #ccc,
-	0 2px 0 #517491,
-	0 3px 0 rgb(40, 124, 78),
-	0 4px 0 rgb(103, 149, 187),
-	0 5px 0 rgb(117, 142, 179),
-	0 6px 1px rgba(0,0,0,.1),
-	0 0 5px rgba(0,0,0,.1),
-	0 1px 3px rgba(0,0,0,.3),
-	0 3px 5px rgba(0,0,0,.2),
-	0 5px 10px rgba(0,0,0,.25),
-	0 10px 10px rgba(0,0,0,.2),
-	0 20px 20px rgba(0,0,0,.15);
+	0 2px 0 #061929,
+	0 3px 0 rgb(40, 124, 78);;
 }
 .chordListItem:hover {
 	/* text-shadow: 
