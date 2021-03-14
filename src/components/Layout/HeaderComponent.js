@@ -1,4 +1,4 @@
-import React, { useContext } from "react"
+import React, { useContext, useEffect, useState } from "react"
 import Navbar from "react-bootstrap/Navbar"
 import Button from "react-bootstrap/Button"
 import Modal from "react-bootstrap/Modal"
@@ -6,20 +6,44 @@ import "../../styles/Layout.css"
 import { AppContext } from "../context/AppContext"
 import { playPiano } from "../../utils/synthPlayer"
 import { isSlashChord } from "../../utils/chordCodeHandler"
-import { Link } from "react-scroll"
+import { Link, scroller } from "react-scroll"
 
 export const HeaderComponent = () => {
   const { state, dispatch } = useContext(AppContext)
 
-  const [, updateState] = React.useState()
-  const forceUpdate = React.useCallback(() => updateState({}), [])
+  const [newChordAdded, setNewChordAdded] = useState(false)
 
   const handleClickAddChord = () => {
     dispatch({
       type: "ADD_CHORD_PIANO",
       payload: "selectedKey"
     })
+    setNewChordAdded(true)
   }
+
+  useEffect(() => {
+    console.log("render")
+
+    if (!state.chordPianoSet || state.chordPianoSet.length < 1) return
+
+    if (newChordAdded) {
+      console.log(state)
+      var targetKey =
+        "piano-" + state.chordPianoSet[state.chordPianoSet.length - 1].id
+
+      console.log(targetKey)
+      console.log(state.chordPianoSet)
+      scroller.scrollTo(targetKey, {
+        duration: 500,
+        smooth: true,
+        offset: -100,
+        spy: true,
+        to: targetKey
+      })
+
+      setNewChordAdded(false)
+    }
+  }, [state.chordPianoSet])
 
   const handleClickClear = () => {
     dispatch({
@@ -33,7 +57,7 @@ export const HeaderComponent = () => {
       type: "LOAD_PREVIOUS_PROG_CODE",
       payload: ""
     })
-    forceUpdate()
+    //forceUpdate()
   }
 
   const handleItemClick = (id) => {

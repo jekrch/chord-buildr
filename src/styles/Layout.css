@@ -102,7 +102,7 @@ body {
 
 
 .modal-content {
-	padding: 0.8em 2em 2em 2em;
+	padding: 0.5em 1em 1em 1em;
  	/* background: rgb(44, 43, 43); */
 	 
 	 background: rgb(52, 59, 55);
@@ -180,7 +180,7 @@ body {
 
 .titleText {
 	margin-top: 0.2em;
-	margin-left: 1em;
+	margin-left: 2em;
 	font-size: 1.1em;
 	font-weight: 400;
 	color: white;

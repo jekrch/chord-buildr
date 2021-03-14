@@ -302,29 +302,13 @@ const appReducer = (state, action) => {
 
     case "LOAD_PREVIOUS_PROG_CODE":
       if (state.previousProgCodes.length > 0) {
-        console.log("current hist")
-        console.log(state.previousProgCodes)
-
         var lastProgIndex = state.previousProgCodes.length - 1
         var previousProgCode = state.previousProgCodes[lastProgIndex]
-
-        console.log("remove")
-        console.log(previousProgCode)
 
         state = buildProgFromCode(state, previousProgCode)
 
         state.changed = lastProgIndex
         state.previousProgCodes.splice(lastProgIndex, 2)
-
-        console.log("new hist")
-        console.log(state.previousProgCodes)
-
-        // newChordSet = []
-        // state.chordPianoSet.forEach((c) => {
-        //   newChordSet.push(c)
-        // })
-
-        // state.chordPianoSet = newChordSet
       }
 
       return {
