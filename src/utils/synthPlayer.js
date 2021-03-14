@@ -21,18 +21,18 @@ export function playPiano(dispatch, state, pianoId) {
   synth.toDestination()
   var selectedNotes = getSelectedNotes(pianoComponent.piano)
 
-  // dispatch({
-  //   type: "UPDATE_PIANO",
-  //   id: pianoComponent.id,
-  //   payload: pianoComponent.piano
-  // })
+  dispatch({
+    type: "UPDATE_PIANO",
+    id: pianoComponent.id,
+    payload: pianoComponent.piano
+  })
 
   synth.releaseAll()
   // synth.set({ volume: 0.5 })
 
-  synth.triggerAttackRelease(selectedNotes, "1.1", "+0.03", "0.9")
+  synth.triggerAttackRelease(selectedNotes, "1.1", "+0.15", "0.9")
 
-  //clearPianoKeyPlaying(dispatch, pianoComponent)
+  clearPianoKeyPlaying(dispatch, pianoComponent)
 }
 
 function getSelectedNotes(piano) {
