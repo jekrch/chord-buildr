@@ -12,6 +12,8 @@ export const STATE_NAME = "PIANO_STATE"
 
 const initialState = {
   history: null,
+  previousProgCodes: [],
+  currentProgCode: null,
   building: false,
   chordPianoSet: [getChordPiano(0)]
 }
@@ -89,10 +91,15 @@ function validateProgKey(chordPiano, progKeySet) {
 export function updateUrlProgressionCode(state) {
   if (state.building) return
 
-  var porgressionCode = "?prog=" + getProgressionCode(state)
+  var progressionCode = getProgressionCode(state)
+  var progressionCodeUrl = "?prog=" + progressionCode
+
+  if (state.currentProgCode) state.previousProgCodes.push(state.currentProgCode)
+
+  state.currentProgCode = progressionCode
 
   state.history.push({
-    search: porgressionCode
+    search: progressionCodeUrl
   })
 }
 
@@ -291,6 +298,41 @@ const appReducer = (state, action) => {
         chordPianoSet: state.chordPianoSet,
         history: state.history,
         building: state.building
+      }
+
+    case "LOAD_PREVIOUS_PROG_CODE":
+      if (state.previousProgCodes.length > 0) {
+        console.log("current hist")
+        console.log(state.previousProgCodes)
+
+        var lastProgIndex = state.previousProgCodes.length - 1
+        var previousProgCode = state.previousProgCodes[lastProgIndex]
+
+        console.log("remove")
+        console.log(previousProgCode)
+
+        state = buildProgFromCode(state, previousProgCode)
+
+        state.changed = lastProgIndex
+        state.previousProgCodes.splice(lastProgIndex, 2)
+
+        console.log("new hist")
+        console.log(state.previousProgCodes)
+
+        // newChordSet = []
+        // state.chordPianoSet.forEach((c) => {
+        //   newChordSet.push(c)
+        // })
+
+        // state.chordPianoSet = newChordSet
+      }
+
+      return {
+        ...state,
+        chordPianoSet: state.chordPianoSet,
+        history: state.history,
+        previousProgCodes: state.previousProgCodes,
+        currentProgCode: state.currentProgCode
       }
 
     default:

@@ -1,4 +1,4 @@
-import React, { useContext } from "react"
+import React, { useContext, useEffect } from "react"
 import "../styles/Piano.css"
 import { AppContext } from "../components/context/AppContext"
 import { getProgressionCode } from "../utils/chordCodeHandler"
@@ -10,6 +10,14 @@ export const PianoBoardComponent = () => {
 
   const history = useHistory()
   state.history = history
+
+  const [, updateState] = React.useState()
+  const forceUpdate = React.useCallback(() => updateState({}), [])
+
+  useEffect(() => {
+    console.log("render")
+    forceUpdate()
+  }, [state.chordPianoSet])
 
   buildChordsFromUrl(state, history, dispatch)
 

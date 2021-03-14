@@ -1,5 +1,4 @@
 import React, { useContext } from "react"
-import Nav from "react-bootstrap/Nav"
 import Navbar from "react-bootstrap/Navbar"
 import Button from "react-bootstrap/Button"
 import Modal from "react-bootstrap/Modal"
@@ -8,12 +7,12 @@ import { AppContext } from "../context/AppContext"
 import { playPiano } from "../../utils/synthPlayer"
 import { isSlashChord } from "../../utils/chordCodeHandler"
 import { Link } from "react-scroll"
-import GitHub120 from "../../public/images/GitHub120.png"
 
 export const HeaderComponent = () => {
   const { state, dispatch } = useContext(AppContext)
 
-  const [modalShow, setModalShow] = React.useState(false)
+  const [, updateState] = React.useState()
+  const forceUpdate = React.useCallback(() => updateState({}), [])
 
   const handleClickAddChord = () => {
     dispatch({
@@ -22,13 +21,28 @@ export const HeaderComponent = () => {
     })
   }
 
+  const handleClickClear = () => {
+    dispatch({
+      type: "BUILD_PROG_FROM_CODE",
+      payload: ""
+    })
+  }
+
+  const handleUndoClick = () => {
+    dispatch({
+      type: "LOAD_PREVIOUS_PROG_CODE",
+      payload: ""
+    })
+    forceUpdate()
+  }
+
   const handleItemClick = (id) => {
     console.log("clicked " + id)
 
     playPiano(dispatch, state, id)
   }
 
-  function MyVerticallyCenteredModal(props) {
+  function AboutModal(props) {
     return (
       <Modal
         {...props}
@@ -158,7 +172,7 @@ export const HeaderComponent = () => {
               variant="primary"
               size="sm"
               className="btn-main chord-btn"
-              onClick={() => handleClickAddChord()}
+              onClick={() => handleUndoClick()}
             >
               Undo
             </Button>
@@ -166,7 +180,7 @@ export const HeaderComponent = () => {
               variant="primary"
               size="sm"
               className="btn-main chord-btn"
-              onClick={() => handleClickAddChord()}
+              onClick={() => handleClickClear()}
             >
               Clear
             </Button>
