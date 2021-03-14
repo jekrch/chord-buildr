@@ -1,18 +1,10 @@
-import React, { useContext } from "react"
-import Nav from "react-bootstrap/Nav"
+import React from "react"
 import Navbar from "react-bootstrap/Navbar"
-import Button from "react-bootstrap/Button"
 import Modal from "react-bootstrap/Modal"
 import "../../styles/Layout.css"
-import { AppContext } from "../context/AppContext"
-import { playPiano } from "../../utils/synthPlayer"
-import { isSlashChord } from "../../utils/chordCodeHandler"
-import { Link } from "react-scroll"
 import GitHub120 from "../../public/images/GitHub120.png"
 
 export const FooterComponent = () => {
-  const { state, dispatch } = useContext(AppContext)
-
   const [modalShow, setModalShow] = React.useState(false)
 
   function AboutModal(props) {
@@ -94,6 +86,10 @@ export const FooterComponent = () => {
               Teran Keith
             </a>
           </p>
+          <p className="copyrightText">
+            &copy; 2020-
+            {new Date().getFullYear()} Jacob Krch All Rights Reserved
+          </p>
         </Modal.Body>
       </Modal>
     )
@@ -103,7 +99,7 @@ export const FooterComponent = () => {
     <>
       <Navbar className="footNav" fixed="bottom">
         <Navbar.Brand href="https://github.com/jekrch/chord-buildr">
-          <img className="gitSrc" src={GitHub120} />
+          <img className="gitSrc" src={GitHub120} alt="github" />
         </Navbar.Brand>{" "}
         <div className="footNavText">v1.0</div>
         <div className="footNavAbout" onClick={() => setModalShow(true)}>

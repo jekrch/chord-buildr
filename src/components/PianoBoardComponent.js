@@ -17,7 +17,7 @@ export const PianoBoardComponent = () => {
   useEffect(() => {
     console.log("render")
     forceUpdate()
-  }, [state.chordPianoSet])
+  }, [state.chordPianoSet, forceUpdate])
 
   buildChordsFromUrl(state, history, dispatch)
 

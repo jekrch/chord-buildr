@@ -1,26 +1,30 @@
 .headerContainer {
 	/* float: left; */
 	width: 100%;
+
 }
 
 .mainHeader {
-	/* width: 100%;
-	min-width: 100%; */
-	/* padding-right: 1px;
-	padding-left: 1px; */
 	z-index: 9999;
-	/* position: sticky !important; */
-	/* top: 0em; */
-	/* height: auto; */
 	padding-top: 0em;
 	padding-bottom: 0em;
 	text-align: center;
 	align-items: center;
-	/* min-width: 100% !important; */
 	background-color: rgba(44, 43, 43, 0.99);
-	/* opacity: 0.2; */
 }
 
+
+.mainHeader:before {
+	z-index: 0;
+		content: '';
+	position:absolute;
+	top: 0;
+	right: 0;
+	bottom: 0;
+	left: 0;
+	background-image: linear-gradient(to bottom right,#28384277,#13234267);
+	opacity: .90; 
+}
 
 
 .aboutDescriptionText {
@@ -30,10 +34,23 @@
 }
 
 .creditsText {
-	margin-top: 1.1em;
+	margin-top: -0.6em;
 	margin-left: -0.7em;
+	margin-bottom: 2em;
 	line-height: 1.8em;
 	text-align: center;
+}
+
+.copyrightText{
+	
+	/* text-align: center; */
+	color: gray;
+	left: 0.5em;
+	position: relative;
+	font-size: 0.7em !important;
+	bottom: -1.8em;
+	margin-top: 0em;
+	
 }
 
 .footNav {
@@ -63,11 +80,13 @@
 }
 
 .mainContainer {
-	position:relative;
-	padding-left:2em;
 	
-	padding-top: 5em;
-	margin-top: 2em;
+	position:relative;
+	display: inline-block;
+	padding-left:2em;
+	width: 100%;
+	padding-top: 10em;
+	margin-top: 0em;
 	bottom: auto;
 	overflow: auto;
 }
@@ -167,6 +186,7 @@ body.modal-open {
 .chord-btn {
 	display: inline-block;
 	margin: 1em 2em;
+	z-index: 110;
 }
 
 .buttonContainer {
@@ -191,7 +211,8 @@ body.modal-open {
 }
 
 .pianoBoard {
-
+	position: relative;
+	margin-top: 0em;
 	/* padding-top: 4em; */
 	margin-bottom: 5em;
 }

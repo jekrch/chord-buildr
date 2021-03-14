@@ -157,31 +157,33 @@ export const ChordInput = ({ pianoComponentId }) => {
           className="slashCheckBox chordCheckBox"
           onChange={(e) => handleIsSlashChordChecked(e)}
         />
-        <div
-          className="slashSymbol"
-          display-option={`${chordRef.current.slashChord}`}
-        >
-          {"/"}
-        </div>
-        <div
-          className="slashChordSelection"
-          display-option={`${chordRef.current.slashChord}`}
-        >
-          <Form.Control
-            className="selectorBox"
-            as="select"
-            value={chordRef.current.slashNote}
-            custom
-            onChange={(e) => handleSlashChordNoteChange(e)}
+        <div className="slashSelection">
+          <div
+            className="slashSymbol"
+            display-option={`${chordRef.current.slashChord}`}
           >
-            {noteArray.concat("").map((option, index) => {
-              return (
-                <option key={index} value={option}>
-                  {option}
-                </option>
-              )
-            })}
-          </Form.Control>
+            {"/"}
+          </div>
+          <div
+            className="slashChordSelection"
+            display-option={`${chordRef.current.slashChord}`}
+          >
+            <Form.Control
+              className="selectorBox"
+              as="select"
+              value={chordRef.current.slashNote}
+              custom
+              onChange={(e) => handleSlashChordNoteChange(e)}
+            >
+              {noteArray.concat("").map((option, index) => {
+                return (
+                  <option key={index} value={option}>
+                    {option}
+                  </option>
+                )
+              })}
+            </Form.Control>
+          </div>
         </div>
       </Form.Group>
     </Form>

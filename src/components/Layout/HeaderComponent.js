@@ -12,6 +12,8 @@ export const HeaderComponent = () => {
 
   const [newChordAdded, setNewChordAdded] = useState(false)
 
+  const offset = -150
+
   const handleClickAddChord = () => {
     dispatch({
       type: "ADD_CHORD_PIANO",
@@ -35,7 +37,7 @@ export const HeaderComponent = () => {
       scroller.scrollTo(targetKey, {
         duration: 500,
         smooth: true,
-        offset: -100,
+        offset: offset,
         spy: true,
         to: targetKey
       })
@@ -56,7 +58,6 @@ export const HeaderComponent = () => {
       type: "LOAD_PREVIOUS_PROG_CODE",
       payload: ""
     })
-    //forceUpdate()
   }
 
   const handleItemClick = (id) => {
@@ -72,7 +73,7 @@ export const HeaderComponent = () => {
           className="chordListItem"
           to={"piano-" + piano.id}
           spy={true}
-          offset={-100}
+          offset={offset}
           duration={500}
           smooth={true}
           key={piano.id}

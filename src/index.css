@@ -41,17 +41,37 @@ code {
 	margin-bottom: 0.0em;
 }
 
+
+.slashCheckBox {
+	left: 0.3em;
+	font-size: 0.8em;
+	display: block;
+}
+
+.slashSelection {
+	position: relative;
+	margin-top: 2.1em;
+	right: 0.8em;
+	width: 100%;
+	display: flex;
+}
+
 .slashChordSelection {
-	margin-top: 1.6em;
+	position: relative;
+	display: inline-block;
+	margin-left: 1.5em !important;
+	margin-top: 0em;
 	width: 4.2em;
 	height: 54px;
-	margin-left: 2em;
+
 }
 
 .slashSymbol {
-	position: absolute;
-	top: 4.5em;
-	margin-left: 0.2em;
+	position: relative;
+	display: inline-block;
+	top: -0.1em;
+	margin-left: 0.7em;
+	margin-right: -0.4em;
 	font-size: 1.8em;
 	font-weight: 700;
 }
@@ -64,11 +84,12 @@ code {
 
 .typeSelection{
 	margin-top: 0.0em;
+	margin-bottom: 0.1em;
 }
 
 .pianoChordBox {
 	top: 0em;
-	height: 230px;
+	height: 14em;
 }
 
 .selectorBox {
@@ -80,22 +101,55 @@ code {
 }
 
 .chordInputForm {
-	top: 4em;
+	top: 0em;
 	margin-top: 0em;
 	position: relative;
-	width: 120px;
+	width: 7em;
 	color: white;
 }
+:root {
+    --main-compononent-gray: rgb(80, 79, 79);
+	
+	/* rgb(63, 65, 68); */
+}
+
+.pianoContainer {
+	position: absolute;
+	display: flex;
+	top: 0em;
+	right: 0em;
+	left: 6.5em;
+	height: 11.5em;
+	vertical-align: center;
+
+}
+
 
 .pianoBox {
 	position: absolute;
-	margin-top: -9em;
+	display: inline-block;
+	margin-top: 0em;
+	margin-left: 2.7em;
+	height: 100%;
+	width: 42em;
+	color: rgb(133, 133, 133);
+	/* border: 0.1em solid; */
 
-	left: 150px;
-	background: rgb(80, 79, 79);
-	border-radius: 5px;
-	box-shadow: 2px 5px #888888;
+	border-radius: 0.3em;
+	/* left: 150px; */
+	box-shadow: 1px 2px #888888;
+	border-radius: 0.3em;
 	
+	background: var(--main-compononent-gray);
+	box-shadow: 3px 6px 3px rgba(16, 19, 26, 0.404) !important;
+}
+
+@media only screen 
+and (min-device-width : 981px) {
+
+	.pianoBox {
+		margin-left: 2.9em;
+	}
 }
 
 /* Mobile */
@@ -122,12 +176,7 @@ and (max-device-width : 830px) {
 	font-size: 0.8em;
 }
 
-.slashCheckBox {
 
-	left: 0em;
-	font-size: 0.8em;
-	display: block;
-}
 
 .chordCheckBox label {
 	margin-top: -0.2em !important;
@@ -148,4 +197,5 @@ and (max-device-width : 830px) {
 	margin-top: 0em;
 	position: relative;
 	display: flex;
+	
 }

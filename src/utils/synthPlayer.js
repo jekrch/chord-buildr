@@ -8,7 +8,7 @@ function getSynth() {
     return synth
   }
   synth = new Tone.PolySynth().toDestination()
-  Tone.setContext(new Tone.Context({ latencyHint: "balanced" }))
+  Tone.setContext(new Tone.Context({ latencyHint: "playback" }))
   return synth
 }
 

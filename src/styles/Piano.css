@@ -10,7 +10,8 @@
 	display: flex;
 	justify-content: center;
 	margin: 0 0 0 0;
-	margin-right: 0.5em;
+	top: 0.18em;
+	margin-right: 0.2em;
 }
 
 ul {
@@ -121,10 +122,12 @@ ul .white:active {
 	margin-right: 0.0em;
 }
 
+
 .pianoCloseButton {
 	position: relative;
 	margin-right: -0.5em;
-	margin-left: 0.2em;
+	top: -0.1em;
+	margin-left: 0.1em;
 	z-index: 3;
 	float: left;
 	/* background-color: black !important; */
@@ -144,42 +147,63 @@ ul .white:active {
 
 .piano-play-button:active {
 	color: rgb(103, 149, 187);
-	background: linear-gradient(45deg, #222 0%, #555 100%);
+	background: linear-gradient(45deg, #222 0%, rgb(75, 78, 82) 100%);
 	box-shadow: -1px -1px 2px rgba(255, 255, 255, 0.2) inset,
-		0 -5px 2px 3px rgba(56, 56, 56, 0.6) inset, 0 2px 4px rgba(0, 0, 0, 0.5);
+		0 -5px 2px 3px rgba(46, 45, 45, 0.6) inset, 
+		0 2px 4px rgba(0, 0, 0, 0.5);
 }
 .piano-play-button {
 	color: rgb(133, 133, 133);
-	margin-right: 30em;
+	
 	box-sizing: border-box;
 	position: absolute;
-	display: block;
-	transform: scale(var(--ggs, 1));
-	width: 1.9em;
-	height: 11em;
-	border: 2px solid;
+	display: flex;
+	align-items: center;
+	vertical-align: center;
+	/* transform: scale(var(--ggs, 1)); */
+	width: 1.9em !important;
+	height: 100%;
+	border: 0.1em solid;
 	border-radius: 0.3em;
 	background-color: transparent;
-	background: rgb(80, 79, 79);
-	left: 6.8em;
-	margin-top: -8.7em;
+	background: var(--main-compononent-gray);
+	left: 0.20em;
+	margin-top: 1em;
+	padding: 0em;
+
 	outline: none !important;
-	box-shadow: -1px -1px 2px rgba(255, 255, 255, 0.2) inset,
-		0 -5px 2px 3px rgba(56, 56, 56, 0.6) inset, 0 2px 4px rgba(0, 0, 0, 0.5);
+	box-shadow: 
+		-1px -1px 2px  var(--main-compononent-gray) inset,
+		0 -5px 2px 3px rgba(46, 45, 45, 0.6) inset, 
+		3px 6px 3px rgba(16, 19, 26, 0.404);
 }
+
+@media only screen 
+and (min-device-width : 981px) {
+
+	.piano-play-button {
+		left: 0.3em;
+	}
+}
+
 .piano-play-button::before {
 	content: "";
-	display: block;
+	display: inline-block;
+	text-align: center;
+	align-items: center;
 	box-sizing: border-box;
 	position: relative;
-	width: 0;
 	height: 0.7em;
-	border-top: 5px solid transparent;
-	border-bottom: 5px solid transparent;
-	border-left: 6px solid;
-	left: 0.3em;
+	border-top: 0.4em solid transparent;
+	border-bottom: 0.4em solid transparent;
+	border-left: 0.5em solid;
+	margin-left: 0.6em;
+	
+	/* left: 0.3em; */
 	outline: none !important;
 }
+
+
 
 /* Mobile*/
 @media only screen 
@@ -190,6 +214,8 @@ and (max-device-width : 980px) {
 		height: 8em;
 	} */
 }
+
+
 
 .chordPianoComponent {
 	z-index: 200;
