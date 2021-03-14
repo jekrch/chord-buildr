@@ -1,5 +1,6 @@
 import * as Tone from "tone"
 import { getPianoById } from "../components/context/AppContext"
+import { isMobile } from "react-device-detect"
 
 var synth = null
 
@@ -21,18 +22,27 @@ export function playPiano(dispatch, state, pianoId) {
   synth.toDestination()
   var selectedNotes = getSelectedNotes(pianoComponent.piano)
 
-  dispatch({
-    type: "UPDATE_PIANO",
-    id: pianoComponent.id,
-    payload: pianoComponent.piano
-  })
+  if (!isMobile) {
+    dispatch({
+      type: "UPDATE_PIANO",
+      id: pianoComponent.id,
+      payload: pianoComponent.piano
+    })
+  }
 
   synth.releaseAll()
   // synth.set({ volume: 0.5 })
 
-  synth.triggerAttackRelease(selectedNotes, "1.1", "+0.15", "0.9")
+  synth.triggerAttackRelease(
+    selectedNotes,
+    "1.1",
+    isMobile ? "+0.15" : "+0.03",
+    "0.9"
+  )
 
-  clearPianoKeyPlaying(dispatch, pianoComponent)
+  if (!isMobile) {
+    clearPianoKeyPlaying(dispatch, pianoComponent)
+  }
 }
 
 function getSelectedNotes(piano) {
@@ -47,7 +57,7 @@ function getSelectedNotes(piano) {
       if (noteKey.selected) {
         var note = `${noteKey.note.toUpperCase()}${octaveIndex + 3}`
         selectedNotes.push(note)
-        noteKey.isPlaying = true
+        if (!isMobile) noteKey.isPlaying = true
       }
     }
   }
