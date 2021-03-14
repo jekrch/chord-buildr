@@ -247,6 +247,7 @@ export function selectNote(chordPiano, octave, noteNumber) {
   }
 
   noteKey.selected = true
+  noteKey.isStopping = null
 }
 
 export function noteIsInvalid(pianoControl, octave, noteNumber) {

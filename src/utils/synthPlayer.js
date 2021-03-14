@@ -54,10 +54,9 @@ function getSelectedNotes(piano) {
       if (noteKey.selected) {
         var note = `${noteKey.note.toUpperCase()}${octaveIndex + 3}`
         selectedNotes.push(note)
-        if (!isMobile) {
-          noteKey.isStopping = false
-          noteKey.isPlaying = true
-        }
+
+        noteKey.isStopping = null
+        noteKey.isPlaying = true
       }
     }
   }
@@ -73,8 +72,10 @@ function clearPianoKeyPlaying(dispatch, pianoComponent) {
 
       for (let z = 0; z < pianoOctave.length; z++) {
         var key = pianoOctave[z]
-        key.isPlaying = false
-        key.isStopping = true
+        if (key.isPlaying) {
+          key.isPlaying = false
+          key.isStopping = true
+        }
       }
     }
 
