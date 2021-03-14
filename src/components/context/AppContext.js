@@ -111,7 +111,7 @@ function getChordPiano(pianoId) {
     selectedChord: {
       noteLetter: "C",
       type: "",
-      octave: 0
+      octave: 1
     }
   }
 
