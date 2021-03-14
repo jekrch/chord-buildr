@@ -211,9 +211,10 @@ body.modal-open {
 }
 
 .titleText {
+	vertical-align: middle;
 	position:absolute;
 	right: 2em;
-	margin-top: 0.3em;
+	/* margin-top: 0.3em; */
 	margin-left: 1.5em;
 	font-size: 1.1em;
 	font-weight: 400;
