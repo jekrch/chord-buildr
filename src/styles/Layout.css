@@ -17,8 +17,8 @@
 	text-align: center;
 	align-items: center;
 	/* min-width: 100% !important; */
-	background-color: rgb(44, 43, 43);
-	
+	background-color: rgba(44, 43, 43, 0.99);
+	/* opacity: 0.2; */
 }
 
 .aboutDescriptionText {
@@ -31,8 +31,6 @@
 	line-height: 1.8em;
 	text-align: center;
 }
-
-
 
 .footNav {
 	background-color: rgb(44, 43, 43);
@@ -63,22 +61,9 @@
 	padding-left:2em;
 	
 	padding-top: 5em;
-	/* margin-top: 0 !important;
-	margin-bottom: 0 !important; */
-	/* height: 100%;
-	width: 100%; */
 	margin-top: 2em;
 	bottom: auto;
-	/* margin-bottom: 2.4em !important; */
-	/* top: 7.3em !important; */
 	overflow: auto;
-	/* margin-left: auto !important;
-	margin-right: auto !important;
-	overflow-y: scroll !important;
-	overflow-x: scroll !important; */
-	/* align-items: center; */
-	/* bottom: 2.4em !important; */
-
 }
 
 /* 
@@ -105,13 +90,13 @@ body {
 	padding: 0.5em 1em 1em 1em;
  	/* background: rgb(44, 43, 43); */
 	 
-	 background: rgb(46, 49, 48);
+	 background: rgba(51, 58, 55, 0.99);
 	 color: white;
 	 box-shadow: 4px 8px 4px rgba(16, 19, 26, 0.404) !important;
 }
 
 .modalText {
-	color:#80c0fc !important
+	color:#90c0ec !important
 }
 
 
@@ -152,6 +137,7 @@ body {
 	border: 20 20 20 20;
 	border-style: ridge;
 	border-color: rgb(40, 70, 109);
+	background-color: rgb(44, 43, 43);
 	/* background-color:black; */
 
 	/* background-color: rgb(25, 88, 72); */
