@@ -98,22 +98,22 @@ code {
 	
 }
 
-/* Smartphones (portrait and landscape) ----------- */
+/* Mobile */
 @media only screen 
 and (min-device-width : 320px) 
-and (max-device-width : 980px) {
+and (max-device-width : 830px) {
 
-	.pianoBox {
+	/* .pianoBox {
 		zoom: 0.7;
 		-moz-transform: scale(0.7);
 		left: 13.4em;
 		margin-top: -12.5em;
-	}
+	} */
 
-	.chordPiano {
+	/* .chordPiano {
 		height: 10.8em;
 		top: -1em;
-	}
+	} */
 }   
 
 

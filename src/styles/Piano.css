@@ -181,14 +181,14 @@ ul .white:active {
 	outline: none !important;
 }
 
-/* Smartphones (portrait and landscape) ----------- */
+/* Mobile*/
 @media only screen 
 and (min-device-width : 320px) 
 and (max-device-width : 980px) {
 
-	.piano-play-button {
+	/* .piano-play-button {
 		height: 8em;
-	}
+	} */
 }
 
 .chordPianoComponent {
