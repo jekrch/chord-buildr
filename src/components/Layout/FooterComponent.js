@@ -84,7 +84,7 @@ export const FooterComponent = () => {
             >
               open source
             </a>{" "}
-            project started by <br />
+            project <br /> by{" "}
             <a className="modalText" href="https://www.jacobkrch.com">
               Jacob Krch
             </a>{" "}
@@ -94,9 +94,7 @@ export const FooterComponent = () => {
               href="https://www.linkedin.com/in/teran-keith-210941107/"
             >
               Teran Keith
-            </a>{" "}
-            <br />
-            using Node.js, React, and Tone.js.
+            </a>
           </p>
         </Modal.Body>
       </Modal>
