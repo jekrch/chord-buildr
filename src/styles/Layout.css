@@ -21,8 +21,11 @@
 	/* opacity: 0.2; */
 }
 
+
+
 .aboutDescriptionText {
 	margin-top: 1em;
+	/* margin-left: 0.2em; */
 	text-align: center;
 }
 
@@ -43,17 +46,19 @@
 
 .footNavAbout {
 	font-size: 0.75em;
-	margin-left: 1em;
+	margin-left: 2em;
 }
 
 
 .gitSrc {
 	height: 1.2em;
 	margin-bottom: .15em;
+	margin-right: .2em;
+	margin-left: .5em;
 }
 
 .aboutFeatureText {
-	margin-left: 1.4em;
+	margin-left: 2.2em;
 }
 
 .mainContainer {
@@ -85,13 +90,25 @@ body {
 	z-index: 10000;
 }
 
+body.modal-open {
+    padding-right: 0px !important;
+}
+
+.navbar {
+    padding-right: 16px !important;
+}
+
+.aboutLine {
+	border-top: 1px solid;
+	margin: 2em -1em;
+}
 
 .modal-content {
 	padding: 0.5em 1em 1em 1em;
  	/* background: rgb(44, 43, 43); */
 	 
-	 background: rgba(51, 58, 55, 0.99);
-	 color: white;
+	 background: rgba(47, 49, 49, 0.99);
+	 color: rgb(214, 214, 214);
 	 box-shadow: 4px 8px 4px rgba(16, 19, 26, 0.404) !important;
 }
 
@@ -99,6 +116,36 @@ body {
 	color:#90c0ec !important
 }
 
+.modalHeader {
+	/* color: gray !important; */
+	/* opacity: 0.045; */
+
+	
+}
+
+.headerBackground {
+	/* width: 100%;
+	position: absolute;
+	height: 7em;
+	margin-bottom: -2em;
+	margin-top: -2.6em;
+	margin-left: -4em;
+	margin-right: -9em;
+	opacity: 0.1;
+	zoom: 0.5; */
+
+    /* background-image: linear-gradient(transparent, rgba(47, 49, 49, 0.99)),
+	 url('https://upload.wikimedia.org/wikipedia/commons/thumb/4/4b/Kirnberger_I_207.png/1024px-Kirnberger_I_207.png');
+
+
+	-moz-transform: scale(0.5); */
+	/* background-image: url("https://upload.wikimedia.org/wikipedia/commons/thumb/4/4b/Kirnberger_I_207.png/1024px-Kirnberger_I_207.png"); */
+}
+
+.modalHeader .close {
+	/* color: gray !important; */
+	
+}
 
 .modalText:hover {
 	color:#6ca4da !important
@@ -165,11 +212,11 @@ body {
 }
 
 .titleText {
-	margin-top: 0.2em;
-	margin-left: 2em;
+	margin-top: 0.3em;
+	margin-left: 1.5em;
 	font-size: 1.1em;
 	font-weight: 400;
-	color: white;
+	color: rgb(255, 255, 255);
 	text-shadow: 0 1px 0 #ccc,
 	0 2px 0 #061929,
 	0 3px 0 rgb(40, 124, 78);

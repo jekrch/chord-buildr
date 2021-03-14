@@ -24,17 +24,15 @@ export const FooterComponent = () => {
         aria-labelledby="contained-modal-title-vcenter"
         centered
       >
-        <Modal.Header closeButton>
-          {/* <Modal.Title id="contained-modal-title-vcenter">
-            Chord Buildr
-          </Modal.Title> */}
+        <Modal.Header className="modalHeader" closeButton>
+          <div className="headerBackground" />
         </Modal.Header>
         <Modal.Body>
           <p className="aboutDescriptionText">
             Chord Buildr provides an easy way for musicians and music lovers to
             create and share chord progressions.
           </p>
-          <br />
+          <hr className="aboutLine" />
           <p>
             <h5>
               <svg
@@ -109,7 +107,7 @@ export const FooterComponent = () => {
         </Navbar.Brand>{" "}
         <div className="footNavText">v1.0</div>
         <div className="footNavAbout" onClick={() => setModalShow(true)}>
-          About
+          about
         </div>
         <AboutModal show={modalShow} onHide={() => setModalShow(false)} />
         <h1 className="titleText">chord buildr</h1>
