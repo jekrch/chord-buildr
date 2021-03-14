@@ -72,5 +72,5 @@ function clearPianoKeyPlaying(dispatch, pianoComponent) {
       id: pianoComponent.id,
       payload: pianoComponent.piano
     })
-  }, 1000)
+  }, 1500)
 }
