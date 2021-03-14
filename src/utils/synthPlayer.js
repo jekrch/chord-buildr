@@ -9,7 +9,8 @@ function getSynth() {
     return synth
   }
   synth = new Tone.PolySynth().toDestination()
-  Tone.setContext(new Tone.Context({ latencyHint: "playback" }))
+  if (isMobile) synth.set({ latencyHint: "balanced" })
+  //synth.setContext(new Tone.Context({ latencyHint: "playback" }))
   return synth
 }
 
@@ -22,13 +23,11 @@ export function playPiano(dispatch, state, pianoId) {
   synth.toDestination()
   var selectedNotes = getSelectedNotes(pianoComponent.piano)
 
-  if (!isMobile) {
-    dispatch({
-      type: "UPDATE_PIANO",
-      id: pianoComponent.id,
-      payload: pianoComponent.piano
-    })
-  }
+  dispatch({
+    type: "UPDATE_PIANO",
+    id: pianoComponent.id,
+    payload: pianoComponent.piano
+  })
 
   synth.releaseAll()
   // synth.set({ volume: 0.5 })
@@ -36,13 +35,11 @@ export function playPiano(dispatch, state, pianoId) {
   synth.triggerAttackRelease(
     selectedNotes,
     "1.1",
-    isMobile ? "+0.15" : "+0.03",
+    isMobile ? "+0.15" : "+0.03", // allow more latency on mobile
     "0.9"
   )
 
-  if (!isMobile) {
-    clearPianoKeyPlaying(dispatch, pianoComponent)
-  }
+  clearPianoKeyPlaying(dispatch, pianoComponent)
 }
 
 function getSelectedNotes(piano) {
@@ -57,7 +54,10 @@ function getSelectedNotes(piano) {
       if (noteKey.selected) {
         var note = `${noteKey.note.toUpperCase()}${octaveIndex + 3}`
         selectedNotes.push(note)
-        if (!isMobile) noteKey.isPlaying = true
+        if (!isMobile) {
+          noteKey.isStopping = false
+          noteKey.isPlaying = true
+        }
       }
     }
   }
@@ -74,6 +74,7 @@ function clearPianoKeyPlaying(dispatch, pianoComponent) {
       for (let z = 0; z < pianoOctave.length; z++) {
         var key = pianoOctave[z]
         key.isPlaying = false
+        key.isStopping = true
       }
     }
 

@@ -51,37 +51,31 @@ ul .white:active {
 	background: linear-gradient(to bottom, #fff 0%, #e9e9e9 100%);
 }
 
+
+
 .white[key-selected="true"] {
 	background: #007bff;
-	will-change: transform;
+
 	/* transition: 0.1s; */
 }
 
 .black[key-selected="true"] {
 	background: #007bff;
-	will-change: transform;
+
 	/* transition: 0.1s; */
 }
 
-
 .black[key-playing="true"],
 .white[key-playing="true"] {
-	transform: translateZ(0);
-	animation: blinker 1.5s ease-in-out 1;
-	will-change: transform;
+	background: #25C196;
+	transition: 0.6s ease-in-out;
 }
 
-@keyframes blinker {
-	0% {
-		background:  #007bff;
-	}
-	50% {
-		background: #25C196;
-	}
-	100% {
-		background:  #007bff;
-	}
-  }
+.white[key-selected="true"][key-stopping="true"],
+.black[key-selected="true"][key-stopping="true"] {
+	background: #007bff;
+	transition: 0.4s ease-in-out;
+}
 
   
 .black {
