@@ -212,26 +212,8 @@ and (max-device-width : 980px) {
 	} */
 }
 
-
-
 .chordPianoComponent {
 	z-index: 200;
-}
-
-.pianoStrip {
-	/* background: rgb(65, 65, 75);
-	background: -webkit-linear-gradient(left, 
-		rgba(0,0,0,0.65) 0%, 
-		rgba(71, 43, 173, 0) 20%,
-		rgba(37, 78, 133, 0) 80%,
-		rgba(43, 63, 129, 0.65) 100%);
-	opacity: 0.1;
-	width: 40%;
-	left: 0;
-	margin-top: -11em;
-	height: 11em;
-	position: absolute;
-	z-index: -10;
-	filter: blur(3px) */
+	height: 2em !important;
 }
 

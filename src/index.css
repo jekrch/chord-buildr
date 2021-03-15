@@ -89,7 +89,7 @@ code {
 
 .pianoChordBox {
 	top: 0em;
-	height: 14em;
+	height: 12em;
 }
 
 .selectorBox {
@@ -109,8 +109,8 @@ code {
 }
 :root {
     --main-compononent-gray: rgb(80, 79, 79);
-	
-	/* rgb(63, 65, 68); */
+	--main-selected-color: #007bff;
+		/* rgb(63, 65, 68); */
 }
 
 .pianoContainer {
@@ -196,6 +196,6 @@ and (max-device-width : 830px) {
 .chordPiano {
 	margin-top: 0em;
 	position: relative;
-	display: flex;
+	padding-top: 2em;
 	
 }

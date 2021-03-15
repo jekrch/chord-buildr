@@ -20,6 +20,8 @@ export function getChordFromCode(chordCode) {
   var chord = {}
 
   try {
+    chordCode = chordCode.split("#piano-")[0]
+
     chord.octave = extractOctave(chordCode, chord)
 
     chordCode = chordCode.replace(")", "")

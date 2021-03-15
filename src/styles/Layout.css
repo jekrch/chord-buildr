@@ -85,7 +85,7 @@
 	display: inline-block;
 	padding-left:2em;
 	width: 100%;
-	padding-top: 10em;
+	padding-top: 8em;
 	margin-top: 0em;
 	bottom: auto;
 	overflow: auto;
@@ -221,16 +221,6 @@ body.modal-open {
 	height: 100vh;
 }
 
-.chordListItem{
-	color: white;
-}
-
-.chordItem {
-	background: transparent;
-	background-color: transparent;
-	z-index: 9999;
-}
-
 .titleText {
 	vertical-align: middle;
 	position:absolute;
@@ -244,24 +234,56 @@ body.modal-open {
 	0 2px 0 #061929,
 	0 3px 0 rgb(40, 124, 78);
 }
+
+.chordListItem{
+	color: white;
+	display: inline-block;
+	text-align: center;
+	padding-right: 0.3em;
+	margin-left: 0.1em;
+	margin-right: -0.1em;
+}
+
+.chordItem {
+	background: transparent;
+	background-color: transparent;
+	z-index: 9999;
+}
+
+
 .chordListItem:hover {
-	/* text-shadow: 
-		0 2px 0 #5ab8ff,
-		0 3px 0 rgb(40, 124, 78); */
-	/* font-weight: 400; */
 	cursor: pointer;
-	text-decoration: underline !important;
-	text-underline-offset: 3px;
-	/* text-underline-position: 20px 2px; */
-	/* text-shadow: 0 1px 0 rgb(124, 122, 216),
-	0 2px 0 #2384ce; */
-	transition: 0.1s ease-in;
-	color: rgb(137, 175, 206);
+	text-decoration: none !important;
+	color: white;
+}
+
+@media(hover: hover) and (pointer: fine) {
+	.chordListItem:hover {
+		cursor: pointer;
+		text-decoration: none !important;
+		text-underline-offset: 7.2px;
+		transition: 0.1s ease-in;
+		border-color: var(--main-selected-color);
+		color: rgb(137, 175, 206);
+	}
 }
 
 .chordListItem:active {
-	color: rgb(38, 115, 179);
+	color: var(--main-selected-color);
+}
+
+.progression a {
+	
+	border: solid 0px transparent;
+	border-bottom-width: 2px;
+	height: 1.8em;
+}
+
+.progression .active{
+	/* background: rgba(38, 115, 179, 0.3) !important; */
+	border-style: solid;
+	border-color: var(--main-selected-color);
 
 }
 
-  
+

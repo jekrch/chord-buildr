@@ -6,13 +6,14 @@ import { AppContext } from "../context/AppContext"
 import { playPiano } from "../../utils/synthPlayer"
 import { isSlashChord } from "../../utils/chordCodeHandler"
 import { Link, scroller } from "react-scroll"
+import { isMobile } from "react-device-detect"
 
 export const HeaderComponent = () => {
   const { state, dispatch } = useContext(AppContext)
 
   const [newChordAdded, setNewChordAdded] = useState(false)
 
-  const offset = -150
+  const offset = -130
 
   const handleClickAddChord = () => {
     dispatch({
@@ -39,6 +40,7 @@ export const HeaderComponent = () => {
         smooth: true,
         offset: offset,
         spy: true,
+        hashSpy: true,
         to: targetKey
       })
 
@@ -69,25 +71,30 @@ export const HeaderComponent = () => {
   const renderProgression = () => {
     return state.chordPianoSet.map((piano, i) => {
       return (
-        <Link
-          className="chordListItem"
-          to={"piano-" + piano.id}
-          spy={true}
-          offset={offset}
-          duration={500}
-          smooth={true}
-          key={piano.id}
-          onClick={(id) => handleItemClick(piano.id)}
-        >
-          <div className="chordItem">
-            &nbsp;{piano.selectedChord.noteLetter}
-            {piano.selectedChord.type}
-            {isSlashChord(piano.selectedChord)
-              ? "/" + piano.selectedChord.slashNote
-              : ""}
-            &nbsp;{i !== state.chordPianoSet.length - 1 ? "|" : ""}
-          </div>
-        </Link>
+        <>
+          <Link
+            className="chordListItem"
+            to={"piano-" + piano.id}
+            spy={true}
+            hashSpy={true}
+            absolute={true}
+            offset={offset}
+            isDynamic={true}
+            duration={500}
+            smooth={true}
+            key={piano.id}
+            onClick={(id) => handleItemClick(piano.id)}
+          >
+            <div className="chordItem">
+              &nbsp;{piano.selectedChord.noteLetter}
+              {piano.selectedChord.type}
+              {isSlashChord(piano.selectedChord)
+                ? "/" + piano.selectedChord.slashNote
+                : ""}
+            </div>
+          </Link>
+          &nbsp;{i !== state.chordPianoSet.length - 1 ? "|" : ""}
+        </>
       )
     })
   }
