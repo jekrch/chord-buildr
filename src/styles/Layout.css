@@ -11,6 +11,7 @@
 	text-align: center;
 	align-items: center;
 	background-color: rgba(44, 43, 43, 0.99);
+	will-change: transform;
 }
 
 
@@ -211,6 +212,7 @@ body.modal-open {
 }
 
 .pianoBoard {
+	will-change: transform;
 	position: relative;
 	margin-top: 0em;
 	/* padding-top: 4em; */

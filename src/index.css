@@ -197,5 +197,6 @@ and (max-device-width : 830px) {
 	margin-top: 0em;
 	position: relative;
 	padding-top: 2em;
+	will-change: transform;
 	
 }

@@ -76,12 +76,10 @@ export const HeaderComponent = () => {
             className="chordListItem"
             to={"piano-" + piano.id}
             spy={true}
-            hashSpy={true}
-            absolute={true}
             offset={offset}
             isDynamic={true}
             duration={500}
-            smooth={true}
+            smooth={isMobile ? false : true}
             key={piano.id}
             onClick={(id) => handleItemClick(piano.id)}
           >
