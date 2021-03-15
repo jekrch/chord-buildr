@@ -205,6 +205,7 @@ body.modal-open {
 	border-style: ridge;
 	border-color: rgb(40, 70, 109);
 	background-color: rgb(44, 43, 43);
+	will-change: transform;
 	/* background-color:black; */
 
 	/* background-color: rgb(25, 88, 72); */
@@ -212,6 +213,7 @@ body.modal-open {
 }
 
 .pianoBoard {
+	will-change: transform;
 	will-change: transform;
 	position: relative;
 	margin-top: 0em;

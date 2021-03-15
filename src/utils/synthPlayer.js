@@ -23,11 +23,13 @@ export function playPiano(dispatch, state, pianoId) {
   synth.toDestination()
   var selectedNotes = getSelectedNotes(pianoComponent.piano)
 
-  dispatch({
-    type: "UPDATE_PIANO",
-    id: pianoComponent.id,
-    payload: pianoComponent.piano
-  })
+  if (!isMobile) {
+    dispatch({
+      type: "UPDATE_PIANO",
+      id: pianoComponent.id,
+      payload: pianoComponent.piano
+    })
+  }
 
   synth.releaseAll()
   // synth.set({ volume: 0.5 })
@@ -39,7 +41,7 @@ export function playPiano(dispatch, state, pianoId) {
     "0.9"
   )
 
-  clearPianoKeyPlaying(dispatch, pianoComponent)
+  if (!isMobile) clearPianoKeyPlaying(dispatch, pianoComponent)
 }
 
 function getSelectedNotes(piano) {
@@ -55,8 +57,10 @@ function getSelectedNotes(piano) {
         var note = `${noteKey.note.toUpperCase()}${octaveIndex + 3}`
         selectedNotes.push(note)
 
-        noteKey.isStopping = null
-        noteKey.isPlaying = true
+        if (!isMobile) {
+          noteKey.isStopping = null
+          noteKey.isPlaying = true
+        }
       }
     }
   }

@@ -9,7 +9,9 @@
   display: flex;
   /* width: 100%;
   min-width: 900px; */
+  scroll-behavior: smooth;
 }
+
 
 .App-logo {
   height: 40vmin;

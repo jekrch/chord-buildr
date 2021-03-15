@@ -79,7 +79,7 @@ export const HeaderComponent = () => {
             offset={offset}
             isDynamic={true}
             duration={500}
-            smooth={isMobile ? false : true}
+            smooth={true}
             key={piano.id}
             onClick={(id) => handleItemClick(piano.id)}
           >
