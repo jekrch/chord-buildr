@@ -15,7 +15,11 @@ export const App = () => {
         <div className=" mainContainer">
           <Router>
             <Switch>
-              <Route exact path="/" component={PianoBoardComponent} />
+              <Route
+                exact
+                path="/chord-buildr/"
+                component={PianoBoardComponent}
+              />
             </Switch>
           </Router>
         </div>

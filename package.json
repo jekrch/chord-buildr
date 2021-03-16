@@ -1,6 +1,6 @@
 {
   "name": "chord-builder",
-  "homepage": "http://jekrch.github.io/chord-buildr",
+  "homepage": "http://jekrch.github.io/chord-buildr/",
   "version": "0.1.0",
   "private": true,
   "dependencies": {
