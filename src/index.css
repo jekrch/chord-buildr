@@ -200,3 +200,16 @@ and (max-device-width : 830px) {
 	will-change: transform;
 	
 }
+
+/* .pianoAnchor {
+	z-index: 9899;
+	position: relative;
+	display: inline-block;
+	top: -27em;
+	left: -15em;
+	background: red;
+	height: 15.4em;
+	width: 2em;
+	margin-bottom: -17em;
+} */
+
