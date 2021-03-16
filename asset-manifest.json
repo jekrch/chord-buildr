@@ -1,6 +1,6 @@
 {
   "files": {
-    "main.css": "/chord-buildr/static/css/main.9561c642.chunk.css",
+    "main.css": "/chord-buildr/static/css/main.d3c36181.chunk.css",
     "main.js": "/chord-buildr/static/js/main.29d70db1.chunk.js",
     "main.js.map": "/chord-buildr/static/js/main.29d70db1.chunk.js.map",
     "runtime-main.js": "/chord-buildr/static/js/runtime-main.3e467cd8.js",
@@ -12,14 +12,14 @@
     "static/js/3.3f32b905.chunk.js.map": "/chord-buildr/static/js/3.3f32b905.chunk.js.map",
     "index.html": "/chord-buildr/index.html",
     "static/css/2.20aa2d7b.chunk.css.map": "/chord-buildr/static/css/2.20aa2d7b.chunk.css.map",
-    "static/css/main.9561c642.chunk.css.map": "/chord-buildr/static/css/main.9561c642.chunk.css.map",
+    "static/css/main.d3c36181.chunk.css.map": "/chord-buildr/static/css/main.d3c36181.chunk.css.map",
     "static/js/2.f2a7a86b.chunk.js.LICENSE.txt": "/chord-buildr/static/js/2.f2a7a86b.chunk.js.LICENSE.txt"
   },
   "entrypoints": [
     "static/js/runtime-main.3e467cd8.js",
     "static/css/2.20aa2d7b.chunk.css",
     "static/js/2.f2a7a86b.chunk.js",
-    "static/css/main.9561c642.chunk.css",
+    "static/css/main.d3c36181.chunk.css",
     "static/js/main.29d70db1.chunk.js"
   ]
 }
