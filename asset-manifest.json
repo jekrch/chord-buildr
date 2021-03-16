@@ -1,8 +1,8 @@
 {
   "files": {
     "main.css": "/chord-buildr/static/css/main.9561c642.chunk.css",
-    "main.js": "/chord-buildr/static/js/main.4a889652.chunk.js",
-    "main.js.map": "/chord-buildr/static/js/main.4a889652.chunk.js.map",
+    "main.js": "/chord-buildr/static/js/main.29d70db1.chunk.js",
+    "main.js.map": "/chord-buildr/static/js/main.29d70db1.chunk.js.map",
     "runtime-main.js": "/chord-buildr/static/js/runtime-main.3e467cd8.js",
     "runtime-main.js.map": "/chord-buildr/static/js/runtime-main.3e467cd8.js.map",
     "static/css/2.20aa2d7b.chunk.css": "/chord-buildr/static/css/2.20aa2d7b.chunk.css",
@@ -20,6 +20,6 @@
     "static/css/2.20aa2d7b.chunk.css",
     "static/js/2.f2a7a86b.chunk.js",
     "static/css/main.9561c642.chunk.css",
-    "static/js/main.4a889652.chunk.js"
+    "static/js/main.29d70db1.chunk.js"
   ]
 }
