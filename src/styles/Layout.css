@@ -36,10 +36,12 @@
 }
 
 .creditsText {
-	margin-top: -0.4em;
+	margin-top: 0em;
 	margin-left: -0.7em;
-	margin-bottom: 0.5em;
-	line-height: 1.8em;
+	margin-bottom: 0em;
+	line-height: 1.5em;
+	font-size: 0.9em;
+    color: lightgray;
 	text-align: center;
 }
 
@@ -185,7 +187,7 @@ body.modal-open {
 
 .footNavAbout:hover,
 .gitSrc:hover {
-	opacity: 50% !important;
+	opacity: 0.5 !important;
 	cursor: pointer;
 }
 

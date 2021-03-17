@@ -26,7 +26,7 @@ export const FooterComponent = () => {
           </p>
           <hr className="aboutLine" />
           <p>
-            <h5>
+            <h6>
               <svg
                 xmlns="http://www.w3.org/2000/svg"
                 width="16"
@@ -40,13 +40,13 @@ export const FooterComponent = () => {
                 <path d="M8 2.82a1 1 0 0 1 .804-.98l3-.6A1 1 0 0 1 13 2.22V4L8 5V2.82z" />
               </svg>{" "}
               transpose
-            </h5>
+            </h6>
             <div className="aboutFeatureText">
               Mark a chord as the key and the rest of your progression will
               transpose as you change its root note.{" "}
             </div>
             <br />
-            <h5>
+            <h6>
               <svg
                 xmlns="http://www.w3.org/2000/svg"
                 width="16"
@@ -60,12 +60,13 @@ export const FooterComponent = () => {
                 <path d="M5 2.905a1 1 0 0 1 .9-.995l8-.8a1 1 0 0 1 1.1.995V3L5 4V2.905z" />
               </svg>{" "}
               share
-            </h5>
+            </h6>
             <div className="aboutFeatureText">
               To share a progression, simply copy the URL. No account needed!
             </div>
             <br />
           </p>
+          {/* <hr className="aboutLine"/> */}
           <p className="creditsText">
             Chord Buildr is an{" "}
             <a
