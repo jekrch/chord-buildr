@@ -24,17 +24,17 @@ export const HeaderComponent = () => {
   }
 
   useEffect(() => {
-    console.log("render")
+    //console.log("render")
 
     if (!state.chordPianoSet || state.chordPianoSet.length < 1) return
 
     if (newChordAdded) {
-      console.log(state)
+      //(state)
       var targetKey =
         "piano-" + state.chordPianoSet[state.chordPianoSet.length - 1].id
 
-      console.log(targetKey)
-      console.log(state.chordPianoSet)
+      //console.log(targetKey)
+      //console.log(state.chordPianoSet)
       scroller.scrollTo(targetKey, {
         duration: 500,
         smooth: true,

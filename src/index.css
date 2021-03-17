@@ -201,6 +201,11 @@ and (max-device-width : 830px) {
 	
 }
 
+.footNavAbout:hover,
+.gitSrc:hover {
+	opacity: 50% !important;
+	cursor: pointer;
+}
 /* .pianoAnchor {
 	z-index: 9899;
 	position: relative;

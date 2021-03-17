@@ -142,7 +142,7 @@ const appReducer = (state, action) => {
 
   switch (action.type) {
     case "UPDATE_PIANO":
-      console.log(action.payload)
+      //console.log(action.payload)
 
       state.chordPianoSet = state.chordPianoSet.map((chordPiano) =>
         chordPiano.id === pianoId
@@ -158,7 +158,7 @@ const appReducer = (state, action) => {
       }
 
     case "UPDATE_KEY":
-      console.log(action.payload)
+      //console.log(action.payload)
 
       var originalChordPiano = getPianoById(state, pianoId)
 
@@ -166,7 +166,7 @@ const appReducer = (state, action) => {
         if (originalChordPiano.isProgKey) {
           var newSelectedKey = action.payload
 
-          console.log("transposing for piano id: " + pianoId)
+          //console.log("transposing for piano id: " + pianoId)
           transposePianoBoard(
             pianoId,
             state.chordPianoSet,
@@ -195,7 +195,7 @@ const appReducer = (state, action) => {
       }
 
     case "UPDATE_CHORD_TYPE":
-      console.log(action.payload)
+      //console.log(action.payload)
 
       var originalChordPiano = getPianoById(state, pianoId)
 
@@ -215,7 +215,7 @@ const appReducer = (state, action) => {
       }
 
     case "UPDATE_SLASH_CHORD":
-      console.log(action)
+      //console.log(action)
 
       var chordPiano = getPianoById(state, pianoId)
 
@@ -268,7 +268,7 @@ const appReducer = (state, action) => {
       }
 
     case "SET_PROG_KEY":
-      console.log(action.payload)
+      //console.log(action.payload)
 
       if (action.keyChecked) {
         setProgKey(state, action.id)

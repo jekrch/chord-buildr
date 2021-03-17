@@ -19,7 +19,6 @@ export function playPiano(dispatch, state, pianoId) {
 
   var synth = getSynth()
 
-  console.log("test")
   synth.toDestination()
   var selectedNotes = getSelectedNotes(pianoComponent.piano)
 
@@ -32,13 +31,13 @@ export function playPiano(dispatch, state, pianoId) {
   }
 
   synth.releaseAll()
-  // synth.set({ volume: 0.5 })
+  //synth.set({ volume: 0.8 })
 
   synth.triggerAttackRelease(
     selectedNotes,
     "1.1",
     isMobile ? "+0.15" : "+0.03", // allow more latency on mobile
-    "0.9"
+    "0.7"
   )
 
   if (!isMobile) clearPianoKeyPlaying(dispatch, pianoComponent)

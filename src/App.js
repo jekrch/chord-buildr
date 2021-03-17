@@ -17,7 +17,7 @@ export const App = () => {
             <Switch>
               <Route
                 exact
-                path="/chord-buildr/"
+                path={["/", "/chord-buildr/"]}
                 component={PianoBoardComponent}
               />
             </Switch>

@@ -53,7 +53,7 @@ export const ChordInput = ({ pianoComponentId }) => {
   const handleTypeSelectChange = (e) => {
     chordRef.current.type = e.target.value
 
-    console.log(chordRef.current.type)
+    //console.log(chordRef.current.type)
 
     dispatch({
       type: "UPDATE_CHORD_TYPE",
@@ -64,8 +64,8 @@ export const ChordInput = ({ pianoComponentId }) => {
 
   // set whether this chord has the progression key
   const handleIsKeyChecked = (e) => {
-    console.log(e.target.checked)
-    console.log(chordRef.current.type)
+    //console.log(e.target.checked)
+    //console.log(chordRef.current.type)
 
     dispatch({
       type: "SET_PROG_KEY",
@@ -76,8 +76,8 @@ export const ChordInput = ({ pianoComponentId }) => {
 
   // set whether this chord has the progression key
   const handleIsSlashChordChecked = (e) => {
-    console.log(e.target.checked)
-    console.log(chordRef.current.type)
+    //console.log(e.target.checked)
+    //console.log(chordRef.current.type)
 
     chordRef.current.slashChord = e.target.checked
     dispatch({

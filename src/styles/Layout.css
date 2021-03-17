@@ -185,7 +185,7 @@ body.modal-open {
 
 .footNavAbout:hover,
 .gitSrc:hover {
-	opacity: 50%;
+	opacity: 50% !important;
 	cursor: pointer;
 }
 

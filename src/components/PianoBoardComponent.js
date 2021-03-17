@@ -15,7 +15,7 @@ export const PianoBoardComponent = () => {
   const forceUpdate = React.useCallback(() => updateState({}), [])
 
   useEffect(() => {
-    console.log("render")
+    //console.log("render")
     forceUpdate()
   }, [state.chordPianoSet, forceUpdate])
 
