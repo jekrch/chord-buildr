@@ -214,6 +214,5 @@ and (max-device-width : 980px) {
 
 .chordPianoComponent {
 	z-index: 200;
-	height: 2em !important;
 }
 
