@@ -12,7 +12,7 @@ export const PianoComponent = ({ pianoComponentId }) => {
 
   const handleClick = (note, noteNumber, octave) => {
     const noteLetter = getNoteLetter("C", noteNumber)
-    console.log(`You've clicked note: ${pianoId} - ${octave} - ${noteLetter}`)
+    //console.log(`You've clicked note: ${pianoId} - ${octave} - ${noteLetter}`)
 
     var selectedKey = {}
     selectedKey.noteLetter = noteLetter

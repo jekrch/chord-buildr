@@ -47,6 +47,10 @@ export function setProgKey(state, pianoId) {
 export function buildProgFromCode(state, code) {
   if (state.building) return
 
+  if (code.includes("%")) {
+    code = decodeURIComponent(code)
+  }
+
   var chordArray = code.replace(")", "").split("(")
 
   var chordPianoSet = []
@@ -135,8 +139,8 @@ const finalInitialState = { ...initialState, ...persistedState }
 const appReducer = (state, action) => {
   var pianoId = action.id
 
-  console.log(action.type)
-  console.log("piano id: " + pianoId)
+  //console.log(action.type)
+  //console.log("piano id: " + pianoId)
 
   if (!pianoId) pianoId = 0
 

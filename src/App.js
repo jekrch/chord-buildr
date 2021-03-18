@@ -10,8 +10,8 @@ import { FooterComponent } from "./components/Layout/FooterComponent"
 export const App = () => {
   return (
     <div className="App">
-      <AppProvider className="">
-        <HeaderComponent className="" />
+      <AppProvider>
+        <HeaderComponent />
         <div className=" mainContainer">
           <Router>
             <Switch>
@@ -23,7 +23,7 @@ export const App = () => {
             </Switch>
           </Router>
         </div>
-        <FooterComponent className="" />
+        <FooterComponent />
       </AppProvider>
     </div>
   )

@@ -2,13 +2,8 @@ import { React, useContext, useRef, useEffect } from "react"
 import Form from "react-bootstrap/Form"
 import { noteLetterMapWithSharps } from "../utils/noteManager"
 import { chordMap } from "../utils/chordManager"
-import {
-  selectChordKeys,
-  hasSelectedNotes,
-  selectAutomatedChordKeys
-} from "../utils/chordPianoHandler"
+import { selectChordKeys, hasSelectedNotes } from "../utils/chordPianoHandler"
 import { AppContext, getPianoById } from "../components/context/AppContext"
-//import { playPiano } from "../utils/synthPlayer"
 import PropTypes from "prop-types"
 
 export const ChordInput = ({ pianoComponentId }) => {
@@ -28,7 +23,7 @@ export const ChordInput = ({ pianoComponentId }) => {
   useEffect(() => {
     // if no keys are selected, load the selected chord
     if (!hasSelectedNotes(chordPiano.piano)) {
-      selectAutomatedChordKeys(chordPiano)
+      selectChordKeys(chordPiano)
     }
 
     if (!state.building) {
@@ -45,7 +40,10 @@ export const ChordInput = ({ pianoComponentId }) => {
     dispatch({
       type: "UPDATE_KEY",
       id: chordPiano.id,
-      payload: { noteLetter: e.target.value, octave: 0 }
+      payload: {
+        noteLetter: e.target.value,
+        octave: chordPiano.selectedKey.octave ?? 0
+      }
     })
   }
 
