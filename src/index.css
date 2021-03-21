@@ -154,20 +154,130 @@ and (min-device-width : 981px) {
 
 /* Mobile */
 @media only screen 
-and (min-device-width : 320px) 
-and (max-device-width : 830px) {
+and (min-device-width : 0px) 
+and (max-device-width : 630px) {
 
-	/* .pianoBox {
+	.chordPiano {
+		height: 17em;
+	}
+
+	.pianoCloseButton {
+
+		text-shadow: 0 1px 0 rgb(175, 173, 173);
+		left: 15.8em;
+		left: 123vw;
+		height: 2.1em !important;
+		opacity: 1;
+		top: -6.3em  !important;
+		z-index: 99999;
+		color: rgb(151, 151, 151) !important;
+		text-shadow: gray !important;
+		background: rgb(92, 92, 92) !important;
+		border-radius: 0.3em;
+		width: 2em;
+		padding-bottom: 0.3em !important;		
+		padding-right: 0.1em !important;
+		margin-right: 0em;
+		display: absolute !important;
+	}
+
+	.pianoCloseButton:active {
+		color: rgb(103, 149, 187);
+		background: linear-gradient(45deg, #222 0%, rgb(75, 78, 82) 100%);
+		box-shadow: -1px -1px 2px rgba(255, 255, 255, 0.2) inset,
+			0 -3px 1px 2px rgba(46, 45, 45, 0.6) inset, 
+			0 2px 4px rgba(0, 0, 0, 0.5);
+	}
+
+	.pianoCloseButton {
+		/* color: rgb(133, 133, 133); */
+		box-sizing: border-box;
+		width: 1.9em !important;
+		height: 100%;
+		border: 0.1em solid !important;
+		border-radius: 0.3em;
+
+		background: var(--main-compononent-gray);
+
+		outline: none !important;
+		box-shadow: 
+			-1px -1px 2px  var(--main-compononent-gray) inset,
+			0 -3px 1px 2px rgba(46, 45, 45, 0.6) inset, 
+			3px 6px 3px rgba(16, 19, 26, 0.404) ;
+	}
+
+	.pianoBox {
 		zoom: 0.7;
 		-moz-transform: scale(0.7);
-		left: 13.4em;
-		margin-top: -12.5em;
+		left: -11.5em;
+		margin-top: 9.5em;
+		height: 11.2em;
+		margin-left: 0em;
+		margin-right: 0em !important;
+		padding: 0em !important;	
+		display: flex;
+		width:40.3em;
+		
+	}
+
+	.white:last-child {
+		margin-right: 0em;
+	}
+
+	/* .pianoBox ul {
+		padding-right: 0em !important;
+		margin-block-end: 0em !important;
+		margin-block-start: 0em;
+		margin-inline-end: -2em;
+		margin-inline-start: -2em;
+		padding-inline-start: 0em;
+		padding-inline-start: -2em !important;
 	} */
 
-	/* .chordPiano {
-		height: 10.8em;
-		top: -1em;
-	} */
+
+	.set {
+		
+		top: 0.1em !important;
+		padding-right: 0em !important;
+		padding-left: 0em;
+		left: -1.8em !important;
+		margin-right: -2em !important;
+	}
+
+
+	.keyCheckBox {
+		top: -8.5em;
+		left: 9em;
+		z-index: 9999;
+	}
+
+	.slashCheckBox {
+		top: -6.5em;
+		left: 5.4em;
+		z-index: 9999;
+	}
+
+	.piano-play-button {
+		height: 6em !important;
+		left: -8em !important;
+	}
+
+	.slashSymbol {
+		top: -3.2em !important;
+		left: 3.7em;
+	}
+
+	.slashChordSelection {
+		top: -5.5em;
+		left: 6.7em;
+		z-index: 9999;
+	}
+
+	.chordInputForm {
+		left: 1em !important;
+	}
+	
+
 }   
 
 
