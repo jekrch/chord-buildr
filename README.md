@@ -7,3 +7,6 @@ Users can specify a series of chords, see their notes displayed on interactive k
 Chord Buildr is built with React and uses Tone.js for audio playback. 
 
 Demo: https://chordbuildr.com/?prog=(1C)
+<br/><br/>
+
+<img src="https://raw.githubusercontent.com/jekrch/personalsite/main/client/public/images/chordbuildr.png"/>
