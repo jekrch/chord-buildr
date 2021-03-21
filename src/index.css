@@ -147,25 +147,45 @@ code {
 @media only screen 
 and (min-device-width : 981px) {
 
+	
 	.pianoBox {
 		margin-left: 2.9em;
 	}
 }
 
+@media only screen 
+and (min-device-width : 0px) 
+and (max-device-width : 630px)
+{
+
+	.contentBox {
+		margin-top: -1em !important;
+	}
+
+	.mainContainer {
+
+	}
+	
+	.btn-main {
+		margin-top: 0.5em !important;
+		margin-bottom: 0.5em !important;
+	}
+
+}
+
 /* Mobile */
 @media only screen 
 and (min-device-width : 0px) 
-and (max-device-width : 630px) {
+and (max-device-width : 630px)
+and (orientation : portrait) {
 
 	.chordPiano {
 		height: 17em;
 	}
 
 	.pianoCloseButton {
-
 		text-shadow: 0 1px 0 rgb(175, 173, 173);
 		left: 15.8em;
-		left: 123vw;
 		height: 2.1em !important;
 		opacity: 1;
 		top: -6.3em  !important;
@@ -217,33 +237,25 @@ and (max-device-width : 630px) {
 		padding: 0em !important;	
 		display: flex;
 		width:40.3em;
-		
+
+		width: 150% !important;
+		overflow-x: auto;
+		left: -11.5em;
+		padding-left: 2em !important;
+		padding-right: 2em !important;
 	}
 
 	.white:last-child {
 		margin-right: 0em;
 	}
 
-	/* .pianoBox ul {
-		padding-right: 0em !important;
-		margin-block-end: 0em !important;
-		margin-block-start: 0em;
-		margin-inline-end: -2em;
-		margin-inline-start: -2em;
-		padding-inline-start: 0em;
-		padding-inline-start: -2em !important;
-	} */
-
-
 	.set {
-		
 		top: 0.1em !important;
 		padding-right: 0em !important;
 		padding-left: 0em;
 		left: -1.8em !important;
 		margin-right: -2em !important;
 	}
-
 
 	.keyCheckBox {
 		top: -8.5em;
@@ -258,7 +270,7 @@ and (max-device-width : 630px) {
 	}
 
 	.piano-play-button {
-		height: 6em !important;
+		height: 5.9em !important;
 		left: -8em !important;
 	}
 
