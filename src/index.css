@@ -185,11 +185,11 @@ and (orientation : portrait) {
 
 	.pianoCloseButton {
 		text-shadow: 0 1px 0 rgb(175, 173, 173);
-		left: 15.8em;
+		left: 11.8em !important;
 		height: 2.1em !important;
 		opacity: 1;
-		top: -6.3em  !important;
-		z-index: 99999;
+		top: 1em  !important;
+		z-index: 999999;
 		color: rgb(151, 151, 151) !important;
 		text-shadow: gray !important;
 		background: rgb(92, 92, 92) !important;
@@ -198,7 +198,8 @@ and (orientation : portrait) {
 		padding-bottom: 0.3em !important;		
 		padding-right: 0.1em !important;
 		margin-right: 0em;
-		display: absolute !important;
+		
+		position: fixed !important;
 	}
 
 	.pianoCloseButton:active {
@@ -234,7 +235,7 @@ and (orientation : portrait) {
 		height: 11.2em;
 		margin-left: 0em;
 		margin-right: 0em !important;
-		padding: 0em !important;	
+		/* padding: 0em !important;	 */
 		display: flex;
 		width:40.3em;
 
