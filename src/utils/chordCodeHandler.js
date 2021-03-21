@@ -20,6 +20,16 @@ export function getChordFromCode(chordCode) {
   var chord = {}
 
   try {
+    chordCode = chordCode.replace("(", "")
+
+    // this might show up in the progression code due to facebook url processing
+    // it should be ignored
+    if (chordCode.includes("&amp")) return
+
+    if (chordCode.includes("&fbclid")) {
+      chordCode = removeFbclid(chordCode)
+    }
+
     chordCode = chordCode.split("#piano-")[0]
 
     chord.octave = extractOctave(chordCode, chord)
@@ -48,6 +58,17 @@ export function getChordFromCode(chordCode) {
   }
 
   return chord
+}
+
+/***
+ * if an fbclid was inserted into the code, remove it here
+ */
+function removeFbclid(chordCode) {
+  var startIndex = chordCode.indexOf("&fbclid")
+  var fbCode = chordCode.substring(startIndex, startIndex + 69)
+  chordCode = chordCode.replace(fbCode, "")
+  console.log("fbCode removed: " + fbCode)
+  return chordCode
 }
 
 function processSlashChord(chordCode, chord) {

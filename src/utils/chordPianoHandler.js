@@ -305,6 +305,7 @@ export function createChordPiano(i, chordCode) {
       }
     }
   } else {
+    return
     return {
       id: i,
       piano: pianoGenerator(),

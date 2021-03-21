@@ -51,7 +51,7 @@ export function buildProgFromCode(state, code) {
     code = decodeURIComponent(code)
   }
 
-  var chordArray = code.replace(")", "").split("(")
+  var chordArray = code.split(")")
 
   var chordPianoSet = []
 
@@ -67,6 +67,8 @@ export function buildProgFromCode(state, code) {
     console.log(chordCode)
 
     var chordPiano = createChordPiano(i, chordCode)
+
+    if (!chordPiano) continue
 
     progKeySet = validateProgKey(chordPiano, progKeySet)
 
