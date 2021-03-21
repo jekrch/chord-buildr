@@ -183,49 +183,8 @@ and (orientation : portrait) {
 		height: 17em;
 	}
 
-	.pianoCloseButton {
-		text-shadow: 0 1px 0 rgb(175, 173, 173);
-		left: 11.8em !important;
-		height: 2.1em !important;
-		opacity: 1;
-		top: 1em  !important;
-		z-index: 999999;
-		color: rgb(151, 151, 151) !important;
-		text-shadow: gray !important;
-		background: rgb(92, 92, 92) !important;
-		border-radius: 0.3em;
-		width: 2em;
-		padding-bottom: 0.3em !important;		
-		padding-right: 0.1em !important;
-		margin-right: 0em;
-		
-		position: fixed !important;
-	}
+	
 
-	.pianoCloseButton:active {
-		color: rgb(103, 149, 187);
-		background: linear-gradient(45deg, #222 0%, rgb(75, 78, 82) 100%);
-		box-shadow: -1px -1px 2px rgba(255, 255, 255, 0.2) inset,
-			0 -3px 1px 2px rgba(46, 45, 45, 0.6) inset, 
-			0 2px 4px rgba(0, 0, 0, 0.5);
-	}
-
-	.pianoCloseButton {
-		/* color: rgb(133, 133, 133); */
-		box-sizing: border-box;
-		width: 1.9em !important;
-		height: 100%;
-		border: 0.1em solid !important;
-		border-radius: 0.3em;
-
-		background: var(--main-compononent-gray);
-
-		outline: none !important;
-		box-shadow: 
-			-1px -1px 2px  var(--main-compononent-gray) inset,
-			0 -3px 1px 2px rgba(46, 45, 45, 0.6) inset, 
-			3px 6px 3px rgba(16, 19, 26, 0.404) ;
-	}
 
 	.pianoBox {
 		zoom: 0.7;
@@ -299,6 +258,38 @@ and (orientation : portrait) {
 		left: 1em !important;
 	}
 	
+	.pianoCloseButton {
+		text-shadow: 0 1px 0 rgb(175, 173, 173);
+		left: 11.8em !important;
+		height: 2.1em !important;
+		opacity: 1.0 !important;
+		top: 1em  !important;
+		z-index: 999999;
+		color: rgb(151, 151, 151) !important;
+		text-shadow: gray !important;
+		background: rgb(92, 92, 92) !important;
+		width: 2em;
+		padding-bottom: 0.3em !important;		
+		padding-right: 0.06em !important;
+		margin-right: 0em;
+		position: fixed !important;
+		width: 1.9em !important;
+		border: 0.1em solid !important;
+		border-radius: 0.3em;
+		outline: none !important;
+		box-shadow: 
+			-1px -1px 2px  var(--main-compononent-gray) inset,
+			0 -3px 1px 2px rgba(46, 45, 45, 0.6) inset, 
+			3px 6px 3px rgba(16, 19, 26, 0.404) ;
+	}
+
+	.pianoCloseButton:active {
+		color: rgb(103, 149, 187);
+		background: linear-gradient(45deg, #222 0%, rgb(75, 78, 82) 100%);
+		box-shadow: -1px -1px 2px rgba(255, 255, 255, 0.2) inset,
+			0 -3px 1px 2px rgba(46, 45, 45, 0.6) inset, 
+			0 2px 4px rgba(0, 0, 0, 0.5);
+	}
 
 }   
 
