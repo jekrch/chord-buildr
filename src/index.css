@@ -241,10 +241,17 @@ and (orientation : portrait) {
 
 		width: 150% !important;
 		overflow-x: auto;
+		overflow-y: hidden;
+		padding-top: 0em;
+		padding-bottom: 0em;
 		left: -11.5em;
 		padding-left: 2em !important;
 		padding-right: 2em !important;
+		white-space: nowrap;
+
 	}
+
+
 
 	.white:last-child {
 		margin-right: 0em;
@@ -252,10 +259,12 @@ and (orientation : portrait) {
 
 	.set {
 		top: 0.1em !important;
-		padding-right: 0em !important;
+		padding: 0em !important;
 		padding-left: 0em;
 		left: -1.8em !important;
 		margin-right: -2em !important;
+		margin-top: 0em !important;
+		margin-top: 1em !important;
 	}
 
 	.keyCheckBox {
