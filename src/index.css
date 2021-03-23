@@ -264,7 +264,7 @@ and (orientation : portrait) {
 		height: 2.1em !important;
 		opacity: 1.0 !important;
 		top: 1em  !important;
-		z-index: 999999;
+		z-index: 9999 !important;
 		color: rgb(151, 151, 151) !important;
 		text-shadow: gray !important;
 		background: rgb(92, 92, 92) !important;
@@ -283,13 +283,13 @@ and (orientation : portrait) {
 			3px 6px 3px rgba(16, 19, 26, 0.404) ;
 	}
 
-	.pianoCloseButton:active {
+	/* .pianoCloseButton:active {
 		color: rgb(103, 149, 187);
 		background: linear-gradient(45deg, #222 0%, rgb(75, 78, 82) 100%);
 		box-shadow: -1px -1px 2px rgba(255, 255, 255, 0.2) inset,
 			0 -3px 1px 2px rgba(46, 45, 45, 0.6) inset, 
 			0 2px 4px rgba(0, 0, 0, 0.5);
-	}
+	} */
 
 }   
 
