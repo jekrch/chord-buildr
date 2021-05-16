@@ -173,6 +173,14 @@ and (max-device-width : 630px)
 
 }
 
+.pianoCloseButton {
+	visibility: visible !important;
+}
+
+.pianoCloseButtonMobile {
+	visibility: hidden !important;
+}
+
 /* Mobile */
 @media only screen 
 and (min-device-width : 0px) 
@@ -259,9 +267,16 @@ and (orientation : portrait) {
 	}
 	
 	.pianoCloseButton {
+		visibility: hidden !important;
+	}
+
+	.pianoCloseButtonMobile {
+
+		visibility: visible !important;
+	
+		
 		text-shadow: 0 1px 0 rgb(175, 173, 173);
-		margin-left: 5em !important;
-		/* left: 9.8em !important; */
+		left: 11.8em !important;
 		height: 2.1em !important;
 		opacity: 1.0 !important;
 		top: 1em  !important;
