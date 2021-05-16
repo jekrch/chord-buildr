@@ -207,13 +207,8 @@ and (orientation : portrait) {
 		margin-left: 0em;
 		margin-right: 0em !important;
 		display: flex !important;
-				/* width: 58%;
-		width: -webkit-calc(50% - 20px);
-		width: -moz-calc(50% - 20px);
-		width: calc(150% - 3px); */
-		width: 136vw !important; 
-		width: calc(var(--vw, 1vw) * 136) !important;
-		
+		width: 136vw ; 
+		width: calc(var(--vw, 1vw) * 136) ;
 		overflow-x: auto;
 		overflow-y: hidden;
 		padding-top: 0em;
@@ -354,6 +349,36 @@ and (orientation : portrait) {
 	}
 	.buttonContainer {
 		margin-left: -2.5em !important;
+	}
+}
+
+/* iPhone X */
+@media only screen 
+and (device-width : 375px)
+and (orientation : portrait) {
+
+	.pianoBox {
+		width: 32em;
+	}
+}
+
+/* iPhone 6/7/8 Plus */
+@media only screen 
+and (device-width : 414px)
+and (orientation : portrait) {
+
+	.pianoBox {
+		width: 35.5em;
+	}
+}
+
+/* iPhone 5/SE */
+@media only screen 
+and (device-width : 320px)
+and (orientation : portrait) {
+
+	.pianoBox {
+		width: 27.4em;
 	}
 }
 
