@@ -73,15 +73,17 @@ export const PianoComponent = ({ pianoComponentId }) => {
           </button>
           <ul className="set">{renderPiano()}</ul>
         </div>
+        <div className="closeContainer">
+          <button
+            type="button"
+            className="close pianoCloseButtonMobile"
+            aria-label="Close"
+            onClick={() => handleClickRemovePiano()}
+          >
+            <span>&times;</span>
+          </button>
+        </div>
       </div>
-      <button
-        type="button"
-        className="close pianoCloseButtonMobile"
-        aria-label="Close"
-        onClick={() => handleClickRemovePiano()}
-      >
-        <span>&times;</span>
-      </button>
     </>
   )
 }
