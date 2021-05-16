@@ -286,11 +286,11 @@ and (orientation : portrait) {
 		width: 1.8em !important;
 		opacity: 1.0 !important;
 		z-index: 99999 !important;
-		color: rgb(131, 131, 131) !important;
+		color: rgb(133, 133, 133);
 		background: rgb(80, 79, 79) !important;
 		padding-bottom: 0.3em !important;		
 		padding-right: 0.06em !important;
-		border: 0.02em solid !important;
+		border: 0.1em solid !important;
 		border-radius: 0.3em;
 		outline: none !important;
 		box-shadow: 
