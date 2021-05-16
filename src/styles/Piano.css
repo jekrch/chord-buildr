@@ -123,8 +123,8 @@ ul .white:active {
 .pianoCloseButton {
 	position: relative;
 	margin-right: -0.5em;
-	top: -0.1em;
-	margin-left: 0.1em;
+	top: -3.5em;
+	margin-left: 2.0em;
 	z-index: 3;
 	float: left;
 	/* background-color: black !important; */
@@ -181,6 +181,7 @@ and (min-device-width : 981px) {
 	.piano-play-button {
 		left: 0.3em;
 	}
+	
 }
 
 .piano-play-button::before {

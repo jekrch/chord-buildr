@@ -260,7 +260,8 @@ and (orientation : portrait) {
 	
 	.pianoCloseButton {
 		text-shadow: 0 1px 0 rgb(175, 173, 173);
-		left: 11.8em !important;
+		margin-left: 5em !important;
+		/* left: 9.8em !important; */
 		height: 2.1em !important;
 		opacity: 1.0 !important;
 		top: 1em  !important;
