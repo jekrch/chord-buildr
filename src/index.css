@@ -181,44 +181,45 @@ and (max-device-width : 630px)
 	visibility: hidden !important;
 }
 
+
+
+
+
 /* Mobile */
 @media only screen 
 and (min-device-width : 0px) 
-and (max-device-width : 630px)
+and (max-device-width : 560px)
 and (orientation : portrait) {
 
 	.chordPiano {
 		height: 17em;
 	}
-
 	
 
-
+	.slashSelectorBox {
+		width: 105% !important;
+		
+	}
+	
 	.pianoBox {
 		zoom: 0.7;
 		-moz-transform: scale(0.7);
+		max-width: 41em !important;
 		left: -11.5em;
 		margin-top: 9.5em;
 		height: 11.2em;
 		margin-left: 0em;
 		margin-right: 0em !important;
-		/* padding: 0em !important;	 */
 		display: flex;
-		width:40.3em;
-
-		width: 150% !important;
+		width: 136vw !important;
 		overflow-x: auto;
 		overflow-y: hidden;
 		padding-top: 0em;
 		padding-bottom: 0em;
-		left: -11.5em;
 		padding-left: 2em !important;
 		padding-right: 2em !important;
 		white-space: nowrap;
-
 	}
-
-
 
 	.white:last-child {
 		margin-right: 0em;
@@ -282,22 +283,30 @@ and (orientation : portrait) {
 		right: 0.5em;
 		position: relative;		
 		zoom: 0.7;
-		height: 5.6em !important;
-		width: 1.8em !important;
+		width: 2.2em;
+		height: 2.2em;
+		/* height: 5.65em !important;
+		width: 1.85em !important; */
 		opacity: 1.0 !important;
 		z-index: 99999 !important;
-		color: rgb(133, 133, 133);
+		color: rgb(133, 133, 133) !important;
 		background: rgb(80, 79, 79) !important;
-		padding-bottom: 0.3em !important;		
-		padding-right: 0.06em !important;
+		padding-bottom: 0.5em !important;		
+		padding-right: 0.0em !important;
 		border: 0.1em solid !important;
 		border-radius: 0.3em;
 		outline: none !important;
 		box-shadow: 
 		-1px -1px 2px  var(--main-compononent-gray) inset,
-		0 -5px 2px 5px rgba(46, 45, 45, 0.6) inset, 
+		0 -5px 2px 3px rgba(46, 45, 45, 0.6) inset, 
 		3px 6px 3px rgba(16, 19, 26, 0.404);
 
+	}
+
+	.mobileClosedBtnText {
+		color: rgb(194, 138, 149) !important;
+		font-size: 1.4em;
+		font-weight: 350 !important;
 	}
 
 	.pianoCloseButtonMobile:active {
@@ -318,6 +327,46 @@ and (orientation : portrait) {
 
 }   
 
+@media only screen 
+and (min-device-width : 500px) 
+and (max-device-width : 560px)
+and (orientation : portrait) {
+
+	.set {
+		top: 0.1em !important;
+		padding: 0em !important;
+		padding-left: 0em;
+		left: -1.8em !important;
+		margin-right: -2em !important;
+		margin-top: 0em !important;
+		margin-top: 1em !important;
+	}
+
+	.pianoBox {
+		zoom: 0.80;
+		-moz-transform: scale(0.80);
+		left: -10em;
+		top: -1em;
+		width: 120vw !important;
+		
+	}
+}
+
+
+
+/* Mobile */
+@media only screen 
+and (min-device-width : 0px) 
+and (max-device-width : 280px)
+and (orientation : portrait) {
+
+	.chord-btn {
+		margin-right: 0em !important;
+	}
+	.buttonContainer {
+		margin-left: -2.5em !important;
+	}
+}
 
 .keyCheckBox {
 	text-align: left;	

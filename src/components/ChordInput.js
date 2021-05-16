@@ -167,7 +167,7 @@ export const ChordInput = ({ pianoComponentId }) => {
             display-option={`${chordRef.current.slashChord}`}
           >
             <Form.Control
-              className="selectorBox"
+              className="selectorBox slashSelectorBox"
               as="select"
               value={chordRef.current.slashNote}
               custom

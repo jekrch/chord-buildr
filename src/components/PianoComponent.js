@@ -80,7 +80,7 @@ export const PianoComponent = ({ pianoComponentId }) => {
             aria-label="Close"
             onClick={() => handleClickRemovePiano()}
           >
-            <span>&times;</span>
+            <span className="mobileClosedBtnText">&times;</span>
           </button>
         </div>
       </div>
