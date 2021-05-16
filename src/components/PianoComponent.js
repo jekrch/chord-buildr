@@ -69,7 +69,7 @@ export const PianoComponent = ({ pianoComponentId }) => {
             aria-label="Close"
             onClick={() => handleClickRemovePiano()}
           >
-            <span aria-hidden="true">&times;</span>
+            <span aria-hidden="true">x</span>
           </button>
           <ul className="set">{renderPiano()}</ul>
         </div>
