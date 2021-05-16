@@ -183,8 +183,6 @@ and (max-device-width : 630px)
 
 
 
-
-
 /* Mobile */
 @media only screen 
 and (min-device-width : 0px) 
@@ -195,10 +193,8 @@ and (orientation : portrait) {
 		height: 17em;
 	}
 	
-
 	.slashSelectorBox {
 		width: 105% !important;
-		
 	}
 	
 	.pianoBox {
@@ -210,8 +206,14 @@ and (orientation : portrait) {
 		height: 11.2em;
 		margin-left: 0em;
 		margin-right: 0em !important;
-		display: flex;
-		width: 136vw !important;
+		display: flex !important;
+				/* width: 58%;
+		width: -webkit-calc(50% - 20px);
+		width: -moz-calc(50% - 20px);
+		width: calc(150% - 3px); */
+		width: 136vw; 
+		width: calc(var(--vw, 1vw) * 136);
+		
 		overflow-x: auto;
 		overflow-y: hidden;
 		padding-top: 0em;
@@ -285,8 +287,6 @@ and (orientation : portrait) {
 		zoom: 0.7;
 		width: 2.2em;
 		height: 2.2em;
-		/* height: 5.65em !important;
-		width: 1.85em !important; */
 		opacity: 1.0 !important;
 		z-index: 99999 !important;
 		color: rgb(133, 133, 133) !important;
@@ -305,7 +305,7 @@ and (orientation : portrait) {
 
 	.mobileClosedBtnText {
 		color: rgb(194, 138, 149) !important;
-		font-size: 1.4em;
+		font-size: 1em;
 		font-weight: 350 !important;
 	}
 
@@ -315,16 +315,7 @@ and (orientation : portrait) {
 		box-shadow: -1px -1px 2px rgba(255, 255, 255, 0.2) inset,
 			0 -5px 2px 3px rgba(46, 45, 45, 0.6) inset, 
 			0 2px 4px rgba(0, 0, 0, 0.5) !important;
-	}
-	
-	/* .pianoCloseButton:active {
-		color: rgb(103, 149, 187);
-		background: linear-gradient(45deg, #222 0%, rgb(75, 78, 82) 100%);
-		box-shadow: -1px -1px 2px rgba(255, 255, 255, 0.2) inset,
-			0 -3px 1px 2px rgba(46, 45, 45, 0.6) inset, 
-			0 2px 4px rgba(0, 0, 0, 0.5);
-	} */
-
+	}	
 }   
 
 @media only screen 
@@ -352,12 +343,10 @@ and (orientation : portrait) {
 	}
 }
 
-
-
 /* Mobile */
 @media only screen 
 and (min-device-width : 0px) 
-and (max-device-width : 280px)
+and (max-device-width : 300px)
 and (orientation : portrait) {
 
 	.chord-btn {
@@ -372,8 +361,6 @@ and (orientation : portrait) {
 	text-align: left;	
 	font-size: 0.8em;
 }
-
-
 
 .chordCheckBox label {
 	margin-top: -0.2em !important;
@@ -403,15 +390,3 @@ and (orientation : portrait) {
 	opacity: 0.5 !important;
 	cursor: pointer;
 }
-/* .pianoAnchor {
-	z-index: 9899;
-	position: relative;
-	display: inline-block;
-	top: -27em;
-	left: -15em;
-	background: red;
-	height: 15.4em;
-	width: 2em;
-	margin-bottom: -17em;
-} */
-
