@@ -21,3 +21,11 @@ The UI has been redesigned for mobile to enable the user to see more of the keyb
 <br/>
 <br/>
 <img src="https://raw.githubusercontent.com/jekrch/chord-buildr/main/src/public/images/mobile%20ui.PNG"/>
+<br/>
+<br/>
+<b>v1.2</b>
+<br/>
+<br/>
+More chord types were added, along with security updates.
+<br/>
+<br/>

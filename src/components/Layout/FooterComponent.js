@@ -102,7 +102,7 @@ export const FooterComponent = () => {
         <Navbar.Brand href="https://github.com/jekrch/chord-buildr">
           <img className="gitSrc" src={GitHub120} alt="github" />
         </Navbar.Brand>{" "}
-        <div className="footNavText">v1.1</div>
+        <div className="footNavText">v1.2</div>
         <div className="footNavAbout" onClick={() => setModalShow(true)}>
           about
         </div>
