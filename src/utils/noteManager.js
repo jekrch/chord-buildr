@@ -14,7 +14,11 @@ export const noteLetterMapWithSharps = {
 }
 
 export const isValidLetter = (letter) => {
-  return Object.values(noteLetterMapWithSharps).includes(letter)
+  if (letter.includes("b")) {
+    return Object.values(noteLetterMapWithFlats).includes(letter)
+  } else {
+    return Object.values(noteLetterMapWithSharps).includes(letter)
+  }
 }
 
 export const noteLetterMapWithFlats = {

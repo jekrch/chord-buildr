@@ -32,7 +32,7 @@ code {
 
 .chordInputSelection {
 	width: 6.2em;
-	height: 54px;
+	height: 50px;
 	margin-left: 0em;	
 }
 
@@ -44,6 +44,14 @@ code {
 
 .slashCheckBox {
 	left: 0.3em;
+	font-size: 0.8em;
+	display: block;
+}
+
+
+.flatCheckBox {
+	margin-top: 1.7em;
+	margin-left: -7.2em;
 	font-size: 0.8em;
 	display: block;
 }
@@ -60,7 +68,7 @@ code {
 	position: relative;
 	display: inline-block;
 	margin-left: 1.5em !important;
-	margin-top: 0em;
+	margin-top: 0.5em;
 	width: 4.2em;
 	height: 54px;
 
@@ -69,7 +77,7 @@ code {
 .slashSymbol {
 	position: relative;
 	display: inline-block;
-	top: -0.1em;
+	top: 0.1em;
 	margin-left: 0.7em;
 	margin-right: -0.4em;
 	font-size: 1.8em;
@@ -234,14 +242,20 @@ and (orientation : portrait) {
 	}
 
 	.keyCheckBox {
-		top: -8.5em;
+		top: -7.8em;
 		left: 9em;
 		z-index: 9999;
 	}
 
 	.slashCheckBox {
-		top: -6.5em;
+		top: -6.0em;
 		left: 5.4em;
+		z-index: 9999;
+	}
+
+	.flatCheckBox {
+		top: -9.35em;
+		left: 13.1em;
 		z-index: 9999;
 	}
 
@@ -251,12 +265,12 @@ and (orientation : portrait) {
 	}
 
 	.slashSymbol {
-		top: -3.2em !important;
+		top: -3em !important;
 		left: 3.7em;
 	}
 
 	.slashChordSelection {
-		top: -5.5em;
+		top: -5.7em;
 		left: 6.7em;
 		z-index: 9999;
 	}

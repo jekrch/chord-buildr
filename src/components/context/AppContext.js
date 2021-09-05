@@ -7,6 +7,7 @@ import {
   transposePianoBoard,
   selectChordKeys
 } from "../../utils/chordPianoHandler"
+import { updateFlatOrSharpLetter } from "../../utils/chordCodeHandler"
 
 export const STATE_NAME = "PIANO_STATE"
 
@@ -168,6 +169,12 @@ const appReducer = (state, action) => {
 
       var originalChordPiano = getPianoById(state, pianoId)
 
+      // adjust the note letter depending on whether we're showing sharps or flats
+      action.payload.noteLetter = updateFlatOrSharpLetter(
+        originalChordPiano.showFlats,
+        action.payload.noteLetter
+      )
+
       if (originalChordPiano) {
         if (originalChordPiano.isProgKey) {
           var newSelectedKey = action.payload
@@ -233,6 +240,30 @@ const appReducer = (state, action) => {
       chordPiano.rendered = false
 
       selectChordKeys(chordPiano)
+
+      updateUrlProgressionCode(state)
+
+      return {
+        ...state,
+        chordPianoSet: state.chordPianoSet,
+        history: state.history
+      }
+
+    case "UPDATE_SHOW_FLATS":
+      //console.log(action)
+
+      var chordPiano = getPianoById(state, pianoId)
+
+      if (chordPiano) {
+        chordPiano.showFlats = action.showFlats
+
+        chordPiano.selectedKey.noteLetter = updateFlatOrSharpLetter(
+          chordPiano.showFlats,
+          chordPiano.selectedKey.noteLetter
+        )
+
+        chordPiano.selectedChord.noteLetter = chordPiano.selectedKey.noteLetter
+      }
 
       updateUrlProgressionCode(state)
 

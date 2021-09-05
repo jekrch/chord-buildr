@@ -1,3 +1,4 @@
+import { updateFlatOrSharpLetter } from "./chordCodeHandler"
 import { getNoteNumber, getNoteLetter, normalizeNote } from "./noteManager"
 
 // returns the note numbers for the specified chord with the indicated
@@ -96,7 +97,14 @@ export function getTransposedSelectedKey(chordPiano, stepsChanged) {
 
   var newNote = normalizeNote(newNoteNumber, originalOctave)
 
-  selectedKey.noteLetter = getNoteLetter("C", newNote.noteNumber)
+  // get note letter converted to sharp or flat depending on settings
+  var noteLetter = getNoteLetter("C", newNote.noteNumber)
+
+  selectedKey.noteLetter = updateFlatOrSharpLetter(
+    chordPiano.showFlats,
+    noteLetter
+  )
+
   selectedKey.octave = newNote.octave
 
   return selectedKey

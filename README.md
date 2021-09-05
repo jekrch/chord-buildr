@@ -26,6 +26,6 @@ The UI has been redesigned for mobile to enable the user to see more of the keyb
 <b>v1.2</b>
 <br/>
 <br/>
-More chord types were added, along with security updates.
+Users can now choose to display flats instead of sharps for a given chord piano by checking the checkbox labled 'b' (for flat). This is reflected in all references to the chord and encoded in the url. More chord types were also added and various security updates were made.
 <br/>
 <br/>

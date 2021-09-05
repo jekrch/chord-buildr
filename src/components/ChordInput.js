@@ -1,24 +1,46 @@
 import { React, useContext, useRef, useEffect } from "react"
 import Form from "react-bootstrap/Form"
-import { noteLetterMapWithSharps } from "../utils/noteManager"
+import {
+  noteLetterMapWithSharps,
+  noteLetterMapWithFlats
+} from "../utils/noteManager"
 import { chordMap } from "../utils/chordManager"
 import { selectChordKeys, hasSelectedNotes } from "../utils/chordPianoHandler"
 import { AppContext, getPianoById } from "../components/context/AppContext"
 import PropTypes from "prop-types"
+import { updateFlatOrSharpLetter } from "../utils/chordCodeHandler"
 
 export const ChordInput = ({ pianoComponentId }) => {
   const { state, dispatch } = useContext(AppContext)
   const chordRef = useRef({})
 
-  //console.log("rendered piano component id: " + pianoComponentId)
   var chordPiano = getPianoById(state, pianoComponentId)
 
+  chordRef.current.showFlats =
+    chordPiano.showFlats ||
+    chordPiano.selectedKey.noteLetter.includes("b") ||
+    (chordPiano.selectedChord.slashNote != null &&
+      chordPiano.selectedChord.slashNote.includes("b"))
+
   chordRef.current.isProgKey = chordPiano.isProgKey ?? false
-  chordRef.current.selectedChordKey = chordPiano.selectedKey.noteLetter ?? "C"
+
+  // get the current selected key letter, adjusted by flats or sharps
+  chordRef.current.selectedChordKey = updateFlatOrSharpLetter(
+    chordRef.current.showFlats,
+    chordPiano.selectedKey.noteLetter ?? "C"
+  )
+
   chordRef.current.type = chordPiano.selectedChord.type
   chordRef.current.id = chordPiano.id
   chordRef.current.slashChord = chordPiano.selectedChord.slash ?? false
-  chordRef.current.slashNote = chordPiano.selectedChord.slashNote ?? ""
+
+  //chordRef.current.slashNote = chordPiano.selectedChord.slashNote ?? ""
+  chordRef.current.slashNote = updateFlatOrSharpLetter(
+    chordRef.current.showFlats,
+    chordPiano.selectedChord.slashNote ?? ""
+  )
+
+  chordRef.current.noteArray = getNoteArray(chordRef.current.showFlats)
 
   useEffect(() => {
     // if no keys are selected, load the selected chord
@@ -34,6 +56,8 @@ export const ChordInput = ({ pianoComponentId }) => {
   // processes new key selections
   const handleKeySelectChange = (e) => {
     if (e.target.value === null) return
+
+    chordRef.current.noteArray = getNoteArray(chordRef.current.showFlats)
 
     chordPiano.selectedKey.noteLetter = e.target.value
 
@@ -62,9 +86,6 @@ export const ChordInput = ({ pianoComponentId }) => {
 
   // set whether this chord has the progression key
   const handleIsKeyChecked = (e) => {
-    //console.log(e.target.checked)
-    //console.log(chordRef.current.type)
-
     dispatch({
       type: "SET_PROG_KEY",
       keyChecked: e.target.checked,
@@ -74,13 +95,21 @@ export const ChordInput = ({ pianoComponentId }) => {
 
   // set whether this chord has the progression key
   const handleIsSlashChordChecked = (e) => {
-    //console.log(e.target.checked)
-    //console.log(chordRef.current.type)
-
     chordRef.current.slashChord = e.target.checked
     dispatch({
       type: "UPDATE_SLASH_CHORD",
       isSlashChord: chordRef.current.slashChord,
+      id: chordPiano.id
+    })
+  }
+
+  // set whether the key selector shows sharps or flats
+  const handleIsFlatKeyChecked = (e) => {
+    chordRef.current.showFlats = e.target.checked
+
+    dispatch({
+      type: "UPDATE_SHOW_FLATS",
+      showFlats: chordRef.current.showFlats,
       id: chordPiano.id
     })
   }
@@ -100,7 +129,6 @@ export const ChordInput = ({ pianoComponentId }) => {
   }
 
   var chordTypeArray = Object.keys(chordMap)
-  var noteArray = Object.values(noteLetterMapWithSharps)
 
   return (
     <Form className="chordInputForm">
@@ -113,7 +141,7 @@ export const ChordInput = ({ pianoComponentId }) => {
             className="selectorBox"
             onChange={(e) => handleKeySelectChange(e)}
           >
-            {noteArray.map((option, index) => {
+            {chordRef.current.noteArray.map((option, index) => {
               return (
                 <option key={index} value={option}>
                   {option}
@@ -155,6 +183,14 @@ export const ChordInput = ({ pianoComponentId }) => {
           className="slashCheckBox chordCheckBox"
           onChange={(e) => handleIsSlashChordChecked(e)}
         />
+        <Form.Check
+          type="checkbox"
+          key={"flat" + chordRef.current.id}
+          label="b"
+          checked={chordRef.current.showFlats}
+          className="flatCheckBox chordCheckBox"
+          onChange={(e) => handleIsFlatKeyChecked(e)}
+        />
         <div className="slashSelection">
           <div
             className="slashSymbol"
@@ -173,7 +209,7 @@ export const ChordInput = ({ pianoComponentId }) => {
               custom
               onChange={(e) => handleSlashChordNoteChange(e)}
             >
-              {noteArray.concat("").map((option, index) => {
+              {chordRef.current.noteArray.concat("").map((option, index) => {
                 return (
                   <option key={index} value={option}>
                     {option}
@@ -190,4 +226,11 @@ export const ChordInput = ({ pianoComponentId }) => {
 
 ChordInput.propTypes = {
   pianoComponentId: PropTypes.number.isRequired
+}
+function getNoteArray(showFlats) {
+  if (showFlats) {
+    return Object.values(noteLetterMapWithFlats)
+  } else {
+    return Object.values(noteLetterMapWithSharps)
+  }
 }

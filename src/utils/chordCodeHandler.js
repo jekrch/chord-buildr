@@ -1,5 +1,9 @@
 import { isValidChordType } from "./chordManager"
-import { isValidLetter } from "./noteManager"
+import { isValidLetter, getNoteNumber } from "./noteManager"
+import {
+  noteLetterMapWithSharps,
+  noteLetterMapWithFlats
+} from "../utils/noteManager"
 
 /***
  * get the octave from the start of the code
@@ -41,19 +45,32 @@ export function getChordFromCode(chordCode) {
 
     chordCode = processSlashChord(chordCode, chord)
 
-    var indexOfType = chordCode.substring(2, 3) === "#" ? 3 : 2
+    var indexOfType =
+      chordCode.substring(2, 3) === "#" || chordCode.substring(2, 3) === "b"
+        ? 3
+        : 2
 
-    chord.noteLetter = chordCode.substring(1, indexOfType).toUpperCase()
+    chord.noteLetter = capitalizeFirstLetter(
+      chordCode.substring(1, indexOfType)
+    )
     chord.type = chordCode.substring(indexOfType)
 
     console.log(chord)
   } catch (ex) {
+    console.log(ex)
     console.log("Exception - invalid chord code: " + chordCode)
     return
   }
 
   if (!(isValidChordType(chord.type) && isValidLetter(chord.noteLetter))) {
-    console.log("Invalid chord code: " + chordCode)
+    console.log(
+      "Invalid chord code: " +
+        chordCode +
+        "; letter: " +
+        chord.noteLetter +
+        "; type: " +
+        chord.type
+    )
     return
   }
 
@@ -98,6 +115,11 @@ export function getProgressionCode(state) {
     if (chordPiano.isProgKey) chordCode += "*"
 
     if (isSlashChord(selectedChord)) {
+      selectedChord.slashNote = updateFlatOrSharpLetter(
+        chordPiano.showFlats,
+        selectedChord.slashNote
+      )
+
       chordCode += ":" + selectedChord.slashNote
     }
 
@@ -113,4 +135,28 @@ export function isSlashChord(selectedChord) {
     selectedChord.slashNote &&
     selectedChord.slashNote !== ""
   )
+}
+
+function capitalizeFirstLetter(string) {
+  return string.charAt(0).toUpperCase() + string.slice(1)
+}
+
+/***
+ * If the chordPiano is set to show flats and the provided letter is sharp,
+ * find the corresponding flat letter. Likewise, if the chordPiano is
+ * set to show sharps
+ */
+
+export function updateFlatOrSharpLetter(showFlats, noteLetter) {
+  var noteNumber = getNoteNumber(noteLetter)
+
+  if (showFlats) {
+    if (noteLetter.includes("#")) {
+      return noteLetterMapWithFlats[noteNumber]
+    }
+  } else if (noteLetter.includes("b")) {
+    return noteLetterMapWithSharps[noteNumber]
+  }
+
+  return noteLetter
 }

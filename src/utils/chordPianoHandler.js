@@ -295,6 +295,9 @@ export function createChordPiano(i, chordCode) {
       id: i,
       piano: pianoGenerator(),
       selectedKey: { noteLetter: chord.noteLetter, octave: chord.octave },
+      showFlats:
+        chord.noteLetter.includes("b") ||
+        (chord.slashNote != null && chord.slashNote.includes("b")),
       isProgKey: chord.isKey,
       selectedChord: {
         noteLetter: chord.noteLetter,
