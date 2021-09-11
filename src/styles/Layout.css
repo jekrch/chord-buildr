@@ -14,7 +14,6 @@
 	will-change: transform;
 }
 
-
 .mainHeader:before {
 	z-index: 0;
 		content: '';
@@ -27,12 +26,19 @@
 	opacity: .90; 
 }
 
-
 .aboutDescriptionText {
 	margin-top: -.1em;
 	margin-bottom: -1em;
 	/* margin-left: 0.2em; */
 	text-align: center;
+}
+
+.versionDescriptionText {
+	margin-top: -.3em;
+	margin-bottom: -0.9em;
+	text-align: center;
+	font-weight: 600;
+	font-size: 1.1em;
 }
 
 .creditsText {
@@ -70,6 +76,12 @@
 	font-size: 0.75em;
 	margin-left: 2em;
 }
+
+.footNavVersion {
+	font-size: 0.75em;
+	margin-left: 0em;
+}
+
 
 
 .gitSrc {
@@ -121,8 +133,37 @@ body.modal-open {
 .navbar {
     padding-right: 16px !important;
 }
+.verHeader {
+	font-size: 0.9em;
+	font-weight: 600;
+	position: relative;
+	padding-right:1em;
+	overflow: hidden;
+	margin-left: 0.7em
+}
 
-.aboutLine {
+.verHeader:after {
+    content:"";
+    display: inline-block;
+    height: 0.7em;
+    vertical-align: bottom;
+    width: 100%;
+    margin-right: -100%;
+    margin-left: 10px;
+    border-top: 1px solid rgba(255, 255, 255, 0.438);
+}
+ 
+.verItem {
+	display: list-item;          
+    list-style-type: circle;      
+    list-style-position: inside;
+	margin-left: 3.3em;
+	padding-left: 1em;
+    text-indent: -1.4em;
+	font-size: 0.85em;
+}
+
+.modalLine {
 	border-top: 1px solid;
 	margin: 2em -1em;
 }
@@ -148,6 +189,11 @@ body.modal-open {
 	margin-top: -1.1em !important;
 	margin-right: -1em !important;
 }
+
+.verModalBody {
+	margin-bottom: 0.5em;
+}
+
 
 .headerBackground {
 	/* width: 100%;
@@ -186,6 +232,7 @@ body.modal-open {
 }
 
 .footNavAbout:hover,
+.footNavVersion:hover,
 .gitSrc:hover {
 	opacity: 0.5 !important;
 	cursor: pointer;

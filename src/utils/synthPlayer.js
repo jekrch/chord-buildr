@@ -88,7 +88,7 @@ function getDecibel(piano) {
     }
   }
   var highestNoteNumber = Math.max.apply(Math, selectedNoteNumbers)
-  return -1 - highestNoteNumber / 2.5
+  return 2 - highestNoteNumber / 2.5
 }
 
 function clearPianoKeyPlaying(dispatch, pianoComponent) {
