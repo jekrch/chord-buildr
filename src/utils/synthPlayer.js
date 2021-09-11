@@ -10,6 +10,7 @@ function getSynth() {
   }
   synth = new Tone.PolySynth().toDestination()
   if (isMobile) synth.set({ latencyHint: "balanced" })
+
   //synth.setContext(new Tone.Context({ latencyHint: "playback" }))
   return synth
 }
@@ -31,7 +32,9 @@ export function playPiano(dispatch, state, pianoId) {
   }
 
   synth.releaseAll()
-  //synth.set({ volume: 0.8 })
+
+  synth.volume.value = getDecibel(pianoComponent.piano)
+  console.log("vol: " + synth.volume.value)
 
   synth.triggerAttackRelease(
     selectedNotes,
@@ -51,7 +54,6 @@ function getSelectedNotes(piano) {
 
     for (let j = 0; j < pianoOctave.length; j++) {
       var noteKey = pianoOctave[j]
-
       if (noteKey.selected) {
         var note = `${noteKey.note.toUpperCase()}${octaveIndex + 3}`
         selectedNotes.push(note)
@@ -65,6 +67,28 @@ function getSelectedNotes(piano) {
   }
 
   return selectedNotes
+}
+
+/***
+ * The decibel should be inversely proportional to the highest note
+ */
+function getDecibel(piano) {
+  var selectedNoteNumbers = []
+
+  for (let octaveIndex = 0; octaveIndex < piano.length; octaveIndex++) {
+    var pianoOctave = piano[octaveIndex]
+
+    for (let j = 0; j < pianoOctave.length; j++) {
+      var noteKey = pianoOctave[j]
+
+      if (noteKey.selected) {
+        var absoluteNoteNumber = noteKey.noteNumber + noteKey.octave * 12
+        selectedNoteNumbers.push(absoluteNoteNumber)
+      }
+    }
+  }
+  var highestNoteNumber = Math.max.apply(Math, selectedNoteNumbers)
+  return -1 - highestNoteNumber / 2.5
 }
 
 function clearPianoKeyPlaying(dispatch, pianoComponent) {
