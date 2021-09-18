@@ -63,8 +63,6 @@ export const HeaderComponent = () => {
   }
 
   const handleItemClick = (id) => {
-    //console.log("clicked " + id)
-
     playPiano(dispatch, state, id)
   }
 

@@ -16,7 +16,9 @@ const initialState = {
   previousProgCodes: [],
   currentProgCode: null,
   building: false,
-  chordPianoSet: [getChordPiano(0)]
+  chordPianoSet: [getChordPiano(0)],
+  synth: "plumber",
+  volume: 90
 }
 
 /***
@@ -205,6 +207,24 @@ const appReducer = (state, action) => {
         ...state,
         chordPianoSet: state.chordPianoSet,
         history: state.history
+      }
+
+    case "UPDATE_SYNTH":
+      state.synth = action.synth
+
+      console.log(state.synth)
+      return {
+        ...state,
+        synth: state.synth
+      }
+
+    case "UPDATE_SYNTH_VOLUME":
+      state.volume = action.volume
+
+      console.log(state.volume)
+      return {
+        ...state,
+        volume: state.volume
       }
 
     case "UPDATE_CHORD_TYPE":

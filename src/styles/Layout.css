@@ -63,6 +63,35 @@
 	
 }
 
+.configSettings {
+	margin-left: 5em;
+	margin-right: 0.5em;
+	margin-bottom: -1em;
+}
+
+.configChordPlayBtn {
+	margin-left: 0.6em;
+
+}
+
+.chordPlayIcon {
+	margin-top: -7em;
+	margin-left: -0.5em;
+	height: 3.5em;
+	color: grey;
+}
+
+.chordPlayIcon:hover {
+	color:#007bff;
+	cursor: pointer;
+}
+
+.chordPlayIcon:active {
+	color:#0253aa;
+	cursor: pointer;
+}
+
+
 .footNav {
 	background-color: rgb(44, 43, 43);
 	height: 2.5em;
@@ -77,12 +106,16 @@
 	margin-left: 2em;
 }
 
+.footNavCog {
+	margin-left: 1.6em;
+	height: 1em;
+	color: grey;
+}
+
 .footNavVersion {
 	font-size: 0.75em;
 	margin-left: 0em;
 }
-
-
 
 .gitSrc {
 	height: 1.2em;
@@ -232,10 +265,37 @@ body.modal-open {
 }
 
 .footNavAbout:hover,
+.footNavCog:hover,
 .footNavVersion:hover,
 .gitSrc:hover {
 	opacity: 0.5 !important;
 	cursor: pointer;
+}
+
+
+.footNavCog:hover {
+    -webkit-animation: spin 900ms none normal;
+    animation: spin 900ms none normal;
+}
+@-webkit-keyframes spin {
+    0% {
+        -webkit-transform: rotate(0deg);
+        transform: rotate(0deg);
+    }
+    100% {
+        -webkit-transform: rotate(59deg);
+        transform: rotate(59deg);
+    }
+}
+@keyframes spin {
+    0% {
+        -webkit-transform: rotate(0deg);
+        transform: rotate(0deg);
+    }
+    100% {
+        -webkit-transform: rotate(59deg);
+        transform: rotate(59deg);
+    }
 }
 
 .chord-btn {
