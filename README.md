@@ -40,3 +40,18 @@ Users can now choose to display flats instead of sharps for a given chord piano 
   <li>modify chord volume according to pitch </li>
   <li> added version history modal </li>
 </ul>
+<br/>
+<br/>
+<b>v1.4</b>
+<br/>
+<br/>
+<ul>
+  <li>add synth settings modal</li>
+  <li>volume control and five synth voice options</li>
+  <li>backwards compatible url encoding for synth settings</li>
+</ul>
+<br/>
+<br/>
+<img src="https://user-images.githubusercontent.com/8173930/133951422-d4f9842e-1782-44ae-a9d8-d507c0b711d0.png">
+
+
