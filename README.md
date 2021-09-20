@@ -30,3 +30,13 @@ Users can now choose to display flats instead of sharps for a given chord piano 
 <br/>
 <br/>
 <img src="https://user-images.githubusercontent.com/8173930/132143487-48cf5f38-7beb-431d-9dc4-993fc492bddc.png"/>
+<br/>
+<br/>
+<b>v1.3</b>
+<br/>
+<br/>
+<ul>
+  <li> adjust volume to reduce distortion </li>
+  <li>modify chord volume according to pitch </li>
+  <li> added version history modal </li>
+</ul>
