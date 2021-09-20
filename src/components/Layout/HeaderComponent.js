@@ -51,7 +51,7 @@ export const HeaderComponent = () => {
   const handleClickClear = () => {
     dispatch({
       type: "BUILD_PROG_FROM_CODE",
-      payload: ""
+      payload: "?s=p:90&p="
     })
   }
 
@@ -69,7 +69,7 @@ export const HeaderComponent = () => {
   const renderProgression = () => {
     return state.chordPianoSet.map((piano, i) => {
       return (
-        <>
+        <div key={"ci-" + piano.id}>
           <Link
             className="chordListItem"
             to={"piano-" + piano.id}
@@ -90,7 +90,7 @@ export const HeaderComponent = () => {
             </div>
           </Link>
           &nbsp;{i !== state.chordPianoSet.length - 1 ? "|" : ""}
-        </>
+        </div>
       )
     })
   }

@@ -47,8 +47,11 @@ export const PianoBoardComponent = () => {
 function buildChordsFromUrl(state, history, dispatch) {
   var currentCode = getProgressionCode(state)
 
-  var newParams = history.location.search.replace("?prog=", "")
-  newParams += history.location.hash
+  var newParams = history.location.search + history.location.hash
+
+  // console.log(newParams)
+  // console.log(currentCode)
+  // console.log(state.building)
 
   if (!state.building && currentCode !== newParams) {
     console.log("New chord code provided " + currentCode + " vs " + newParams)

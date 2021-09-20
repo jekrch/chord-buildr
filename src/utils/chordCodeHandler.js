@@ -54,8 +54,6 @@ export function getChordFromCode(chordCode) {
       chordCode.substring(1, indexOfType)
     )
     chord.type = chordCode.substring(indexOfType)
-
-    console.log(chord)
   } catch (ex) {
     console.log(ex)
     console.log("Exception - invalid chord code: " + chordCode)
@@ -101,6 +99,8 @@ function processSlashChord(chordCode, chord) {
 }
 
 export function getProgressionCode(state) {
+  var synthCode = "?s=" + state.synth + ":" + state.volume
+
   var code = ""
 
   for (let i = 0; i < state.chordPianoSet.length; i++) {
@@ -126,7 +126,7 @@ export function getProgressionCode(state) {
     code += `(${chordCode})`
   }
 
-  return code
+  return synthCode + "&p=" + code
 }
 
 export function isSlashChord(selectedChord) {

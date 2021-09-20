@@ -8,6 +8,7 @@ import {
   selectChordKeys
 } from "../../utils/chordPianoHandler"
 import { updateFlatOrSharpLetter } from "../../utils/chordCodeHandler"
+import { synthTypes } from "../../utils/synthLibrary"
 
 export const STATE_NAME = "PIANO_STATE"
 
@@ -17,7 +18,7 @@ const initialState = {
   currentProgCode: null,
   building: false,
   chordPianoSet: [getChordPiano(0)],
-  synth: "plumber",
+  synth: "p",
   volume: 90
 }
 
@@ -47,18 +48,91 @@ export function setProgKey(state, pianoId) {
   chordPiano.isProgKey = true
 }
 
+export function getQueryStringParams(query) {
+  return query
+    ? (/^[?]/.test(query) ? query.slice(1) : query)
+        .split("&")
+        .reduce((params, param) => {
+          let [key, value] = param.split("=")
+          params[key] = value
+            ? decodeURIComponent(value.replace(/\+/g, " "))
+            : ""
+          return params
+        }, {})
+    : {}
+}
+
 export function buildProgFromCode(state, code) {
-  if (state.building) return
+  if (state.building) {
+    return
+  }
+
+  console.log(code)
 
   if (code.includes("%")) {
     code = decodeURIComponent(code)
   }
 
-  var chordArray = code.split(")")
+  var params = getQueryStringParams(code)
+
+  //console.log(params)
+
+  var progCode = params.prog != null ? params.prog : params.p
+
+  var synthSettings = getSynthCode(params.s)
+
+  //console.log(progCode)
+  //state.building = true
+  state.synth = synthSettings.type
+  state.volume = synthSettings.volume
+  state.chordPianoSet = getChordPianoSetFromProgCode(progCode)
+  state.building = false
+
+  updateUrlProgressionCode(state)
+
+  return state
+}
+
+/**
+ * get a synth settings obj from url code (e.g. pl:100)
+ * @param {*} synthCode
+ * @returns
+ */
+function getSynthCode(synthCode) {
+  // init with default synth values
+  var synth = {
+    volume: 90,
+    type: "p"
+  }
+
+  if (synthCode != null) {
+    var codeSplit = synthCode.split(":")
+
+    if (synthCode.split(":").length != 2) {
+      return synth
+    }
+
+    var type = codeSplit[0]
+    var volume = codeSplit[1]
+
+    if (Object.keys(synthTypes).includes(type)) {
+      synth.type = type
+    }
+
+    if (volume != null && volume >= 0 && volume <= 100) {
+      synth.volume = volume
+    }
+  }
+
+  return synth
+}
+
+function getChordPianoSetFromProgCode(progCode) {
+  if (progCode == null) return []
+
+  var chordArray = progCode.split(")")
 
   var chordPianoSet = []
-
-  state.building = true
 
   var progKeySet = false
 
@@ -66,8 +140,6 @@ export function buildProgFromCode(state, code) {
     var chordCode = chordArray[i]
 
     if (chordCode === "") continue
-
-    console.log(chordCode)
 
     var chordPiano = createChordPiano(i, chordCode)
 
@@ -78,12 +150,7 @@ export function buildProgFromCode(state, code) {
     chordPianoSet.push(chordPiano)
   }
 
-  state.chordPianoSet = chordPianoSet
-  state.building = false
-
-  updateUrlProgressionCode(state)
-
-  return state
+  return chordPianoSet
 }
 
 function validateProgKey(chordPiano, progKeySet) {
@@ -98,17 +165,18 @@ function validateProgKey(chordPiano, progKeySet) {
 }
 
 export function updateUrlProgressionCode(state) {
-  if (state.building) return
-
+  if (state.building) {
+    return
+  }
   var progressionCode = getProgressionCode(state)
-  var progressionCodeUrl = "?prog=" + progressionCode
+  //var progressionCodeUrl = "?prog=" + progressionCode
 
   if (state.currentProgCode) state.previousProgCodes.push(state.currentProgCode)
 
   state.currentProgCode = progressionCode
 
   state.history.push({
-    search: progressionCodeUrl
+    search: progressionCode
   })
 }
 
@@ -211,7 +279,7 @@ const appReducer = (state, action) => {
 
     case "UPDATE_SYNTH":
       state.synth = action.synth
-
+      updateUrlProgressionCode(state)
       console.log(state.synth)
       return {
         ...state,
@@ -220,16 +288,14 @@ const appReducer = (state, action) => {
 
     case "UPDATE_SYNTH_VOLUME":
       state.volume = action.volume
+      updateUrlProgressionCode(state)
 
-      console.log(state.volume)
       return {
         ...state,
         volume: state.volume
       }
 
     case "UPDATE_CHORD_TYPE":
-      //console.log(action.payload)
-
       var originalChordPiano = getPianoById(state, pianoId)
 
       if (originalChordPiano) {
@@ -294,7 +360,7 @@ const appReducer = (state, action) => {
       }
 
     case "ADD_CHORD_PIANO":
-      if (action.payload !== null) {
+      if (action.payload != null) {
         action.payload = null
         var nextChordpianoId = getNextId(state)
 
@@ -342,7 +408,7 @@ const appReducer = (state, action) => {
       }
 
     case "BUILD_PROG_FROM_CODE":
-      if (action.payload !== null) {
+      if (action.payload != null) {
         var code = action.payload
 
         action.payload = null
@@ -362,6 +428,7 @@ const appReducer = (state, action) => {
         var lastProgIndex = state.previousProgCodes.length - 1
         var previousProgCode = state.previousProgCodes[lastProgIndex]
 
+        console.log("previous: " + previousProgCode)
         state = buildProgFromCode(state, previousProgCode)
 
         state.changed = lastProgIndex
@@ -373,7 +440,9 @@ const appReducer = (state, action) => {
         chordPianoSet: state.chordPianoSet,
         history: state.history,
         previousProgCodes: state.previousProgCodes,
-        currentProgCode: state.currentProgCode
+        currentProgCode: state.currentProgCode,
+        synth: state.synth,
+        volume: state.volume
       }
 
     default:

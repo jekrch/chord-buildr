@@ -3,8 +3,9 @@ import Form from "react-bootstrap/Form"
 import { AppContext } from "../context/AppContext"
 import Modal from "react-bootstrap/Modal"
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
-import { faPlay } from "@fortawesome/free-solid-svg-icons"
+import { faPlayCircle } from "@fortawesome/free-solid-svg-icons"
 import { playPiano } from "../../utils/synthPlayer"
+import { synthTypes } from "../../utils/synthLibrary"
 
 import "../../styles/Layout.css"
 
@@ -12,7 +13,6 @@ export function ConfigModal(props) {
   const { state, dispatch } = useContext(AppContext)
 
   const settingRef = useRef({})
-  var synthTypeArray = ["plumber", "wave", "swell", "organ", "pluck"]
 
   settingRef.current.synthType = state.synth
   settingRef.current.volume = state.volume
@@ -33,7 +33,7 @@ export function ConfigModal(props) {
   const handleVolumeChange = (e) => {
     settingRef.current.volume = e.target.value
 
-    console.log(settingRef.current.volume)
+    //console.log(settingRef.current.volume)
     dispatch({
       type: "UPDATE_SYNTH_VOLUME",
       id: null,
@@ -77,15 +77,15 @@ export function ConfigModal(props) {
             <br />
             <br />
             <Form.Control
-              className="selectorBox"
+              className="selectorBox synthSelector"
               as="select"
               value={settingRef.current.synthType}
               custom
               onChange={(e) => handleSynthSelectChange(e)}
             >
-              {synthTypeArray.map((value) => {
+              {Object.entries(synthTypes).map(([key, value]) => {
                 return (
-                  <option key={value} value={value}>
+                  <option key={"k-" + key} value={key}>
                     {value}
                   </option>
                 )
@@ -107,7 +107,7 @@ export function ConfigModal(props) {
           <div class="configChordPlayBtn">
             <FontAwesomeIcon
               class="chordPlayIcon"
-              icon={faPlay}
+              icon={faPlayCircle}
               onClick={() => onPlayClick()}
             />
           </div>
