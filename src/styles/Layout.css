@@ -57,7 +57,7 @@
 	position: relative;
 	font-size: 0.7em !important;
 	bottom: -3.2em;
-	margin-top: 0em;
+	margin-top: 0.5em;
 	
 }
 
@@ -178,7 +178,12 @@ body.modal-open {
 	position: relative;
 	padding-right:1em;
 	overflow: hidden;
-	margin-left: 0.7em
+	margin-left: 0.7em;
+	margin-bottom: 0.3em;
+}
+
+.modal-header {
+	border-bottom: 1px solid #969a9e;
 }
 
 .verHeader:after {
@@ -192,6 +197,11 @@ body.modal-open {
     border-top: 1px solid rgba(255, 255, 255, 0.438);
 }
  
+.verDate {
+	font-size: 0.9em;
+	font-weight: 400;
+}
+
 .verItem {
 	display: list-item;          
     list-style-type: circle;      
@@ -203,7 +213,7 @@ body.modal-open {
 }
 
 .modalLine {
-	border-top: 1px solid;
+	border-top: 1px solid #969a9e;
 	margin: 2em -1em;
 }
 
@@ -221,7 +231,7 @@ body.modal-open {
 }
 
 .modalHeader {
-	height: 2.78em;
+	height: 3.2em;
 }
 
 .modalHeader .close {
@@ -232,6 +242,7 @@ body.modal-open {
 .verModalBody {
 	margin-bottom: 0.5em;
 }
+
 
 
 .headerBackground {

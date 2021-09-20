@@ -12,6 +12,8 @@ export function VersionModal(props) {
     >
       <Modal.Header className="modalHeader" closeButton>
         <div className="headerBackground" />
+        <p className="versionDescriptionText changeLogHeader">change log</p>
+
         <br />
       </Modal.Header>
       <Modal.Body
@@ -23,12 +25,12 @@ export function VersionModal(props) {
         }}
       >
         <br />
-        <p className="versionDescriptionText">Version history</p>
-        <br />
         <div>
-          <div class="versionList3">
+          <div class="versionList">
             <p>
-              <div class="verHeader">1.0 - 03.20.2021</div>
+              <div class="verHeader">
+                1.0 - <span class="verDate">03.20.2021</span>
+              </div>
               <p>
                 <div class="verItem">
                   user chord input with interactive keyboards
@@ -40,7 +42,9 @@ export function VersionModal(props) {
                 <div class="verItem">undo and clear functionality</div>
                 <div class="verItem">navigate to chords on chart click</div>
               </p>
-              <div class="verHeader">1.1 - 05.16.2021</div>
+              <div class="verHeader">
+                1.1 - <span class="verDate">05.16.2021</span>
+              </div>
               <p>
                 <div class="verItem">redesigned UI for mobile</div>
                 <div class="verItem">
@@ -48,14 +52,18 @@ export function VersionModal(props) {
                 </div>
                 <div class="verItem">performance improvements</div>
               </p>
-              <div class="verHeader">1.2 - 09.05.2021</div>
+              <div class="verHeader">
+                1.2 - <span class="verDate">09.05.2021</span>
+              </div>
               <p>
                 <div class="verItem">
                   display flats instead of sharps for a given chord piano
                 </div>
                 <div class="verItem">security updates</div>
               </p>
-              <div class="verHeader">1.3 - 09.11.2021</div>
+              <div class="verHeader">
+                1.3 - <span class="verDate">09.11.2021</span>
+              </div>
               <p>
                 <div class="verItem">adjust volume to reduce distortion</div>
                 <div class="verItem">
@@ -63,6 +71,18 @@ export function VersionModal(props) {
                 </div>
                 <div class="verItem">version history modal</div>
               </p>
+            </p>
+            <div class="verHeader">
+              1.4 - <span class="verDate">09.19.2021</span>
+            </div>
+            <p>
+              <div class="verItem">add synth settings modal</div>
+              <div class="verItem">
+                volume control and five synth voice options
+              </div>
+              <div class="verItem">
+                backwards compatible url encoding for synth settings
+              </div>
             </p>
           </div>
         </div>
