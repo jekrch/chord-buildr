@@ -21,8 +21,7 @@ The UI has been redesigned for mobile to enable the user to see more of the keyb
 <br/>
 <br/>
 <img src="https://raw.githubusercontent.com/jekrch/chord-buildr/main/src/public/images/mobile%20ui.PNG"/>
-<br/>
-<br/>
+<hr/>
 <b>v1.2</b>
 <br/>
 <br/>
@@ -30,8 +29,7 @@ Users can now choose to display flats instead of sharps for a given chord piano 
 <br/>
 <br/>
 <img src="https://user-images.githubusercontent.com/8173930/132143487-48cf5f38-7beb-431d-9dc4-993fc492bddc.png"/>
-<br/>
-<br/>
+<hr/>
 <b>v1.3</b>
 <br/>
 <br/>
@@ -40,8 +38,7 @@ Users can now choose to display flats instead of sharps for a given chord piano 
   <li>modify chord volume according to pitch </li>
   <li> added version history modal </li>
 </ul>
-<br/>
-<br/>
+<hr/>
 <b>v1.4</b>
 <br/>
 <br/>
@@ -52,8 +49,7 @@ Users can now choose to display flats instead of sharps for a given chord piano 
 </ul>
 <br/>
 <img src="https://user-images.githubusercontent.com/8173930/133951422-d4f9842e-1782-44ae-a9d8-d507c0b711d0.png">
-<br/>
-<br/>
+<hr/>
 <b>v1.5</b>
 <br/>
 <br/>
