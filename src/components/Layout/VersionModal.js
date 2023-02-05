@@ -84,6 +84,13 @@ export function VersionModal(props) {
                 backwards compatible url encoding for synth settings
               </div>
             </p>
+            <div class="verHeader">
+              1.5 - <span class="verDate">02.05.2023</span>
+            </div>
+            <p>
+              <div class="verItem">add play button to header for cycling through chords</div>
+              <div class="verItem">disable header buttons when unavailable</div>
+            </p>
           </div>
         </div>
       </Modal.Body>

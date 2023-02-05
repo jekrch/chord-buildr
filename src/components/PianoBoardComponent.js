@@ -15,7 +15,6 @@ export const PianoBoardComponent = () => {
   const forceUpdate = React.useCallback(() => updateState({}), [])
 
   useEffect(() => {
-    //console.log("render")
     forceUpdate()
   }, [state.chordPianoSet, forceUpdate])
 
@@ -48,10 +47,6 @@ function buildChordsFromUrl(state, history, dispatch) {
   var currentCode = getProgressionCode(state)
 
   var newParams = history.location.search + history.location.hash
-
-  // console.log(newParams)
-  // console.log(currentCode)
-  // console.log(state.building)
 
   if (!state.building && currentCode !== newParams) {
     console.log("New chord code provided " + currentCode + " vs " + newParams)
