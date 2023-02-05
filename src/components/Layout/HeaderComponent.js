@@ -12,7 +12,7 @@ export const HeaderComponent = () => {
   const { state, dispatch } = useContext(AppContext)
   const [newChordAdded, setNewChordAdded] = useState(false)
   const offset = -130
-  const [currPlayChordIndex, setCurrPlayChordIndex] = useState(0)
+  const [currPlayChordIndex, setCurrPlayChordIndex] = useState(-1)
 
   /**
    * When the header play button is clicked, play the next available chord
@@ -41,6 +41,8 @@ export const HeaderComponent = () => {
 
   function getNextPlayChordIndex(){
     let nextPianoIndex = currPlayChordIndex + 1
+    
+    // if we're exceeding the array length, cycle back to the beginning 
     if (nextPianoIndex >= state.chordPianoSet.length) {
       nextPianoIndex = 0
     }
