@@ -362,10 +362,10 @@ const appReducer = (state, action) => {
     case "ADD_CHORD_PIANO":
       if (action.payload != null) {
         action.payload = null
-        var nextChordpianoId = getNextId(state)
+        var nextChordPianoId = getNextId(state)
 
         state.chordPianoSet = state.chordPianoSet.concat(
-          getChordPiano(nextChordpianoId)
+          getChordPiano(nextChordPianoId)
         )
 
         updateUrlProgressionCode(state)
