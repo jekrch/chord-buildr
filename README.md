@@ -49,8 +49,7 @@ Users can now choose to display flats instead of sharps for a given chord piano 
 </ul>
 <br/>
 <img src="https://user-images.githubusercontent.com/8173930/133951422-d4f9842e-1782-44ae-a9d8-d507c0b711d0.png">
-<br/>
-<br/>
+<hr/>
 <b>v1.5</b>
 <br/>
 <br/>
