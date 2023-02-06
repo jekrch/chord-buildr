@@ -319,7 +319,7 @@ body.modal-open {
 
 .chord-btn {
 	display: inline-block;
-	margin: 1em 2em;
+	margin: 1em 1em;
 	z-index: 110;
 }
 
