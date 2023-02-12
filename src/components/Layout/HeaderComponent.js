@@ -11,6 +11,12 @@ export const HeaderComponent = () => {
 
   const { state, dispatch } = useContext(AppContext)
   const [newChordAdded, setNewChordAdded] = useState(false)
+  const [playBtnActivated, setPlayBtnActivated] = useState(false)
+  /**
+   * Used to flag when the last chord was played and we're looping back 
+   * to the first index. 
+   */
+  const [navigatingToStart, setNavigatingToStart] = useState(false)
   const offset = -130
   const [currPlayChordIndex, setCurrPlayChordIndex] = useState(-1)
 
@@ -19,12 +25,18 @@ export const HeaderComponent = () => {
    * @returns 
    */
   const handleClickPlay = () => {
+    setPlayBtnActivated(true);
+
     if (!state.chordPianoSet?.length) {
       return;
     }
 
     let nextPianoId = getNextPlayPianoId();
 
+    if (nextPianoId === 0) {
+      setNavigatingToStart(true);
+    }
+    
     navigateToPianoById(nextPianoId)
     handleItemClick(nextPianoId)
   }
@@ -38,6 +50,37 @@ export const HeaderComponent = () => {
     setCurrPlayChordIndex(nextPianoIndex)
     return state.chordPianoSet[nextPianoIndex]?.id;
   }
+
+  function handleItemActive(pianoIndex) {
+
+    if (playBtnActivated) {
+
+      let navToStart = navigatingToStart;
+
+      // if we made it back to the start, reset the navigation flag
+      if (navToStart && pianoIndex === 0) {
+        setNavigatingToStart(false);
+        navToStart = false;
+      } 
+
+      if (!navToStart) {
+        setPlayBtnActivated(false);
+      }
+      
+    } else {// if (!navigatingToStart || pianoIndex === state.chordPianoSet?.length) {
+      //setNavigatingToStart(false);
+      console.log('no playbtn ' + pianoIndex)
+      // get the previous index 
+      if (pianoIndex === 0) {
+        pianoIndex = state.chordPianoSet?.length;
+      } else {
+        pianoIndex--;
+      }
+
+      setCurrPlayChordIndex(pianoIndex)
+    }
+  }
+
 
   function getNextPlayChordIndex(){
     let nextPianoIndex = currPlayChordIndex + 1
@@ -115,6 +158,7 @@ export const HeaderComponent = () => {
             smooth={true}
             key={piano.id}
             onClick={(id) => handleItemClick(piano.id)}
+            onSetActive={() => { handleItemActive(i)}}
           >
             <div className="chordItem">
               &nbsp;{piano.selectedChord.noteLetter}
