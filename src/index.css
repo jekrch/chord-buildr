@@ -130,7 +130,6 @@ code {
 	left: 6.5em;
 	height: 11.5em;
 	vertical-align: center;
-
 }
 
 
@@ -191,6 +190,11 @@ and (max-device-width : 630px)
 }
 
 
+.pianoRomanNumeral {
+	font-size: 1.5em;
+	margin: -2.5em 0.6em 0; 
+	text-align: right; 
+}
 
 /* Mobile */
 @media only screen 
@@ -198,6 +202,12 @@ and (min-device-width : 0px)
 and (max-device-width : 560px)
 and (orientation : portrait) {
 
+	.pianoRomanNumeral {
+		font-size: 1.5em;
+		margin: -6.7em 5.5em 0; 
+		text-align: left;
+	}
+	
 	.chordPiano {
 		height: 17em;
 	}

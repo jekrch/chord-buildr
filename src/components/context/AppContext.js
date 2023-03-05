@@ -42,6 +42,15 @@ export function clearProgKey(state) {
   }
 }
 
+export function getProgKey(state) {
+  for (let i = 0; i < state.chordPianoSet.length; i++) {
+    var chordPiano = state.chordPianoSet[i]
+    if (chordPiano.isProgKey) {
+      return chordPiano.selectedChord
+    }
+  }
+}
+
 export function setProgKey(state, pianoId) {
   clearProgKey(state)
   var chordPiano = getPianoById(state, pianoId)
