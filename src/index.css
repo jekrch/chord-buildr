@@ -192,8 +192,13 @@ and (max-device-width : 630px)
 
 .pianoRomanNumeral {
 	font-size: 1.5em;
-	margin: -2.5em 0.6em 0; 
+	margin: -12.75em 0 0 1.6em; 
+	width: 3em;
+	pointer-events: none;
+	color:rgb(105, 105, 105);
+	position: absolute;
 	text-align: right; 
+	font-size: 16px;
 }
 
 /* Mobile */
@@ -203,9 +208,7 @@ and (max-device-width : 560px)
 and (orientation : portrait) {
 
 	.pianoRomanNumeral {
-		font-size: 1.5em;
-		margin: -6.7em 5.5em 0; 
-		text-align: left;
+		margin: -12.72em 0 0 2.5em;
 	}
 	
 	.chordPiano {
