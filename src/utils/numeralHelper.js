@@ -3,7 +3,7 @@ import * as Progression from "@tonaljs/progression"
 
 /**
  * Returns the roman numeral representation of the provided chord within the 
- * provided key. If the key is minor, it is converted to the relative major
+ * provided key.
  * 
  * @param {} key 
  * @param {*} chord 
@@ -16,18 +16,17 @@ export function getChordNumeral(key, chord) {
     return;
   }
 
-  // If this chord just is the root, return I. This saves us 
-  // the complication of determining the number in the case where 
-  // we're converting from a minor to a major scale
-  if (key.noteLetter === chord.noteLetter) {
-    return "I"
+  var numeral = Progression.toRomanNumerals(
+      key.noteLetter, 
+      [chord.noteLetter]
+    )?.[0];
+
+  // if this is a minor chord, convert numeral to lowercase 
+  if (isMinorType(chord.type)) {
+    return numeral?.toLowerCase();
+  } else {
+    return numeral;
   }
-
-  var keyLetter = getMajorKeyLetter(key, keyLetter);
-
-  var romanNumerals = Progression.toRomanNumerals(keyLetter, [chord.noteLetter]);
-
-  return romanNumerals?.[0]
 }
 
 /**
@@ -39,7 +38,7 @@ export function getChordNumeral(key, chord) {
  * @returns 
  */
 function getMajorKeyLetter(key, keyLetter) {
-  if (typeIsMinor(key.type)) {
+  if (isMinorType(key.type)) {
     keyLetter = getTransposedNote(key.noteLetter, 3);
 
   } else {
@@ -48,6 +47,6 @@ function getMajorKeyLetter(key, keyLetter) {
   return keyLetter;
 }
 
-function typeIsMinor(type) {
+function isMinorType(type) {
   return type?.includes('m') && !type?.includes('maj') 
 }
