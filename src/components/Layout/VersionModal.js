@@ -91,6 +91,12 @@ export function VersionModal(props) {
               <div class="verItem">add play button to header for cycling through chords</div>
               <div class="verItem">disable header buttons when unavailable</div>
             </p>
+            <div class="verHeader">
+              1.6 - <span class="verDate">03.05.2023</span>
+            </div>
+            <p>
+              <div class="verItem">when a key is selected, display a roman numeral for each chord</div>
+            </p>
           </div>
         </div>
       </Modal.Body>

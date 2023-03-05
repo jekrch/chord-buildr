@@ -1,8 +1,9 @@
 import React, { useContext } from "react"
 import "../styles/Piano.css"
 import { Key } from "./Key"
-import { AppContext, getPianoById } from "../components/context/AppContext"
+import { AppContext, getPianoById, getProgKey } from "../components/context/AppContext"
 import { getNoteLetter } from "../utils/noteManager"
+import { getChordNumeral } from "../utils/numeralHelper"
 import { playPiano } from "../utils/synthPlayer"
 import PropTypes from "prop-types"
 
@@ -12,8 +13,7 @@ export const PianoComponent = ({ pianoComponentId }) => {
 
   const handleClick = (note, noteNumber, octave) => {
     const noteLetter = getNoteLetter("C", noteNumber)
-    //console.log(`You've clicked note: ${pianoId} - ${octave} - ${noteLetter}`)
-
+    
     var selectedKey = {}
     selectedKey.noteLetter = noteLetter
     selectedKey.octave = octave
@@ -35,9 +35,16 @@ export const PianoComponent = ({ pianoComponentId }) => {
     playPiano(dispatch, state, pianoId)
   }
 
+  const getNumeralChord = (chord) => {
+    let piano = getPianoById(state, pianoId)
+    let key = getProgKey(state);
+    console.log(state)
+    return getChordNumeral(key, piano.selectedChord)
+    //return chord;
+  }
+
   const renderPiano = () => {
     let piano = getPianoById(state, pianoId).piano
-    //console.log(piano)
     return piano.map((octave, i) => {
       return octave.map((pianoKey) => {
         pianoKey.octave = i
@@ -82,7 +89,10 @@ export const PianoComponent = ({ pianoComponentId }) => {
           >
             <span className="mobileClosedBtnText">&times;</span>
           </button>
+        
         </div>
+      </div> 
+      <div className="pianoRomanNumeral">{getNumeralChord(pianoId)}
       </div>
     </>
   )
