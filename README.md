@@ -9,7 +9,7 @@ Chord Buildr is built with React and uses Tone.js for audio playback.
 Demo: https://chordbuildr.com/?prog=(1C)
 <br/>
 <br/>
-<img src="https://raw.githubusercontent.com/jekrch/personalsite/main/client/public/images/chordbuildr.png"/>
+<img width="635" alt="image" src="https://user-images.githubusercontent.com/8173930/222991277-aff07c7d-4208-4609-b117-def1e096e328.png">
 
 <hr/>
 <h3>Updates</h3>
@@ -66,6 +66,8 @@ Users can now choose to display flats instead of sharps for a given chord piano 
   <li>when a key is selected, display a roman numeral for each chord</li>
 </ul>
 <br/>
+<img width="305" alt="image" src="https://user-images.githubusercontent.com/8173930/222991069-426c26a7-4c09-402c-bedb-433879abc6d1.png">
+
 <br/>
 
 
