@@ -58,6 +58,14 @@ Users can now choose to display flats instead of sharps for a given chord piano 
   <li>disable header buttons when unavailable</li>
 </ul>
 <br/>
+<hr/>
+<b>v1.6</b>
+<br/>
+<br/>
+<ul>
+  <li>when a key is selected, display a roman numeral for each chord</li>
+</ul>
+<br/>
 <br/>
 
 
