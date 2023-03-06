@@ -2,7 +2,7 @@ import React, { createRef, useContext, useEffect, useState, useRef, useMemo } fr
 import Navbar from "react-bootstrap/Navbar"
 import Button from "react-bootstrap/Button"
 import "../../styles/Layout.css"
-import { AppContext } from "../context/AppContext"
+import { AppContext, buildProgFromCode } from "../context/AppContext"
 import { playPiano } from "../../utils/synthPlayer"
 import { isSlashChord, getProgressionString } from "../../utils/chordCodeHandler"
 import { Link, scroller } from "react-scroll"
@@ -107,7 +107,10 @@ export const HeaderComponent = () => {
     
     var progressionString = getProgressionString(state.chordPianoSet);
     var chordProgression = window.prompt("Enter a chord progression", progressionString); 
-
+    if (chordProgression) {
+      buildProgFromCode(state, chordProgression);
+    }
+    console.log(chordProgression);
   }
 
   function getChordDisplay(chord) {
