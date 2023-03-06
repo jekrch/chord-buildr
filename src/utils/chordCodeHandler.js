@@ -129,6 +129,40 @@ export function getProgressionCode(state) {
   return synthCode + "&p=" + code
 }
 
+/**
+ * Builds a space separated string of progression contained in the provided
+ * chordPianoSet
+ * 
+ * @param {*} chordPianoSet 
+ * @returns 
+ */
+export function getProgressionString(chordPianoSet) {
+  let code = '';
+
+  for (let i = 0; i < chordPianoSet.length; i++) {
+    var chordPiano = chordPianoSet[i]
+    var selectedChord = chordPiano.selectedChord
+
+    if (!selectedChord) continue
+
+    var chordCode =
+      selectedChord.noteLetter + selectedChord.type
+
+    if (isSlashChord(selectedChord)) {
+      selectedChord.slashNote = updateFlatOrSharpLetter(
+        chordPiano.showFlats,
+        selectedChord.slashNote
+      )
+
+      chordCode += "/" + selectedChord.slashNote
+    }
+
+    code += `${chordCode} `
+  }
+
+  return code;
+}
+
 export function isSlashChord(selectedChord) {
   return (
     selectedChord.slash &&

@@ -4,8 +4,10 @@ import Button from "react-bootstrap/Button"
 import "../../styles/Layout.css"
 import { AppContext } from "../context/AppContext"
 import { playPiano } from "../../utils/synthPlayer"
-import { isSlashChord } from "../../utils/chordCodeHandler"
+import { isSlashChord, getProgressionString } from "../../utils/chordCodeHandler"
 import { Link, scroller } from "react-scroll"
+import { faPenToSquare } from "@fortawesome/free-regular-svg-icons"
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
 
 export const HeaderComponent = () => {
 
@@ -101,6 +103,19 @@ export const HeaderComponent = () => {
     playPiano(dispatch, state, id)
   }
 
+  function openProgressionEditor() {
+    
+    var progressionString = getProgressionString(state.chordPianoSet);
+    var chordProgression = window.prompt("Enter a chord progression", progressionString); 
+
+  }
+
+  function getChordDisplay(chord) {
+    return `${chord.noteLetter}${chord.type}${isSlashChord(chord)
+      ? "/" + chord.slashNote
+      : ""}`;
+  }
+
   const renderProgression = () => {
     return state.chordPianoSet.map((piano, i) => {
       return (
@@ -117,11 +132,7 @@ export const HeaderComponent = () => {
             onClick={(id) => handleItemClick(piano.id)}
           >
             <div className="chordItem">
-              &nbsp;{piano.selectedChord.noteLetter}
-              {piano.selectedChord.type}
-              {isSlashChord(piano.selectedChord)
-                ? "/" + piano.selectedChord.slashNote
-                : ""}
+              &nbsp;{getChordDisplay(piano.selectedChord)}
             </div>
           </Link>
           &nbsp;{i !== state.chordPianoSet.length - 1 ? "|" : ""}
@@ -173,6 +184,11 @@ export const HeaderComponent = () => {
           </div>
           <ul className="progression row" style={{ listStyle: "none" }}>
             {renderProgression()}
+            <FontAwesomeIcon
+              class="progressionEditIcon"
+              icon={faPenToSquare}
+              onClick={() => {openProgressionEditor()}}
+            />
           </ul>
         </div>
       </Navbar>
