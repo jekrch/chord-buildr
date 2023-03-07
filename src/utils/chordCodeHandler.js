@@ -340,7 +340,7 @@ export function convertProgressionStrToCode(submittedProgressionStr) {
   let newProgressionString = ""
 
   submittedProgressionStr = submittedProgressionStr
-    .replace(',', ' ')
+    .replaceAll(',', ' ')
     .trim()
     .replace(/\s\s+/g, ' ') // convert multiple spaces to one
 
