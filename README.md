@@ -63,7 +63,8 @@ Users can now choose to display flats instead of sharps for a given chord piano 
 <br/>
 <br/>
 <ul>
-  <li>when a key is selected, display a roman numeral for each chord</li>
+  <li>when a key is selected, roman numeral notation is displayed for each chord</li>
+  <li>users can now edit their progression directly in text by clicking on the edit icon in the top nav</li>
 </ul>
 <br/>
 <br/>

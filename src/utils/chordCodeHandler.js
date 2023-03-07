@@ -286,7 +286,6 @@ export function buildProgFromCode(state, code) {
   var params = getQueryStringParams(code)
 
   var progCode = params.prog != null ? params.prog : params.p
-
   var synthSettings = getSynthCode(params.s)
 
   state.synth = synthSettings.type
