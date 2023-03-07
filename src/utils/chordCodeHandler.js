@@ -370,10 +370,10 @@ function getTypeAndSlash(chord, letter) {
   let slash = '';
   try {
     if (type.includes('/') && !type.endsWith('6/9')) {
-      var lastSlashPos = chord.lastIndexOf('/');
-      slash = chord.substring(lastSlashPos + 1);
+      var lastSlashPos = type.lastIndexOf('/');
+      slash = type.substring(lastSlashPos + 1);
       slash = ':' + upperCaseFirst(slash);
-      type = type.substring(0, lastSlashPos - 2);
+      type = type.substring(0, lastSlashPos);
     }
   } catch (err) {
     console.log('Error while extracting slash');
