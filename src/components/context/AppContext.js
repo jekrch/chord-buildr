@@ -1,14 +1,12 @@
 import React, { useReducer, createContext, useEffect } from "react"
 import PropTypes from "prop-types"
 import { pianoGenerator } from "../../utils/pianoHelper"
-import { getProgressionCode } from "../../utils/chordCodeHandler"
+import { updateUrlProgressionCode, buildProgFromCode } from "../../utils/chordCodeHandler"
 import {
-  createChordPiano,
   transposePianoBoard,
   selectChordKeys
 } from "../../utils/chordPianoHandler"
 import { updateFlatOrSharpLetter } from "../../utils/chordCodeHandler"
-import { synthTypes } from "../../utils/synthLibrary"
 
 export const STATE_NAME = "PIANO_STATE"
 
@@ -55,138 +53,6 @@ export function setProgKey(state, pianoId) {
   clearProgKey(state)
   var chordPiano = getPianoById(state, pianoId)
   chordPiano.isProgKey = true
-}
-
-export function getQueryStringParams(query) {
-  return query
-    ? (/^[?]/.test(query) ? query.slice(1) : query)
-        .split("&")
-        .reduce((params, param) => {
-          let [key, value] = param.split("=")
-          params[key] = value
-            ? decodeURIComponent(value.replace(/\+/g, " "))
-            : ""
-          return params
-        }, {})
-    : {}
-}
-
-export function buildProgFromCode(state, code) {
-  if (state.building) {
-    return
-  }
-
-  console.log(code)
-
-  if (code.includes("%")) {
-    code = decodeURIComponent(code)
-  }
-
-  var params = getQueryStringParams(code)
-
-  //console.log(params)
-
-  var progCode = params.prog != null ? params.prog : params.p
-
-  var synthSettings = getSynthCode(params.s)
-
-  //console.log(progCode)
-  //state.building = true
-  state.synth = synthSettings.type
-  state.volume = synthSettings.volume
-  state.chordPianoSet = getChordPianoSetFromProgCode(progCode)
-  state.building = false
-
-  updateUrlProgressionCode(state)
-
-  return state
-}
-
-/**
- * get a synth settings obj from url code (e.g. pl:100)
- * @param {*} synthCode
- * @returns
- */
-function getSynthCode(synthCode) {
-  // init with default synth values
-  var synth = {
-    volume: 90,
-    type: "p"
-  }
-
-  if (synthCode != null) {
-    var codeSplit = synthCode.split(":")
-
-    if (synthCode.split(":").length != 2) {
-      return synth
-    }
-
-    var type = codeSplit[0]
-    var volume = codeSplit[1]
-
-    if (Object.keys(synthTypes).includes(type)) {
-      synth.type = type
-    }
-
-    if (volume != null && volume >= 0 && volume <= 100) {
-      synth.volume = volume
-    }
-  }
-
-  return synth
-}
-
-function getChordPianoSetFromProgCode(progCode) {
-  if (progCode == null) return []
-
-  var chordArray = progCode.split(")")
-
-  var chordPianoSet = []
-
-  var progKeySet = false
-
-  for (let i = 0; i < chordArray.length; i++) {
-    var chordCode = chordArray[i]
-
-    if (chordCode === "") continue
-
-    var chordPiano = createChordPiano(i, chordCode)
-
-    if (!chordPiano) continue
-
-    progKeySet = validateProgKey(chordPiano, progKeySet)
-
-    chordPianoSet.push(chordPiano)
-  }
-
-  return chordPianoSet
-}
-
-function validateProgKey(chordPiano, progKeySet) {
-  // if the prog key is set here, only accept it
-  // if we haven't already set the progKey
-
-  if (chordPiano.isProgKey) {
-    if (progKeySet) chordPiano.isProgKey = false
-    else progKeySet = true
-  }
-  return progKeySet
-}
-
-export function updateUrlProgressionCode(state) {
-  if (state.building) {
-    return
-  }
-  var progressionCode = getProgressionCode(state)
-  //var progressionCodeUrl = "?prog=" + progressionCode
-
-  if (state.currentProgCode) state.previousProgCodes.push(state.currentProgCode)
-
-  state.currentProgCode = progressionCode
-
-  state.history.push({
-    search: progressionCode
-  })
 }
 
 function getChordPiano(pianoId) {
