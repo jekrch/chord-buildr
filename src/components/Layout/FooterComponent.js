@@ -29,7 +29,7 @@ export const FooterComponent = () => {
           about
         </div>
         <FontAwesomeIcon
-          class="footNavCog"
+          className="footNavCog"
           icon={faCog}
           onClick={() => setConfigModalShow(true)}
         />

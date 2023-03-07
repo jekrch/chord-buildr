@@ -159,7 +159,13 @@ export function getProgressionString(chordPianoSet) {
       chordCode += "/" + selectedChord.slashNote
     }
 
-    code += `${chordCode} `
+    let octave = '';
+
+    if (selectedChord.octave != 1) {
+      octave = selectedChord.octave;
+    }
+
+    code += `${octave}${chordCode} `
   }
 
   return code;
@@ -273,8 +279,6 @@ export function buildProgFromCode(state, code) {
     return
   }
 
-  console.log(code)
-
   if (code.includes("%")) {
     code = decodeURIComponent(code)
   }
@@ -310,13 +314,20 @@ export function getQueryStringParams(query) {
 }
 
 export function updateUrlProgressionCode(state) {
+
   if (state.building) {
     return
   }
+  
   var progressionCode = getProgressionCode(state)
 
+  loadProgressionCode(state, progressionCode)
+}
+
+function loadProgressionCode(state, progressionCode) {
+
   if (state.currentProgCode) {
-    state.previousProgCodes.push(state.currentProgCode) 
+    state.previousProgCodes.push(state.currentProgCode)
   }
 
   state.currentProgCode = progressionCode
@@ -326,3 +337,137 @@ export function updateUrlProgressionCode(state) {
   })
 }
 
+export function convertProgressionStrToCode(submittedProgressionStr) {
+  let newProgressionString = ""
+
+  submittedProgressionStr = submittedProgressionStr
+    .replace(',', ' ')
+    .trim()
+    .replace(/\s\s+/g, ' ') // convert multiple spaces to one
+
+  for (let chordStr of submittedProgressionStr.split(' ')) {
+
+    let chordCode = convertChordStrToCode(chordStr)
+
+    newProgressionString += `(${chordCode})`
+  }
+  return newProgressionString;
+}
+
+function convertChordStrToCode(chordStr) {
+  let octave = getOctave(chordStr)
+
+  let chord = chordStr.replace(/(^\d+)(.+$)/i, '$2')
+  let letter = getLetter(chord)
+
+  let { type, slash } = getTypeAndSlash(chord, letter)
+
+  return `${octave}${letter}${type}${slash}`;
+}
+
+function getTypeAndSlash(chord, letter) {
+
+  let type = chord.replace(letter, '').toLowerCase()
+  let slash = ''
+
+  try {
+    if (type.includes('/') && !type.endsWith('6/9')) {
+      var lastSlashPos = chord.lastIndexOf('/')
+      slash = type.substring(lastSlashPos)
+      slash = ':' + upperCaseFirst(slash)
+      type = type.substring(0, lastSlashPos - 1)
+    }
+  } catch (err) {
+    console.log('Error while extracting slash');
+    slash = '';
+  }
+
+  type = sanitizeType(type)
+
+  return { type, slash }
+}
+
+/**
+ * If the chord type is valid, return it, otherwise, try to find the nearest equivalent
+ * 
+ * @param {*} type 
+ * @returns 
+ */
+function sanitizeType(type) {
+
+  try {
+    // initial equivalent replacement
+    type = type.replace('minor', 'm')
+            .replace('diminished', 'dim')
+            .replace('major7', 'maj7')
+            .replace('major', '');
+
+    let newType = '';
+
+    if (isValidChordType(type)) {
+      return type; 
+
+    } else {
+
+      if (type.startsWith('m')) {
+        newType += 'm'
+      } else if (type.includes('dim')) {
+        newType += 'dim'
+      }
+
+      if (!newType.includes('dim')) {
+
+        if (type.includes('7')) {
+          newType += '7'
+        } else if (type.includes('6')) {
+          newType += '6'
+        } else if (type.includes('9')) {
+          newType += '9'
+        }
+      }
+      // if we didn't get a valid type, return x
+      if (!newType?.length) {
+        newType = 'x'
+      }
+      return newType;  
+    }
+  } catch(err) {
+    console.log('Error while extracting type');
+    return 'x';
+  }
+}
+
+function getLetter(chord) {
+  try {
+    let letter = chord?.[0]
+
+    if (chord?.[1] === '#' || chord?.[1]?.toLowerCase() === 'b') {
+      letter += chord?.[1]?.toLowerCase()
+    }
+    return letter;
+  } catch(ex) {
+    console.log("Error while extracting letter");
+    return 'C';
+  }
+}
+
+function getOctave(chordStr) {
+  let octave = '1'
+  try {
+    if (chordStr.match(/^\d/)) {
+      octave = chordStr.replace(/(^\d+)(.+$)/i, '$1')
+      if (Number(octave) > 2) {
+        octave = '2'
+      } else if (Number(octave) < 0) {
+        octave = '0'
+      }
+    }
+  } catch(err) {
+    console.log('Error while extracting octave');
+  }
+  return octave
+}
+
+function upperCaseFirst(str){
+  return str.charAt(0).toUpperCase() + str.substring(1);
+}

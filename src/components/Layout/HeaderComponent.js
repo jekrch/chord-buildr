@@ -4,7 +4,7 @@ import Button from "react-bootstrap/Button"
 import "../../styles/Layout.css"
 import { AppContext } from "../context/AppContext"
 import { playPiano } from "../../utils/synthPlayer"
-import { isSlashChord, getProgressionString, buildProgFromCode } from "../../utils/chordCodeHandler"
+import { isSlashChord, getProgressionString, convertProgressionStrToCode } from "../../utils/chordCodeHandler"
 import { Link, scroller } from "react-scroll"
 import { faPenToSquare } from "@fortawesome/free-regular-svg-icons"
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
@@ -72,6 +72,7 @@ export const HeaderComponent = () => {
     }
   }, [state.chordPianoSet])
 
+
   function navigateToPianoById(pianoId) {
     var targetKey = "piano-" + pianoId
 
@@ -103,14 +104,30 @@ export const HeaderComponent = () => {
     playPiano(dispatch, state, id)
   }
 
+  function getCurrentSynthVolCode(state) {
+    return state.currentProgCode.split('p=')?.[0] ?? "?s=p:90&p="
+  }
+
+  
   function openProgressionEditor() {
-    
+
+    let synthVolCode = getCurrentSynthVolCode(state);
+
     var progressionString = getProgressionString(state.chordPianoSet);
-    var chordProgression = window.prompt("Enter a chord progression", progressionString); 
-    if (chordProgression) {
-      buildProgFromCode(state, chordProgression);
+    var submittedProgressionStr = window.prompt("Enter your progression", progressionString); 
+
+    if (submittedProgressionStr === null || !submittedProgressionStr) {
+      return;
     }
-    console.log(chordProgression);
+
+    let newProgressionString = convertProgressionStrToCode(submittedProgressionStr);
+
+    if (newProgressionString) {
+      dispatch({
+        type: "BUILD_PROG_FROM_CODE",
+        payload: synthVolCode + "p=" + newProgressionString
+      })
+    }
   }
 
   function getChordDisplay(chord) {
@@ -143,6 +160,8 @@ export const HeaderComponent = () => {
       )
     })
   }
+
+
   return (
     <>
       <Navbar fixed="top" className="flex-column mainHeader">
@@ -188,7 +207,7 @@ export const HeaderComponent = () => {
           <ul className="progression row" style={{ listStyle: "none" }}>
             {renderProgression()}
             <FontAwesomeIcon
-              class="progressionEditIcon"
+              className="progressionEditIcon"
               icon={faPenToSquare}
               onClick={() => {openProgressionEditor()}}
             />
@@ -198,4 +217,3 @@ export const HeaderComponent = () => {
     </>
   )
 }
-
