@@ -67,7 +67,7 @@ Users can now choose to display flats instead of sharps for a given chord piano 
   <li>users can now edit their progression directly in text by clicking on the edit icon in the top nav</li>
 </ul>
 <br/>
-<img width="305" alt="image" src="https://user-images.githubusercontent.com/8173930/222991069-426c26a7-4c09-402c-bedb-433879abc6d1.png">
+<img width="302" alt="image" src="https://user-images.githubusercontent.com/8173930/223316328-cd8bc4c7-2d1d-4aed-9165-972bf10de1e4.png">
 
 <br/>
 
