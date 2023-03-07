@@ -11,8 +11,9 @@ export const App = () => {
   return (
     <div className="App">
       <AppProvider>
-        <HeaderComponent />
-        <div className=" mainContainer">
+        <>
+        <HeaderComponent/>
+        <div className="mainContainer">
           <Router>
             <Switch>
               <Route
@@ -24,6 +25,7 @@ export const App = () => {
           </Router>
         </div>
         <FooterComponent />
+        </>
       </AppProvider>
     </div>
   )

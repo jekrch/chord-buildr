@@ -307,21 +307,6 @@ export function createChordPiano(i, chordCode) {
         slashNote: chord.slashNote
       }
     }
-  } else {
-    return
-    return {
-      id: i,
-      piano: pianoGenerator(),
-      selectedKey: { noteLetter: "C", octave: 0 },
-      isProgKey: false,
-      selectedChord: {
-        noteLetter: "C",
-        type: "x",
-        octave: 0,
-        invalidCode: chordCode,
-        slash: false
-      }
-    }
   }
 }
 
@@ -381,6 +366,7 @@ export function transposePianoBoard(
     }
   }
 }
+
 function setNewChordKey(chordPiano, newChordPianoSelectedKey) {
   chordPiano.selectedKey = newChordPianoSelectedKey
   chordPiano.selectedChord.noteLetter = newChordPianoSelectedKey.noteLetter
@@ -391,7 +377,7 @@ function setNewChordKey(chordPiano, newChordPianoSelectedKey) {
 /**
  * When transposing there are scenarios where the tonic might move 2 absolute
  * notes up, but a transposed chord would be shifted down 10 notes. The
- * following attempts to normalize the movement of the transposed to
+ * following attempts to normalize the movement of the transposed chord to
  * match the tonic as much as possible
  *
  * @param {} newLowestNote

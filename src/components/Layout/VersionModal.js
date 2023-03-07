@@ -96,6 +96,7 @@ export function VersionModal(props) {
             </div>
             <p>
               <div class="verItem">when a key is selected, display a roman numeral for each chord</div>
+              <div class="verItem">users can now edit their progression directly in text by clicking on the edit icon in the top nav</div>
             </p>
           </div>
         </div>

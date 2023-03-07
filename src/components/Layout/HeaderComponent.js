@@ -4,8 +4,10 @@ import Button from "react-bootstrap/Button"
 import "../../styles/Layout.css"
 import { AppContext } from "../context/AppContext"
 import { playPiano } from "../../utils/synthPlayer"
-import { isSlashChord } from "../../utils/chordCodeHandler"
+import { isSlashChord, getProgressionString, convertProgressionStrToCode } from "../../utils/chordCodeHandler"
 import { Link, scroller } from "react-scroll"
+import { faPenToSquare } from "@fortawesome/free-regular-svg-icons"
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
 
 export const HeaderComponent = () => {
 
@@ -70,6 +72,7 @@ export const HeaderComponent = () => {
     }
   }, [state.chordPianoSet])
 
+
   function navigateToPianoById(pianoId) {
     var targetKey = "piano-" + pianoId
 
@@ -101,6 +104,38 @@ export const HeaderComponent = () => {
     playPiano(dispatch, state, id)
   }
 
+  function getCurrentSynthVolCode(state) {
+    return state.currentProgCode.split('p=')?.[0] ?? "?s=p:90&p="
+  }
+
+  
+  function openProgressionEditor() {
+
+    let synthVolCode = getCurrentSynthVolCode(state);
+
+    var progressionString = getProgressionString(state.chordPianoSet);
+    var submittedProgressionStr = window.prompt("Enter your progression", progressionString); 
+
+    if (submittedProgressionStr === null || !submittedProgressionStr) {
+      return;
+    }
+
+    let newProgressionString = convertProgressionStrToCode(submittedProgressionStr);
+
+    if (newProgressionString) {
+      dispatch({
+        type: "BUILD_PROG_FROM_CODE",
+        payload: synthVolCode + "p=" + newProgressionString
+      })
+    }
+  }
+
+  function getChordDisplay(chord) {
+    return `${chord.noteLetter}${chord.type}${isSlashChord(chord)
+      ? "/" + chord.slashNote
+      : ""}`;
+  }
+
   const renderProgression = () => {
     return state.chordPianoSet.map((piano, i) => {
       return (
@@ -117,11 +152,7 @@ export const HeaderComponent = () => {
             onClick={(id) => handleItemClick(piano.id)}
           >
             <div className="chordItem">
-              &nbsp;{piano.selectedChord.noteLetter}
-              {piano.selectedChord.type}
-              {isSlashChord(piano.selectedChord)
-                ? "/" + piano.selectedChord.slashNote
-                : ""}
+              &nbsp;{getChordDisplay(piano.selectedChord)}
             </div>
           </Link>
           &nbsp;{i !== state.chordPianoSet.length - 1 ? "|" : ""}
@@ -129,6 +160,8 @@ export const HeaderComponent = () => {
       )
     })
   }
+
+
   return (
     <>
       <Navbar fixed="top" className="flex-column mainHeader">
@@ -173,10 +206,14 @@ export const HeaderComponent = () => {
           </div>
           <ul className="progression row" style={{ listStyle: "none" }}>
             {renderProgression()}
+            <FontAwesomeIcon
+              className="progressionEditIcon"
+              icon={faPenToSquare}
+              onClick={() => {openProgressionEditor()}}
+            />
           </ul>
         </div>
       </Navbar>
     </>
   )
 }
-

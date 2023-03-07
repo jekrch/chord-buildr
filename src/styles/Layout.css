@@ -123,6 +123,18 @@
 	margin-left: 0em;
 }
 
+.progressionEditIcon {
+	margin-left: 0.5em;
+	margin-top: 0.15em;
+	height: 1.2em;
+	color: grey;
+	cursor: pointer;
+}
+
+.progressionEditIcon:hover {
+	color: rgb(112, 112, 112);
+}
+
 .gitSrc {
 	height: 1.2em;
 	margin-bottom: .2em;
