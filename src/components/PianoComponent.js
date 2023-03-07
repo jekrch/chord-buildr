@@ -38,9 +38,7 @@ export const PianoComponent = ({ pianoComponentId }) => {
   const getNumeralChord = (chord) => {
     let piano = getPianoById(state, pianoId)
     let key = getProgKey(state);
-    console.log(state)
     return getChordNumeral(key, piano.selectedChord)
-    //return chord;
   }
 
   const renderPiano = () => {
