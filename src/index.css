@@ -25,6 +25,25 @@ body {
 	background-color: #222121;
 }
 
+.introBody {
+	/* margin-top: 100px; */
+	height: 50vh;
+	margin-top: 100px;
+	display: relative;
+	margin-right: 35px
+}
+
+.introText {
+	text-align: center;
+	color: #8cafc1;
+	color: #696969;
+
+    text-shadow: 
+      -1px -1px 1px #111, 
+      2px 2px 1px #1b1b22;
+	  vertical-align: middle;
+}	
+
 code {
 	font-family: source-code-pro, Menlo, Monaco, Consolas, "Courier New",
 		monospace;
@@ -41,13 +60,11 @@ code {
 	margin-bottom: 0.0em;
 }
 
-
 .slashCheckBox {
 	left: 0.3em;
 	font-size: 0.8em;
 	display: block;
 }
-
 
 .flatCheckBox {
 	margin-top: 1.7em;

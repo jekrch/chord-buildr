@@ -161,7 +161,7 @@ export function getProgressionString(chordPianoSet) {
 
     let octave = '';
 
-    if (selectedChord.octave != 1) {
+    if (selectedChord.octave !== 1) {
       octave = selectedChord.octave;
     }
 
@@ -209,6 +209,7 @@ export function updateFlatOrSharpLetter(showFlats, noteLetter) {
  * @returns
  */
 export function getSynthCode(synthCode) {
+  
   // init with default synth values
   var synth = {
     volume: 90,
@@ -216,25 +217,38 @@ export function getSynthCode(synthCode) {
   }
 
   if (synthCode != null) {
-    var codeSplit = synthCode.split(":")
-
-    if (synthCode.split(":").length != 2) {
+  
+    if (hasSynthCode(synthCode)) {
       return synth
     }
+
+    var codeSplit = synthCode.split(":")
 
     var type = codeSplit[0]
     var volume = codeSplit[1]
 
-    if (Object.keys(synthTypes).includes(type)) {
+    if (isValidType(type)) {
       synth.type = type
     }
 
-    if (volume != null && volume >= 0 && volume <= 100) {
+    if (isValidVol(volume)) {
       synth.volume = volume
     }
   }
 
   return synth
+}
+
+function hasSynthCode(synthCode) {
+  return synthCode.split(":").length !== 2
+}
+
+function isValidType(type) {
+  return Object.keys(synthTypes).includes(type)
+}
+
+function isValidVol(volume) {
+  return volume != null && volume >= 0 && volume <= 100
 }
 
 export function getChordPianoSetFromProgCode(progCode) {

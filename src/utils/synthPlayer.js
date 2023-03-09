@@ -3,8 +3,6 @@ import { getSynth } from "./synthLibrary"
 import { getPianoById } from "../components/context/AppContext"
 import { isMobile } from "react-device-detect"
 
-var synth = null
-var synthType = null
 var baseDecibel = 2
 
 export function playPiano(dispatch, state, pianoId) {
@@ -13,6 +11,10 @@ export function playPiano(dispatch, state, pianoId) {
   var synthResult = getSynth(state)
   var synth = synthResult.synth
   baseDecibel = synthResult.baseDecibel
+
+  if (Tone.context.state !== 'running') {
+    Tone.context.resume();
+  }
 
   synth.toDestination()
   var selectedNotes = getSelectedNotes(pianoComponent.piano)
@@ -37,7 +39,10 @@ export function playPiano(dispatch, state, pianoId) {
     "0.7"
   )
 
-  if (!isMobile) clearPianoKeyPlaying(dispatch, pianoComponent)
+  if (!isMobile) {
+    clearPianoKeyPlaying(dispatch, pianoComponent)
+  }
+
 }
 
 function getSelectedNotes(piano) {

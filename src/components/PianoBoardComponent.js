@@ -37,8 +37,22 @@ export const PianoBoardComponent = () => {
 
   return (
     <div key="pianoBoard" className="pianoBoard">
-      {renderChordPianoSet()}
-      <div className="pianoBoardGutter" />
+      {state.chordPianoSet.length > 0 ? 
+        <> 
+          {renderChordPianoSet()}   
+          <div className="pianoBoardGutter" />
+        </>
+      : 
+        <>
+          <div className="introBody">
+            <div className="introText">
+              welcome to chord buildr<br/>
+              use the controls above to get started
+
+            </div>
+          </div>
+        </>}
+      
     </div>
   )
 }

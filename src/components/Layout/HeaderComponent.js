@@ -190,6 +190,7 @@ export const HeaderComponent = () => {
               variant="primary"
               size="sm"
               className="btn-main chord-btn"
+              disabled={!state.previousProgCodes?.length}
               onClick={() => handleUndoClick()}
             >
               Undo

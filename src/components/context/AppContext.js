@@ -303,7 +303,6 @@ const appReducer = (state, action) => {
         var lastProgIndex = state.previousProgCodes.length - 1
         var previousProgCode = state.previousProgCodes[lastProgIndex]
 
-        console.log("previous: " + previousProgCode)
         state = buildProgFromCode(state, previousProgCode)
 
         state.changed = lastProgIndex
