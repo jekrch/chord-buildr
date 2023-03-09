@@ -31,6 +31,15 @@ it('getChordNumeral: returns a numeral for the provided chord in the provided ke
       getChord("F#", "m7#5")
     )
   ).toBeUndefined();
+
+  // if we're in a minor key, the third should be flat
+  expect(
+    getChordNumeral(
+      getChord("A", "m"), 
+      getChord("C", "m7#5")
+    )
+  ).toEqual("iii");
+
 });
 
 function getChord(letter, type) {
