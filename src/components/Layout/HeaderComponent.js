@@ -4,6 +4,9 @@ import Button from "react-bootstrap/Button"
 import "../../styles/Layout.css"
 import { AppContext } from "../context/AppContext"
 import { playPiano } from "../../utils/synthPlayer"
+import { getNoteNumberChord } from "../../utils/chordManager"
+import { findScale } from "../../utils/scaleFinder"
+import { getNoteNumber } from "../../utils/noteManager"
 import { isSlashChord, getProgressionString, convertProgressionStrToCode } from "../../utils/chordCodeHandler"
 import { Link, scroller } from "react-scroll"
 import { faPenToSquare } from "@fortawesome/free-regular-svg-icons"
@@ -71,6 +74,17 @@ export const HeaderComponent = () => {
       setNewChordAdded(false)
     }
   }, [state.chordPianoSet])
+
+  useEffect(() => {
+    var chords = [];
+    for (const chordPiano of state.chordPianoSet) {
+      var chordNoteNumber = getNoteNumber(chordPiano.selectedChord.noteLetter);
+      var chordType = chordPiano.selectedChord.type;
+      var chord = getNoteNumberChord(chordNoteNumber, chordType);
+      chords.push(chord);
+    }
+    console.log(findScale(chords));
+  }, [state.currentProgCode])
 
 
   function navigateToPianoById(pianoId) {
