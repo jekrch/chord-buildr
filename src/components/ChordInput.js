@@ -4,9 +4,9 @@ import {
   noteLetterMapWithSharps,
   noteLetterMapWithFlats
 } from "../utils/noteManager"
-import { chordMap } from "../utils/chordManager"
+import { chordMap, getScaleAdjustedChordLetter, equalChroma } from "../utils/chordManager"
 import { selectChordKeys, hasSelectedNotes } from "../utils/chordPianoHandler"
-import { AppContext, getPianoById } from "../components/context/AppContext"
+import { AppContext, getPianoById, getProgKey } from "../components/context/AppContext"
 import PropTypes from "prop-types"
 import { updateFlatOrSharpLetter } from "../utils/chordCodeHandler"
 
@@ -40,7 +40,38 @@ export const ChordInput = ({ pianoComponentId }) => {
     chordPiano.selectedChord.slashNote ?? ""
   )
 
-  chordRef.current.noteArray = getNoteArray(chordRef.current.showFlats)
+  chordRef.current.noteArray = getNoteArray(chordRef.current.showFlats, chordPiano.selectedKey.noteLetter)
+
+  function getNoteArray(showFlats, noteLetter) {
+
+    let notes = Object.values(noteLetterMapWithSharps);
+
+    if (showFlats && !noteLetter?.startsWith('#')) {
+      notes = Object.values(noteLetterMapWithFlats)
+    } 
+  
+    let key = getProgKey(state);
+  
+    if (!key) {
+      return notes.map(n => {
+        if (equalChroma(n, noteLetter)) {
+          return noteLetter
+        } else {
+          return n;
+        }
+      })
+    }
+
+    notes = notes.map(n => getScaleAdjustedChordLetter(key, n));
+
+    return notes;
+  }
+
+  function getKeyRelativeLetter(noteLetter) {
+    //console.log(noteLetter)
+    let key = getProgKey(state);
+    return getScaleAdjustedChordLetter(key, noteLetter)
+  }
 
   useEffect(() => {
     // if no keys are selected, load the selected chord
@@ -57,15 +88,17 @@ export const ChordInput = ({ pianoComponentId }) => {
   const handleKeySelectChange = (e) => {
     if (e.target.value === null) return
 
-    chordRef.current.noteArray = getNoteArray(chordRef.current.showFlats)
+    chordRef.current.noteArray = getNoteArray(chordRef.current.showFlats, e.target.value)
 
-    chordPiano.selectedKey.noteLetter = e.target.value
+    let newLetter = getKeyRelativeLetter(e.target.value);
+
+    chordPiano.selectedKey.noteLetter = newLetter
 
     dispatch({
       type: "UPDATE_KEY",
       id: chordPiano.id,
       payload: {
-        noteLetter: e.target.value,
+        noteLetter: newLetter, 
         octave: chordPiano.selectedKey.octave ?? 0
       }
     })
@@ -74,8 +107,6 @@ export const ChordInput = ({ pianoComponentId }) => {
   // processes new chord type selections
   const handleTypeSelectChange = (e) => {
     chordRef.current.type = e.target.value
-
-    //console.log(chordRef.current.type)
 
     dispatch({
       type: "UPDATE_CHORD_TYPE",
@@ -136,12 +167,13 @@ export const ChordInput = ({ pianoComponentId }) => {
         <div className="chordInputSelection keySelection">
           <Form.Control
             as="select"
-            value={chordRef.current.selectedChordKey}
+            value={getKeyRelativeLetter(chordRef.current.selectedChordKey)}
             custom
             className="selectorBox"
             onChange={(e) => handleKeySelectChange(e)}
           >
             {chordRef.current.noteArray.map((option, index) => {
+              option = getKeyRelativeLetter(option);
               return (
                 <option key={index} value={option}>
                   {option}
@@ -227,10 +259,4 @@ export const ChordInput = ({ pianoComponentId }) => {
 ChordInput.propTypes = {
   pianoComponentId: PropTypes.number.isRequired
 }
-function getNoteArray(showFlats) {
-  if (showFlats) {
-    return Object.values(noteLetterMapWithFlats)
-  } else {
-    return Object.values(noteLetterMapWithSharps)
-  }
-}
+

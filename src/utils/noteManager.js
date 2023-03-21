@@ -1,3 +1,5 @@
+import { getScaleAdjustedChordLetter } from "./chordManager";
+
 export const noteLetterMapWithSharps = {
   1: "C",
   2: "C#",
@@ -14,11 +16,7 @@ export const noteLetterMapWithSharps = {
 }
 
 export const isValidLetter = (letter) => {
-  if (letter.includes("b")) {
-    return Object.values(noteLetterMapWithFlats).includes(letter)
-  } else {
-    return Object.values(noteLetterMapWithSharps).includes(letter)
-  }
+  return Object.keys(extendedNoteNumberMap).includes(letter);
 }
 
 export const noteLetterMapWithFlats = {
@@ -35,6 +33,41 @@ export const noteLetterMapWithFlats = {
   11: "Bb",
   12: "B"
 }
+
+export const extendedNoteNumberMap = {
+  C: 1,
+  "C#": 2,
+  Db: 2,
+  D: 3,
+  "D#": 4,
+  Eb: 4,
+  E: 5,
+  "E#": 6,
+  F: 6,
+  "F#": 7,
+  Gb: 7,
+  G: 8,
+  "G#": 9,
+  Ab: 9,
+  A: 10,
+  "A#": 11,
+  Bb: 11,
+  B: 12,
+  "B#": 1,
+  Cb: 12,
+  "C##": 3,
+  "Dbb": 1,
+  "D##": 5,
+  "Ebb": 3,
+  "E##": 7,
+  "Fb": 5,
+  "F##": 8,
+  "Gbb": 6,
+  "G##": 10,
+  "Abb": 8,
+  "A##": 12,
+  "Bbb": 10,
+};
 
 // includes both sharps and flats
 export const noteNumberMap = {
@@ -94,7 +127,7 @@ export function getNoteLetterMapByKey(key) {
 // converts note letter to the correct case
 // (e.g. aB -> Ab; c# -> C#)
 export function formatNoteName(letter) {
-  return letter.charAt(0).toUpperCase() + letter.charAt(1).toLowerCase()
+  return letter.charAt(0).toUpperCase() + letter.charAt(1)?.toLowerCase() + letter.charAt(2)?.toLowerCase() 
 }
 
 // Get the number corresponding to the provide note letter
@@ -103,7 +136,7 @@ export function getNoteNumber(letter) {
 
   letter = formatNoteName(letter)
 
-  return noteNumberMap[letter]
+  return extendedNoteNumberMap[letter]
 }
 
 // get the letter corresponding to the provided note number
@@ -114,7 +147,7 @@ export function getNoteLetter(key, number) {
 
   var letter = noteLetterMap[noteIndex]
 
-  return formatNoteName(letter)
+  return formatNoteName(letter);
 }
 
 export function normalizeNoteNumber(noteNumber) {

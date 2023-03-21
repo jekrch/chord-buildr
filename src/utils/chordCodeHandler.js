@@ -1,4 +1,4 @@
-import { isValidChordType } from "./chordManager"
+import { isValidChordType, getScaleAdjustedChordLetter } from "./chordManager"
 import { createChordPiano } from "./chordPianoHandler"
 import { synthTypes } from "./synthLibrary"
 import { isValidLetter, getNoteNumber } from "./noteManager"
@@ -111,8 +111,10 @@ export function getProgressionCode(state) {
 
     if (!selectedChord) continue
 
+    let chordLetter = getScaleAdjustedChordLetter(state, selectedChord.noteLetter);
+
     var chordCode =
-      selectedChord.octave + selectedChord.noteLetter + selectedChord.type
+      selectedChord.octave + chordLetter + selectedChord.type
 
     if (chordPiano.isProgKey) chordCode += "*"
 

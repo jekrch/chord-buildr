@@ -1,4 +1,4 @@
-import { getTransposedNote } from "./transposer"
+import { getScaleAdjustedChordLetter, isMinorType } from "./chordManager"
 import * as Progression from "@tonaljs/progression"
 
 /**
@@ -16,9 +16,15 @@ export function getChordNumeral(key, chord) {
     return;
   }
 
+  if (key.noteLetter === chord.noteLetter) {
+    return "I";
+  }
+
+  let chordLetter = getScaleAdjustedChordLetter(key, chord.noteLetter);
+
   var numeral = Progression.toRomanNumerals(
       key.noteLetter, 
-      [chord.noteLetter]
+      [chordLetter]
     )?.[0];
 
   if (isMinorType(key.type)) {
@@ -32,6 +38,8 @@ export function getChordNumeral(key, chord) {
     return numeral;
   }
 }
+
+
 
 /***
  * The numerals are initially generated under the assumption that 
@@ -50,26 +58,4 @@ function convertNumeralForMinorKey(numeral) {
     numeral = 'III';
   }
   return numeral;
-}
-
-/**
- * Get the key letter for the provided key. If the key is minor, convert it to 
- * the relative major
- * 
- * @param {*} key 
- * @param {*} keyLetter 
- * @returns 
- */
-function getMajorKeyLetter(key, keyLetter) {
-  if (isMinorType(key.type)) {
-    keyLetter = getTransposedNote(key.noteLetter, 3);
-
-  } else {
-    keyLetter = key.noteLetter;
-  }
-  return keyLetter;
-}
-
-function isMinorType(type) {
-  return type?.startsWith('m') && !type?.includes('maj') 
 }

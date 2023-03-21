@@ -1,4 +1,7 @@
 import { getNoteLetter } from "./noteManager"
+import * as Note from "@tonaljs/note";
+import * as Scale from "tonal-scale"
+import { getTransposedNote } from "./transposer"
 
 export const chordMap = {
   "": [0, 4, 7],
@@ -71,4 +74,49 @@ export function getNoteLettersChord(key, rootNoteNumber, chordType) {
   }
 
   return chordNoteLetters
+}
+
+export function isMinorType(type) {
+  return type?.startsWith('m') && !type?.includes('maj') 
+}
+
+/**
+ * Get the key letter for the provided key. If the key is minor, convert it to 
+ * the relative major
+ * 
+ * @param {*} key 
+ * @param {*} keyLetter 
+ * @returns 
+ */
+export function getMajorKeyLetter(key, keyLetter) {
+  if (isMinorType(key.type)) {
+    keyLetter = getTransposedNote(key.noteLetter, 3);
+
+  } else {
+    keyLetter = key.noteLetter;
+  }
+  return keyLetter;
+}
+
+export function getScaleAdjustedChordLetter(key, chordLetter) {
+  
+  if (!key) {
+    return chordLetter;
+  }
+
+  let scale = isMinorType(key.type) ? 'minor' : 'major';
+
+  let notes = Scale.notes(key.noteLetter, scale);
+
+  for (let note of notes) {
+    if (equalChroma(note, chordLetter)) {
+      chordLetter = note;
+      break;
+    }
+  }
+  return chordLetter;
+}
+
+export function equalChroma(noteLetter1, noteLetter2) {
+  return Note.chroma(noteLetter1) === Note.chroma(noteLetter2);
 }

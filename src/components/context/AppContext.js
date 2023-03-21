@@ -2,6 +2,7 @@ import React, { useReducer, createContext, useEffect } from "react"
 import PropTypes from "prop-types"
 import { pianoGenerator } from "../../utils/pianoHelper"
 import { updateUrlProgressionCode, buildProgFromCode } from "../../utils/chordCodeHandler"
+import { getScaleAdjustedChordLetter } from "../../utils/chordManager"
 import {
   transposePianoBoard,
   selectChordKeys
@@ -70,6 +71,12 @@ function getChordPiano(pianoId) {
   return chordPiano
 }
 
+function getKeyRelativeLetter(state, letter) {
+  let key = getProgKey(state);
+
+  return getScaleAdjustedChordLetter(key, letter);
+}
+
 function getNextId(state) {
   var nextId = Math.max(
     ...state.chordPianoSet.map((chordPiano) => chordPiano.id)
@@ -133,8 +140,13 @@ const appReducer = (state, action) => {
           )
         }
 
+        let noteLetter = action.payload.noteLetter
+        if (!originalChordPiano.isProgKey) {
+          noteLetter = getKeyRelativeLetter(state, action.payload.noteLetter);
+        }
+
         originalChordPiano.selectedKey = action.payload
-        originalChordPiano.selectedChord.noteLetter = action.payload.noteLetter
+        originalChordPiano.selectedChord.noteLetter = noteLetter;
         originalChordPiano.selectedChord.octave = action.payload.octave
 
         originalChordPiano.rendered = false
@@ -218,12 +230,17 @@ const appReducer = (state, action) => {
       if (chordPiano) {
         chordPiano.showFlats = action.showFlats
 
-        chordPiano.selectedKey.noteLetter = updateFlatOrSharpLetter(
+        let newNoteLetter = updateFlatOrSharpLetter(
           chordPiano.showFlats,
           chordPiano.selectedKey.noteLetter
-        )
+        );
 
-        chordPiano.selectedChord.noteLetter = chordPiano.selectedKey.noteLetter
+        newNoteLetter = getKeyRelativeLetter(state, newNoteLetter);
+
+        console.log(newNoteLetter)
+
+        chordPiano.selectedKey.noteLetter = newNoteLetter;
+        chordPiano.selectedChord.noteLetter = newNoteLetter;
       }
 
       updateUrlProgressionCode(state)

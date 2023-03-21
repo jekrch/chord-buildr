@@ -83,7 +83,7 @@ export const HeaderComponent = () => {
       var chord = getNoteNumberChord(chordNoteNumber, chordType);
       chords.push(chord);
     }
-    console.log(findScale(chords));
+    //console.log(findScale(chords));
   }, [state.currentProgCode])
 
 

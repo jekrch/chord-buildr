@@ -3,6 +3,7 @@ import "../styles/Piano.css"
 import { Key } from "./Key"
 import { AppContext, getPianoById, getProgKey } from "../components/context/AppContext"
 import { getNoteLetter } from "../utils/noteManager"
+import { getScaleAdjustedChordLetter } from "../utils/chordManager"
 import { getChordNumeral } from "../utils/numeralHelper"
 import { playPiano } from "../utils/synthPlayer"
 import PropTypes from "prop-types"
@@ -12,8 +13,9 @@ export const PianoComponent = ({ pianoComponentId }) => {
   const pianoId = pianoComponentId
 
   const handleClick = (note, noteNumber, octave) => {
+
     const noteLetter = getNoteLetter("C", noteNumber)
-    
+
     var selectedKey = {}
     selectedKey.noteLetter = noteLetter
     selectedKey.octave = octave
