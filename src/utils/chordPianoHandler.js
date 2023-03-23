@@ -1,4 +1,4 @@
-import { getNoteNumberChord } from "./chordManager"
+import { getNoteNumberChord, getScaleAdjustedNoteLetter } from "./chordManager"
 import { clearPianoSelections } from "./pianoHelper"
 import { getNoteNumber, normalizeNote } from "./noteManager"
 import { pianoGenerator } from "./pianoHelper"
@@ -6,7 +6,7 @@ import { getChordFromCode } from "./chordCodeHandler"
 import {
   getStepsChanged,
   getAbsoluteStepsChanged,
-  getTransposedSelectedKey,
+  getTransposedSelectedNote,
   getTransposedNote
 } from "./transposer"
 
@@ -333,22 +333,27 @@ export function transposePianoBoard(
         false
       )
 
-      chordPiano.selectedChord.slashNote = getTransposedNote(
+      let slashLetter = getTransposedNote(
         chordPiano.selectedChord.slashNote,
         stepsChanged
       )
 
+      chordPiano.selectedChord.slashNote = getScaleAdjustedNoteLetter(newSelectedKey, slashLetter);
+      
       // don't change the root chord
       if (chordPiano.id === pianoId) {
         continue
       }
 
-      var newChordPianoSelectedKey = getTransposedSelectedKey(
+      let chordNote = getTransposedSelectedNote(
         chordPiano,
         stepsChanged
       )
 
-      setNewChordKey(chordPiano, newChordPianoSelectedKey)
+      console.log(chordNote)
+      chordNote.noteLetter = getScaleAdjustedNoteLetter(newSelectedKey, chordNote.noteLetter);
+      console.log(chordNote)
+      setNewChordKey(chordPiano, chordNote)
 
       var newLowestNote = getLowestAbsoluteNoteFromSelectedChord(
         chordPiano.selectedChord,

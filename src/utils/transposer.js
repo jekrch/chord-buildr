@@ -86,8 +86,8 @@ export function getAbsoluteStepsChanged(chordPiano, newSelectedKey) {
   return relativeStepsChanged + 12 * octaveChange
 }
 
-export function getTransposedSelectedKey(chordPiano, stepsChanged) {
-  var selectedKey = {}
+export function getTransposedSelectedNote(chordPiano, stepsChanged) {
+  var selectedNote = {}
 
   var originalNoteLetter = chordPiano.selectedChord.noteLetter
   var originalOctave = chordPiano.selectedChord.octave ?? 0
@@ -100,14 +100,14 @@ export function getTransposedSelectedKey(chordPiano, stepsChanged) {
   // get note letter converted to sharp or flat depending on settings
   var noteLetter = getNoteLetter("C", newNote.noteNumber)
 
-  selectedKey.noteLetter = updateFlatOrSharpLetter(
+  selectedNote.noteLetter = updateFlatOrSharpLetter(
     chordPiano.showFlats,
     noteLetter
   )
 
-  selectedKey.octave = newNote.octave
+  selectedNote.octave = newNote.octave
 
-  return selectedKey
+  return selectedNote
 }
 
 export function getTransposedNote(originalNoteLetter, stepsChanged) {

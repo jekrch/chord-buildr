@@ -16,12 +16,7 @@ export const ChordInput = ({ pianoComponentId }) => {
 
   var chordPiano = getPianoById(state, pianoComponentId)
 
-  chordRef.current.showFlats =
-    chordPiano.showFlats ||
-    chordPiano.selectedKey.noteLetter.includes("b") ||
-    (chordPiano.selectedChord.slashNote != null &&
-      chordPiano.selectedChord.slashNote.includes("b"))
-
+  chordRef.current.showFlats = showFlats(chordPiano);
   chordRef.current.isProgKey = chordPiano.isProgKey ?? false
 
   // get the current selected key letter, adjusted by flats or sharps
@@ -33,7 +28,6 @@ export const ChordInput = ({ pianoComponentId }) => {
   chordRef.current.type = chordPiano.selectedChord.type
   chordRef.current.id = chordPiano.id
   chordRef.current.slashChord = chordPiano.selectedChord.slash ?? false
-
 
   chordRef.current.slashNote = updateFlatOrSharpLetter(
     chordRef.current.showFlats,
@@ -121,10 +115,18 @@ export const ChordInput = ({ pianoComponentId }) => {
         octave: chordPiano.selectedKey.octave ?? 0
       }
     })
+
+    console.log('here')
+    if (chordPiano.isProgKey) {
+      console.log('test')
+      console.log(chordPiano)
+      updateChordLettersGivenKey(chordPiano)
+    }
   }
 
   // processes new chord type selections
   const handleTypeSelectChange = (e) => {
+
     chordRef.current.type = e.target.value
 
     dispatch({
@@ -142,7 +144,7 @@ export const ChordInput = ({ pianoComponentId }) => {
       id: chordPiano.id
     })
 
-    updateChordLettersGivenKey(chordPiano, state, dispatch)
+    updateChordLettersGivenKey(chordPiano)
   }
 
   // set whether this chord has the progression key
@@ -238,6 +240,13 @@ export const ChordInput = ({ pianoComponentId }) => {
         })
       }
     }
+  }
+
+  function showFlats(chordPiano) {
+    return chordPiano.showFlats ||
+      chordPiano.selectedKey.noteLetter.includes("b") ||
+      (chordPiano.selectedChord.slashNote != null &&
+        chordPiano.selectedChord.slashNote.includes("b"))
   }
 
   return (
@@ -339,5 +348,4 @@ export const ChordInput = ({ pianoComponentId }) => {
 ChordInput.propTypes = {
   pianoComponentId: PropTypes.number.isRequired
 }
-
 

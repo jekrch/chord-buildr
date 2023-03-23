@@ -67,7 +67,6 @@ function getChordPiano(pianoId) {
       octave: 1
     }
   }
-
   return chordPiano
 }
 
@@ -283,7 +282,6 @@ const appReducer = (state, action) => {
       }
 
     case "SET_PROG_KEY":
-      //console.log(action.payload)
 
       if (action.keyChecked) {
         setProgKey(state, action.id)
