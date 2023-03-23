@@ -1,4 +1,4 @@
-import { getScaleAdjustedChordLetter } from "./chordManager";
+import { getScaleAdjustedNoteLetter } from "./chordManager";
 
 export const noteLetterMapWithSharps = {
   1: "C",

@@ -2,7 +2,7 @@ import React, { useReducer, createContext, useEffect } from "react"
 import PropTypes from "prop-types"
 import { pianoGenerator } from "../../utils/pianoHelper"
 import { updateUrlProgressionCode, buildProgFromCode } from "../../utils/chordCodeHandler"
-import { getScaleAdjustedChordLetter } from "../../utils/chordManager"
+import { getScaleAdjustedNoteLetter } from "../../utils/chordManager"
 import {
   transposePianoBoard,
   selectChordKeys
@@ -74,7 +74,7 @@ function getChordPiano(pianoId) {
 function getKeyRelativeLetter(state, letter) {
   let key = getProgKey(state);
 
-  return getScaleAdjustedChordLetter(key, letter);
+  return getScaleAdjustedNoteLetter(key, letter);
 }
 
 function getNextId(state) {

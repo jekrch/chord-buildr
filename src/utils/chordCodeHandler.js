@@ -1,4 +1,4 @@
-import { isValidChordType, getScaleAdjustedChordLetter } from "./chordManager"
+import { isValidChordType, getScaleAdjustedNoteLetter } from "./chordManager"
 import { createChordPiano } from "./chordPianoHandler"
 import { synthTypes } from "./synthLibrary"
 import { isValidLetter, getNoteNumber } from "./noteManager"
@@ -47,36 +47,60 @@ export function getChordFromCode(chordCode) {
 
     chordCode = processSlashChord(chordCode, chord)
 
-    var indexOfType =
-      chordCode.substring(2, 3) === "#" || chordCode.substring(2, 3) === "b"
-        ? 3
-        : 2
+    var indexOfType = getIndexOfType(chordCode);
 
     chord.noteLetter = capitalizeFirstLetter(
       chordCode.substring(1, indexOfType)
     )
     chord.type = chordCode.substring(indexOfType)
   } catch (ex) {
-    console.log(ex)
-    console.log("Exception - invalid chord code: " + chordCode)
+    logChordAnalysisException(ex, chordCode);
     return
   }
 
   if (!(isValidChordType(chord.type) && isValidLetter(chord.noteLetter))) {
-    console.log(
-      "Invalid chord code: " +
-        chordCode +
-        "; letter: " +
-        chord.noteLetter +
-        "; type: " +
-        chord.type
-    )
+    logInvalidChordCodeError(chordCode, chord);
     return
   }
 
   return chord
+} 
+
+function logChordAnalysisException(ex, chordCode) {
+  console.log(ex);
+  console.log("Exception - invalid chord code: " + chordCode);
 }
 
+function logInvalidChordCodeError(chordCode, chord) {
+  console.log(
+    "Invalid chord code: " +
+    chordCode +
+    "; letter: " +
+    chord.noteLetter +
+    "; type: " +
+    chord.type
+  );
+}
+
+/**
+ * Return the index within a chordCode at which the chord type begins 
+ * e.g. 0C#m -> 3; 2D -> 3; 3F##maj7 -> 4
+ * @param {} chordCode 
+ * @returns 
+ */
+function getIndexOfType(chordCode) {
+  let startIndex = isNumeric(chordCode[0]) ? 2 : 1;
+  for (let i = startIndex; i < chordCode.length; i++) {
+    if (chordCode[i] !== '#' && chordCode[i] !== 'b') {
+      return i;
+    }
+  }
+  return chordCode.length;
+}
+
+function isNumeric(value) {
+  return /^-?\d+$/.test(value);
+}
 /***
  * if an fbclid was inserted into the code, remove it here
  */
@@ -111,7 +135,7 @@ export function getProgressionCode(state) {
 
     if (!selectedChord) continue
 
-    let chordLetter = getScaleAdjustedChordLetter(state, selectedChord.noteLetter);
+    let chordLetter = getScaleAdjustedNoteLetter(state, selectedChord.noteLetter);
 
     var chordCode =
       selectedChord.octave + chordLetter + selectedChord.type
@@ -196,10 +220,10 @@ export function updateFlatOrSharpLetter(showFlats, noteLetter) {
 
   if (showFlats) {
     if (noteLetter.includes("#")) {
-      return noteLetterMapWithFlats[noteNumber]
+      return noteLetterMapWithFlats[noteNumber] ?? noteLetter
     }
   } else if (noteLetter.includes("b")) {
-    return noteLetterMapWithSharps[noteNumber]
+    return noteLetterMapWithSharps[noteNumber] ?? noteLetter
   }
 
   return noteLetter
@@ -254,6 +278,7 @@ function isValidVol(volume) {
 }
 
 export function getChordPianoSetFromProgCode(progCode) {
+
   if (progCode == null) return []
 
   var chordArray = progCode.split(")")
@@ -291,6 +316,7 @@ function validateProgKey(chordPiano, progKeySet) {
 }
 
 export function buildProgFromCode(state, code) {
+
   if (state.building) {
     return
   }
@@ -366,6 +392,7 @@ export function convertProgressionStrToCode(submittedProgressionStr) {
 
     newProgressionString += `(${chordCode})`
   }
+
   return newProgressionString;
 }
 
@@ -384,6 +411,7 @@ function getTypeAndSlash(chord, letter) {
 
   let type = chord.replace(letter, '').toLowerCase();
   let slash = '';
+
   try {
     if (type.includes('/') && !type.endsWith('6/9')) {
       var lastSlashPos = type.lastIndexOf('/');
@@ -454,15 +482,23 @@ function sanitizeType(type) {
 function getLetter(chord) {
   try {
     let letter = chord?.[0]
-
-    if (chord?.[1] === '#' || chord?.[1]?.toLowerCase() === 'b') {
-      letter += chord?.[1]?.toLowerCase()
+    let accidentals = getAccidentalAtIndex(chord, 1);
+    if (accidentals.length) {
+      accidentals += getAccidentalAtIndex(chord, 2);
+      letter += accidentals;
     }
     return letter;
   } catch(ex) {
     console.log("Error while extracting letter");
     return 'C';
   }
+}
+
+function getAccidentalAtIndex(chord, index) {
+  if (chord?.[index] === '#' || chord?.[index]?.toLowerCase() === 'b') {
+    return chord?.[index]?.toLowerCase()
+  }
+  return '';
 }
 
 function getOctave(chordStr) {

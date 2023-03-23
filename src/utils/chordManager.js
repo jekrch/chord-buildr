@@ -98,10 +98,19 @@ export function getMajorKeyLetter(key, keyLetter) {
   return keyLetter;
 }
 
-export function getScaleAdjustedChordLetter(key, chordLetter) {
+/**
+ * Returns the proper notation for the noteLetter in the provided key.
+ * e.g. if the key is F major and the noteLetter is A#, the noteLetter 
+ * will be converter to Bb
+ * 
+ * @param {*} key 
+ * @param {*} noteLetter 
+ * @returns 
+ */
+export function getScaleAdjustedNoteLetter(key, noteLetter) {
   
   if (!key) {
-    return chordLetter;
+    return noteLetter;
   }
 
   let scale = isMinorType(key.type) ? 'minor' : 'major';
@@ -109,12 +118,38 @@ export function getScaleAdjustedChordLetter(key, chordLetter) {
   let notes = Scale.notes(key.noteLetter, scale);
 
   for (let note of notes) {
-    if (equalChroma(note, chordLetter)) {
-      chordLetter = note;
+    if (equalChroma(note, noteLetter)) {
+      noteLetter = note;
       break;
     }
   }
-  return chordLetter;
+  return noteLetter;
+}
+
+
+/**
+ * Returns whether the noteLetter is in the provided key
+ * 
+ * @param {*} key 
+ * @param {*} noteLetter 
+ * @returns 
+ */
+export function noteIsInScale(key, noteLetter) {
+  
+  if (!key) {
+    return noteLetter;
+  }
+
+  let scale = isMinorType(key.type) ? 'minor' : 'major';
+
+  let notes = Scale.notes(key.noteLetter, scale);
+
+  for (let note of notes) {
+    if (equalChroma(note, noteLetter)) {
+      return true
+    }
+  }
+  return false;
 }
 
 export function equalChroma(noteLetter1, noteLetter2) {

@@ -1,4 +1,4 @@
-import { getScaleAdjustedChordLetter, isMinorType } from "./chordManager"
+import { getScaleAdjustedNoteLetter, isMinorType } from "./chordManager"
 import * as Progression from "@tonaljs/progression"
 
 /**
@@ -20,7 +20,7 @@ export function getChordNumeral(key, chord) {
     return "I";
   }
 
-  let chordLetter = getScaleAdjustedChordLetter(key, chord.noteLetter);
+  let chordLetter = getScaleAdjustedNoteLetter(key, chord.noteLetter);
 
   var numeral = Progression.toRomanNumerals(
       key.noteLetter, 
