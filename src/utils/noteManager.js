@@ -90,6 +90,17 @@ export const noteNumberMap = {
   B: 12
 }
 
+
+export function getSharpEquivalent(letter) {
+  let noteNumber = extendedNoteNumberMap[letter];
+  return noteLetterMapWithSharps[noteNumber];
+}
+
+export function getFlatEquivalent(letter) {
+  let noteNumber = extendedNoteNumberMap[letter];
+  return noteLetterMapWithFlats[noteNumber];
+}
+
 // sharps - c / g / d / a / e / b / f# / c#
 // flats  - f / Bb / Eb / Ab / Db / Gb / Cb
 

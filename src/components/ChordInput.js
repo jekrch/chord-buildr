@@ -2,7 +2,9 @@ import { React, useContext, useRef, useEffect } from "react"
 import Form from "react-bootstrap/Form"
 import {
   noteLetterMapWithSharps,
-  noteLetterMapWithFlats
+  noteLetterMapWithFlats,
+  getSharpEquivalent,
+  getFlatEquivalent
 } from "../utils/noteManager"
 import { chordMap, getScaleAdjustedNoteLetter, equalChroma, noteIsInScale } from "../utils/chordManager"
 import { selectChordKeys, hasSelectedNotes } from "../utils/chordPianoHandler"
@@ -34,7 +36,11 @@ export const ChordInput = ({ pianoComponentId }) => {
     chordPiano.selectedChord.slashNote ?? ""
   )
 
-  chordRef.current.noteArray = getNoteArray(chordRef.current.showFlats, chordPiano.selectedKey.noteLetter, chordPiano.selectedChord.slashNote)
+  chordRef.current.noteArray = getNoteArray(
+    chordRef.current.showFlats, 
+    chordPiano.selectedKey.noteLetter, 
+    chordPiano.selectedChord.slashNote
+  );
 
   /**
    * Return a note array for selection in either the chord letter or slash letter 
@@ -105,23 +111,7 @@ export const ChordInput = ({ pianoComponentId }) => {
 
     let newLetter = getKeyRelativeLetter(e.target.value);
 
-    chordPiano.selectedKey.noteLetter = newLetter
-
-    dispatch({
-      type: "UPDATE_KEY",
-      id: chordPiano.id,
-      payload: {
-        noteLetter: newLetter, 
-        octave: chordPiano.selectedKey.octave ?? 0
-      }
-    })
-
-    console.log('here')
-    if (chordPiano.isProgKey) {
-      console.log('test')
-      console.log(chordPiano)
-      updateChordLettersGivenKey(chordPiano)
-    }
+    updateChordPianoKey(chordPiano, newLetter);
   }
 
   // processes new chord type selections
@@ -157,17 +147,68 @@ export const ChordInput = ({ pianoComponentId }) => {
     })
   }
 
-  // set whether the key selector shows sharps or flats
+  /**
+   * set whether the note selector shows sharps or flats
+   * @param {*} e 
+   */
   const handleIsFlatKeyChecked = (e) => {
-    chordRef.current.showFlats = e.target.checked
+
+    let showFlats = e.target.checked
+    let currentLetter = chordRef.current.selectedChordKey;
+    
+
+    // if this is the prog key, get the intended letter based on the selection and 
+    // directly set the prog key to that letter. e.g. if this is the prog key and its
+    // currently set to A# and the user chose to show flats, update this chord piano 
+    // to Bb and update the other chord piano letters accordingly  
+    if (
+        chordRef.current.isProgKey && 
+        currentLetter.length >= 2
+    ) {
+
+      let newLetter;
+
+      if (currentLetter.endsWith('b') && !showFlats) {
+        newLetter = getSharpEquivalent(currentLetter)
+      } else if (currentLetter.includes('#') && showFlats) {
+        newLetter = getFlatEquivalent(currentLetter);
+      }
+ 
+      if (newLetter) {
+        // update the chord piano and adjust the other letters accordingly 
+        updateChordPianoKey(chordPiano, newLetter)
+      }
+    }
+
+    chordRef.current.showFlats = showFlats;
 
     dispatch({
       type: "UPDATE_SHOW_FLATS",
       showFlats: chordRef.current.showFlats,
       id: chordPiano.id
-    })
+    });
   }
 
+  function updateChordPianoKey(chordPiano, newLetter) {
+    
+    chordPiano.selectedKey.noteLetter = newLetter;
+    chordPiano.selectedChord.noteLetter = newLetter;
+
+    dispatch({
+      type: "UPDATE_KEY",
+      id: chordPiano.id,
+      payload: {
+        noteLetter: newLetter,
+        octave: chordPiano.selectedKey.octave ?? 0
+      }
+    })
+  
+    if (chordPiano.isProgKey) {
+
+      console.log(chordPiano)
+      updateChordLettersGivenKey(chordPiano)
+    }
+  }
   // processes new key selections
   const handleSlashChordNoteChange = (e) => {
     if (e.target.value === null) return
@@ -184,27 +225,42 @@ export const ChordInput = ({ pianoComponentId }) => {
 
   var chordTypeArray = Object.keys(chordMap)
 
-  
+  /**
+   * For the provided chordPiano, assumed to be the prog key, update 
+   * every other chord piano so that its letter corresponds to the key.
+   * e.g. If keyChordPiano is F major, and one of the other chord pianos 
+   * is set to A#, change its letter to Bb.
+   * 
+   * @param {} keyChordPiano 
+   */
   function updateChordLettersGivenKey(keyChordPiano) {
 
     let key = keyChordPiano.selectedChord
 
-    for (let pianoSetChord of state.chordPianoSet) {
+    for (let chordPiano of state.chordPianoSet) {
 
-      if (pianoSetChord.id !== keyChordPiano.id) {
-
-        alignChordLetterWithKey(key, pianoSetChord)
+      if (chordPiano.id !== keyChordPiano.id) {
+        alignChordLetterWithKey(key, chordPiano)
       }
 
-      if (pianoSetChord.selectedChord.slash) {
-        let slashLetter = pianoSetChord.selectedChord.slashNote;
+      // if there's a slash chord, make sure it aligns with the key as well
+      if (chordPiano.selectedChord.slash) {
+        let slashLetter = chordPiano.selectedChord.slashNote;
 
-        alignSlashNoteWithKey(key, slashLetter, pianoSetChord)
+        alignSlashNoteWithKey(key, slashLetter, chordPiano)
       }
     }
   }
 
-  function alignSlashNoteWithKey(key, slashLetter, pianoSetChord) {
+  /**
+   * If the provided chordPiano's slash note letter does not correctly correspond 
+   * to the provided key, update it. 
+   * 
+   * @param {} key 
+   * @param {*} slashLetter 
+   * @param {*} chordPiano 
+   */
+  function alignSlashNoteWithKey(key, slashLetter, chordPiano) {
 
     if (noteIsInScale(key, slashLetter)) {
   
@@ -215,27 +271,38 @@ export const ChordInput = ({ pianoComponentId }) => {
           type: "UPDATE_SLASH_CHORD",
           isSlashChord: true,
           slashNote: newLetter,
-          id: pianoSetChord.id
+          id: chordPiano.id
         })
       }
     }
   }
 
-  function alignChordLetterWithKey(key, pianoSetChord) {
+  /**
+   * If the provided chordPiano's note letter doesn't align with the provided 
+   * key, update the chordPiano's letter accordingly. 
+   * 
+   * @param {} key 
+   * @param {*} chordPiano 
+   */
+  function alignChordLetterWithKey(key, chordPiano) {
 
-    let chordLetter = pianoSetChord.selectedKey.noteLetter
+    let chordLetter = chordPiano.selectedChord.noteLetter
   
     if (noteIsInScale(key, chordLetter)) {
+      
       let newLetter = getScaleAdjustedNoteLetter(key, chordLetter)
   
       if (newLetter !== chordLetter) {
   
+        chordPiano.selectedKey.noteLetter = newLetter;
+        chordPiano.selectedChord.noteLetter = newLetter;
+
         dispatch({
           type: "UPDATE_KEY",
-          id: pianoSetChord.id,
+          id: chordPiano.id,
           payload: {
             noteLetter: newLetter,
-            octave: pianoSetChord.selectedKey.octave ?? 0
+            octave: chordPiano.selectedKey.octave ?? 0
           }
         })
       }
@@ -348,4 +415,6 @@ export const ChordInput = ({ pianoComponentId }) => {
 ChordInput.propTypes = {
   pianoComponentId: PropTypes.number.isRequired
 }
+
+
 

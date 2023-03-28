@@ -3,6 +3,22 @@ import Modal from "react-bootstrap/Modal"
 import "../../styles/Layout.css"
 
 export function VersionModal(props) {
+
+  const VersionEntry = ({ version, date, items }) => (
+    <>
+      <div className="verHeader">
+        {version} - <span className="verDate">{date}</span>
+      </div>
+      <p>
+        {items.map((item, index) => (
+          <div key={index} className="verItem">
+            {item}
+          </div>
+        ))}
+      </p>
+    </>
+  );
+
   return (
     <Modal
       {...props}
@@ -28,76 +44,70 @@ export function VersionModal(props) {
         <div>
           <div class="versionList">
             <p>
-              <div class="verHeader">
-                1.0 - <span class="verDate">03.20.2021</span>
-              </div>
-              <p>
-                <div class="verItem">
-                  user chord input with interactive keyboards
-                </div>
-                <div class="verItem">url encoded progressions for sharing</div>
-                <div class="verItem">
-                  synth playback via buttons and chord chart
-                </div>
-                <div class="verItem">undo and clear functionality</div>
-                <div class="verItem">navigate to chords on chart click</div>
-              </p>
-              <div class="verHeader">
-                1.1 - <span class="verDate">05.16.2021</span>
-              </div>
-              <p>
-                <div class="verItem">redesigned UI for mobile</div>
-                <div class="verItem">
-                  improved url handling for facebook and google
-                </div>
-                <div class="verItem">performance improvements</div>
-              </p>
-              <div class="verHeader">
-                1.2 - <span class="verDate">09.05.2021</span>
-              </div>
-              <p>
-                <div class="verItem">
-                  display flats instead of sharps for a given chord piano
-                </div>
-                <div class="verItem">security updates</div>
-              </p>
-              <div class="verHeader">
-                1.3 - <span class="verDate">09.11.2021</span>
-              </div>
-              <p>
-                <div class="verItem">adjust volume to reduce distortion</div>
-                <div class="verItem">
-                  modify chord volume according to pitch
-                </div>
-                <div class="verItem">version history modal</div>
-              </p>
-            </p>
-            <div class="verHeader">
-              1.4 - <span class="verDate">09.19.2021</span>
-            </div>
-            <p>
-              <div class="verItem">add synth settings modal</div>
-              <div class="verItem">
-                volume control and five synth voice options
-              </div>
-              <div class="verItem">
-                backwards compatible url encoding for synth settings
-              </div>
-            </p>
-            <div class="verHeader">
-              1.5 - <span class="verDate">02.05.2023</span>
-            </div>
-            <p>
-              <div class="verItem">add play button to header for cycling through chords</div>
-              <div class="verItem">disable header buttons when unavailable</div>
-            </p>
-            <div class="verHeader">
-              1.6 - <span class="verDate">03.05.2023</span>
-            </div>
-            <p>
-              <div class="verItem">when a key is selected, display a roman numeral for each chord</div>
-              <div class="verItem">users can now edit their progression directly in text by clicking on the edit icon in the top nav</div>
-            </p>
+
+              <VersionEntry
+                version="1.6"
+                date="03.05.2023"
+                items={[
+                  "when a key is selected, display a roman numeral for each chord",
+                  "users can now edit their progression directly in text by clicking on the edit icon in the top nav",
+                ]}
+              />
+              <VersionEntry
+                version="1.5"
+                date="02.05.2023"
+                items={[
+                  "add play button to header for cycling through chords",
+                  "disable header buttons when unavailable",
+                ]}
+              />
+              <VersionEntry
+                version="1.4"
+                date="09.19.2021"
+                items={[
+                  "add synth settings modal",
+                  "volume control and five synth voice options",
+                  "backwards compatible url encoding for synth settings",
+                ]}
+              />
+              <VersionEntry
+                version="1.3"
+                date="09.11.2021"
+                items={[
+                  "adjust volume to reduce distortion",
+                  "modify chord volume according to pitch",
+                  "version history modal",
+                ]}
+              />
+              <VersionEntry
+                version="1.2"
+                date="09.05.2021"
+                items={[
+                  "display flats instead of sharps for a given chord piano",
+                  "security updates",
+                ]}
+              />
+              <VersionEntry
+                version="1.1"
+                date="05.16.2021"
+                items={[
+                  "redesigned UI for mobile",
+                  "improved url handling for facebook and google",
+                  "performance improvements",
+                ]}
+              />
+              <VersionEntry
+                version="1.0"
+                date="03.20.2021"
+                items={[
+                  "user chord input with interactive keyboards",
+                  "url encoded progressions for sharing",
+                  "synth playback via buttons and chord chart",
+                  "undo and clear functionality",
+                  "navigate to chords on chart click",
+                ]}
+              />
+             </p>
           </div>
         </div>
       </Modal.Body>

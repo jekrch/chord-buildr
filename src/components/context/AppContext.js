@@ -93,9 +93,6 @@ const finalInitialState = { ...initialState, ...persistedState }
 const appReducer = (state, action) => {
   var pianoId = action.id
 
-  //console.log(action.type)
-  //console.log("piano id: " + pianoId)
-
   if (!pianoId) pianoId = 0
 
   switch (action.type) {
@@ -145,6 +142,7 @@ const appReducer = (state, action) => {
         }
 
         originalChordPiano.selectedKey = action.payload
+        originalChordPiano.selectedKey.noteLetter = noteLetter;
         originalChordPiano.selectedChord.noteLetter = noteLetter;
         originalChordPiano.selectedChord.octave = action.payload.octave
 
