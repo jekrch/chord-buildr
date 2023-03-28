@@ -69,6 +69,12 @@ Users can now choose to display flats instead of sharps for a given chord piano 
 <br/>
 <img width="302" alt="image" src="https://user-images.githubusercontent.com/8173930/223316328-cd8bc4c7-2d1d-4aed-9165-972bf10de1e4.png">
 
+<hr/>
+<b>v1.7</b>
 <br/>
-
+<br/>
+<ul>
+  <li>when a key is selected, the other note letters adjust to display the correct notation in that key</li>
+</ul>
+<br/>
 
