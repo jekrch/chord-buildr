@@ -26,7 +26,7 @@ export function getChordFromCode(chordCode) {
   var chord = {}
 
   try {
-    chordCode = chordCode.replace("(", "")
+    chordCode = chordCode.replace("(", "");
 
     // this might show up in the progression code due to facebook url processing
     // it should be ignored
@@ -143,10 +143,14 @@ export function getProgressionCode(state) {
     if (chordPiano.isProgKey) chordCode += "*"
 
     if (isSlashChord(selectedChord)) {
-      selectedChord.slashNote = updateFlatOrSharpLetter(
-        chordPiano.showFlats,
-        selectedChord.slashNote
-      )
+      let newLetter = getScaleAdjustedNoteLetter(state, selectedChord.slashNote);
+    
+      selectedChord.slashNote = newLetter;
+   
+      // selectedChord.slashNote = updateFlatOrSharpLetter(
+      //   chordPiano.showFlats,
+      //   selectedChord.slashNote
+      // )
 
       chordCode += ":" + selectedChord.slashNote
     }

@@ -234,8 +234,6 @@ const appReducer = (state, action) => {
 
         newNoteLetter = getKeyRelativeLetter(state, newNoteLetter);
 
-        console.log(newNoteLetter)
-
         chordPiano.selectedKey.noteLetter = newNoteLetter;
         chordPiano.selectedChord.noteLetter = newNoteLetter;
       }

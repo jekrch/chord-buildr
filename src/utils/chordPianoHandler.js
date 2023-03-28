@@ -350,9 +350,8 @@ export function transposePianoBoard(
         stepsChanged
       )
 
-      console.log(chordNote)
       chordNote.noteLetter = getScaleAdjustedNoteLetter(newSelectedKey, chordNote.noteLetter);
-      console.log(chordNote)
+      
       setNewChordKey(chordPiano, chordNote)
 
       var newLowestNote = getLowestAbsoluteNoteFromSelectedChord(

@@ -63,6 +63,7 @@ export function findScale(chords) {
     let closestKeys = [];
     let closestScales = [];
     let closestDistance = Infinity;
+    
     for (let i = 0; i < notes.length; i++) {
         for (let [scale, intervals] of scales) {
 

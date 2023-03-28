@@ -16,7 +16,6 @@ export function ConfigModal(props) {
 
   settingRef.current.synthType = state.synth
   settingRef.current.volume = state.volume
-  //useEffect(() => {})
 
   // processes new synth selection
   const handleSynthSelectChange = (e) => {

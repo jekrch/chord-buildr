@@ -155,8 +155,8 @@ export const ChordInput = ({ pianoComponentId }) => {
 
     let showFlats = e.target.checked
     let currentLetter = chordRef.current.selectedChordKey;
+    let currentSlashLetter = chordRef.current.slashNote;
     
-
     // if this is the prog key, get the intended letter based on the selection and 
     // directly set the prog key to that letter. e.g. if this is the prog key and its
     // currently set to A# and the user chose to show flats, update this chord piano 
@@ -189,6 +189,14 @@ export const ChordInput = ({ pianoComponentId }) => {
     });
   }
 
+  /**
+   * Update the chordPiano to the provided letter. If this chord piano 
+   * is the current progression key, also update all of the other chord 
+   * piano's so that they display the correct letter. 
+   * 
+   * @param {*} chordPiano 
+   * @param {*} newLetter 
+   */
   function updateChordPianoKey(chordPiano, newLetter) {
     
     chordPiano.selectedKey.noteLetter = newLetter;
@@ -204,17 +212,23 @@ export const ChordInput = ({ pianoComponentId }) => {
     })
   
     if (chordPiano.isProgKey) {
-
-      console.log(chordPiano)
       updateChordLettersGivenKey(chordPiano)
     }
   }
+
   // processes new key selections
   const handleSlashChordNoteChange = (e) => {
     if (e.target.value === null) return
 
-    chordRef.current.slashNote = e.target.value
+    updateSlashNote(chordPiano, e.target.value)
+  }
 
+  function updateSlashNote(chordPiano, newSlashLetter) {
+
+    if (newSlashLetter === null) return;
+
+    chordRef.current.slashNote = newSlashLetter
+  
     dispatch({
       type: "UPDATE_SLASH_CHORD",
       isSlashChord: chordRef.current.slashChord,
@@ -267,6 +281,8 @@ export const ChordInput = ({ pianoComponentId }) => {
       let newLetter = getScaleAdjustedNoteLetter(key, slashLetter)
   
       if (newLetter !== slashLetter) {
+
+        chordPiano.selectedChord.slashNote = newLetter; 
         dispatch({
           type: "UPDATE_SLASH_CHORD",
           isSlashChord: true,
@@ -312,8 +328,10 @@ export const ChordInput = ({ pianoComponentId }) => {
   function showFlats(chordPiano) {
     return chordPiano.showFlats ||
       chordPiano.selectedKey.noteLetter.includes("b") ||
-      (chordPiano.selectedChord.slashNote != null &&
-        chordPiano.selectedChord.slashNote.includes("b"))
+      (
+        chordPiano.selectedChord.slashNote != null &&
+        chordPiano.selectedChord.slashNote.includes("b")
+      )
   }
 
   return (
@@ -397,7 +415,12 @@ export const ChordInput = ({ pianoComponentId }) => {
               onChange={(e) => handleSlashChordNoteChange(e)}
             > 
               {chordRef.current.noteArray.concat("").map((option, index) => {
-                option = getKeyRelativeLetter(option);
+                
+                if (equalChroma(chordRef.current.slashNote, option)) {
+                  option = chordRef.current.slashNote;
+                  option = getKeyRelativeLetter(option);
+                }
+                
                 return (
                   <option key={index} value={option}>
                     {option}
@@ -415,6 +438,3 @@ export const ChordInput = ({ pianoComponentId }) => {
 ChordInput.propTypes = {
   pianoComponentId: PropTypes.number.isRequired
 }
-
-
-
