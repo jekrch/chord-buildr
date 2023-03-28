@@ -46,7 +46,7 @@ export function VersionModal(props) {
             <p>
 
             <VersionEntry
-                version="1.6"
+                version="1.7"
                 date="03.27.2023"
                 items={[
                   "when a key is selected, the other note letters adjust to display the correct notation in that key",
