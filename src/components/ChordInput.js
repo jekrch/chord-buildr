@@ -157,6 +157,14 @@ export const ChordInput = ({ pianoComponentId }) => {
     let currentLetter = chordRef.current.selectedChordKey;
     let currentSlashLetter = chordRef.current.slashNote;
     
+    chordRef.current.showFlats = showFlats;
+
+    dispatch({
+      type: "UPDATE_SHOW_FLATS",
+      showFlats: chordRef.current.showFlats,
+      id: chordPiano.id
+    });
+    
     // if this is the prog key, get the intended letter based on the selection and 
     // directly set the prog key to that letter. e.g. if this is the prog key and its
     // currently set to A# and the user chose to show flats, update this chord piano 
@@ -180,13 +188,7 @@ export const ChordInput = ({ pianoComponentId }) => {
       }
     }
 
-    chordRef.current.showFlats = showFlats;
-
-    dispatch({
-      type: "UPDATE_SHOW_FLATS",
-      showFlats: chordRef.current.showFlats,
-      id: chordPiano.id
-    });
+    
   }
 
   /**
