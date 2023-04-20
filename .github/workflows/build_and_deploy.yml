@@ -24,14 +24,23 @@ jobs:
     - name: Install dependencies
       run: npm ci
 
-    - name: Configure Git
-      run: |
-        git config --local user.email "${{ secrets.GIT_AUTHOR_EMAIL }}"
-        git config --local user.name "${{ secrets.GIT_AUTHOR_NAME }}"
-        git config --local credential.helper '!f() { echo "username=${{ secrets.GIT_AUTHOR_NAME }}; password=${{ secrets.GH_PAGES_TOKEN }}"; }; f'
+    # - name: Configure Git
+    #   run: |
+    #     git config --local user.email "${{ secrets.GIT_AUTHOR_EMAIL }}"
+    #     git config --local user.name "${{ secrets.GIT_AUTHOR_NAME }}"
+    #     git config --local credential.helper '!f() { echo "username=${{ secrets.GIT_AUTHOR_NAME }}; password=${{ secrets.GH_PAGES_TOKEN }}"; }; f'
     
-    - name: Run predeploy
-      run: npm run predeploy
+    # - name: Run predeploy
+    #   run: npm run predeploy
 
-    - name: Run deploy
-      run: npm run deploy
+    # - name: Run deploy
+    #   run: npm run deploy
+
+    - name: Build app
+      run: npm run build
+
+    - name: Deploy to GitHub Pages
+      uses: peaceiris/actions-gh-pages@v3
+      with:
+        github_token: ${{ secrets.GH_PAGES_TOKEN }}
+        publish_dir: ./build
