@@ -46,6 +46,14 @@ export function VersionModal(props) {
             <p>
 
             <VersionEntry
+                version="1.7.1"
+                date="03.27.2023"
+                items={[
+                  "fixed bug with slash note notation which caused slash notes to some times use inconsistent accidentals between views",
+                ]}
+              />
+
+            <VersionEntry
                 version="1.7"
                 date="03.27.2023"
                 items={[
