@@ -129,13 +129,15 @@ export function getProgressionCode(state) {
 
   var code = ""
 
+  let keyChord = state.chordPianoSet.find(c => c.isProgKey)?.selectedChord;
+
   for (let i = 0; i < state.chordPianoSet.length; i++) {
     var chordPiano = state.chordPianoSet[i]
     var selectedChord = chordPiano.selectedChord
 
     if (!selectedChord) continue
 
-    let chordLetter = getScaleAdjustedNoteLetter(state, selectedChord.noteLetter);
+    let chordLetter = getScaleAdjustedNoteLetter(keyChord, selectedChord.noteLetter);
 
     var chordCode =
       selectedChord.octave + chordLetter + selectedChord.type
@@ -143,15 +145,12 @@ export function getProgressionCode(state) {
     if (chordPiano.isProgKey) chordCode += "*"
 
     if (isSlashChord(selectedChord)) {
-      let newLetter = getScaleAdjustedNoteLetter(state, selectedChord.slashNote);
-    
-      selectedChord.slashNote = newLetter;
-   
-      // selectedChord.slashNote = updateFlatOrSharpLetter(
-      //   chordPiano.showFlats,
-      //   selectedChord.slashNote
-      // )
 
+      selectedChord.slashNote = updateFlatOrSharpLetter(
+         chordPiano.showFlats,
+         selectedChord.slashNote
+      )
+      selectedChord.slashNote = getScaleAdjustedNoteLetter(keyChord, selectedChord.slashNote);
       chordCode += ":" + selectedChord.slashNote
     }
 
@@ -181,11 +180,6 @@ export function getProgressionString(chordPianoSet) {
       selectedChord.noteLetter + selectedChord.type
 
     if (isSlashChord(selectedChord)) {
-      selectedChord.slashNote = updateFlatOrSharpLetter(
-        chordPiano.showFlats,
-        selectedChord.slashNote
-      )
-
       chordCode += "/" + selectedChord.slashNote
     }
 

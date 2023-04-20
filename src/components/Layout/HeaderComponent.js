@@ -75,16 +75,16 @@ export const HeaderComponent = () => {
     }
   }, [state.chordPianoSet])
 
-  useEffect(() => {
-    var chords = [];
-    for (const chordPiano of state.chordPianoSet) {
-      var chordNoteNumber = getNoteNumber(chordPiano.selectedChord.noteLetter);
-      var chordType = chordPiano.selectedChord.type;
-      var chord = getNoteNumberChord(chordNoteNumber, chordType);
-      chords.push(chord);
-    }
-    //console.log(findScale(chords));
-  }, [state.currentProgCode])
+  // useEffect(() => {
+  //   var chords = [];
+  //   for (const chordPiano of state.chordPianoSet) {
+  //     var chordNoteNumber = getNoteNumber(chordPiano.selectedChord.noteLetter);
+  //     var chordType = chordPiano.selectedChord.type;
+  //     var chord = getNoteNumberChord(chordNoteNumber, chordType);
+  //     chords.push(chord);
+  //   }
+  //   console.log(findScale(chords));
+  // }, [state.currentProgCode])
 
 
   function navigateToPianoById(pianoId) {
