@@ -23,7 +23,7 @@ export const FooterComponent = () => {
           className="footNavVersion"
           onClick={() => setVersionModalShow(true)}
         >
-          v1.7
+          v1.7.1
         </div>
         <div className="footNavAbout" onClick={() => setAboutModalShow(true)}>
           about

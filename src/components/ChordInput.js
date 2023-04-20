@@ -186,9 +186,7 @@ export const ChordInput = ({ pianoComponentId }) => {
         // update the chord piano and adjust the other letters accordingly 
         updateChordPianoKey(chordPiano, newLetter)
       }
-    }
-
-    
+    }    
   }
 
   /**
