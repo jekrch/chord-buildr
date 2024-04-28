@@ -1,4 +1,6 @@
-# Chord Buildr
+# Chord Buildr :musical_keyboard:
+
+https://chordbuildr.com
 
 Chord Builder was created to make it easy for musicians and music enthusiasts to explore and share chord progressions. 
 
@@ -6,7 +8,6 @@ Users can specify a series of chords, see their notes displayed on interactive k
 
 Chord Buildr is built with React and uses Tone.js for audio playback. 
 
-Demo: https://chordbuildr.com/?prog=(1C)
 <br/>
 <br/>
 <img width="635" alt="image" src="https://user-images.githubusercontent.com/8173930/222991277-aff07c7d-4208-4609-b117-def1e096e328.png">
