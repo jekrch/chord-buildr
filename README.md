@@ -1,6 +1,6 @@
 # Chord Buildr :musical_keyboard:
 
-https://chordbuildr.com
+www.chordbuildr.com
 
 Chord Builder was created to make it easy for musicians and music enthusiasts to explore and share chord progressions. 
 
