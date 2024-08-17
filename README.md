@@ -1,81 +1,53 @@
 # Chord Buildr :musical_keyboard:
 
-www.chordbuildr.com
+[www.chordbuildr.com](https://www.chordbuildr.com)
 
-Chord Builder was created to make it easy for musicians and music enthusiasts to explore and share chord progressions. 
+Chord Buildr was created to make it easy for musicians and music enthusiasts to explore and share chord progressions. Users can specify a series of chords, see their notes displayed on interactive keyboards, transpose them, and play audio. Progressions are encoded in the URL, which can be saved for future reference or shared with others.
 
-Users can specify a series of chords, see their notes displayed on interactive keyboards, transpose them, and play audio.  Progressions are encoded in the url, which can be saved for future reference or sent to other users.
+Chord Buildr is implemented in React and uses Tone.js for audio playback.
 
-Chord Buildr is built with React and uses Tone.js for audio playback. 
+<p float="left">
+  <img height="300" src="https://user-images.githubusercontent.com/8173930/222991277-aff07c7d-4208-4609-b117-def1e096e328.png" alt="Chord Buildr Desktop View"/>
+  &nbsp;&nbsp;&nbsp;
+  <img height="300" src="https://raw.githubusercontent.com/jekrch/chord-buildr/main/src/public/images/mobile%20ui.PNG" alt="Chord Buildr Mobile View"/>
+</p>
 
-<br/>
-<br/>
-<img width="635" alt="image" src="https://user-images.githubusercontent.com/8173930/222991277-aff07c7d-4208-4609-b117-def1e096e328.png">
+## Features
 
-<hr/>
-<h3>Updates</h3>
-<hr/>
-<b>v1.1</b>
-<br/>
-<br/>
-The UI has been redesigned for mobile to enable the user to see more of the keyboard. This is only used when the screen is in the portrait orientation.  
-<br/>
-<br/>
-<img src="https://raw.githubusercontent.com/jekrch/chord-buildr/main/src/public/images/mobile%20ui.PNG"/>
-<hr/>
-<b>v1.2</b>
-<br/>
-<br/>
-Users can now choose to display flats instead of sharps for a given chord piano by checking the checkbox labeled 'b' (for flat). This is reflected in all references to the chord and encoded in the url. More chord types were also added and various security updates were made.
-<br/>
-<br/>
-<img src="https://user-images.githubusercontent.com/8173930/132143487-48cf5f38-7beb-431d-9dc4-993fc492bddc.png"/>
-<hr/>
-<b>v1.3</b>
-<br/>
-<br/>
-<ul>
-  <li> adjust volume to reduce distortion </li>
-  <li>modify chord volume according to pitch </li>
-  <li> added version history modal </li>
-</ul>
-<hr/>
-<b>v1.4</b>
-<br/>
-<br/>
-<ul>
-  <li>add synth settings modal</li>
-  <li>volume control and five synth voice options</li>
-  <li>backwards compatible url encoding for synth settings</li>
-</ul>
-<br/>
-<img src="https://user-images.githubusercontent.com/8173930/133951422-d4f9842e-1782-44ae-a9d8-d507c0b711d0.png">
-<hr/>
-<b>v1.5</b>
-<br/>
-<br/>
-<ul>
-  <li>add play button to header for cycling through chords</li>
-  <li>disable header buttons when unavailable</li>
-</ul>
-<br/>
-<hr/>
-<b>v1.6</b>
-<br/>
-<br/>
-<ul>
-  <li>when a key is selected, roman numeral notation is displayed for each chord</li>
-  <li>users can now edit their progression directly in text by clicking on the edit icon in the top nav</li>
-</ul>
-<br/>
-<img width="302" alt="image" src="https://user-images.githubusercontent.com/8173930/223316328-cd8bc4c7-2d1d-4aed-9165-972bf10de1e4.png">
+### Core Functionality
+- **Chord Progression Creation**: Specify chords either through text input, dropdown selection, and/or click on notes.
+- **Interactive Keyboard Display**: Visualize chord notes on interactive piano keyboards.
+- **Audio Playback**: Listen to your chord progressions by clicking on the progression or chord play buttons.
+- **Transposition**: Effortlessly transpose your progressions to different keys.
+- **Shareable URLs**: Save and share your progressions through encoded URLs.
 
-<hr/>
-<b>v1.7</b>
-<br/>
-<br/>
-<ul>
-  <li>when a key is selected, the other note letters adjust to display the correct notation in that key</li>
-</ul>
-<br/>
+### Music Theory Integration
+- **Roman Numeral Notation**: View chord progressions in roman numeral notation when a key is selected.
+- **Key-Aware Notation**: Note letters adjust to display correct notation in the selected key.
 
+### Customization Options
+- **Synth Settings**: Adjust volume and choose from multiple synth voice options.
+- **Note Display**: Option to show notes as flats or sharps.
+
+### User Interface
+- **Mobile-Responsive Design**: Optimized interface for both desktop and mobile use.
+- **Direct Progression Editing**: Edit your chord progression directly in text format.
+- **Playback Controls**: Cycle through chords with a play button in the header.
+
+## Technology Stack
+
+- React
+- Tone.js 
+- Bootstrap 
+
+## Getting Started
+
+To run Chord Buildr locally:
+
+1. Clone the repository
+2. Install dependencies with `npm install`
+3. Start the development server with `npm start`
+
+## License
+
+This project is open source and available under the [MIT License](LICENSE).
