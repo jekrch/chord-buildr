@@ -6,7 +6,7 @@ import { ConfigModal } from "./ConfigModal"
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
 import { faCog } from "@fortawesome/free-solid-svg-icons"
 import "../../styles/Layout.css"
-import GitHub120 from "../../public/images/GitHub120.png"
+import GitHub120 from "../../images/Github120.png"
 
 export const FooterComponent = () => {
   const [aboutModalShow, setAboutModalShow] = React.useState(false)

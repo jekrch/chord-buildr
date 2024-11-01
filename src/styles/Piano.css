@@ -126,7 +126,7 @@ ul .white:active {
 	top: -0.1em;
 	margin-left: 0.1em;
 	z-index: 3;
-	float: left;
+	float: left !important;
 	/* background-color: black !important; */
 	color: white;
 	border-width: 0 !important;

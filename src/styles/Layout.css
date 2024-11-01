@@ -161,11 +161,11 @@
 	overflow-x: auto !important;
 	margin-right: -0em !important;
 	padding-right: -0em !important;
-	z-index: 9999;
+	z-index: 1000;
 }
 
 .modal {
-	z-index: 10000;
+	z-index: 1000;
 }
 
 body.modal-open {
@@ -224,7 +224,7 @@ body.modal-open {
 	padding: 0.5em 1em 1em 1em;
  	/* background: rgb(44, 43, 43); */
 	 
-	 background: rgba(47, 49, 49, 0.99);
+	 background: rgba(47, 49, 49, 0.99) !important;
 	 color: rgb(214, 214, 214);
 	 box-shadow: 4px 8px 4px rgba(16, 19, 26, 0.404) !important;
 }
@@ -254,9 +254,9 @@ body.modal-open {
 	color:#6ca4da !important
 }
 
-.modal-backdrop {
+/* .modal-backdrop {
     z-index: 9999 !important;
-  }
+  } */
   
 .modal-header .close {
 	color: white;	

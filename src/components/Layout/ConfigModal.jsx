@@ -1,6 +1,6 @@
 import { React, useContext, useRef, useEffect } from "react"
 import Form from "react-bootstrap/Form"
-import { AppContext } from "../context/AppContext"
+import { useAppContext } from "../context/AppContext"
 import Modal from "react-bootstrap/Modal"
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
 import { faPlayCircle } from "@fortawesome/free-solid-svg-icons"
@@ -10,7 +10,7 @@ import { synthTypes } from "../../utils/synthLibrary"
 import "../../styles/Layout.css"
 
 export function ConfigModal(props) {
-  const { state, dispatch } = useContext(AppContext)
+  const { state, dispatch } = useAppContext()
 
   const settingRef = useRef({})
 
@@ -62,7 +62,7 @@ export function ConfigModal(props) {
   return (
     <Modal
       {...props}
-      size="l"
+      size="lg"
       className="configModal"
       aria-labelledby="contained-modal-title-vcenter"
       centered

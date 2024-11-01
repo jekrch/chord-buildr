@@ -1,18 +1,18 @@
-import "./App.css"
-import React from "react"
+import React from 'react'
 import { Route, Switch } from "react-router"
 import { BrowserRouter as Router } from "react-router-dom"
 import { AppProvider } from "./components/context/AppContext"
-import { HeaderComponent } from "./components/Layout"
+import { HeaderComponent } from "./components/Layout/HeaderComponent"
 import { PianoBoardComponent } from "./components/PianoBoardComponent"
 import { FooterComponent } from "./components/Layout/FooterComponent"
 
-export const App = () => {
+function App() {
+
   return (
     <div className="App">
       <AppProvider>
-        <>
-        <HeaderComponent/>
+
+        <HeaderComponent />
         <div className="mainContainer">
           <Router>
             <Switch>
@@ -25,7 +25,7 @@ export const App = () => {
           </Router>
         </div>
         <FooterComponent />
-        </>
+
       </AppProvider>
     </div>
   )

@@ -1,8 +1,7 @@
 import React, { createRef, useContext, useEffect, useState, useRef, useMemo } from "react"
 import Navbar from "react-bootstrap/Navbar"
 import Button from "react-bootstrap/Button"
-import "../../styles/Layout.css"
-import { AppContext } from "../context/AppContext"
+import { useAppContext } from "../context/AppContext"
 import { playPiano } from "../../utils/synthPlayer"
 import { getNoteNumberChord } from "../../utils/chordManager"
 import { findScale } from "../../utils/scaleFinder"
@@ -14,7 +13,7 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
 
 export const HeaderComponent = () => {
 
-  const { state, dispatch } = useContext(AppContext)
+  const { state, dispatch } = useAppContext();
   const [newChordAdded, setNewChordAdded] = useState(false)
   const offset = -130
   const [currPlayChordIndex, setCurrPlayChordIndex] = useState(-1)
