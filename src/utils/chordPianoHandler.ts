@@ -37,10 +37,11 @@ export interface SelectedKey {
 }
 
 export interface SelectedChord {
-  noteLetter: string
-  type: string
-  octave: number
+  noteLetter?: string
+  type?: string
+  octave?: number
   slash?: boolean
+  isKey?:boolean
   slashNote?: string | null
 }
 
@@ -446,14 +447,20 @@ function moveChordTowardTonicIfNeeded(
     if (keyChangeDiffSteps > 0) {
       if (chordPiano.selectedKey.octave > 0) {
         chordPiano.selectedKey.octave--
-        chordPiano.selectedChord.octave--
+
+        if (chordPiano.selectedChord?.octave)
+          chordPiano.selectedChord.octave--
+        
         chordPiano.rendered = false
       }
     } else {
       // ascend for descending chords if possible
       if (chordPiano.selectedKey.octave < 2) {
         chordPiano.selectedKey.octave++
-        chordPiano.selectedChord.octave++
+
+        if (chordPiano.selectedChord?.octave)
+          chordPiano.selectedChord.octave++
+
         chordPiano.rendered = false
       }
     }

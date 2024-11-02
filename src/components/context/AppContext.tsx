@@ -55,7 +55,7 @@ const initialState: PianoState = {
   history: null,
   previousProgCodes: [],
   currentProgCode: null,
-  building: false,
+  building: true,
   chordPianoSet: [getChordPiano(0)],
   synth: "p",
   volume: 90
@@ -278,14 +278,22 @@ const pianoReducer = (state: PianoState, action: PianoAction): PianoState => {
 
     case "LOAD_PREVIOUS_PROG_CODE": {
       if (state.previousProgCodes.length > 0) {
+        // Get the last code
         const lastProgIndex = state.previousProgCodes.length - 1;
         const previousProgCode = state.previousProgCodes[lastProgIndex];
-        const updatedState = buildProgFromCode(state, previousProgCode);
         
+        // Create a new state with the previous code
+        const newState = {
+          ...state,
+          building: false,
+          previousProgCodes: state.previousProgCodes.slice(0, -1) // Remove the last entry
+        };
+
+        const builtState = buildProgFromCode(newState, previousProgCode);
+        builtState.previousProgCodes = state.previousProgCodes.slice(0, -1)
+
         return {
-          ...updatedState,
-          changed: lastProgIndex,
-          previousProgCodes: state.previousProgCodes.slice(0, -2)
+          ...builtState,
         };
       }
       return state;

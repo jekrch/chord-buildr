@@ -1,50 +1,52 @@
-# React + TypeScript + Vite
+# Chord Buildr :musical_keyboard:
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+[www.chordbuildr.com](https://www.chordbuildr.com)
 
-Currently, two official plugins are available:
+Chord Buildr was created to make it easy for musicians and music enthusiasts to explore and share chord progressions. Users can specify a series of chords, see their notes displayed on interactive keyboards, transpose them, and play audio. Progressions are encoded in the URL, which can be saved for future reference or shared with others.
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react/README.md) uses [Babel](https://babeljs.io/) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+Chord Buildr is implemented in React and uses Tone.js for audio playback.
 
-## Expanding the ESLint configuration
+<p float="left">
+  <img height="300" src="https://user-images.githubusercontent.com/8173930/222991277-aff07c7d-4208-4609-b117-def1e096e328.png" alt="Chord Buildr Desktop View"/>
+  &nbsp;&nbsp;&nbsp;
+  <img height="300" src="https://raw.githubusercontent.com/jekrch/chord-buildr/main/src/public/images/mobile%20ui.PNG" alt="Chord Buildr Mobile View"/>
+</p>
 
-If you are developing a production application, we recommend updating the configuration to enable type aware lint rules:
+## Features
 
-- Configure the top-level `parserOptions` property like this:
+### Core Functionality
+- **Chord Progression Creation**: Specify chords either through text input, dropdown selection, and/or click on notes.
+- **Interactive Keyboard Display**: Visualize chord notes on interactive piano keyboards.
+- **Audio Playback**: Listen to your chord progressions by clicking on the progression or chord play buttons.
+- **Transposition**: Effortlessly transpose your progressions to different keys.
+- **Shareable URLs**: Save and share your progressions through encoded URLs.
 
-```js
-export default tseslint.config({
-  languageOptions: {
-    // other options...
-    parserOptions: {
-      project: ['./tsconfig.node.json', './tsconfig.app.json'],
-      tsconfigRootDir: import.meta.dirname,
-    },
-  },
-})
-```
+### Music Theory Integration
+- **Roman Numeral Notation**: View chord progressions in roman numeral notation when a key is selected.
+- **Key-Aware Notation**: Note letters adjust to display correct notation in the selected key.
 
-- Replace `tseslint.configs.recommended` to `tseslint.configs.recommendedTypeChecked` or `tseslint.configs.strictTypeChecked`
-- Optionally add `...tseslint.configs.stylisticTypeChecked`
-- Install [eslint-plugin-react](https://github.com/jsx-eslint/eslint-plugin-react) and update the config:
+### Customization Options
+- **Synth Settings**: Adjust volume and choose from multiple synth voice options.
+- **Note Display**: Option to show notes as flats or sharps.
 
-```js
-// eslint.config.js
-import react from 'eslint-plugin-react'
+### User Interface
+- **Mobile-Responsive Design**: Optimized interface for both desktop and mobile use.
+- **Direct Progression Editing**: Edit your chord progression directly in text format.
+- **Playback Controls**: Cycle through chords with a play button in the header.
 
-export default tseslint.config({
-  // Set the react version
-  settings: { react: { version: '18.3' } },
-  plugins: {
-    // Add the react plugin
-    react,
-  },
-  rules: {
-    // other rules...
-    // Enable its recommended rules
-    ...react.configs.recommended.rules,
-    ...react.configs['jsx-runtime'].rules,
-  },
-})
-```
+## Technology Stack
+
+- React
+- Tone.js 
+- Bootstrap 
+
+## Getting Started
+
+To run Chord Buildr locally:
+
+1. Install dependencies with `npm install`
+2. Start the development server with `npm run start`
+
+## License
+
+This project is open source and available under the [MIT License](LICENSE).

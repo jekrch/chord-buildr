@@ -12,15 +12,6 @@ import {
 } from "../utils/noteManager"
 import { PianoState } from "../components/context/AppContext"
 
-interface Chord {
-  octave: string;
-  isKey?: boolean;
-  noteLetter: string;
-  type: string;
-  slashNote?: string;
-  slash?: boolean;
-}
-
 interface SynthSettings {
   volume: number;
   type: string;
@@ -29,20 +20,20 @@ interface SynthSettings {
 /***
  * get the octave from the start of the code
  */
-export function extractOctave(chordCode: string, chord: Chord): string {
-  var octave = chordCode.substring(0, 1)
+export function extractOctave(chordCode: string): number {
+  const octave = chordCode.substring(0, 1);
 
   if (!octave || isNaN(Number(octave)) || Number(octave) < 0) {
-    octave = "0"
+    return 0
   } else if (Number(octave) > 2) {
-    octave = "2"
+    return 2
   }
 
-  return octave
+  return Number(octave);
 }
 
-export function getChordFromCode(chordCode: string): Chord | undefined {
-  var chord: Partial<Chord> = {}
+export function getChordFromCode(chordCode: string): SelectedChord | undefined {
+  let chord: SelectedChord = {}
 
   try {
     chordCode = chordCode.replace("(", "");
@@ -57,14 +48,14 @@ export function getChordFromCode(chordCode: string): Chord | undefined {
 
     chordCode = chordCode.split("#piano-")[0]
 
-    chord.octave = extractOctave(chordCode, chord as Chord)
+    chord.octave = extractOctave(chordCode);
 
     chordCode = chordCode.replace(")", "")
 
     chord.isKey = chordCode.includes("*")
     chordCode = chordCode.replace("*", "")
 
-    chordCode = processSlashChord(chordCode, chord as Chord)
+    chordCode = processSlashChord(chordCode, chord)
 
     var indexOfType = getIndexOfType(chordCode);
 
@@ -78,11 +69,11 @@ export function getChordFromCode(chordCode: string): Chord | undefined {
   }
 
   if (!(isValidChordType(chord.type as string) && isValidLetter(chord.noteLetter as string))) {
-    logInvalidChordCodeError(chordCode, chord as Chord);
+    logInvalidChordCodeError(chordCode, chord as SelectedChord);
     return
   }
 
-  return chord as Chord
+  return chord as SelectedChord
 }
 
 function logChordAnalysisException(ex: unknown, chordCode: string): void {
@@ -90,7 +81,7 @@ function logChordAnalysisException(ex: unknown, chordCode: string): void {
   console.log("Exception - invalid chord code: " + chordCode);
 }
 
-function logInvalidChordCodeError(chordCode: string, chord: Chord): void {
+function logInvalidChordCodeError(chordCode: string, chord: SelectedChord): void {
   console.log(
     "Invalid chord code: " +
     chordCode +
@@ -132,7 +123,7 @@ function removeFbclid(chordCode: string): string {
   return chordCode
 }
 
-function processSlashChord(chordCode: string, chord: Chord): string {
+function processSlashChord(chordCode: string, chord: SelectedChord): string {
   if (chordCode.includes(":")) {
     var slashNote = chordCode.split(":").pop() as string
 
@@ -190,13 +181,14 @@ export function getProgressionString(chordPianoSet: ChordPiano[]): string {
   let code = '';
 
   for (let i = 0; i < chordPianoSet.length; i++) {
-    var chordPiano = chordPianoSet[i]
-    var selectedChord = chordPiano.selectedChord
+    let chordPiano = chordPianoSet[i]
+    let selectedChord = chordPiano.selectedChord
 
     if (!selectedChord) continue
 
-    var chordCode =
-      selectedChord.noteLetter + selectedChord.type
+    let chordCode =
+      selectedChord.noteLetter ?? '' + 
+      selectedChord.type ?? '';
 
     if (isSlashChord(selectedChord)) {
       chordCode += "/" + selectedChord.slashNote
@@ -380,12 +372,46 @@ export function updateUrlProgressionCode(state: PianoState): void {
   loadProgressionCode(state, progressionCode)
 }
 
+// function loadProgressionCode(state: PianoState, progressionCode: string): void {
+//   if (state.currentProgCode) { 
+//     const prevCodeLength = state.previousProgCodes.length;
+//     console.log(prevCodeLength)
+
+//     if (prevCodeLength <= 1) {
+//       console.log(state.currentProgCode)
+//       state.previousProgCodes.push(progressionCode)
+//     } else if (
+//       state.previousProgCodes[prevCodeLength - 1] !== progressionCode
+//     ) {
+//       console.log(state.currentProgCode)
+//       state.previousProgCodes.push(progressionCode)
+//     }
+//   } 
+//   console.log(state.previousProgCodes)
+//   state.currentProgCode = progressionCode
+// }
+
 function loadProgressionCode(state: PianoState, progressionCode: string): void {
-  if (state.currentProgCode) {
-    state.previousProgCodes.push(state.currentProgCode)
+  if (state.building) {
+    // Don't update history while building from a previous state
+    state.currentProgCode = progressionCode;
+    return;
   }
 
-  state.currentProgCode = progressionCode
+  if (state.currentProgCode) { 
+    const prevCodeLength = state.previousProgCodes.length;
+
+    // Only add to history if it's different from the current code
+    if (prevCodeLength <= 1) {
+      state.previousProgCodes.push(state.currentProgCode);
+    } else if (
+      state.previousProgCodes[prevCodeLength - 1] !== state.currentProgCode
+    ) {
+      state.previousProgCodes.push(state.currentProgCode);
+    }
+  } 
+  
+  state.currentProgCode = progressionCode;
 }
 
 export function convertProgressionStrToCode(submittedProgressionStr: string): string {
