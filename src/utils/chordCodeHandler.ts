@@ -372,28 +372,14 @@ export function updateUrlProgressionCode(state: PianoState): void {
   loadProgressionCode(state, progressionCode)
 }
 
-// function loadProgressionCode(state: PianoState, progressionCode: string): void {
-//   if (state.currentProgCode) { 
-//     const prevCodeLength = state.previousProgCodes.length;
-//     console.log(prevCodeLength)
-
-//     if (prevCodeLength <= 1) {
-//       console.log(state.currentProgCode)
-//       state.previousProgCodes.push(progressionCode)
-//     } else if (
-//       state.previousProgCodes[prevCodeLength - 1] !== progressionCode
-//     ) {
-//       console.log(state.currentProgCode)
-//       state.previousProgCodes.push(progressionCode)
-//     }
-//   } 
-//   console.log(state.previousProgCodes)
-//   state.currentProgCode = progressionCode
-// }
-
 function loadProgressionCode(state: PianoState, progressionCode: string): void {
+  
+  // if (state.currentProgCode === progressionCode) {
+  //   console.log('dupe');
+  //   return;
+  // }
+
   if (state.building) {
-    // Don't update history while building from a previous state
     state.currentProgCode = progressionCode;
     return;
   }

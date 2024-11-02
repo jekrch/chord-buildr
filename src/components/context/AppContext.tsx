@@ -277,19 +277,22 @@ const pianoReducer = (state: PianoState, action: PianoAction): PianoState => {
     }
 
     case "LOAD_PREVIOUS_PROG_CODE": {
+      console.log(state.previousProgCodes);
       if (state.previousProgCodes.length > 0) {
         // Get the last code
         const lastProgIndex = state.previousProgCodes.length - 1;
-        const previousProgCode = state.previousProgCodes[lastProgIndex];
-        
-        // Create a new state with the previous code
-        const newState = {
+        let previousProgCode = state.previousProgCodes[lastProgIndex];
+        let stepsBack = 1;
+
+        // create a new state with the previous code
+        let newState = {
           ...state,
           building: false,
-          previousProgCodes: state.previousProgCodes.slice(0, -1) // Remove the last entry
+          previousProgCodes: state.previousProgCodes.slice(0, -stepsBack) // Remove the last entry
         };
 
-        const builtState = buildProgFromCode(newState, previousProgCode);
+        console.log(previousProgCode)
+        let builtState = buildProgFromCode(newState, previousProgCode);
         builtState.previousProgCodes = state.previousProgCodes.slice(0, -1)
 
         return {
