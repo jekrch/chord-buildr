@@ -23,7 +23,7 @@ Chord Buildr is implemented in React and uses Tone.js for audio playback.
 
 ### Music Theory Integration
 - **Roman Numeral Notation**: View chord progressions in roman numeral notation when a key is selected.
-- **Key-Aware Notation**: Note letters adjust to display correct notation in the selected key.
+- **Key-Aware Notation**: Note letters adjust to display the correct notation given the selected key.
 
 ### Customization Options
 - **Synth Settings**: Adjust volume and choose from multiple synth voice options.
