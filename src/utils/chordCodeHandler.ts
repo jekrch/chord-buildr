@@ -374,10 +374,8 @@ export function updateUrlProgressionCode(state: PianoState): void {
 
 function loadProgressionCode(state: PianoState, progressionCode: string): void {
   
-  // if (state.currentProgCode === progressionCode) {
-  //   console.log('dupe');
-  //   return;
-  // }
+  if (progressionCode === state.currentProgCode)
+    return;
 
   if (state.building) {
     state.currentProgCode = progressionCode;

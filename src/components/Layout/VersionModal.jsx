@@ -46,6 +46,14 @@ export function VersionModal(props) {
             <p>
 
             <VersionEntry
+                version="1.8"
+                date="11.03.2024"
+                items={[
+                  "migrated to typescript and vite",
+                ]}
+              />
+
+            <VersionEntry
                 version="1.7.1"
                 date="03.27.2023"
                 items={[

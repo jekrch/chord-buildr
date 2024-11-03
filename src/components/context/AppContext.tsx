@@ -135,7 +135,7 @@ const pianoReducer = (state: PianoState, action: PianoAction): PianoState => {
       }
 
       const noteLetter = updateFlatOrSharpLetter(
-        chordPiano.showFlats,
+        chordPiano.showFlats ?? false,
         action.payload.noteLetter
       );
 
@@ -230,12 +230,12 @@ const pianoReducer = (state: PianoState, action: PianoAction): PianoState => {
     case "ADD_CHORD_PIANO": {
       if (action.payload !== null) {
         const nextChordPianoId = getNextId(state);
-        const updatedSet = [...state.chordPianoSet, getChordPiano(nextChordPianoId)];
+        state.chordPianoSet = [...state.chordPianoSet, getChordPiano(nextChordPianoId)];
+        
         updateUrlProgressionCode(state);
         
         return {
-          ...state,
-          chordPianoSet: updatedSet
+          ...state          
         };
       }
       return state;
@@ -277,7 +277,7 @@ const pianoReducer = (state: PianoState, action: PianoAction): PianoState => {
     }
 
     case "LOAD_PREVIOUS_PROG_CODE": {
-      console.log(state.previousProgCodes);
+
       if (state.previousProgCodes.length > 0) {
         // Get the last code
         const lastProgIndex = state.previousProgCodes.length - 1;
@@ -291,7 +291,7 @@ const pianoReducer = (state: PianoState, action: PianoAction): PianoState => {
           previousProgCodes: state.previousProgCodes.slice(0, -stepsBack) // Remove the last entry
         };
 
-        console.log(previousProgCode)
+        //console.log(previousProgCode)
         let builtState = buildProgFromCode(newState, previousProgCode);
         builtState.previousProgCodes = state.previousProgCodes.slice(0, -1)
 
