@@ -1,29 +1,39 @@
+  // @ts-ignore
 import { isValidChordType, getScaleAdjustedNoteLetter } from "./chordManager"
-import { createChordPiano } from "./chordPianoHandler"
+import { ChordPiano, createChordPiano, SelectedChord } from "./chordPianoHandler"
+  // @ts-ignore
 import { synthTypes } from "./synthLibrary"
+  // @ts-ignore
 import { isValidLetter, getNoteNumber } from "./noteManager"
 import {
   noteLetterMapWithSharps,
   noteLetterMapWithFlats
+    // @ts-ignore
 } from "../utils/noteManager"
+import { PianoState } from "../components/context/AppContext"
+
+interface SynthSettings {
+  volume: number;
+  type: string;
+}
 
 /***
  * get the octave from the start of the code
  */
-export function extractOctave(chordCode, chord) {
-  var octave = chordCode.substring(0, 1)
+export function extractOctave(chordCode: string): number {
+  const octave = chordCode.substring(0, 1);
 
-  if (!octave || isNaN(octave) || Number(octave) < 0) {
-    octave = 0
+  if (!octave || isNaN(Number(octave)) || Number(octave) < 0) {
+    return 0
   } else if (Number(octave) > 2) {
-    octave = 2
+    return 2
   }
 
-  return octave
+  return Number(octave);
 }
 
-export function getChordFromCode(chordCode) {
-  var chord = {}
+export function getChordFromCode(chordCode: string): SelectedChord | undefined {
+  let chord: SelectedChord = {}
 
   try {
     chordCode = chordCode.replace("(", "");
@@ -38,7 +48,7 @@ export function getChordFromCode(chordCode) {
 
     chordCode = chordCode.split("#piano-")[0]
 
-    chord.octave = extractOctave(chordCode, chord)
+    chord.octave = extractOctave(chordCode);
 
     chordCode = chordCode.replace(")", "")
 
@@ -58,20 +68,20 @@ export function getChordFromCode(chordCode) {
     return
   }
 
-  if (!(isValidChordType(chord.type) && isValidLetter(chord.noteLetter))) {
-    logInvalidChordCodeError(chordCode, chord);
+  if (!(isValidChordType(chord.type as string) && isValidLetter(chord.noteLetter as string))) {
+    logInvalidChordCodeError(chordCode, chord as SelectedChord);
     return
   }
 
-  return chord
-} 
+  return chord as SelectedChord
+}
 
-function logChordAnalysisException(ex, chordCode) {
+function logChordAnalysisException(ex: unknown, chordCode: string): void {
   console.log(ex);
   console.log("Exception - invalid chord code: " + chordCode);
 }
 
-function logInvalidChordCodeError(chordCode, chord) {
+function logInvalidChordCodeError(chordCode: string, chord: SelectedChord): void {
   console.log(
     "Invalid chord code: " +
     chordCode +
@@ -85,10 +95,10 @@ function logInvalidChordCodeError(chordCode, chord) {
 /**
  * Return the index within a chordCode at which the chord type begins 
  * e.g. 0C#m -> 3; 2D -> 3; 3F##maj7 -> 4
- * @param {} chordCode 
+ * @param chordCode 
  * @returns 
  */
-function getIndexOfType(chordCode) {
+function getIndexOfType(chordCode: string): number {
   let startIndex = isNumeric(chordCode[0]) ? 2 : 1;
   for (let i = startIndex; i < chordCode.length; i++) {
     if (chordCode[i] !== '#' && chordCode[i] !== 'b') {
@@ -98,13 +108,14 @@ function getIndexOfType(chordCode) {
   return chordCode.length;
 }
 
-function isNumeric(value) {
+function isNumeric(value: string): boolean {
   return /^-?\d+$/.test(value);
 }
+
 /***
  * if an fbclid was inserted into the code, remove it here
  */
-function removeFbclid(chordCode) {
+function removeFbclid(chordCode: string): string {
   var startIndex = chordCode.indexOf("&fbclid")
   var fbCode = chordCode.substring(startIndex, startIndex + 69)
   chordCode = chordCode.replace(fbCode, "")
@@ -112,9 +123,9 @@ function removeFbclid(chordCode) {
   return chordCode
 }
 
-function processSlashChord(chordCode, chord) {
+function processSlashChord(chordCode: string, chord: SelectedChord): string {
   if (chordCode.includes(":")) {
-    var slashNote = chordCode.split(":").pop()
+    var slashNote = chordCode.split(":").pop() as string
 
     chord.slashNote = slashNote
     chord.slash = true
@@ -124,7 +135,7 @@ function processSlashChord(chordCode, chord) {
   return chordCode
 }
 
-export function getProgressionCode(state) {
+export function getProgressionCode(state: PianoState): string {
   var synthCode = "?s=" + state.synth + ":" + state.volume
 
   var code = ""
@@ -145,10 +156,9 @@ export function getProgressionCode(state) {
     if (chordPiano.isProgKey) chordCode += "*"
 
     if (isSlashChord(selectedChord)) {
-
       selectedChord.slashNote = updateFlatOrSharpLetter(
-         chordPiano.showFlats,
-         selectedChord.slashNote
+        chordPiano.showFlats || false,
+        selectedChord.slashNote as string
       )
       selectedChord.slashNote = getScaleAdjustedNoteLetter(keyChord, selectedChord.slashNote);
       chordCode += ":" + selectedChord.slashNote
@@ -164,46 +174,47 @@ export function getProgressionCode(state) {
  * Builds a space separated string of progression contained in the provided
  * chordPianoSet
  * 
- * @param {*} chordPianoSet 
+ * @param chordPianoSet 
  * @returns 
  */
-export function getProgressionString(chordPianoSet) {
+export function getProgressionString(chordPianoSet: ChordPiano[]): string {
   let code = '';
 
   for (let i = 0; i < chordPianoSet.length; i++) {
-    var chordPiano = chordPianoSet[i]
-    var selectedChord = chordPiano.selectedChord
+    let chordPiano = chordPianoSet[i]
+    let selectedChord = chordPiano.selectedChord
 
     if (!selectedChord) continue
 
-    var chordCode =
-      selectedChord.noteLetter + selectedChord.type
+    let chordCode =
+      selectedChord.noteLetter ?? '' + 
+      selectedChord.type ?? '';
 
     if (isSlashChord(selectedChord)) {
       chordCode += "/" + selectedChord.slashNote
     }
 
-    let octave = '';
+    let octave =  undefined;
 
     if (selectedChord.octave !== 1) {
       octave = selectedChord.octave;
     }
 
-    code += `${octave}${chordCode} `
+    code += `${octave ?? ''}${chordCode} `
   }
 
   return code;
 }
 
-export function isSlashChord(selectedChord) {
+export function isSlashChord(selectedChord: SelectedChord): boolean {
   return (
-    selectedChord.slash &&
-    selectedChord.slashNote &&
+    selectedChord.slash === true &&
+    selectedChord.slashNote !== undefined &&
     selectedChord.slashNote !== ""
   )
 }
 
-function capitalizeFirstLetter(string) {
+function capitalizeFirstLetter(string: string): string {
   return string.charAt(0).toUpperCase() + string.slice(1)
 }
 
@@ -212,8 +223,7 @@ function capitalizeFirstLetter(string) {
  * find the corresponding flat letter. Likewise, if the chordPiano is
  * set to show sharps
  */
-
-export function updateFlatOrSharpLetter(showFlats, noteLetter) {
+export function updateFlatOrSharpLetter(showFlats: boolean, noteLetter: string): string {
   var noteNumber = getNoteNumber(noteLetter)
 
   if (showFlats) {
@@ -229,19 +239,17 @@ export function updateFlatOrSharpLetter(showFlats, noteLetter) {
 
 /**
  * get a synth settings obj from url code (e.g. pl:100)
- * @param {*} synthCode
+ * @param synthCode
  * @returns
  */
-export function getSynthCode(synthCode) {
-  
+export function getSynthCode(synthCode: string | null): SynthSettings {
   // init with default synth values
-  var synth = {
+  var synth: SynthSettings = {
     volume: 90,
     type: "p"
   }
 
   if (synthCode != null) {
-  
     if (hasSynthCode(synthCode)) {
       return synth
     }
@@ -249,7 +257,7 @@ export function getSynthCode(synthCode) {
     var codeSplit = synthCode.split(":")
 
     var type = codeSplit[0]
-    var volume = codeSplit[1]
+    var volume = parseInt(codeSplit[1])
 
     if (isValidType(type)) {
       synth.type = type
@@ -263,25 +271,24 @@ export function getSynthCode(synthCode) {
   return synth
 }
 
-function hasSynthCode(synthCode) {
+function hasSynthCode(synthCode: string): boolean {
   return synthCode.split(":").length !== 2
 }
 
-function isValidType(type) {
+function isValidType(type: string): boolean {
   return Object.keys(synthTypes).includes(type)
 }
 
-function isValidVol(volume) {
-  return volume != null && volume >= 0 && volume <= 100
+function isValidVol(volume: number): boolean {
+  return !isNaN(volume) && volume >= 0 && volume <= 100
 }
 
-export function getChordPianoSetFromProgCode(progCode) {
-
+export function getChordPianoSetFromProgCode(progCode: string | null): ChordPiano[] {
   if (progCode == null) return []
 
   var chordArray = progCode.split(")")
 
-  var chordPianoSet = []
+  var chordPianoSet: ChordPiano[] = []
 
   var progKeySet = false
 
@@ -302,7 +309,7 @@ export function getChordPianoSetFromProgCode(progCode) {
   return chordPianoSet
 }
 
-function validateProgKey(chordPiano, progKeySet) {
+function validateProgKey(chordPiano: ChordPiano, progKeySet: boolean): boolean {
   // if the prog key is set here, only accept it
   // if we haven't already set the progKey
 
@@ -313,10 +320,9 @@ function validateProgKey(chordPiano, progKeySet) {
   return progKeySet
 }
 
-export function buildProgFromCode(state, code) {
-
+export function buildProgFromCode(state: PianoState, code: string): PianoState {
   if (state.building) {
-    return
+    return state
   }
 
   if (code.includes("%")) {
@@ -338,11 +344,15 @@ export function buildProgFromCode(state, code) {
   return state
 }
 
-export function getQueryStringParams(query) {
+interface QueryParams {
+  [key: string]: string;
+}
+
+export function getQueryStringParams(query: string): QueryParams {
   return query
     ? (/^[?]/.test(query) ? query.slice(1) : query)
         .split("&")
-        .reduce((params, param) => {
+        .reduce((params: QueryParams, param) => {
           let [key, value] = param.split("=")
           params[key] = value
             ? decodeURIComponent(value.replace(/\+/g, " "))
@@ -352,8 +362,7 @@ export function getQueryStringParams(query) {
     : {}
 }
 
-export function updateUrlProgressionCode(state) {
-
+export function updateUrlProgressionCode(state: PianoState): void {
   if (state.building) {
     return
   }
@@ -363,38 +372,49 @@ export function updateUrlProgressionCode(state) {
   loadProgressionCode(state, progressionCode)
 }
 
-function loadProgressionCode(state, progressionCode) {
+function loadProgressionCode(state: PianoState, progressionCode: string): void {
+  
+  if (progressionCode === state.currentProgCode)
+    return;
 
-  if (state.currentProgCode) {
-    state.previousProgCodes.push(state.currentProgCode)
+  if (state.building) {
+    state.currentProgCode = progressionCode;
+    return;
   }
 
-  state.currentProgCode = progressionCode
+  if (state.currentProgCode) { 
+    const prevCodeLength = state.previousProgCodes.length;
 
-  state.history.push({
-    search: progressionCode
-  })
+    // Only add to history if it's different from the current code
+    if (prevCodeLength <= 1) {
+      state.previousProgCodes.push(state.currentProgCode);
+    } else if (
+      state.previousProgCodes[prevCodeLength - 1] !== state.currentProgCode
+    ) {
+      state.previousProgCodes.push(state.currentProgCode);
+    }
+  } 
+  
+  state.currentProgCode = progressionCode;
 }
 
-export function convertProgressionStrToCode(submittedProgressionStr) {
+export function convertProgressionStrToCode(submittedProgressionStr: string): string {
   let newProgressionString = ""
 
   submittedProgressionStr = submittedProgressionStr
-    .replaceAll(',', ' ')
+    .replace(',', ' ')
     .trim()
     .replace(/\s\s+/g, ' ') // convert multiple spaces to one
 
   for (let chordStr of submittedProgressionStr.split(' ')) {
-
     let chordCode = convertChordStrToCode(chordStr)
-
     newProgressionString += `(${chordCode})`
   }
 
   return newProgressionString;
 }
 
-function convertChordStrToCode(chordStr) {
+function convertChordStrToCode(chordStr: string): string {
   let octave = getOctave(chordStr)
 
   let chord = chordStr.replace(/(^\d+)(.+$)/i, '$2')
@@ -405,8 +425,7 @@ function convertChordStrToCode(chordStr) {
   return `${octave}${letter}${type}${slash}`;
 }
 
-function getTypeAndSlash(chord, letter) {
-
+function getTypeAndSlash(chord: string, letter: string): { type: string; slash: string } {
   let type = chord.replace(letter, '').toLowerCase();
   let slash = '';
 
@@ -430,11 +449,10 @@ function getTypeAndSlash(chord, letter) {
 /**
  * If the chord type is valid, return it, otherwise, try to find the nearest equivalent
  * 
- * @param {*} type 
+ * @param type 
  * @returns 
  */
-function sanitizeType(type) {
-
+function sanitizeType(type: string): string {
   try {
     // initial equivalent replacement
     type = type.replace('minor', 'm')
@@ -448,7 +466,6 @@ function sanitizeType(type) {
       return type; 
 
     } else {
-
       if (type.startsWith('m')) {
         newType += 'm'
       } else if (type.includes('dim')) {
@@ -456,7 +473,6 @@ function sanitizeType(type) {
       }
 
       if (!newType.includes('dim')) {
-
         if (type.includes('7')) {
           newType += '7'
         } else if (type.includes('6')) {
@@ -477,9 +493,9 @@ function sanitizeType(type) {
   }
 }
 
-function getLetter(chord) {
+function getLetter(chord: string | undefined): string {
   try {
-    let letter = chord?.[0]
+    let letter = chord?.[0] || ''
     let accidentals = getAccidentalAtIndex(chord, 1);
     if (accidentals.length) {
       accidentals += getAccidentalAtIndex(chord, 2);
@@ -492,14 +508,14 @@ function getLetter(chord) {
   }
 }
 
-function getAccidentalAtIndex(chord, index) {
+function getAccidentalAtIndex(chord: string | undefined, index: number): string {
   if (chord?.[index] === '#' || chord?.[index]?.toLowerCase() === 'b') {
-    return chord?.[index]?.toLowerCase()
+    return chord[index].toLowerCase()
   }
   return '';
 }
 
-function getOctave(chordStr) {
+function getOctave(chordStr: string): string {
   let octave = '1'
   try {
     if (chordStr.match(/^\d/)) {
@@ -516,6 +532,6 @@ function getOctave(chordStr) {
   return octave
 }
 
-function upperCaseFirst(str){
+function upperCaseFirst(str: string): string {
   return str.charAt(0).toUpperCase() + str.substring(1);
 }

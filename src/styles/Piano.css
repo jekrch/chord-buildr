@@ -126,9 +126,9 @@ ul .white:active {
 	top: -0.1em;
 	margin-left: 0.1em;
 	z-index: 3;
-	float: left;
+	float: left !important;
 	/* background-color: black !important; */
-	color: white;
+	color: white !important;
 	border-width: 0 !important;
 	border: none !important;
 	outline: none !important;
@@ -151,7 +151,6 @@ ul .white:active {
 }
 .piano-play-button {
 	color: rgb(133, 133, 133);
-	
 	box-sizing: border-box;
 	position: absolute;
 	display: flex;
@@ -167,11 +166,10 @@ ul .white:active {
 	left: 0.20em;
 	margin-top: 1em;
 	padding: 0em;
-
 	outline: none !important;
 	box-shadow: 
 		-1px -1px 2px  var(--main-compononent-gray) inset,
-		0 -5px 2px 3px rgba(46, 45, 45, 0.6) inset, 
+		0 -3px 2px 3px rgba(46, 45, 45, 0.6) inset, 
 		3px 6px 3px rgba(16, 19, 26, 0.404);
 }
 

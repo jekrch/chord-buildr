@@ -1,7 +1,7 @@
 import React, { useContext } from "react"
 import "../styles/Piano.css"
 import { Key } from "./Key"
-import { AppContext, getPianoById, getProgKey } from "../components/context/AppContext"
+import { useAppContext, getPianoById, getProgKey } from "./context/AppContext"
 import { getNoteLetter } from "../utils/noteManager"
 import { getScaleAdjustedNoteLetter } from "../utils/chordManager"
 import { getChordNumeral } from "../utils/numeralHelper"
@@ -9,7 +9,7 @@ import { playPiano } from "../utils/synthPlayer"
 import PropTypes from "prop-types"
 
 export const PianoComponent = ({ pianoComponentId }) => {
-  const { state, dispatch } = useContext(AppContext)
+  const { state, dispatch } = useAppContext()
   const pianoId = pianoComponentId
 
   const handleClick = (note, noteNumber, octave) => {

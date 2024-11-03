@@ -3,8 +3,11 @@
 .App {
   text-align: center;
   color: white;
+  background-color: #222121;
+
   padding: 0 0em;
   margin-top: 0em;
+  margin-bottom: 0em;
   width: 100%;
   display: flex;
   /* width: 100%;
@@ -12,6 +15,9 @@
   scroll-behavior: smooth;
 }
 
+.navbar {
+  padding: 0rem 1rem !important;
+}
 
 .App-logo {
   height: 40vmin;

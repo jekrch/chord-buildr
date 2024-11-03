@@ -8,12 +8,12 @@ import {
 } from "../utils/noteManager"
 import { chordMap, getScaleAdjustedNoteLetter, equalChroma, noteIsInScale } from "../utils/chordManager"
 import { selectChordKeys, hasSelectedNotes } from "../utils/chordPianoHandler"
-import { AppContext, getPianoById, getProgKey } from "../components/context/AppContext"
+import { useAppContext, getPianoById, getProgKey } from "./context/AppContext"
 import PropTypes from "prop-types"
 import { updateFlatOrSharpLetter } from "../utils/chordCodeHandler"
 
 export const ChordInput = ({ pianoComponentId }) => {
-  const { state, dispatch } = useContext(AppContext)
+  const { state, dispatch } = useAppContext()
   const chordRef = useRef({})
 
   var chordPiano = getPianoById(state, pianoComponentId)

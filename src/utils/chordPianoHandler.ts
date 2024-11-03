@@ -1,41 +1,86 @@
+// @ts-ignore
 import { getNoteNumberChord, getScaleAdjustedNoteLetter } from "./chordManager"
-import { clearPianoSelections } from "./pianoHelper"
+// @ts-ignore
+import { clearPianoSelections, pianoGenerator } from "./pianoHelper"
+// @ts-ignore
 import { getNoteNumber, normalizeNote } from "./noteManager"
-import { pianoGenerator } from "./pianoHelper"
+// @ts-ignore
 import { getChordFromCode } from "./chordCodeHandler"
 import {
   getStepsChanged,
   getAbsoluteStepsChanged,
   getTransposedSelectedNote,
   getTransposedNote
+  // @ts-ignore
 } from "./transposer"
 
-export function selectChordKeys(chordPiano) {
+export interface Note {
+  octave: number
+  noteNumber: number
+}
+
+export interface NoteKey {
+  selected: boolean
+  isStopping: boolean | null
+}
+
+export interface ChordNotes {
+  rooteNoteNumber: number
+  notes: number[]
+  octave: number
+  octaveAllowance: number
+}
+
+export interface SelectedKey {
+  noteLetter: string
+  octave: number
+}
+
+export interface SelectedChord {
+  noteLetter?: string
+  type?: string
+  octave?: number
+  slash?: boolean
+  isKey?:boolean
+  slashNote?: string | null
+}
+
+export interface ChordPiano {
+  id: number
+  piano?: NoteKey[][]
+  selectedKey: SelectedKey
+  showFlats?: boolean
+  isProgKey?: boolean
+  selectedChord: SelectedChord
+  rendered?: boolean
+}
+
+export function selectChordKeys(chordPiano: ChordPiano): void {
   return selectChordKeysWithType(chordPiano, chordPiano.selectedChord, true)
 }
 
-export function selectAutomatedChordKeys(chordPiano) {
+export function selectAutomatedChordKeys(chordPiano: ChordPiano): void {
   return selectChordKeysWithType(chordPiano, chordPiano.selectedChord, false)
 }
 
 export function selectChordKeysWithType(
-  chordPiano,
-  selectedChord,
-  userSelection
-) {
+  chordPiano: ChordPiano,
+  selectedChord: SelectedChord,
+  userSelection: boolean
+): void {
   // don't select the same chord multiple times
   if (chordIsAlreadySelected(chordPiano)) return
 
-  var chordNotes = getChordNotes(selectedChord, userSelection)
+  const chordNotes = getChordNotes(selectedChord, userSelection)
 
   selectChordNotes(chordNotes, chordPiano)
 }
 
-function selectChordNotes(chordNotes, chordPiano) {
+function selectChordNotes(chordNotes: ChordNotes, chordPiano: ChordPiano): void {
   clearPianoSelections(chordPiano.piano)
 
   chordNotes.notes.forEach((chordNoteNumber) => {
-    var note = normalizeNote(chordNoteNumber, chordNotes.octave)
+    const note = normalizeNote(chordNoteNumber, chordNotes.octave)
 
     selectNote(chordPiano, note.octave, note.noteNumber)
   })
@@ -43,30 +88,27 @@ function selectChordNotes(chordNotes, chordPiano) {
   chordPiano.rendered = true
 }
 
-export function getChordNotes(selectedChord, userSelection) {
-  var noteLetter = selectedChord.noteLetter
-  var type = selectedChord.type
-  var octave = selectedChord.octave
-  var slashNote = selectedChord.slashNote
+export function getChordNotes(selectedChord: SelectedChord, userSelection: boolean): ChordNotes {
+  const noteLetter = selectedChord.noteLetter
+  const type = selectedChord.type
+  const octave = selectedChord.octave
+  const slashNote = selectedChord.slashNote
 
   // if not octave is provided, use the currently selected octave
-  if (!octave || octave === null) {
-    octave = 0
-  }
+  const finalOctave = !octave || octave === null ? 0 : octave
 
-  var chordRootNoteNumber = getNoteNumber(noteLetter)
-  var slashNoteNumber = getNoteNumber(slashNote)
+  const chordRootNoteNumber = getNoteNumber(noteLetter)
+  const slashNoteNumber = getNoteNumber(slashNote)
 
-  var chordNoteNumbers = getNoteNumberChord(chordRootNoteNumber, type)
+  const chordNoteNumbers = getNoteNumberChord(chordRootNoteNumber, type)
 
-  var chordNotes = getOctaveAdjustedChordNumbersWithFirstNote(
-    octave,
+  return getOctaveAdjustedChordNumbersWithFirstNote(
+    finalOctave,
     chordRootNoteNumber,
     chordNoteNumbers,
     slashNoteNumber,
     userSelection
   )
-  return chordNotes
 }
 
 /**
@@ -74,22 +116,24 @@ export function getChordNotes(selectedChord, userSelection) {
  * the firstNote comes first, while considering the octaves available for the
  * subsequent notes
  *
- * @param {*} octave
- * @param {*} chordNoteNumbers
- * @param {*} firstNote
+ * @param {number} octave
+ * @param {number} chordRootNoteNumber
+ * @param {number[]} chordNoteNumbers
+ * @param {number | null} firstNote
+ * @param {boolean} userSelection
  */
 function getOctaveAdjustedChordNumbersWithFirstNote(
-  octave,
-  chordRootNoteNumber,
-  chordNoteNumbers,
-  firstNote,
-  userSelection
-) {
-  var chordNotes = {
+  octave: number,
+  chordRootNoteNumber: number,
+  chordNoteNumbers: number[],
+  firstNote: number | null,
+  userSelection: boolean
+): ChordNotes {
+  let chordNotes: ChordNotes = {
     rooteNoteNumber: chordRootNoteNumber,
     notes: [],
     octave: octave,
-    // determine how many octaves we can increment berfor running off the keyboard
+    // determine how many octaves we can increment before running off the keyboard
     octaveAllowance: 2 - octave
   }
 
@@ -106,7 +150,7 @@ function getOctaveAdjustedChordNumbersWithFirstNote(
 
     // determine whether our base (requested octave)
     // needs to be reduced
-    var octaveDecrement = getOctaveDecrementIfNeeded(chordNotes)
+    const octaveDecrement = getOctaveDecrementIfNeeded(chordNotes)
 
     chordNotes.octave -= octaveDecrement
   }
@@ -118,28 +162,27 @@ function getOctaveAdjustedChordNumbersWithFirstNote(
  * the following arranges the chord notes such that firstNote comes
    first and the number of octaves required to captured the top notes
    doesn't exceed the octave allowance
- * @param {*} chordNotes 
- * @param {*} chordNoteNumbers 
- * @param {*} firstNote 
- * @param {*} octave 
- * @returns 
+ * @param {ChordNotes} chordNotes 
+ * @param {number[]} chordNoteNumbers 
+ * @param {number} firstNote 
+ * @param {boolean} userSelection 
+ * @returns {ChordNotes}
  */
 function arrangeChordNotesFromFirstNote(
-  chordNotes,
-  chordNoteNumbers,
-  firstNote,
-  userSelection
-) {
+  chordNotes: ChordNotes,
+  chordNoteNumbers: number[],
+  firstNote: number,
+  userSelection: boolean
+): ChordNotes {
   chordNoteNumbers = removeNoteFromArray(chordNoteNumbers, firstNote)
 
   // start the new array with our first note
   chordNotes.notes.push(firstNote)
 
-  var firstNoteIsLowest = chordNoteNumbers.every((n) => n > firstNote)
+  const firstNoteIsLowest = chordNoteNumbers.every((n) => n > firstNote)
 
   if (firstNoteIsLowest) {
     // if the first note is already the lowest just add the chord notes on top
-    //chordNotes.notes = chordNotes.notes.concat(chordNoteNumbers)
     chordNoteNumbers.forEach((note) => {
       if (note - 12 > firstNote) {
         note -= 12
@@ -150,7 +193,7 @@ function arrangeChordNotesFromFirstNote(
   } else {
     // if the first note isn't the lowest, shift the rest of the chord notes up
     // one octave
-    var shiftedUp = shiftChordNotesUpIfBelowFirstNote(
+    const shiftedUp = shiftChordNotesUpIfBelowFirstNote(
       firstNote,
       chordNoteNumbers,
       chordNotes
@@ -169,11 +212,11 @@ function arrangeChordNotesFromFirstNote(
 }
 
 function shiftChordNotesUpIfBelowFirstNote(
-  firstNote,
-  chordNoteNumbers,
-  chordNotes
-) {
-  var shiftedUp = false
+  firstNote: number,
+  chordNoteNumbers: number[],
+  chordNotes: ChordNotes
+): boolean {
+  let shiftedUp = false
   chordNoteNumbers.forEach((note) => {
     if (firstNote > note) {
       if (chordNotes.rooteNoteNumber === note) shiftedUp = true
@@ -183,7 +226,6 @@ function shiftChordNotesUpIfBelowFirstNote(
     chordNotes.notes.push(note)
   })
 
-  //console.log("shifted")
   return shiftedUp
 }
 
@@ -192,18 +234,18 @@ function shiftChordNotesUpIfBelowFirstNote(
  * needs to be reduced (without altering the note order) and if so
  * by how much (the octave decrement)
  *
- * @param {*} chordNotes      the note numbers for the chord
- * @param {*} octaveAllowance additional octaves that may be accessed
- *                            without running off keyboard
+ * @param {ChordNotes} chordNotes      the note numbers for the chord
+ * @returns {number} octaveDecrement   additional octaves that may be accessed
+ *                                     without running off keyboard
  */
-function getOctaveDecrementIfNeeded(chordNotes) {
-  var octaveDecrement = 0
+function getOctaveDecrementIfNeeded(chordNotes: ChordNotes): number {
+  let octaveDecrement = 0
 
   chordNotes.notes.forEach((note) => {
-    var octaveIncrementRequired = Math.ceil(note / 12) - 1
+    const octaveIncrementRequired = Math.ceil(note / 12) - 1
 
     if (octaveIncrementRequired >= chordNotes.octaveAllowance) {
-      var noteOctaveDecrement =
+      const noteOctaveDecrement =
         octaveIncrementRequired - chordNotes.octaveAllowance
       if (noteOctaveDecrement > octaveDecrement)
         octaveDecrement = noteOctaveDecrement
@@ -216,10 +258,10 @@ function getOctaveDecrementIfNeeded(chordNotes) {
 /**
  * this removes any instances of the provided note in the array
  * whether in the first or any later octave (factors of 12)
- * @param {*} array
- * @param {*} note
+ * @param {number[]} array
+ * @param {number} note
  */
-function removeNoteFromArray(array, note) {
+function removeNoteFromArray(array: number[], note: number): number[] {
   return array.filter((n) => !((n - note) % 12 === 0))
 }
 
@@ -227,19 +269,19 @@ function removeNoteFromArray(array, note) {
  * Determines whether the currently selected chord matches the provided
  * type, letter, and octave
  */
-export function chordIsAlreadySelected(chordPiano) {
-  return hasSelectedNotes(chordPiano.piano) && chordPiano.rendered === true
+export function chordIsAlreadySelected(chordPiano: ChordPiano): boolean {
+  return hasSelectedNotes(chordPiano.piano!) && chordPiano.rendered === true
 }
 
-export function selectNote(chordPiano, octave, noteNumber) {
-  var piano = chordPiano.piano
+export function selectNote(chordPiano: ChordPiano, octave: number, noteNumber: number): void {
+  const piano = chordPiano.piano
 
-  if (noteIsInvalid(piano, octave, noteNumber)) {
+  if (noteIsInvalid(piano!, octave, noteNumber)) {
     console.log("skipped invalid note: " + octave + " : " + noteNumber)
     return
   }
 
-  var noteKey = piano[octave][noteNumber - 1]
+  const noteKey = piano![octave][noteNumber - 1]
 
   if (!noteKey || noteKey.selected) {
     console.log("SKIPPED INVALID NOTE: " + octave + " : " + noteNumber)
@@ -250,13 +292,13 @@ export function selectNote(chordPiano, octave, noteNumber) {
   noteKey.isStopping = null
 }
 
-export function noteIsInvalid(pianoControl, octave, noteNumber) {
-  if (!pianoControl || !pianoControl[octave]) return true
+export function noteIsInvalid(pianoControl: NoteKey[][], octave: number, noteNumber: number): boolean {
+  return !pianoControl || !pianoControl[octave]
 }
 
-export function hasSelectedNotes(pianoControl) {
+export function hasSelectedNotes(pianoControl: NoteKey[][]): boolean {
   for (let i = 0; i < pianoControl.length; i++) {
-    var pianoOctave = pianoControl[i]
+    const pianoOctave = pianoControl[i]
 
     for (let j = 0; j < pianoOctave.length; j++) {
       if (pianoOctave[j].selected) return true
@@ -266,9 +308,9 @@ export function hasSelectedNotes(pianoControl) {
   return false
 }
 
-export function getLowestSelectedNote(pianoControl) {
+export function getLowestSelectedNote(pianoControl: NoteKey[][]): Note | undefined {
   for (let i = 0; i < pianoControl.length; i++) {
-    var pianoOctave = pianoControl[i]
+    const pianoOctave = pianoControl[i]
 
     for (let j = 0; j < pianoOctave.length; j++) {
       if (pianoOctave[j].selected) {
@@ -277,26 +319,26 @@ export function getLowestSelectedNote(pianoControl) {
     }
   }
 
-  return
+  return undefined
 }
 
-export function getLowestSelectedAbsoluteNote(pianoControl) {
-  var lowestNote = getLowestSelectedNote(pianoControl)
-  if (!lowestNote) return
+export function getLowestSelectedAbsoluteNote(pianoControl: NoteKey[][]): number | undefined {
+  const lowestNote = getLowestSelectedNote(pianoControl)
+  if (!lowestNote) return undefined
 
   return lowestNote.noteNumber + lowestNote.octave * 12
 }
 
-export function createChordPiano(i, chordCode) {
-  var chord = getChordFromCode(chordCode)
+export function createChordPiano(i: number, chordCode: string): ChordPiano | undefined {
+  const chord = getChordFromCode(chordCode)
 
   if (chord !== undefined) {
     return {
       id: i,
       piano: pianoGenerator(),
-      selectedKey: { noteLetter: chord.noteLetter, octave: chord.octave },
+      selectedKey: { noteLetter: chord.noteLetter!, octave: chord.octave ?? 0 },
       showFlats:
-        chord.noteLetter.includes("b") ||
+        chord.noteLetter?.includes("b") ||
         (chord.slashNote != null && chord.slashNote.includes("b")),
       isProgKey: chord.isKey,
       selectedChord: {
@@ -311,24 +353,22 @@ export function createChordPiano(i, chordCode) {
 }
 
 export function transposePianoBoard(
-  pianoId,
-  chordPianoSet,
-  originalChordPiano,
-  newSelectedKey
-) {
-  var stepsChanged = getStepsChanged(originalChordPiano, newSelectedKey)
-  var absoluteStepsChanged = getAbsoluteStepsChanged(
+  pianoId: number,
+  chordPianoSet: ChordPiano[],
+  originalChordPiano: ChordPiano,
+  newSelectedKey: SelectedKey
+): void {
+  const stepsChanged = getStepsChanged(originalChordPiano, newSelectedKey)
+  const absoluteStepsChanged = getAbsoluteStepsChanged(
     originalChordPiano,
     newSelectedKey
   )
 
-  //console.log("absolute change " + absoluteStepsChanged)
-
   if (absoluteStepsChanged !== 0) {
     for (let i = 0; i < chordPianoSet.length; i++) {
-      var chordPiano = chordPianoSet[i]
+      const chordPiano = chordPianoSet[i]
 
-      var originalLowestAbsoluteNote = getLowestAbsoluteNoteFromSelectedChord(
+      const originalLowestAbsoluteNote = getLowestAbsoluteNoteFromSelectedChord(
         chordPiano.selectedChord,
         false
       )
@@ -338,7 +378,7 @@ export function transposePianoBoard(
         stepsChanged
       )
 
-      chordPiano.selectedChord.slashNote = getScaleAdjustedNoteLetter(newSelectedKey, slashLetter);
+      chordPiano.selectedChord.slashNote = getScaleAdjustedNoteLetter(newSelectedKey, slashLetter)
       
       // don't change the root chord
       if (chordPiano.id === pianoId) {
@@ -350,16 +390,16 @@ export function transposePianoBoard(
         stepsChanged
       )
 
-      chordNote.noteLetter = getScaleAdjustedNoteLetter(newSelectedKey, chordNote.noteLetter);
+      chordNote.noteLetter = getScaleAdjustedNoteLetter(newSelectedKey, chordNote.noteLetter)
       
       setNewChordKey(chordPiano, chordNote)
 
-      var newLowestNote = getLowestAbsoluteNoteFromSelectedChord(
+      const newLowestNote = getLowestAbsoluteNoteFromSelectedChord(
         chordPiano.selectedChord,
         true
       )
 
-      chordPiano = moveChordTowardTonicIfNeeded(
+      moveChordTowardTonicIfNeeded(
         newLowestNote,
         originalLowestAbsoluteNote,
         absoluteStepsChanged,
@@ -371,7 +411,7 @@ export function transposePianoBoard(
   }
 }
 
-function setNewChordKey(chordPiano, newChordPianoSelectedKey) {
+function setNewChordKey(chordPiano: ChordPiano, newChordPianoSelectedKey: SelectedKey): void {
   chordPiano.selectedKey = newChordPianoSelectedKey
   chordPiano.selectedChord.noteLetter = newChordPianoSelectedKey.noteLetter
   chordPiano.selectedChord.octave = newChordPianoSelectedKey.octave
@@ -384,22 +424,20 @@ function setNewChordKey(chordPiano, newChordPianoSelectedKey) {
  * following attempts to normalize the movement of the transposed chord to
  * match the tonic as much as possible
  *
- * @param {} newLowestNote
- * @param {*} originalLowestAbsoluteNote
- * @param {*} absoluteStepsChanged
- * @param {*} chordPiano
- * @returns
+ * @param {number} newLowestNote
+ * @param {number} originalLowestAbsoluteNote
+ * @param {number} absoluteStepsChanged
+ * @param {ChordPiano} chordPiano
+ * @returns {ChordPiano}
  */
 function moveChordTowardTonicIfNeeded(
-  newLowestNote,
-  originalLowestAbsoluteNote,
-  absoluteStepsChanged,
-  chordPiano
-) {
-  var newChordAbsoluteChange = newLowestNote - originalLowestAbsoluteNote
-  var keyChangeDiffSteps = newChordAbsoluteChange - absoluteStepsChanged
-
-  //console.log("changing " + newChordAbsoluteChange + " . " + keyChangeDiffSteps)
+  newLowestNote: number,
+  originalLowestAbsoluteNote: number,
+  absoluteStepsChanged: number,
+  chordPiano: ChordPiano
+): ChordPiano {
+  const newChordAbsoluteChange = newLowestNote - originalLowestAbsoluteNote
+  const keyChangeDiffSteps = newChordAbsoluteChange - absoluteStepsChanged
 
   // if the difference between the absolute note change in the tonic
   // is greater than 6 notes, adjust the chord so that it is closer
@@ -409,15 +447,20 @@ function moveChordTowardTonicIfNeeded(
     if (keyChangeDiffSteps > 0) {
       if (chordPiano.selectedKey.octave > 0) {
         chordPiano.selectedKey.octave--
-        chordPiano.selectedChord.octave--
+
+        if (chordPiano.selectedChord?.octave)
+          chordPiano.selectedChord.octave--
+        
         chordPiano.rendered = false
       }
     } else {
       // ascend for descending chords if possible
       if (chordPiano.selectedKey.octave < 2) {
-        //console.log("go up")
         chordPiano.selectedKey.octave++
-        chordPiano.selectedChord.octave++
+
+        if (chordPiano.selectedChord?.octave)
+          chordPiano.selectedChord.octave++
+
         chordPiano.rendered = false
       }
     }
@@ -426,9 +469,7 @@ function moveChordTowardTonicIfNeeded(
   return chordPiano
 }
 
-function getLowestAbsoluteNoteFromSelectedChord(selectedChord, transposing) {
-  var originalChordNotes = getChordNotes(selectedChord, !transposing)
-
-  //console.log(originalChordNotes)
+function getLowestAbsoluteNoteFromSelectedChord(selectedChord: SelectedChord, transposing: boolean): number {
+  const originalChordNotes = getChordNotes(selectedChord, !transposing)
   return originalChordNotes.notes[0] + originalChordNotes.octave * 12
 }
