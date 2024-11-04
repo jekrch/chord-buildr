@@ -293,7 +293,7 @@ export function selectNote(chordPiano: ChordPiano, octave: number, noteNumber: n
 }
 
 export function noteIsInvalid(pianoControl: NoteKey[][], octave: number, noteNumber: number): boolean {
-  return !pianoControl || !pianoControl[octave]
+  return !pianoControl || !pianoControl[octave] || !noteNumber
 }
 
 export function hasSelectedNotes(pianoControl: NoteKey[][]): boolean {
@@ -354,7 +354,7 @@ export function createChordPiano(i: number, chordCode: string): ChordPiano | und
 
 export function transposePianoBoard(
   pianoId: number,
-  chordPianoSet: ChordPiano[],
+  chordPianoSet: ChordPiano[] | undefined,
   originalChordPiano: ChordPiano,
   newSelectedKey: SelectedKey
 ): void {
@@ -364,8 +364,8 @@ export function transposePianoBoard(
     newSelectedKey
   )
 
-  if (absoluteStepsChanged !== 0) {
-    for (let i = 0; i < chordPianoSet.length; i++) {
+  if (absoluteStepsChanged !== 0 && chordPianoSet?.length) {
+    for (let i = 0; i < chordPianoSet?.length; i++) {
       const chordPiano = chordPianoSet[i]
 
       const originalLowestAbsoluteNote = getLowestAbsoluteNoteFromSelectedChord(

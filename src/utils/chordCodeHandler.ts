@@ -140,31 +140,33 @@ export function getProgressionCode(state: PianoState): string {
 
   var code = ""
 
-  let keyChord = state.chordPianoSet.find(c => c.isProgKey)?.selectedChord;
+  let keyChord = state.chordPianoSet?.find(c => c.isProgKey)?.selectedChord;
 
-  for (let i = 0; i < state.chordPianoSet.length; i++) {
-    var chordPiano = state.chordPianoSet[i]
-    var selectedChord = chordPiano.selectedChord
+  if (state.chordPianoSet?.length) {
+    for (let i = 0; i < state.chordPianoSet.length; i++) {
+      var chordPiano = state.chordPianoSet[i]
+      var selectedChord = chordPiano.selectedChord
 
-    if (!selectedChord) continue
+      if (!selectedChord) continue
 
-    let chordLetter = getScaleAdjustedNoteLetter(keyChord, selectedChord.noteLetter);
+      let chordLetter = getScaleAdjustedNoteLetter(keyChord, selectedChord.noteLetter);
 
-    var chordCode =
-      selectedChord.octave + chordLetter + selectedChord.type
+      var chordCode =
+        selectedChord.octave + chordLetter + selectedChord.type
 
-    if (chordPiano.isProgKey) chordCode += "*"
+      if (chordPiano.isProgKey) chordCode += "*"
 
-    if (isSlashChord(selectedChord)) {
-      selectedChord.slashNote = updateFlatOrSharpLetter(
-        chordPiano.showFlats || false,
-        selectedChord.slashNote as string
-      )
-      selectedChord.slashNote = getScaleAdjustedNoteLetter(keyChord, selectedChord.slashNote);
-      chordCode += ":" + selectedChord.slashNote
+      if (isSlashChord(selectedChord)) {
+        selectedChord.slashNote = updateFlatOrSharpLetter(
+          chordPiano.showFlats || false,
+          selectedChord.slashNote as string
+        )
+        selectedChord.slashNote = getScaleAdjustedNoteLetter(keyChord, selectedChord.slashNote);
+        chordCode += ":" + selectedChord.slashNote
+      }
+
+      code += `(${chordCode})`
     }
-
-    code += `(${chordCode})`
   }
 
   return synthCode + "&p=" + code
@@ -376,6 +378,7 @@ function loadProgressionCode(state: PianoState, progressionCode: string): void {
   
   if (progressionCode === state.currentProgCode)
     return;
+
 
   if (state.building) {
     state.currentProgCode = progressionCode;

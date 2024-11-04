@@ -23,7 +23,7 @@ export interface PianoState {
   previousProgCodes: string[];
   currentProgCode: string | null;
   building: boolean;
-  chordPianoSet: ChordPiano[];
+  chordPianoSet?: ChordPiano[];
   synth: string;
   volume: number;
   changed?: number;
@@ -39,6 +39,7 @@ type PianoAction =
   | { type: "UPDATE_SHOW_FLATS"; id?: number; showFlats: boolean }
   | { type: "ADD_CHORD_PIANO"; payload: any }
   | { type: "REMOVE_PIANO"; id: number }
+  | { type: "REFRESH_PIANO"; id: number, payload: ChordPiano }
   | { type: "SET_PROG_KEY"; id: number; keyChecked: boolean }
   | { type: "BUILD_PROG_FROM_CODE"; payload: string | null }
   | { type: "LOAD_PREVIOUS_PROG_CODE" };
@@ -55,8 +56,8 @@ const initialState: PianoState = {
   history: null,
   previousProgCodes: [],
   currentProgCode: null,
-  building: true,
-  chordPianoSet: [getChordPiano(0)],
+  building: false,
+  chordPianoSet: undefined,
   synth: "p",
   volume: 90
 };
@@ -76,17 +77,17 @@ function getChordPiano(pianoId: number): ChordPiano {
 }
 
 export function getPianoById(state: PianoState, pianoId: number): ChordPiano | null {
-  return state.chordPianoSet.find((chordPiano) => chordPiano.id === pianoId) || null;
+  return state.chordPianoSet?.find((chordPiano) => chordPiano.id === pianoId) || null;
 }
 
 export function clearProgKey(state: PianoState): void {
-  state.chordPianoSet.forEach((chordPiano) => {
+  state.chordPianoSet?.forEach((chordPiano) => {
     chordPiano.isProgKey = false;
   });
 }
 
 export function getProgKey(state: PianoState): SelectedChord | undefined {
-  const progKeyPiano = state.chordPianoSet.find((chordPiano) => chordPiano.isProgKey);
+  const progKeyPiano = state.chordPianoSet?.find((chordPiano) => chordPiano.isProgKey);
   return progKeyPiano?.selectedChord;
 }
 
@@ -99,7 +100,7 @@ export function setProgKey(state: PianoState, pianoId: number): void {
 }
 
 function getNextId(state: PianoState): number {
-  const maxId = Math.max(...state.chordPianoSet.map((chordPiano) => chordPiano.id));
+  const maxId = Math.max(...state.chordPianoSet?.map((chordPiano) => chordPiano.id) ?? [0]);
   return maxId === -Infinity ? 0 : maxId + 1;
 }
 
@@ -114,7 +115,7 @@ const pianoReducer = (state: PianoState, action: PianoAction): PianoState => {
 
   switch (action.type) {
     case "UPDATE_PIANO": {
-      const updatedSet = state.chordPianoSet.map((chordPiano) =>
+      const updatedSet = state.chordPianoSet?.map((chordPiano) =>
         chordPiano.id === pianoId
           ? { ...chordPiano, piano: action.payload }
           : chordPiano
@@ -174,6 +175,14 @@ const pianoReducer = (state: PianoState, action: PianoAction): PianoState => {
         ...state,
         synth: action.synth
       };
+      
+    case "REFRESH_PIANO":
+      return {
+        ...state,
+        chordPianoSet: state.chordPianoSet?.map(piano => 
+          piano.id === action?.id ? { ...piano, ...action.payload } : piano
+        )
+      }
 
     case "UPDATE_SYNTH_VOLUME":
       return {
@@ -230,7 +239,7 @@ const pianoReducer = (state: PianoState, action: PianoAction): PianoState => {
     case "ADD_CHORD_PIANO": {
       if (action.payload !== null) {
         const nextChordPianoId = getNextId(state);
-        state.chordPianoSet = [...state.chordPianoSet, getChordPiano(nextChordPianoId)];
+        state.chordPianoSet = [...state.chordPianoSet ?? [], getChordPiano(nextChordPianoId)];
         
         updateUrlProgressionCode(state);
         
@@ -242,7 +251,7 @@ const pianoReducer = (state: PianoState, action: PianoAction): PianoState => {
     }
 
     case "REMOVE_PIANO": {
-      const updatedSet = state.chordPianoSet.filter((item) => item.id !== action.id);
+      const updatedSet = state.chordPianoSet?.filter((item) => item.id !== action.id);
       updateUrlProgressionCode(state);
       
       return {
@@ -268,7 +277,7 @@ const pianoReducer = (state: PianoState, action: PianoAction): PianoState => {
     case "BUILD_PROG_FROM_CODE": {
       if (action.payload !== null) {
         return {
-          ...state,      
+          //...state,      
           ...buildProgFromCode(state, action.payload),
           building: false
         };

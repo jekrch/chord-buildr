@@ -147,7 +147,7 @@ export const HeaderComponent = () => {
   }
 
   const renderProgression = () => {
-    return state.chordPianoSet.map((piano, i) => {
+    return state.chordPianoSet?.map((piano, i) => {
       return (
         <div key={"ci-" + piano.id}>
           <Link
