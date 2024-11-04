@@ -9,7 +9,7 @@ Chord Buildr is implemented in React and uses Tone.js for audio playback.
 <p float="left">
   <img height="300" src="https://user-images.githubusercontent.com/8173930/222991277-aff07c7d-4208-4609-b117-def1e096e328.png" alt="Chord Buildr Desktop View"/>
   &nbsp;&nbsp;&nbsp;
-  <img height="300" src="https://raw.githubusercontent.com/jekrch/chord-buildr/main/src/public/images/mobile%20ui.PNG" alt="Chord Buildr Mobile View"/>
+  <img height="300" src="https://github.com/user-attachments/assets/8bd80a63-2cdd-4fd7-8bd7-ea84425a3e92" alt="Chord Buildr Mobile View"/>
 </p>
 
 ## Features
