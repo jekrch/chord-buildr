@@ -27,20 +27,6 @@ export const PianoBoardComponent = () => {
     handleInitialLoad()
   }, [history.location.search, history.location.hash, isInitialized, dispatch])
 
-  // Handle URL changes and chord building
-  useEffect(() => {
-    const currentCode = getProgressionCode(state)
-    const newParams = history.location.search + history.location.hash
-
-    if (!state.building && currentCode !== newParams) {
-      dispatch({
-        type: "BUILD_PROG_FROM_CODE",
-        payload: newParams
-      })
-      setRefresh(prev => prev + 1)
-    }
-  }, [history.location.search, history.location.hash, state.building, dispatch])
-
   // Update URL when state changes
   useEffect(() => {
     if (!state.chordPianoSet) {

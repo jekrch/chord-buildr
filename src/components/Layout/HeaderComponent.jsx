@@ -59,7 +59,6 @@ export const HeaderComponent = () => {
   }
 
   useEffect(() => {
-
     if (!state.chordPianoSet || state.chordPianoSet.length < 1) return
 
     if (newChordAdded) {

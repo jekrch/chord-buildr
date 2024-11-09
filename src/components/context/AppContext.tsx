@@ -185,6 +185,7 @@ const pianoReducer = (state: PianoState, action: PianoAction): PianoState => {
       }
 
     case "UPDATE_SYNTH_VOLUME":
+
       return {
         ...state,
         volume: action.volume

@@ -1,4 +1,4 @@
-import { React, useContext, useRef, useEffect } from "react"
+import { React, useContext, useRef, useEffect, useState } from "react"
 import Form from "react-bootstrap/Form"
 import { useAppContext } from "../context/AppContext"
 import Modal from "react-bootstrap/Modal"
@@ -7,20 +7,18 @@ import { faPlayCircle } from "@fortawesome/free-solid-svg-icons"
 import { playPiano } from "../../utils/synthPlayer"
 import { synthTypes } from "../../utils/synthLibrary"
 
-import "../../styles/Layout.css"
-
 export function ConfigModal(props) {
   const { state, dispatch } = useAppContext()
-
   const settingRef = useRef({})
-
+  
   settingRef.current.synthType = state.synth
   settingRef.current.volume = state.volume
 
-  // processes new synth selection
+  // Temporary state for the volume while dragging
+  const [localVolume, setLocalVolume] = useState(state.volume);
+
   const handleSynthSelectChange = (e) => {
     settingRef.current.synthType = e.target.value
-
     dispatch({
       type: "UPDATE_SYNTH",
       id: null,
@@ -28,27 +26,34 @@ export function ConfigModal(props) {
     })
   }
 
-  // processes new synth selection
-  const handleVolumeChange = (e) => {
-    settingRef.current.volume = e.target.value
+  // Handle the volume slider being dragged
+  const handleVolumeDrag = (e) => {
+    setLocalVolume(e.target.value);
+  }
 
-    //console.log(settingRef.current.volume)
+  // Only update the actual volume when the slider is released
+  const handleVolumeChangeComplete = (e) => {
+    if (settingRef.current.volume === e.target.value) {
+      return;
+    }
+    state.building = true;
+    settingRef.current.volume = e.target.value;
+    
     dispatch({
       type: "UPDATE_SYNTH_VOLUME",
       id: null,
       volume: settingRef.current.volume
     })
+
+    state.building = false;
   }
 
   const onPlayClick = () => {
     var pianoSet = state.chordPianoSet
-
-    // if there's no current piano to play create one
     if (pianoSet == null || pianoSet.length == 0) {
       addChord()
       return
     }
-
     playPiano(dispatch, state, pianoSet[0].id)
   }
 
@@ -80,24 +85,24 @@ export function ConfigModal(props) {
               as="select"
               value={settingRef.current.synthType}
               custom
-              onChange={(e) => handleSynthSelectChange(e)}
+              onChange={handleSynthSelectChange}
             >
-              {Object.entries(synthTypes).map(([key, value]) => {
-                return (
-                  <option key={"k-" + key} value={key}>
-                    {value}
-                  </option>
-                )
-              })}
+              {Object.entries(synthTypes).map(([key, value]) => (
+                <option key={"k-" + key} value={key}>
+                  {value}
+                </option>
+              ))}
             </Form.Control>
             <br />
-            <br />{" "}
+            <br />
             <Form>
               <Form.Group controlId="formBasicRange">
                 <Form.Control
                   type="range"
-                  value={settingRef.current.volume}
-                  onChange={(e) => handleVolumeChange(e)}
+                  value={localVolume}
+                  onChange={handleVolumeDrag}
+                  onMouseUp={handleVolumeChangeComplete}
+                  onTouchEnd={handleVolumeChangeComplete}
                 />
               </Form.Group>
             </Form>
@@ -107,7 +112,7 @@ export function ConfigModal(props) {
             <FontAwesomeIcon
               class="chordPlayIcon"
               icon={faPlayCircle}
-              onClick={() => onPlayClick()}
+              onClick={onPlayClick}
             />
           </div>
         </p>
