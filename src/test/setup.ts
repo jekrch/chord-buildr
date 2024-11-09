@@ -1,5 +1,4 @@
 import { beforeAll, vi } from 'vitest'
-import * as Tone from 'tone'
 
 beforeAll(() => {
   vi.mock('tone', () => ({
