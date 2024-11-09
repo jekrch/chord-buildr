@@ -325,7 +325,7 @@ and (orientation : portrait) {
 	
 	.pianoCloseButtonMobile {
 		visibility: visible !important;	
-		text-shadow: 0 1px 0 rgb(133, 133, 133);
+		/* text-shadow: 0 1px 0 rgb(133, 133, 133); */
 		margin-right: 0em !important;
 		top: 0em;
 		right: 0.5em;
@@ -335,7 +335,7 @@ and (orientation : portrait) {
 		height: 2.2em;
 		opacity: 1.0 !important;
 		z-index: 99999 !important;
-		color: rgb(133, 133, 133) !important;
+		color: grey !important;
 		background: rgb(80, 79, 79) !important;
 		padding-bottom: 0.5em !important;		
 		padding-right: 0.0em !important;
@@ -343,20 +343,20 @@ and (orientation : portrait) {
 		border-radius: 0.3em;
 		outline: none !important;
 		box-shadow: 
-		-1px -1px 2px  var(--main-compononent-gray) inset,
-		0 -5px 2px 3px rgba(46, 45, 45, 0.6) inset, 
-		3px 6px 3px rgba(16, 19, 26, 0.404);
+			-1px -1px 2px  var(--main-compononent-gray) inset,
+			0 -3px 2px 3px rgba(46, 45, 45, 0.6) inset, 
+			3px 6px 3px rgba(16, 19, 26, 0.404);
 
 	}
 
 	.mobileClosedBtnText {
-		color: rgb(194, 138, 149) !important;
+		/* color: rgb(133, 133, 133) !important; */
 		font-size: 1em;
 		font-weight: 350 !important;
 	}
 
 	.pianoCloseButtonMobile:active {
-		color: rgb(139, 86, 97) !important;
+		/* color: rgb(133, 133, 133) !important; */
 		background: linear-gradient(45deg, #222 0%, rgb(75, 78, 82) 100%) !important;
 		box-shadow: -1px -1px 2px rgba(255, 255, 255, 0.2) inset,
 			0 -5px 2px 3px rgba(46, 45, 45, 0.6) inset, 

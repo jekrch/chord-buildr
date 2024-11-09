@@ -148,7 +148,7 @@
 	
 	position:relative;
 	display: inline-block;
-	padding-left: 2em;
+	padding-left:2em;
 	width: 100%;
 	padding-top: 8em;
 	margin-top: 0em;
@@ -217,8 +217,8 @@ body.modal-open {
 
 .modal-header {
 	border-bottom-color: rgb(142, 140, 140) !important;
-	
 }
+
 .modalLine {
 	border-top: 1px solid #969a9e;
 	margin: 2em -1em;
@@ -308,6 +308,8 @@ body.modal-open {
 }
 
 .buttonContainer {
+	
+	
 	justify-content: center !important;
 	text-align: center;
 	margin-top: 0em;
@@ -346,17 +348,21 @@ body.modal-open {
 	vertical-align: middle;
 	position:absolute;
 	right: 2em;
-	margin-top: 0.3em;
+	margin-top: 0.1em;
 	margin-left: 1.5em;
 	font-size: 1.1em;
 	font-weight: 400;
 	color: rgb(255, 255, 255);
 	text-shadow: 0 1px 0 #ccc,
 	0 2px 0 #061929,
-	0 3px 0 rgb(40, 124, 78);
-	/* text-shadow: 0 1px 0 #38689c,
-	0 2px 0 #38b9cf,
-	0 3px 0 #043870; */
+	0 3px 0 rgb(62, 125, 184);
+}
+
+.titleText:hover {
+	color: rgb(238, 238, 238);
+	text-shadow: 0 1px 0 #ccc,
+	0 2px 0 #061929,
+	0 4px 0 rgb(62, 125, 184);
 }
 
 .chordListItem{
