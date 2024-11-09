@@ -1,3 +1,5 @@
+[![Run Tests](https://github.com/jekrch/chord-buildr/actions/workflows/test_on_push.yml/badge.svg)](https://github.com/jekrch/chord-buildr/actions/workflows/test_on_push.yml)
+
 # Chord Buildr :musical_keyboard:
 
 [www.chordbuildr.com](https://www.chordbuildr.com)
