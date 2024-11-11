@@ -26,6 +26,7 @@
 }
 
 .aboutDescriptionText {
+	font-size: 14px;
 	margin-top: -.1em;
 	margin-bottom: -1em;
 	/* margin-left: 0.2em; */
@@ -141,6 +142,7 @@
 }
 
 .aboutFeatureText {
+	font-size: 14px;
 	margin-left: 2.2em;
 }
 
@@ -379,7 +381,6 @@ body.modal-open {
 	background-color: transparent;
 	z-index: 9999;
 }
-
 
 .chordListItem:hover {
 	cursor: pointer;
