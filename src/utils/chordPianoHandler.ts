@@ -100,7 +100,7 @@ export function getChordNotes(selectedChord: SelectedChord, userSelection: boole
   const chordRootNoteNumber = getNoteNumber(noteLetter)
   const slashNoteNumber = getNoteNumber(slashNote)
 
-  const chordNoteNumbers = getNoteNumberChord(chordRootNoteNumber, type)
+  const chordNoteNumbers = getNoteNumberChord(chordRootNoteNumber, type!)
 
   return getOctaveAdjustedChordNumbersWithFirstNote(
     finalOctave,

@@ -1,9 +1,8 @@
 import React, { useEffect, useRef } from "react"
 import "../styles/Piano.css"
 import { Key } from "./Key"
-import { useAppContext, getPianoById, getProgKey } from "./context/AppContext"
+import { useAppContext, getPianoById, getProgKeyChord } from "./context/AppContext"
 import { getNoteLetter } from "../utils/noteManager"
-import { getScaleAdjustedNoteLetter } from "../utils/chordManager"
 import { getChordNumeral } from "../utils/numeralHelper"
 import { playPiano } from "../utils/synthPlayer"
 import PropTypes from "prop-types"
@@ -68,7 +67,7 @@ export const PianoComponent = ({ pianoComponentId, forceUpdate }) => {
 
   const getNumeralChord = () => {
     const piano = getPianoById(state, pianoId)
-    const key = getProgKey(state)
+    const key = getProgKeyChord(state)
     return getChordNumeral(key, piano.selectedChord)
   }
 

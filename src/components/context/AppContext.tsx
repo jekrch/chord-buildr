@@ -86,7 +86,7 @@ export function clearProgKey(state: PianoState): void {
   });
 }
 
-export function getProgKey(state: PianoState): SelectedChord | undefined {
+export function getProgKeyChord(state: PianoState): SelectedChord | undefined {
   const progKeyPiano = state.chordPianoSet?.find((chordPiano) => chordPiano.isProgKey);
   return progKeyPiano?.selectedChord;
 }
@@ -105,7 +105,7 @@ function getNextId(state: PianoState): number {
 }
 
 function getKeyRelativeLetter(state: PianoState, letter: string): string {
-  const key = getProgKey(state);
+  const key = getProgKeyChord(state);
   return key ? getScaleAdjustedNoteLetter(key, letter) : letter;
 }
 

@@ -140,7 +140,7 @@ export function getProgressionCode(state: PianoState): string {
 
   var code = ""
 
-  let keyChord = state.chordPianoSet?.find(c => c.isProgKey)?.selectedChord;
+  let keyChord = state.chordPianoSet?.find(c => c.isProgKey)?.selectedChord!;
 
   if (state.chordPianoSet?.length) {
     for (let i = 0; i < state.chordPianoSet.length; i++) {
@@ -149,7 +149,7 @@ export function getProgressionCode(state: PianoState): string {
 
       if (!selectedChord) continue
 
-      let chordLetter = getScaleAdjustedNoteLetter(keyChord, selectedChord.noteLetter);
+      let chordLetter = getScaleAdjustedNoteLetter(keyChord, selectedChord.noteLetter!);
 
       var chordCode =
         selectedChord.octave + chordLetter + selectedChord.type

@@ -15,7 +15,7 @@ import {
   // @ts-ignore
 } from '../utils/chordManager'
 import { selectChordKeys, hasSelectedNotes, ChordPiano, SelectedChord } from '../utils/chordPianoHandler'
-import { useAppContext, getPianoById, getProgKey } from './context/AppContext'
+import { useAppContext, getPianoById, getProgKeyChord } from './context/AppContext'
 import { updateFlatOrSharpLetter } from '../utils/chordCodeHandler'
 
 
@@ -80,23 +80,23 @@ export const ChordInput: React.FC<ChordInputProps> = ({ pianoComponentId }: Chor
       notes = Object.values(noteLetterMapWithFlats)
     } 
 
-    const key = getProgKey(state)
+    const chord: SelectedChord | undefined = getProgKeyChord(state)
 
-    if (key) {
-      notes = notes.map(n => getScaleAdjustedNoteLetter(key, n) as string)
+    if (chord) {
+      notes = notes.map(n => getScaleAdjustedNoteLetter(chord, n) as string)
     }
 
     if (
-      !key ||
-      !noteIsInScale(key, noteLetter) ||
-      !noteIsInScale(key, slashNote)
+      !chord ||
+      !noteIsInScale(chord, noteLetter!) ||
+      !noteIsInScale(chord, slashNote!)
     ) {
       return notes.map(n => {
-        if (equalChroma(n, noteLetter)) {
+        if (equalChroma(n, noteLetter!)) {
           return noteLetter ?? ""
         }
         
-        if (equalChroma(n, slashNote)) {
+        if (equalChroma(n, slashNote!)) {
           return slashNote ?? ""
         }
         
@@ -108,8 +108,8 @@ export const ChordInput: React.FC<ChordInputProps> = ({ pianoComponentId }: Chor
   }
 
   function getKeyRelativeLetter(noteLetter: string): string {
-    const key = getProgKey(state)
-    return getScaleAdjustedNoteLetter(key, noteLetter)
+    const chord: SelectedChord | undefined = getProgKeyChord(state)
+    return getScaleAdjustedNoteLetter(chord!, noteLetter)
   }
 
   useEffect(() => {
@@ -290,7 +290,7 @@ export const ChordInput: React.FC<ChordInputProps> = ({ pianoComponentId }: Chor
    * updates chordPiano's note letter to align with provided key if needed
    */
   function alignChordLetterWithKey(key: SelectedChord, chordPiano: ChordPiano): void {
-    const chordLetter = chordPiano.selectedChord.noteLetter
+    const chordLetter = chordPiano.selectedChord.noteLetter!
   
     if (noteIsInScale(key, chordLetter)) {
       const newLetter = getScaleAdjustedNoteLetter(key, chordLetter)
