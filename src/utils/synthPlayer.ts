@@ -40,7 +40,7 @@ export function playPiano(dispatch: React.Dispatch<any>, state: AppState, pianoI
     selectedNotes,
     "1.1",
     isMobile ? "+0.15" : "+0.03", // allow more latency on mobile
-    "0.7"
+    0.7
   )
 
   if (!isMobile) {
