@@ -148,8 +148,9 @@ export function getSynth(state: SynthState): SynthReturn {
   }
 
   if (isMobile) {
-    Tone.context.latencyHint = "balanced";
-    //synth.set({ latencyHint: "balanced" });
+    //Tone.context.latencyHint = "balanced";
+    // @ts-ignore
+    synth.set({ latencyHint: "balanced" });
   }
 
   return { synth, baseDecibel };
