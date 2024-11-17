@@ -1,16 +1,17 @@
 import React, { useEffect, useState, useLayoutEffect } from "react"
+import { useHistory } from "react-router-dom"
 import { useAppContext } from "../components/context/AppContext"
 import { getProgressionCode } from "../utils/chordCodeHandler"
+// @ts-ignores
 import { ChordPianoComponent } from "../components/ChordPianoComponent"
-import { useHistory } from "react-router-dom"
 
-export const PianoBoardComponent = () => {
-  const { state, dispatch } = useAppContext()
+export const PianoBoardComponent: React.FC = () => {
+  const { state, dispatch } = useAppContext();
   const history = useHistory()
-  const [isInitialized, setIsInitialized] = useState(false)
-  const [refresh, setRefresh] = useState(0)
+  const [isInitialized, setIsInitialized] = useState<boolean>(false)
+  const [refresh, setRefresh] = useState<number>(0)
 
-  // Handle initial load and URL changes
+  // handle initial load and URL changes
   useLayoutEffect(() => {
     const handleInitialLoad = () => {
       const newParams = history.location.search + history.location.hash
@@ -27,7 +28,18 @@ export const PianoBoardComponent = () => {
     handleInitialLoad()
   }, [history.location.search, history.location.hash, isInitialized, dispatch])
 
-  // Update URL when state changes
+  // used to force a rerender from other components 
+  useLayoutEffect(() => {
+    const handleRefresh = () => {
+      if (state.refreshBoard && state.refreshBoard !== refresh) {
+        setRefresh(state.refreshBoard)
+      }
+    }
+
+    handleRefresh()
+  }, [state.refreshBoard, refresh])
+
+  // update URL when state changes
   useEffect(() => {
     if (!state.chordPianoSet) {
       return
@@ -43,7 +55,7 @@ export const PianoBoardComponent = () => {
     }
   }, [state, history])
 
-  const renderChordPianoSet = () => {
+  const renderChordPianoSet = (): React.ReactNode => {
     return state.chordPianoSet?.map((chordPiano) => (
       <div key={`wrapper-${chordPiano.id}-${refresh}`}>
         <ChordPianoComponent

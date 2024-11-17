@@ -1,23 +1,27 @@
 import * as Tone from "tone"
+// @ts-ignores
 import { getSynth } from "./synthLibrary"
-import { getPianoById } from "../components/context/AppContext"
+import { AppState, getPianoById } from "../components/context/AppContext"
 import { isMobile } from "react-device-detect"
+import { ChordPiano, NoteKey } from "./chordPianoHandler"
 
-var baseDecibel = 2
+let baseDecibel = 2
 
-export function playPiano(dispatch, state, pianoId) {
-  var pianoComponent = getPianoById(state, pianoId)
+export function playPiano(dispatch: React.Dispatch<any>, state: AppState, pianoId: number): void {
+  const pianoComponent = getPianoById(state, pianoId)
 
-  var synthResult = getSynth(state)
-  var synth = synthResult.synth
+  if (!pianoComponent) return;
+
+  const synthResult = getSynth(state)
+  const synth = synthResult.synth
   baseDecibel = synthResult.baseDecibel
 
   if (Tone.context.state !== 'running') {
-    Tone.context.resume();
+    Tone.context.resume()
   }
 
   synth.toDestination()
-  var selectedNotes = getSelectedNotes(pianoComponent.piano)
+  const selectedNotes = getSelectedNotes(pianoComponent.piano!)
 
   if (!isMobile) {
     dispatch({
@@ -29,7 +33,7 @@ export function playPiano(dispatch, state, pianoId) {
 
   synth.releaseAll()
 
-  synth.volume.value = getDecibel(state.volume, pianoComponent.piano)
+  synth.volume.value = getDecibel(state.volume, pianoComponent.piano!)
   //console.log("vol: " + synth.volume.value)
 
   synth.triggerAttackRelease(
@@ -42,19 +46,18 @@ export function playPiano(dispatch, state, pianoId) {
   if (!isMobile) {
     clearPianoKeyPlaying(dispatch, pianoComponent)
   }
-
 }
 
-function getSelectedNotes(piano) {
-  var selectedNotes = []
+function getSelectedNotes(piano: NoteKey[][]): string[] {
+  const selectedNotes: string[] = []
 
   for (let octaveIndex = 0; octaveIndex < piano.length; octaveIndex++) {
-    var pianoOctave = piano[octaveIndex]
+    const pianoOctave = piano[octaveIndex]
 
     for (let j = 0; j < pianoOctave.length; j++) {
-      var noteKey = pianoOctave[j]
+      const noteKey = pianoOctave[j]
       if (noteKey.selected) {
-        var note = `${noteKey.note.toUpperCase()}${octaveIndex + 3}`
+        const note = `${noteKey.note.toUpperCase()}${octaveIndex + 3}`
         selectedNotes.push(note)
 
         if (!isMobile) {
@@ -71,36 +74,37 @@ function getSelectedNotes(piano) {
 /***
  * The decibel should be inversely proportional to the highest note
  */
-function getDecibel(userVolume, piano) {
-  var userVolumeModifier = getUserVolumeModifier(userVolume)
-
-  var selectedNoteNumbers = []
+function getDecibel(userVolume: number, piano: NoteKey[][]): number {
+  const userVolumeModifier = getUserVolumeModifier(userVolume)
+  const selectedNoteNumbers: number[] = []
 
   for (let octaveIndex = 0; octaveIndex < piano.length; octaveIndex++) {
-    var pianoOctave = piano[octaveIndex]
+    const pianoOctave = piano[octaveIndex]
 
     for (let j = 0; j < pianoOctave.length; j++) {
-      var noteKey = pianoOctave[j]
+      const noteKey = pianoOctave[j]
 
       if (noteKey.selected) {
-        var absoluteNoteNumber = noteKey.noteNumber + noteKey.octave * 12
+        const absoluteNoteNumber = noteKey.noteNumber + noteKey.octave * 12
         selectedNoteNumbers.push(absoluteNoteNumber)
       }
     }
   }
-  var highestNoteNumber = Math.max.apply(Math, selectedNoteNumbers)
+  const highestNoteNumber = Math.max(...selectedNoteNumbers)
 
   return baseDecibel - highestNoteNumber / 2.5 + userVolumeModifier
 }
 
-function clearPianoKeyPlaying(dispatch, pianoComponent) {
-  setTimeout(function () {
-    var piano = pianoComponent.piano
+function clearPianoKeyPlaying(dispatch: React.Dispatch<any>, pianoComponent: ChordPiano): void {
+  setTimeout(() => {
+    const piano = pianoComponent.piano
+    if (!piano) return;
+    
     for (let i = 0; i < piano.length; i++) {
-      var pianoOctave = piano[i]
+      const pianoOctave = piano[i]
 
       for (let z = 0; z < pianoOctave.length; z++) {
-        var key = pianoOctave[z]
+        const key = pianoOctave[z]
         if (key.isPlaying) {
           key.isPlaying = false
           key.isStopping = true
@@ -120,26 +124,22 @@ function clearPianoKeyPlaying(dispatch, pianoComponent) {
  * Take the userVolume range (0-100) and convert it
  * to a modifier ranging between -20 to 4 with 90 as
  * the 0 point
- * @param {*} userVolume
- * @returns
  */
-function getUserVolumeModifier(userVolume) {
+function getUserVolumeModifier(userVolume: number | null): number {
   // use 0 if null is passed
   if (userVolume == null) {
     userVolume = 0
   }
-  var modifier = 0
+  let modifier = 0
 
   // if the user vol is 90, the modifier should be 0
   // otherwise approach 4
   if (userVolume >= 90) {
-    var volIncrease = userVolume - 90
-
+    const volIncrease = userVolume - 90
     modifier = modifier + volIncrease * 0.4
   } else {
     // below 90 the modifier should approach -20
-    var volDecrease = 90 - userVolume
-
+    const volDecrease = 90 - userVolume
     modifier = 0 - 20 * (volDecrease / 90)
   }
 

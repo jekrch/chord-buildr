@@ -18,7 +18,7 @@ import {
 import React, { useReducer, createContext, useEffect, ReactNode } from "react";
 
 
-export interface PianoState {
+export interface AppState {
   history: any | null;
   previousProgCodes: string[];
   currentProgCode: string | null;
@@ -27,6 +27,7 @@ export interface PianoState {
   synth: string;
   volume: number;
   changed?: number;
+  refreshBoard?: number;
 }
 
 type PianoAction =
@@ -39,20 +40,21 @@ type PianoAction =
   | { type: "UPDATE_SHOW_FLATS"; id?: number; showFlats: boolean }
   | { type: "ADD_CHORD_PIANO"; payload: any }
   | { type: "REMOVE_PIANO"; id: number }
+  | { type: "REFRESH_BOARD"; }
   | { type: "REFRESH_PIANO"; id: number, payload: ChordPiano }
   | { type: "SET_PROG_KEY"; id: number; keyChecked: boolean }
   | { type: "BUILD_PROG_FROM_CODE"; payload: string | null }
   | { type: "LOAD_PREVIOUS_PROG_CODE" };
 
 interface PianoContextType {
-  state: PianoState;
+  state: AppState;
   dispatch: React.Dispatch<PianoAction>;
 }
 
 // Constants
 export const STATE_NAME = "PIANO_STATE";
 
-const initialState: PianoState = {
+const initialState: AppState = {
   history: null,
   previousProgCodes: [],
   currentProgCode: null,
@@ -76,22 +78,22 @@ function getChordPiano(pianoId: number): ChordPiano {
   };
 }
 
-export function getPianoById(state: PianoState, pianoId: number): ChordPiano | null {
+export function getPianoById(state: AppState, pianoId: number): ChordPiano | null {
   return state.chordPianoSet?.find((chordPiano) => chordPiano.id === pianoId) || null;
 }
 
-export function clearProgKey(state: PianoState): void {
+export function clearProgKey(state: AppState): void {
   state.chordPianoSet?.forEach((chordPiano) => {
     chordPiano.isProgKey = false;
   });
 }
 
-export function getProgKeyChord(state: PianoState): SelectedChord | undefined {
+export function getProgKeyChord(state: AppState): SelectedChord | undefined {
   const progKeyPiano = state.chordPianoSet?.find((chordPiano) => chordPiano.isProgKey);
   return progKeyPiano?.selectedChord;
 }
 
-export function setProgKey(state: PianoState, pianoId: number): void {
+export function setProgKey(state: AppState, pianoId: number): void {
   clearProgKey(state);
   const chordPiano = getPianoById(state, pianoId);
   if (chordPiano) {
@@ -99,21 +101,29 @@ export function setProgKey(state: PianoState, pianoId: number): void {
   }
 }
 
-function getNextId(state: PianoState): number {
+function getNextId(state: AppState): number {
   const maxId = Math.max(...state.chordPianoSet?.map((chordPiano) => chordPiano.id) ?? [0]);
   return maxId === -Infinity ? 0 : maxId + 1;
 }
 
-function getKeyRelativeLetter(state: PianoState, letter: string): string {
+function getKeyRelativeLetter(state: AppState, letter: string): string {
   const key = getProgKeyChord(state);
   return key ? getScaleAdjustedNoteLetter(key, letter) : letter;
 }
 
 // Reducer
-const pianoReducer = (state: PianoState, action: PianoAction): PianoState => {
+const pianoReducer = (state: AppState, action: PianoAction): AppState => {
   const pianoId = 'id' in action ? action.id : 0;
 
   switch (action.type) {
+
+    case "REFRESH_BOARD": {
+      return {
+        ...state,
+        refreshBoard: Math.random()
+      };
+    }
+
     case "UPDATE_PIANO": {
       const updatedSet = state.chordPianoSet?.map((chordPiano) =>
         chordPiano.id === pianoId
@@ -325,7 +335,7 @@ interface AppProviderProps {
 }
 
 // Get persisted state from session storage
-const getPersistedState = (): PianoState => {
+const getPersistedState = (): AppState => {
   const persistedStateString = sessionStorage.getItem(STATE_NAME);
   if (!persistedStateString) return initialState;
   

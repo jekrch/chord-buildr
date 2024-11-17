@@ -1,13 +1,29 @@
-import React, { useEffect, useRef } from "react"
-import "../styles/Piano.css"
-import { Key } from "./Key"
-import { useAppContext, getPianoById, getProgKeyChord } from "./context/AppContext"
-import { getNoteLetter } from "../utils/noteManager"
-import { getChordNumeral } from "../utils/numeralHelper"
-import { playPiano } from "../utils/synthPlayer"
-import PropTypes from "prop-types"
+import React, { useEffect, useRef } from 'react'
+import { useHistory } from 'react-router-dom'
+import '../styles/Piano.css'
+// @ts-ignore
+import { Key } from './Key'
+import { useAppContext, getPianoById, getProgKeyChord } from './context/AppContext'
+// @ts-ignore
+import { getNoteLetter } from '../utils/noteManager'
+// @ts-ignore
+import { getChordNumeral } from '../utils/numeralHelper'
+import { playPiano } from '../utils/synthPlayer'
+// @ts-ignore
+import { getProgressionCode } from "../utils/chordCodeHandler"
+import { NoteKey } from '../utils/chordPianoHandler'
+// @ts-ignores
+import { ChordPianoComponent } from "../components/ChordPianoComponent"
 
-export const PianoComponent = ({ pianoComponentId, forceUpdate }) => {
+interface PianoComponentProps {
+  pianoComponentId: number
+  forceUpdate?: number
+}
+
+export const PianoComponent: React.FC<PianoComponentProps> = ({ 
+  pianoComponentId, 
+  forceUpdate 
+}) => {
   const { state, dispatch } = useAppContext()
   const pianoId = pianoComponentId
   const mountedRef = useRef(false)
@@ -15,11 +31,11 @@ export const PianoComponent = ({ pianoComponentId, forceUpdate }) => {
   useEffect(() => {
     if (!mountedRef.current) {
       mountedRef.current = true
-      // Force a re-render of the piano keys on mount
+      // force a re-render of the piano keys on mount
       const piano = getPianoById(state, pianoId)
       if (piano) {
         dispatch({
-          type: "REFRESH_PIANO",
+          type: 'REFRESH_PIANO',
           id: pianoId,
           payload: piano
         })
@@ -27,13 +43,12 @@ export const PianoComponent = ({ pianoComponentId, forceUpdate }) => {
     }
   }, [pianoId, state, dispatch])
 
-  // Force update when parent signals
   useEffect(() => {
     if (forceUpdate) {
       const piano = getPianoById(state, pianoId)
       if (piano) {
         dispatch({
-          type: "REFRESH_PIANO",
+          type: 'REFRESH_PIANO',
           id: pianoId,
           payload: piano
         })
@@ -41,44 +56,44 @@ export const PianoComponent = ({ pianoComponentId, forceUpdate }) => {
     }
   }, [forceUpdate, pianoId, state, dispatch])
 
-  const handleClick = (note, noteNumber, octave) => {
-    const noteLetter = getNoteLetter("C", noteNumber)
+  const handleClick = (noteNumber: number, octave: number): void => {
+    const noteLetter = getNoteLetter('C', noteNumber)
     const selectedKey = {
       noteLetter,
       octave
     }
     dispatch({
-      type: "UPDATE_KEY",
+      type: 'UPDATE_KEY',
       id: pianoId,
       payload: selectedKey
     })
   }
 
-  const handleClickRemovePiano = () => {
+  const handleClickRemovePiano = (): void => {
     dispatch({
-      type: "REMOVE_PIANO",
+      type: 'REMOVE_PIANO',
       id: pianoId
     })
   }
 
-  const handlePlayClick = () => {
+  const handlePlayClick = (): void => {
     playPiano(dispatch, state, pianoId)
   }
 
-  const getNumeralChord = () => {
+  const getNumeralChord = (): string => {
     const piano = getPianoById(state, pianoId)
     const key = getProgKeyChord(state)
-    return getChordNumeral(key, piano.selectedChord)
+    return getChordNumeral(key, piano?.selectedChord || '')
   }
 
   const renderPiano = () => {
     const piano = getPianoById(state, pianoId)?.piano || []
     return piano.map((octave, i) => 
-      octave.map((pianoKey) => ({
+      octave.map((pianoKey: NoteKey) => ({
         ...pianoKey,
         octave: i,
         key: `${pianoKey.note}-${i}-${forceUpdate}`,
-        handleClick: () => handleClick(pianoKey.note, pianoKey.noteNumber, i)
+        handleClick: () => handleClick(pianoKey.noteNumber, i)
       }))
     ).flat().map(pianoKey => (
       <Key
@@ -118,7 +133,7 @@ export const PianoComponent = ({ pianoComponentId, forceUpdate }) => {
             <span className="mobileClosedBtnText">&times;</span>
           </button>
         </div>
-      </div> 
+      </div>
       <div className="pianoRomanNumeral">
         {getNumeralChord()}
       </div>
@@ -126,25 +141,19 @@ export const PianoComponent = ({ pianoComponentId, forceUpdate }) => {
   )
 }
 
-PianoComponent.propTypes = {
-  pianoComponentId: PropTypes.number.isRequired,
-  forceUpdate: PropTypes.number
-}
-
-export const PianoBoardComponent = () => {
+export const PianoBoardComponent: React.FC = () => {
   const { state, dispatch } = useAppContext()
   const history = useHistory()
-  const [refresh, setRefresh] = useState(0)
+  const [refresh, setRefresh] = React.useState(0)
   const initialLoadRef = useRef(false)
 
-  // Handle initial load
   useEffect(() => {
     if (!initialLoadRef.current) {
       initialLoadRef.current = true
       const newParams = history.location.search + history.location.hash
       if (newParams) {
         dispatch({
-          type: "BUILD_PROG_FROM_CODE",
+          type: 'BUILD_PROG_FROM_CODE',
           payload: newParams
         })
         setRefresh(prev => prev + 1)
@@ -152,14 +161,13 @@ export const PianoBoardComponent = () => {
     }
   }, [dispatch, history.location])
 
-  // Handle URL changes
   useEffect(() => {
     const currentCode = getProgressionCode(state)
     const newParams = history.location.search + history.location.hash
 
     if (!state.building && currentCode !== newParams) {
       dispatch({
-        type: "BUILD_PROG_FROM_CODE",
+        type: 'BUILD_PROG_FROM_CODE',
         payload: newParams
       })
       setRefresh(prev => prev + 1)
@@ -183,8 +191,8 @@ export const PianoBoardComponent = () => {
   return (
     <div className="pianoBoard">
       {state.chordPianoSet?.length ? (
-        <> 
-          {renderChordPianoSet()}   
+        <>
+          {renderChordPianoSet()}
           <div className="pianoBoardGutter" />
         </>
       ) : (

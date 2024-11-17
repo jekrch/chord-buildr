@@ -22,6 +22,10 @@ export interface Note {
 export interface NoteKey {
   selected: boolean
   isStopping: boolean | null
+  note: string
+  isPlaying: boolean
+  noteNumber: number
+  octave: number
 }
 
 export interface ChordNotes {

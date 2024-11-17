@@ -10,7 +10,7 @@ import {
   noteLetterMapWithFlats
     // @ts-ignore
 } from "../utils/noteManager"
-import { PianoState } from "../components/context/AppContext"
+import { AppState } from "../components/context/AppContext"
 
 interface SynthSettings {
   volume: number;
@@ -135,7 +135,7 @@ function processSlashChord(chordCode: string, chord: SelectedChord): string {
   return chordCode
 }
 
-export function getProgressionCode(state: PianoState): string {
+export function getProgressionCode(state: AppState): string {
   var synthCode = "?s=" + state.synth + ":" + state.volume
 
   var code = ""
@@ -189,8 +189,8 @@ export function getProgressionString(chordPianoSet: ChordPiano[]): string {
     if (!selectedChord) continue
 
     let chordCode =
-      selectedChord.noteLetter ?? '' + 
-      selectedChord.type ?? '';
+      (selectedChord.noteLetter ?? '') + 
+      (selectedChord.type ?? '');
 
     if (isSlashChord(selectedChord)) {
       chordCode += "/" + selectedChord.slashNote
@@ -322,7 +322,7 @@ function validateProgKey(chordPiano: ChordPiano, progKeySet: boolean): boolean {
   return progKeySet
 }
 
-export function buildProgFromCode(state: PianoState, code: string): PianoState {
+export function buildProgFromCode(state: AppState, code: string): AppState {
   if (state.building) {
     return state
   }
@@ -364,7 +364,7 @@ export function getQueryStringParams(query: string): QueryParams {
     : {}
 }
 
-export function updateUrlProgressionCode(state: PianoState): void {
+export function updateUrlProgressionCode(state: AppState): void {
   if (state.building) {
     return
   }
@@ -374,7 +374,7 @@ export function updateUrlProgressionCode(state: PianoState): void {
   loadProgressionCode(state, progressionCode)
 }
 
-function loadProgressionCode(state: PianoState, progressionCode: string): void {
+function loadProgressionCode(state: AppState, progressionCode: string): void {
   
   if (progressionCode === state.currentProgCode)
     return;
