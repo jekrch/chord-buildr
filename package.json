@@ -34,6 +34,7 @@
     "react-scroll": "^1.8.4",
     "tonal-scale": "^2.2.2",
     "tone": "^14.7.77",
+    "tonejs-instrument-guitar-electric-mp3": "^1.1.1",
     "web-vitals": "^2.1.0"
   },
   "devDependencies": {

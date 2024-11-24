@@ -7,7 +7,7 @@ import { getPianoById, useAppContext } from "./context/AppContext"
 import { ChordPiano } from "../utils/chordPianoHandler"
 import { findChordPositions } from "../utils/tabFinder"
 import { getChordDisplay } from "../utils/chordCodeHandler"
-import { playMidiNotes, playPiano } from "../utils/synthPlayer"
+import { playMidiNotes, playMidiNotesGuitar, playPiano } from "../utils/synthPlayer"
 import { getSynth } from "../utils/synthLibrary"
 
 interface GuitarChordProps {
@@ -36,10 +36,9 @@ export const GuitarChord: React.FC<GuitarChordProps> = ({ pianoComponentId }) =>
   }
 
   const handlePlayClick = (): void => {
-    const synth = getSynth(state);
-
-    playMidiNotes(synth, 1, tabPositions[currentPosition].midi, 12)
-    playPiano(dispatch, state, pianoComponentId)
+    playMidiNotesGuitar(
+      tabPositions[currentPosition].midi
+    )
   }
 
   return (

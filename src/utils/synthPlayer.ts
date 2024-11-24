@@ -3,6 +3,8 @@ import { getSynth, SynthReturn } from "./synthLibrary"
 import { AppState, getPianoById } from "../components/context/AppContext"
 import { isMobile } from "react-device-detect"
 import { ChordPiano, NoteKey } from "./chordPianoHandler"
+// @ts-ignore
+import GuitarElectricMp3 from 'tonejs-instrument-guitar-electric-mp3';
 
 let baseDecibel = 2
 
@@ -54,6 +56,54 @@ function playNotes(synthReturn: SynthReturn, volume: number, selectedNotes: stri
   )
 }
 
+/*
+  Play chord using midi note numbers and the GuitarElectricMp3 sampler
+*/
+export async function playMidiNotesGuitar(
+  midiNotes: number[], 
+  noteAdd: number = 0
+) {
+  
+  // create the sampler
+  const sampler = await new Promise<Tone.Sampler>(resolve => {
+    const sampler = new GuitarElectricMp3({
+      onload: () => resolve(sampler)
+    }) as Tone.Sampler;
+  });
+
+  midiNotes = midiNotes.map(note => note + noteAdd);
+
+  if (Tone.getContext().state !== 'running') {
+    Tone.getContext().resume();
+  }
+
+  sampler.toDestination();
+  sampler.releaseAll();
+
+  const noteNames = midiNotes.map(midi => 
+    Tone.Frequency(midi, "midi").toNote()
+  );
+  
+  const strumDuration = 0.20;
+  const delayPerNote = strumDuration / noteNames.length;
+
+  // velocity decrease on ascending notes for softer sound
+  const baseVelocity = 0.6;  
+  const velocityDecrease = 0.05; 
+
+  noteNames.forEach((noteName, index) => {
+    const now = Tone.now();
+    const startTime = now + (isMobile ? 0.15 : 0.03) + (index * delayPerNote);
+    
+    sampler.triggerAttackRelease(
+      noteName,
+      "1.0",    // duration     
+      startTime,
+      baseVelocity - (index * velocityDecrease)  // softer velocity curve
+    );
+  });
+}
+
 export function playMidiNotes(synthReturn: SynthReturn, volume: number, midiNotes: number[], noteAdd: number) {
   const synth = synthReturn.synth
   baseDecibel = synthReturn.baseDecibel
@@ -77,7 +127,7 @@ export function playMidiNotes(synthReturn: SynthReturn, volume: number, midiNote
   // calculate strum timing
   const strumDuration = 0.30 // total time for the strum in seconds
   const delayPerNote = strumDuration / frequencies.length
-  
+
   // play each note with progressive delay
   frequencies.forEach((freq, index) => {
     const now = Tone.now()
