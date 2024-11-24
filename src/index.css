@@ -466,3 +466,66 @@ and (orientation : portrait) {
 	opacity: 0.5 !important;
 	cursor: pointer;
 }
+
+.guitar-chord svg {
+	height: 10em !important;
+	width: auto;
+	background-color: rgb(24, 24, 24);
+	border-radius: 15px;
+  }
+  
+  .guitar-chord {
+	display: inline-block;
+	position: absolute;
+	left: 9em;
+	top: 0;
+	width: auto;
+	min-height: 4em;
+  }
+  
+  .chord-wrapper {
+	width: 100%;
+	position: relative;
+  }
+  
+  .guitar-pos-navigation {
+	position: absolute;
+	bottom: -2.2em;
+	width: 100%;
+	display: flex;
+	justify-content: center;
+	align-items: center;
+	gap: 0.5rem;
+	background-color: transparent;
+  }
+  
+  .guitar-pos-button {
+	position: relative;
+	background: transparent !important;
+	border: none;
+	max-height: 4em;
+	color: #999;
+	cursor: pointer;
+	padding: 8px;
+	z-index: 9999;
+  }
+  
+  .guitar-pos-button:hover {
+	color: #666;
+  }
+  
+  .guitar-pos-indicator {
+	font-size: 0.95rem;
+	color: #999;
+	position: relative;
+	z-index: 9999;
+  }
+  
+  .guitar-pos-chev {
+	background-color: transparent !important;
+	height: 1.3em !important;
+	width: 1.2em !important;
+	max-height: 1em !important;
+	margin: 0 0.4em;
+	pointer-events: none;
+  }

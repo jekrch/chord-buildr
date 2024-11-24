@@ -5,7 +5,7 @@ import { AppState, useAppContext } from "../context/AppContext"
 // @ts-ignorej
 import { playPiano } from "../../utils/synthPlayer"
 import { 
-  isSlashChord, 
+  getChordDisplay, 
   getProgressionString, 
   convertProgressionStrToCode 
 } from "../../utils/chordCodeHandler"
@@ -130,12 +130,6 @@ export const HeaderComponent: React.FC = () => {
         type: "REFRESH_BOARD"
       })
     }
-  }
-
-  const getChordDisplay = (chord: SelectedChord): string => {
-    return `${chord.noteLetter}${chord.type}${
-      isSlashChord(chord) ? `/${chord.slashNote}` : ""
-    }`
   }
 
   const renderProgression = (): JSX.Element[] | undefined => {

@@ -17,10 +17,12 @@ import {
 import { selectChordKeys, hasSelectedNotes, ChordPiano, SelectedChord } from '../utils/chordPianoHandler'
 import { useAppContext, getPianoById, getProgKeyChord } from './context/AppContext'
 import { updateFlatOrSharpLetter } from '../utils/chordCodeHandler'
+import classNames from 'classnames'
 
 
 interface ChordInputProps {
-  pianoComponentId: number
+  pianoComponentId: number,
+  className?: string
 }
 
 interface ChordRef {
@@ -34,7 +36,7 @@ interface ChordRef {
   noteArray: string[]
 }
 
-export const ChordInput: React.FC<ChordInputProps> = ({ pianoComponentId }: ChordInputProps) => {
+export const ChordInput: React.FC<ChordInputProps> = ({ pianoComponentId, className }: ChordInputProps) => {
   const { state, dispatch } = useAppContext()
   const chordRef = useRef<ChordRef>({} as ChordRef)
 
@@ -323,7 +325,7 @@ export const ChordInput: React.FC<ChordInputProps> = ({ pianoComponentId }: Chor
   }
 
   return (
-    <Form className="chordInputForm">
+    <Form className={classNames("chordInputForm", className)}>
       <Form.Group controlId="chordSelection">
         <div className="chordInputSelection keySelection">
           <Form.Control

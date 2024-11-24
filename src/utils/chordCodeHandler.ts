@@ -172,6 +172,12 @@ export function getProgressionCode(state: AppState): string {
   return synthCode + "&p=" + code
 }
 
+export const getChordDisplay = (chord: SelectedChord): string => {
+  return `${chord.noteLetter}${chord.type}${
+    isSlashChord(chord) ? `/${chord.slashNote}` : ""
+  }`
+}
+
 /**
  * Builds a space separated string of progression contained in the provided
  * chordPianoSet
