@@ -472,12 +472,13 @@ and (orientation : portrait) {
 	width: auto;
 	background-color: rgb(24, 24, 24);
 	border-radius: 15px;
+	filter: invert(0%) sepia(100%) saturate(0%) brightness(168%) contrast(129%);
   }
   
   .guitar-chord {
 	display: inline-block;
 	position: absolute;
-	left: 9em;
+	left: 7.2em;
 	top: 0;
 	width: auto;
 	min-height: 4em;
@@ -485,6 +486,7 @@ and (orientation : portrait) {
   
   .chord-wrapper {
 	width: 100%;
+	left: 3em;
 	position: relative;
   }
   

@@ -21,7 +21,6 @@ export const ChordPianoComponent: React.FC<ChordPianoComponentProps> = ({ pianoC
             <GuitarChord pianoComponentId={pianoComponentId} />
             {/* <PianoComponent
               key={Number(pianoComponentId)}
-              className="pianoBox"
               pianoComponentId={Number(pianoComponentId)}
             /> */}
           </div>

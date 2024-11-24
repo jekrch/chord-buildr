@@ -1,5 +1,5 @@
 import * as Tone from "tone"
-import { getSynth } from "./synthLibrary"
+import { getSynth, SynthReturn } from "./synthLibrary"
 import { AppState, getPianoById } from "../components/context/AppContext"
 import { isMobile } from "react-device-detect"
 import { ChordPiano, NoteKey } from "./chordPianoHandler"
@@ -11,15 +11,6 @@ export function playPiano(dispatch: React.Dispatch<any>, state: AppState, pianoI
 
   if (!pianoComponent) return;
 
-  const synthResult = getSynth(state)
-  const synth = synthResult.synth
-  baseDecibel = synthResult.baseDecibel
-
-  if (Tone.context.state !== 'running') {
-    Tone.context.resume()
-  }
-
-  synth.toDestination()
   const selectedNotes = getSelectedNotes(pianoComponent.piano!)
 
   if (!isMobile) {
@@ -30,21 +21,75 @@ export function playPiano(dispatch: React.Dispatch<any>, state: AppState, pianoI
     })
   }
 
+  const selectedNoteNumbers: number[] = getSelectedNoteNumbers(pianoComponent.piano!)
+  const volume = getDecibel(state.volume, selectedNoteNumbers);
+  const synth: SynthReturn = getSynth(state)
+
+  playNotes(synth, volume, selectedNotes)
+
+  if (!isMobile) {
+    clearPianoKeyPlaying(dispatch, pianoComponent)
+  }
+}
+
+function playNotes(synthReturn: SynthReturn, volume: number, selectedNotes: string[]) {
+  const synth = synthReturn.synth
+  baseDecibel = synthReturn.baseDecibel
+
+  if (Tone.getContext().state !== 'running') {
+    Tone.getContext().resume()
+  }
+
+  synth.toDestination()
+
   synth.releaseAll()
 
-  synth.volume.value = getDecibel(state.volume, pianoComponent.piano!)
+  synth.volume.value = volume
   //console.log("vol: " + synth.volume.value)
-
   synth.triggerAttackRelease(
     selectedNotes,
     "1.1",
     isMobile ? "+0.15" : "+0.03", // allow more latency on mobile
     0.7
   )
+}
 
-  if (!isMobile) {
-    clearPianoKeyPlaying(dispatch, pianoComponent)
+export function playMidiNotes(synthReturn: SynthReturn, volume: number, midiNotes: number[], noteAdd: number) {
+  const synth = synthReturn.synth
+  baseDecibel = synthReturn.baseDecibel
+
+  midiNotes = midiNotes.map(note => note + noteAdd);
+
+  if (Tone.getContext().state !== 'running') {
+    Tone.getContext().resume()
   }
+
+  synth.toDestination()
+  synth.releaseAll()
+  synth.volume.value = volume
+  
+  // convert midi notes to frequency values in hz
+  const frequencies = midiNotes.map(midi => {
+    const freq = Tone.Frequency(midi, "midi")
+    return freq.toFrequency()
+  })
+  
+  // calculate strum timing
+  const strumDuration = 0.30 // total time for the strum in seconds
+  const delayPerNote = strumDuration / frequencies.length
+  
+  // play each note with progressive delay
+  frequencies.forEach((freq, index) => {
+    const now = Tone.now()
+    const startTime = now + (isMobile ? 0.15 : 0.03) + (index * delayPerNote)
+    
+    synth.triggerAttackRelease(
+      freq,
+      "1.1",
+      startTime,
+      0.7 - (index * 0.05) // slightly decrease velocity for each subsequent note
+    )
+  })
 }
 
 function getSelectedNotes(piano: NoteKey[][]): string[] {
@@ -73,8 +118,14 @@ function getSelectedNotes(piano: NoteKey[][]): string[] {
 /***
  * The decibel should be inversely proportional to the highest note
  */
-function getDecibel(userVolume: number, piano: NoteKey[][]): number {
+function getDecibel(userVolume: number, selectedNoteNumbers: number[]): number {
   const userVolumeModifier = getUserVolumeModifier(userVolume)
+  const highestNoteNumber = Math.max(...selectedNoteNumbers)
+
+  return baseDecibel - highestNoteNumber / 2.5 + userVolumeModifier
+}
+
+function getSelectedNoteNumbers(piano: NoteKey[][]) {
   const selectedNoteNumbers: number[] = []
 
   for (let octaveIndex = 0; octaveIndex < piano.length; octaveIndex++) {
@@ -89,9 +140,7 @@ function getDecibel(userVolume: number, piano: NoteKey[][]): number {
       }
     }
   }
-  const highestNoteNumber = Math.max(...selectedNoteNumbers)
-
-  return baseDecibel - highestNoteNumber / 2.5 + userVolumeModifier
+  return selectedNoteNumbers
 }
 
 function clearPianoKeyPlaying(dispatch: React.Dispatch<any>, pianoComponent: ChordPiano): void {
