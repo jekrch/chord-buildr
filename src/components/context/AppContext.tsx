@@ -1,4 +1,3 @@
-// @ts-ignores
 import { getScaleAdjustedNoteLetter } from "../../utils/chordManager"
 import {
   transposePianoBoard,
@@ -6,14 +5,12 @@ import {
   ChordPiano,
   SelectedChord,
   SelectedKey
-  // @ts-ignore
 } from "../../utils/chordPianoHandler"
   // @ts-ignore
 import { pianoGenerator } from "../../utils/pianoHelper"
 import {
   updateFlatOrSharpLetter,
   updateUrlProgressionCode, buildProgFromCode
-  // @ts-ignore
 } from "../../utils/chordCodeHandler"
 import React, { useReducer, createContext, useEffect, ReactNode } from "react";
 

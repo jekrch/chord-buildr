@@ -4,7 +4,6 @@ import Navbar from "react-bootstrap/Navbar"
 import { AboutModal } from "./AboutModal"
 // @ts-ignores
 import { VersionModal } from "./VersionModal"
-// @ts-ignores
 import { ConfigModal } from "./ConfigModal"
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
 import { faCog } from "@fortawesome/free-solid-svg-icons"

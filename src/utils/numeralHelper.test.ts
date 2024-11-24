@@ -1,3 +1,4 @@
+import { expect, it } from 'vitest';
 import {getChordNumeral} from './numeralHelper';
 
 it('getChordNumeral: returns a numeral for the provided chord in the provided key', () => {
@@ -42,7 +43,7 @@ it('getChordNumeral: returns a numeral for the provided chord in the provided ke
 
 });
 
-function getChord(letter, type) {
+function getChord(letter: string, type?: string) {
   return {
     noteLetter: letter,
     type: type

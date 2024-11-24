@@ -2,7 +2,6 @@ import React, { useEffect, useState } from "react"
 import Navbar from "react-bootstrap/Navbar"
 import Button from "react-bootstrap/Button"
 import { AppState, useAppContext } from "../context/AppContext"
-// @ts-ignorej
 import { playPiano } from "../../utils/synthPlayer"
 import { 
   isSlashChord, 

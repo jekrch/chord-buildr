@@ -1,8 +1,6 @@
- // @ts-ignore
 import { getNoteLetter } from "./noteManager"
 import * as Note from "@tonaljs/note";
 import * as Scale from "tonal-scale"
- // @ts-ignore
 import { getTransposedNote } from "./transposer"
 import { SelectedChord, SelectedKey } from "./chordPianoHandler";
 
@@ -68,12 +66,20 @@ export function getNoteNumberChord(rootNoteNumber: number, chordType: string): n
 
 // returns the note letters for the specified chord (e.g. C, E, G)
 export function getNoteLettersChord(key: SelectedKey, rootNoteNumber: number, chordType: string): string[] {
+  return getNoteLettersChordByKey(key.noteLetter, rootNoteNumber, chordType);
+}
+
+export function getNoteLettersChordByKey(
+  keyLetter: string, 
+  rootNoteNumber: number, 
+  chordType: string
+): string[] {
   const intervalList = chordMap[chordType]
   const chordNoteLetters: string[] = []
 
   for (let i = 0; i < intervalList.length; i++) {
     const noteNumber = rootNoteNumber + intervalList[i]
-    const noteLetter = getNoteLetter(key, noteNumber)
+    const noteLetter = getNoteLetter(keyLetter, noteNumber)
 
     chordNoteLetters.push(noteLetter)
   }

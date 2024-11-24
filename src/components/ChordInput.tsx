@@ -5,14 +5,12 @@ import {
   noteLetterMapWithFlats,
   getSharpEquivalent,
   getFlatEquivalent
-  // @ts-ignore
 } from '../utils/noteManager'
 import { 
   chordMap, 
   getScaleAdjustedNoteLetter, 
   equalChroma, 
   noteIsInScale 
-  // @ts-ignore
 } from '../utils/chordManager'
 import { selectChordKeys, hasSelectedNotes, ChordPiano, SelectedChord } from '../utils/chordPianoHandler'
 import { useAppContext, getPianoById, getProgKeyChord } from './context/AppContext'
