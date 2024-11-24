@@ -175,10 +175,7 @@ export const PianoBoardComponent: React.FC = () => {
     return state.chordPianoSet?.map((chordPiano) => (
       <div key={`wrapper-${chordPiano.id}-${refresh}`}>
         <ChordPianoComponent
-          id={`piano-${chordPiano.id}`}
           pianoComponentId={Number(chordPiano.id)}
-          forceUpdate={refresh}
-          history={history}
         />
         <div className="pianoStrip" />
       </div>

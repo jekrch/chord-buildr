@@ -21,10 +21,7 @@ export const GuitarChord: React.FC<GuitarChordProps> = ({ pianoComponentId }) =>
   if (!chordPiano) {
     return;
   }
-
-  const chordName = getChordDisplay(chordPiano.selectedChord);
-  
-  const tabPositions = findChordPositions(chordName, guitar.chords )
+  const tabPositions = findChordPositions(chordPiano.selectedChord, guitar.chords);
 
   const instrument = {
     strings: 6,
@@ -39,18 +36,22 @@ export const GuitarChord: React.FC<GuitarChordProps> = ({ pianoComponentId }) =>
   return (
     <div className="guitar-chord">
       <div className="chord-wrapper">
-        <Chord chord={tabPositions[currentPosition]} instrument={instrument} />
-        <div className="guitar-pos-navigation">
-          <button onClick={() => setCurrentPosition(prev => prev === 0 ? tabPositions.length - 1 : prev - 1)} className="guitar-pos-button">
-            <FontAwesomeIcon icon={faChevronLeft} className="guitar-pos-chev" />
-          </button>
-          <span className="guitar-pos-indicator">
-            {currentPosition + 1}/{tabPositions.length}
-          </span>
-          <button onClick={() => setCurrentPosition(prev => prev === tabPositions.length - 1 ? 0 : prev + 1)} className="guitar-pos-button">
-            <FontAwesomeIcon icon={faChevronRight} className="guitar-pos-chev" />
-          </button>
-        </div>
+        {tabPositions?.length ? (
+          <>
+            <Chord chord={tabPositions[currentPosition]} instrument={instrument} />
+            <div className="guitar-pos-navigation">
+              <button onClick={() => setCurrentPosition(prev => prev === 0 ? tabPositions.length - 1 : prev - 1)} className="guitar-pos-button">
+                <FontAwesomeIcon icon={faChevronLeft} className="guitar-pos-chev" />
+              </button>
+              <span className="guitar-pos-indicator">
+                {currentPosition + 1}/{tabPositions.length}
+              </span>
+              <button onClick={() => setCurrentPosition(prev => prev === tabPositions.length - 1 ? 0 : prev + 1)} className="guitar-pos-button">
+                <FontAwesomeIcon icon={faChevronRight} className="guitar-pos-chev" />
+              </button>
+            </div>
+          </>
+        ) : <div>Chord type not supported</div> }
       </div>
     </div>
   )

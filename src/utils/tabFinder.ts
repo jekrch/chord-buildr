@@ -1,19 +1,24 @@
 import guitar from "@tombatossals/chords-db/lib/guitar.json"
+import { SelectedChord } from "./chordPianoHandler";
+import { getNoteLetterMapByKey, getNoteNumber } from "./noteManager";
 
 // normalize key names to match the database format
-const normalizeKey = (key: string): string => {
-    // handle special cases and normalize to database format
-    const keyMap: Record<string, string> = {
-      'C#': 'Csharp',
-      'Db': 'Csharp',
-      'D#': 'Eb',
-      'Gb': 'Fsharp',
-      'G#': 'Ab',
-      'A#': 'Bb',
-      // add other enharmonic equivalents as needed
-    };
-  
-    return keyMap[key] || key;
+const normalizeKey = (keyNoteNumber: number): string => {
+    const keyMap: Record<number, string> = {
+        1: 'C',
+        2: 'Csharp',
+        3: 'D',
+        4: 'Eb',
+        5: 'E',
+        6: 'F',
+        7: 'Fsharp',
+        8: 'G',
+        9: 'Ab',
+        10: 'A',
+        11: 'Bb',
+        12: 'B'
+    }
+    return keyMap[keyNoteNumber];
   };
   
   // normalize suffix to match database format
@@ -64,36 +69,41 @@ const normalizeKey = (key: string): string => {
   };
   
   const findChordPositions = (
-    chordName: string, 
+    selectedChord: SelectedChord, 
     guitarChords: Record<string, ChordInfo[]>
   ): ChordPosition[] => {
     try {
-      const { root, suffix, bass } = parseChordName(chordName);
-      
+
+      let noteNumber = getNoteNumber(selectedChord.noteLetter);
+      const root = selectedChord.noteLetter!;
+      const suffix = selectedChord.type ?? '';
+      // slash chords not yet supported
+      const bass = selectedChord.slashNote;
+
       // normalize the root note and suffix to match database format
-      const normalizedRoot = normalizeKey(root);
+      const normalizedRoot = normalizeKey(noteNumber!);
+
+      // Not supported: add2 m13 7#11 m7#9 m7b9 m7#5 m7#11 9sus4
       const normalizedSuffix = normalizeSuffix(suffix);
       
       // find the chord in the database
       const chordGroup = guitarChords[normalizedRoot];
+
       if (!chordGroup) {
-        throw new Error(`No chord positions found for root note: ${root}`);
+        console.error(`No chord positions found for root note: ${root}`);
+        return [];
       }
   
       // find the specific chord type
       const chord = chordGroup.find(c => c.suffix === normalizedSuffix);
+      
       if (!chord) {
-        throw new Error(`No chord positions found for: ${root}${suffix}`);
+        console.warn(`No chord positions found for: ${root}${suffix}`);
+        return [];
       }
-  
-      // if it's a slash chord, we might want to filter or sort positions
-      // that make the bass note easier to play
-      if (bass) {
-        // this could be enhanced to actually filter/sort based on bass note
-        return chord.positions;
-      }
-  
+    
       return chord.positions;
+
     } catch (error: any) {
       console.error(`Error finding chord positions: ${error.message}`);
       return [];
