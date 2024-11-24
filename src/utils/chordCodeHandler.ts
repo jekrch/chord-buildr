@@ -1,7 +1,6 @@
   // @ts-ignore
 import { isValidChordType, getScaleAdjustedNoteLetter } from "./chordManager"
 import { ChordPiano, createChordPiano, SelectedChord } from "./chordPianoHandler"
-  // @ts-ignore
 import { synthTypes } from "./synthLibrary"
   // @ts-ignore
 import { isValidLetter, getNoteNumber } from "./noteManager"
@@ -57,7 +56,7 @@ export function getChordFromCode(chordCode: string): SelectedChord | undefined {
 
     chordCode = processSlashChord(chordCode, chord)
 
-    var indexOfType = getIndexOfType(chordCode);
+    let indexOfType = getIndexOfType(chordCode);
 
     chord.noteLetter = capitalizeFirstLetter(
       chordCode.substring(1, indexOfType)
@@ -116,8 +115,8 @@ function isNumeric(value: string): boolean {
  * if an fbclid was inserted into the code, remove it here
  */
 function removeFbclid(chordCode: string): string {
-  var startIndex = chordCode.indexOf("&fbclid")
-  var fbCode = chordCode.substring(startIndex, startIndex + 69)
+  const startIndex = chordCode.indexOf("&fbclid")
+  let fbCode = chordCode.substring(startIndex, startIndex + 69)
   chordCode = chordCode.replace(fbCode, "")
   console.log("fbCode removed: " + fbCode)
   return chordCode

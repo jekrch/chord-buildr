@@ -25,7 +25,6 @@ export const GuitarChord: React.FC<GuitarChordProps> = ({ pianoComponentId }) =>
   const chordName = getChordDisplay(chordPiano.selectedChord);
   
   const tabPositions = findChordPositions(chordName, guitar.chords )
-  //guitar.chords.C.find((chord) => chord.suffix === 'sus4')?.positions || []
 
   const instrument = {
     strings: 6,
