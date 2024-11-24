@@ -1,17 +1,13 @@
-// @ts-ignore
 import { getNoteNumberChord, getScaleAdjustedNoteLetter } from "./chordManager"
 // @ts-ignore
 import { clearPianoSelections, pianoGenerator } from "./pianoHelper"
-// @ts-ignore
 import { getNoteNumber, normalizeNote } from "./noteManager"
-// @ts-ignore
 import { getChordFromCode } from "./chordCodeHandler"
 import {
   getStepsChanged,
   getAbsoluteStepsChanged,
   getTransposedSelectedNote,
   getTransposedNote
-  // @ts-ignore
 } from "./transposer"
 
 export interface Note {
@@ -104,11 +100,11 @@ export function getChordNotes(selectedChord: SelectedChord, userSelection: boole
   const chordRootNoteNumber = getNoteNumber(noteLetter)
   const slashNoteNumber = getNoteNumber(slashNote)
 
-  const chordNoteNumbers = getNoteNumberChord(chordRootNoteNumber, type!)
+  const chordNoteNumbers = getNoteNumberChord(chordRootNoteNumber!, type!)
 
   return getOctaveAdjustedChordNumbersWithFirstNote(
     finalOctave,
-    chordRootNoteNumber,
+    chordRootNoteNumber!,
     chordNoteNumbers,
     slashNoteNumber,
     userSelection
@@ -130,7 +126,7 @@ function getOctaveAdjustedChordNumbersWithFirstNote(
   octave: number,
   chordRootNoteNumber: number,
   chordNoteNumbers: number[],
-  firstNote: number | null,
+  firstNote: number | null | undefined,
   userSelection: boolean
 ): ChordNotes {
   let chordNotes: ChordNotes = {

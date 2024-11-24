@@ -1,13 +1,11 @@
-  // @ts-ignore
 import { isValidChordType, getScaleAdjustedNoteLetter } from "./chordManager"
 import { ChordPiano, createChordPiano, SelectedChord } from "./chordPianoHandler"
 import { synthTypes } from "./synthLibrary"
-  // @ts-ignore
-import { isValidLetter, getNoteNumber } from "./noteManager"
 import {
+  isValidLetter, 
+  getNoteNumber,
   noteLetterMapWithSharps,
   noteLetterMapWithFlats
-    // @ts-ignore
 } from "../utils/noteManager"
 import { AppState } from "../components/context/AppContext"
 
@@ -230,15 +228,15 @@ function capitalizeFirstLetter(string: string): string {
  * find the corresponding flat letter. Likewise, if the chordPiano is
  * set to show sharps
  */
-export function updateFlatOrSharpLetter(showFlats: boolean, noteLetter: string): string {
+export function updateFlatOrSharpLetter(showFlats: boolean | undefined, noteLetter: string): string {
   var noteNumber = getNoteNumber(noteLetter)
 
   if (showFlats) {
-    if (noteLetter.includes("#")) {
-      return noteLetterMapWithFlats[noteNumber] ?? noteLetter
+    if (noteLetter?.includes("#")) {
+      return noteLetterMapWithFlats[noteNumber!] ?? noteLetter
     }
-  } else if (noteLetter.includes("b")) {
-    return noteLetterMapWithSharps[noteNumber] ?? noteLetter
+  } else if (noteLetter?.includes("b")) {
+    return noteLetterMapWithSharps[noteNumber!] ?? noteLetter
   }
 
   return noteLetter

@@ -1,5 +1,4 @@
 import * as Tone from "tone"
-// @ts-ignores
 import { getSynth } from "./synthLibrary"
 import { AppState, getPianoById } from "../components/context/AppContext"
 import { isMobile } from "react-device-detect"
