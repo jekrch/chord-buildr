@@ -41,13 +41,30 @@ export const GuitarChord: React.FC<GuitarChordProps> = ({ pianoComponentId }) =>
     )
   }
 
+  const handleClickRemovePiano = (): void => {
+    dispatch({
+      type: 'REMOVE_PIANO',
+      id: pianoComponentId
+    })
+  }
+
   return (
     <div className="guitar-chord">
-            <button
-              type="button"
-              className="piano-play-button"
-              onClick={handlePlayClick}
-            />
+      <div>
+        <button
+          type="button"
+          className="close guitar-tab-close-button"
+          aria-label="Close"
+          onClick={handleClickRemovePiano}
+        >
+          <span aria-hidden="true">&times;</span>
+        </button>
+        <button
+          type="button"
+          className="guitar-play-btn piano-play-button"
+          onClick={handlePlayClick}
+        />
+      </div>
       <div className="chord-wrapper">
         {tabPositions?.length ? (
           <>
@@ -64,7 +81,7 @@ export const GuitarChord: React.FC<GuitarChordProps> = ({ pianoComponentId }) =>
               </button>
             </div>
           </>
-        ) : <div>Chord type not supported</div> }
+        ) : <div>Chord type not supported</div>}
       </div>
     </div>
   )

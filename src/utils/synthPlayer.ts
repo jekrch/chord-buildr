@@ -43,7 +43,6 @@ function playNotes(synthReturn: SynthReturn, volume: number, selectedNotes: stri
   }
 
   synth.toDestination()
-
   synth.releaseAll()
 
   synth.volume.value = volume
