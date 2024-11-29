@@ -4,6 +4,8 @@ import { useAppContext } from "../components/context/AppContext"
 import { getProgressionCode } from "../utils/chordCodeHandler"
 // @ts-ignores
 import { ChordPianoComponent } from "../components/ChordPianoComponent"
+import { ChordInput } from "./ChordInput"
+import { GuitarChord } from "./GuitarChord"
 
 export const PianoBoardComponent: React.FC = () => {
   const { state, dispatch } = useAppContext();
@@ -44,7 +46,7 @@ export const PianoBoardComponent: React.FC = () => {
     if (!state.chordPianoSet) {
       return
     }
-    
+
     const currentCode = getProgressionCode(state)
     const newParams = history.location.search + history.location.hash
 
@@ -55,29 +57,51 @@ export const PianoBoardComponent: React.FC = () => {
     }
   }, [state, history])
 
-  const renderChordPianoSet = (): React.ReactNode => {
-    return state.chordPianoSet?.map((chordPiano) => (
-      <div key={`wrapper-${chordPiano.id}-${refresh}`}>
-        <ChordPianoComponent
-          key={`piano-${chordPiano.id}-${refresh}`}
-          pianoComponentId={Number(chordPiano.id)}
-        />
-        <div key={`strip-${chordPiano.id}`} className="pianoStrip" />
+  let renderChordPianoSet;
+
+  if (false) {
+    renderChordPianoSet = (): React.ReactNode => {
+      return state.chordPianoSet?.map((chordPiano) => (
+        <div key={`wrapper-${chordPiano.id}-${refresh}`}>
+          <ChordPianoComponent
+            key={`piano-${chordPiano.id}-${refresh}`}
+            pianoComponentId={Number(chordPiano.id)}
+          />
+          <div key={`strip-${chordPiano.id}`} className="pianoStrip" />
+        </div>
+      ))
+    }
+  } else {
+    renderChordPianoSet = (): React.ReactNode => {
+      return <div className="container">
+        <div className="row g-3 guitar-container">
+          {state.chordPianoSet?.map((chordPiano) => (
+            <div key={chordPiano.id} className="col-12 col-sm-6 col-md-6 col-lg-8">
+              <div className="card">
+                <div className="card-body">
+                  <ChordInput
+                    pianoComponentId={chordPiano.id} />
+                  <GuitarChord pianoComponentId={chordPiano.id} />
+                </div>
+              </div>
+            </div>
+          ))}
+        </div>
       </div>
-    ))
+    }
   }
 
   return (
     <div key={`pianoBoard-${refresh}`} className="pianoBoard">
       {state.chordPianoSet?.length ?? 0 > 0 ? (
-        <> 
-          {renderChordPianoSet()}   
+        <>
+          {renderChordPianoSet()}
           <div className="pianoBoardGutter" />
         </>
       ) : (
         <div className="introBody">
           <div className="introText">
-            welcome to chord buildr<br/>
+            welcome to chord buildr<br />
             use the controls above to get started
           </div>
         </div>

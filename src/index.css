@@ -475,15 +475,6 @@ and (orientation : portrait) {
 	filter: invert(0%) sepia(100%) saturate(0%) brightness(168%) contrast(129%);
 }
 
-.guitar-chord {
-	display: inline-block;
-	position: absolute;
-	left: 7.2em;
-	top: 0;
-	width: auto;
-	min-height: 4em;
-}
-
 .chord-wrapper {
 	width: 100%;
 	left: 3em;
@@ -569,3 +560,33 @@ and (orientation : portrait) {
 		0 -5px 2px 3px rgba(46, 45, 45, 0.6) inset,
 		0 2px 4px rgba(0, 0, 0, 0.5) !important;
 }
+
+.guitar-chord {
+	display: inline-block;
+	position: absolute;
+	width: 11.3em;
+	top: -12em;
+	min-height: 4em !important;
+  }
+  
+  /* .guitar-chord {
+	display: inline-block;
+	position: absolute;
+	left: 7.2em;
+	top: 0;
+	width: auto;
+	min-height: 4em;
+	background-color: transparent !important;
+} */
+
+  .card-body {
+	background-color: red;
+	width: 29em !important;
+	min-width: 7em !important;
+	position: relative;
+	display: inline-block;
+  }
+
+  .guitar-container {
+	margin-top: 4em
+  }

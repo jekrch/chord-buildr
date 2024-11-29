@@ -33,7 +33,7 @@
     "react-router-dom": "^5.3.0",
     "react-scroll": "^1.8.4",
     "tonal-scale": "^2.2.2",
-    "tone": "^14.7.77",
+    "tone": "^15.0.4",
     "tonejs-instrument-guitar-electric-mp3": "^1.1.1",
     "web-vitals": "^2.1.0"
   },
