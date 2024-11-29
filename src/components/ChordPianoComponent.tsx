@@ -18,11 +18,11 @@ export const ChordPianoComponent: React.FC<ChordPianoComponentProps> = ({ pianoC
               key={`c-${pianoComponentId}`}
               pianoComponentId={pianoComponentId}
             />
-            <GuitarChord pianoComponentId={pianoComponentId} />
-            {/* <PianoComponent
+            {/* <GuitarChord pianoComponentId={pianoComponentId} /> */}
+            <PianoComponent
               key={Number(pianoComponentId)}
               pianoComponentId={Number(pianoComponentId)}
-            /> */}
+            />
           </div>
         </div>
       </div>

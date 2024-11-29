@@ -59,7 +59,7 @@ export const PianoBoardComponent: React.FC = () => {
 
   let renderChordPianoSet;
 
-  if (false) {
+  if (true) {
     renderChordPianoSet = (): React.ReactNode => {
       return state.chordPianoSet?.map((chordPiano) => (
         <div key={`wrapper-${chordPiano.id}-${refresh}`}>
