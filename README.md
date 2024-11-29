@@ -38,7 +38,7 @@ Chord Buildr is implemented in React and uses Tone.js for audio playback.
 - **Direct Progression Editing**: Edit your chord progression directly in text format.
 - **Playback Controls**: Cycle through chords with a play button in the header.
 
-## Technology Stack
+## Tech Stack
 
 - React
 - Tone.js 
