@@ -371,54 +371,9 @@ export const ChordInput: React.FC<ChordInputProps> = ({ pianoComponentId, classN
           </SelectContent>
         </Select>
 
-        {/* Slash Note Selection */}
-        <Select
-          value={chordRef.current.slashNote || 'placeholder'}
-          onValueChange={(value: string) => {
-            if (value !== 'placeholder') {
-              handleSlashChordNoteChange({ target: { value } } as any)
-            }
-          }}
-          disabled={!chordRef.current.slashChord}
-        >
-          <SelectTrigger>
-            <SelectValue placeholder="Select" />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="placeholder" disabled>
-              Select
-            </SelectItem>
-            {chordRef.current.noteArray
-              .filter(option => option && option.trim()) // Remove empty strings first
-              .map((option, index) => {
-                const relativeValue = getKeyRelativeLetter(option);
-                return relativeValue ? (
-                  <SelectItem key={index} value={relativeValue}>
-                    {relativeValue}
-                  </SelectItem>
-                ) : null;
-              })
-              .filter(Boolean)} {/* Remove any null elements */}
-          </SelectContent>
-        </Select>
+      
 
-        {/* Chord Type Selection */}
-        <Select
-          value={chordRef.current.type}
-          onValueChange={(value: any) => handleTypeSelectChange({ target: { value } } as any)}
-        >
-          <SelectTrigger className="w-24">
-            <SelectValue />
-          </SelectTrigger>
-          <SelectContent>
-            {chordTypeArray.filter((option) => {option?.length}).map((option, index) => (
-              <SelectItem key={index} value={option}>
-                {option}
-              </SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
-
+       
         {/* Checkboxes */}
         <div className="flex items-center space-x-4">
           <div className="flex items-center space-x-2">
