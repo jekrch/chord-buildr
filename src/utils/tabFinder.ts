@@ -25,7 +25,7 @@ const normalizeKey = (keyNoteNumber: number): string => {
   const normalizeSuffix = (suffix: string): string => {
     // handle special cases and normalize to database format
     const suffixMap: Record<string, string> = {
-      '': 'major',
+      'maj': 'major',
       'm': 'minor',
       '+': 'aug',
       'M7': 'maj7',

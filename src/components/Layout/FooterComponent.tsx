@@ -1,27 +1,21 @@
 import React, { useState } from "react"
-import Navbar from "react-bootstrap/Navbar"
-// @ts-ignores
-import { AboutModal } from "./AboutModal"
-// @ts-ignores
-import { VersionModal } from "./VersionModal"
-import { ConfigModal } from "./ConfigModal"
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
 import { faCog } from "@fortawesome/free-solid-svg-icons"
-import "../../styles/Layout.css"
+import { AboutModal } from "./AboutModal"
+import { VersionModal } from "./VersionModal"
+import { ConfigModal } from "./ConfigModal"
 import GitHub120 from "../../images/Github120.png"
 
 const APP_VERSION = "v1.8.1"
 const GITHUB_URL = "https://github.com/jekrch/chord-buildr"
 
 export const FooterComponent: React.FC = () => {
-
   const [modalState, setModalState] = useState({
     about: false,
     config: false,
     version: false
   })
 
-  // handlers for modal vis
   const handleModalShow = (modalType: keyof typeof modalState) => {
     setModalState(prev => ({
       ...prev,
@@ -37,57 +31,71 @@ export const FooterComponent: React.FC = () => {
   }
 
   return (
-    <Navbar className="footNav" fixed="bottom">
-      <Navbar.Brand href={GITHUB_URL}>
+    <nav className="fixed bottom-0 w-full bg-white border-t shadow-sm z-50 px-4 py-2 flex items-center justify-between footNav">
+      {/* GitHub Link */}
+      <a 
+        href={GITHUB_URL}
+        className="flex items-center no-underline"
+        target="_blank"
+        rel="noopener noreferrer"
+      >
         <img 
-          className="gitSrc" 
+          className="h-8 w-auto gitSrc" 
           src={GitHub120} 
           alt="GitHub Repository"
         />
-      </Navbar.Brand>
+      </a>
 
-      <div
-        className="footNavVersion"
+      {/* Version Button */}
+      <button
+        className="text-gray-600 hover:text-gray-900 px-2 cursor-pointer footNavVersion transition-colors"
         onClick={() => handleModalShow("version")}
-        role="button"
         tabIndex={0}
       >
         {APP_VERSION}
-      </div>
+      </button>
 
-      <div
-        className="footNavAbout"
+      {/* About Button */}
+      <button
+        className="text-gray-600 hover:text-gray-900 px-2 cursor-pointer footNavAbout transition-colors"
         onClick={() => handleModalShow("about")}
-        role="button"
         tabIndex={0}
       >
         about
-      </div>
+      </button>
 
-      <FontAwesomeIcon
-        className="footNavCog"
-        icon={faCog}
+      {/* Settings Icon */}
+      <button
+        className="text-gray-600 hover:text-gray-900 cursor-pointer footNavCog transition-colors"
         onClick={() => handleModalShow("config")}
-        role="button"
         tabIndex={0}
-      />
+      >
+        <FontAwesomeIcon
+          icon={faCog}
+          className="h-5 w-5"
+        />
+      </button>
 
+      {/* Modals */}
       <AboutModal
-        show={modalState.about}
-        onHide={() => handleModalHide("about")}
+        open={modalState.about}
+        onOpenChange={(open: boolean) => !open && handleModalHide("about")}
       />
 
       <VersionModal
-        show={modalState.version}
-        onHide={() => handleModalHide("version")}
+        open={modalState.version}
+        onOpenChange={(open: boolean) => !open && handleModalHide("version")}
       />
 
       <ConfigModal
-        show={modalState.config}
-        onHide={() => handleModalHide("config")}
+        open={modalState.config}
+        onOpenChange={(open: boolean) => !open && handleModalHide("config")}
       />
 
-      <h1 className="titleText">chord buildr</h1>
-    </Navbar>
+      {/* Title */}
+      <h1 className="absolute left-1/2 transform -translate-x-1/2 text-xl font-semibold titleText">
+        chord buildr
+      </h1>
+    </nav>
   )
 }

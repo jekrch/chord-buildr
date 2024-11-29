@@ -22,6 +22,7 @@ export interface NoteKey {
   isPlaying: boolean
   noteNumber: number
   octave: number
+  color: 'white' | 'black'
 }
 
 export interface ChordNotes {
@@ -77,7 +78,7 @@ export function selectChordKeysWithType(
 }
 
 function selectChordNotes(chordNotes: ChordNotes, chordPiano: ChordPiano): void {
-  clearPianoSelections(chordPiano.piano)
+  clearPianoSelections(chordPiano.piano!)
 
   chordNotes.notes.forEach((chordNoteNumber) => {
     const note = normalizeNote(chordNoteNumber, chordNotes.octave)

@@ -1,17 +1,16 @@
 import React, { useEffect, useState } from "react"
-import Navbar from "react-bootstrap/Navbar"
-import Button from "react-bootstrap/Button"
+import { Link, scroller } from "react-scroll"
+
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
+import { faPenToSquare } from "@fortawesome/free-regular-svg-icons"
 import { AppState, useAppContext } from "../context/AppContext"
 import { playPiano } from "../../utils/synthPlayer"
+import { Button } from '../../components/ui/button';
 import { 
   getChordDisplay, 
   getProgressionString, 
   convertProgressionStrToCode 
 } from "../../utils/chordCodeHandler"
-import { Link, scroller } from "react-scroll"
-import { faPenToSquare } from "@fortawesome/free-regular-svg-icons"
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
-import { SelectedChord } from "../../utils/chordPianoHandler"
 
 interface ScrollOptions {
   duration: number
@@ -48,7 +47,6 @@ export const HeaderComponent: React.FC = () => {
   const getNextPlayChordIndex = (): number => {
     let nextPianoIndex = currPlayChordIndex + 1
     
-    // if we're exceeding the array length, cycle back to the beginning 
     if (nextPianoIndex >= (state.chordPianoSet?.length ?? 0)) {
       nextPianoIndex = 0
     }
@@ -133,9 +131,9 @@ export const HeaderComponent: React.FC = () => {
 
   const renderProgression = (): JSX.Element[] | undefined => {
     return state.chordPianoSet?.map((piano, i) => (
-      <div key={`ci-${piano.id}`}>
+      <div key={`ci-${piano.id}`} className="flex items-center">
         <Link
-          className="chordListItem"
+          className="chordListItem cursor-pointer hover:text-blue-600 transition-colors"
           to={`piano-${piano.id}`}
           spy={true}
           offset={offset}
@@ -144,21 +142,23 @@ export const HeaderComponent: React.FC = () => {
           smooth={true}
           onClick={() => handleItemClick(piano.id)}
         >
-          <div className="chordItem">
-            &nbsp;{getChordDisplay(piano.selectedChord)}
+          <div className="chordItem px-2">
+            {getChordDisplay(piano.selectedChord)}
           </div>
         </Link>
-        &nbsp;{i !== (state.chordPianoSet?.length ?? 0) - 1 ? "|" : ""}
+        {i !== (state.chordPianoSet?.length ?? 0) - 1 && (
+          <span className="mx-2">|</span>
+        )}
       </div>
     ))
   }
 
   return (
-    <Navbar fixed="top" className="flex-column mainHeader">
-      <div className="headerContainer">
-        <div className="buttonContainer row">
+    <nav className="fixed top-0 w-full bg-slate-600 border-b shadow-sm z-50 ">
+      <div className="flex flex-col p-4 headerContainer">
+        <div className="flex gap-2 mb-4 justify-center">
           <Button
-            variant="primary"
+            variant="default"
             size="sm"
             className="btn-main chord-btn"
             onClick={handleClickPlay}
@@ -168,7 +168,7 @@ export const HeaderComponent: React.FC = () => {
           </Button>
 
           <Button
-            variant="primary"
+            variant="default"
             size="sm"
             className="btn-main chord-btn"
             onClick={handleClickAddChord}
@@ -177,7 +177,7 @@ export const HeaderComponent: React.FC = () => {
           </Button>
 
           <Button
-            variant="primary"
+            variant="default"
             size="sm"
             className="btn-main chord-btn"
             disabled={!state.previousProgCodes?.length}
@@ -187,7 +187,7 @@ export const HeaderComponent: React.FC = () => {
           </Button>
 
           <Button
-            variant="primary"
+            variant="default"
             size="sm"
             className="btn-main chord-btn"
             disabled={!state.chordPianoSet?.length}
@@ -197,15 +197,17 @@ export const HeaderComponent: React.FC = () => {
           </Button>
         </div>
 
-        <ul className="progression row" style={{ listStyle: "none" }}>
-          {renderProgression()}
+        <div className="flex items-center progression">
+          <div className="flex flex-wrap gap-1">
+            {renderProgression()}
+          </div>
           <FontAwesomeIcon
-            className="progressionEditIcon"
+            className="ml-2 cursor-pointer progressionEditIcon"
             icon={faPenToSquare as any}
             onClick={openProgressionEditor}
           />
-        </ul>
+        </div>
       </div>
-    </Navbar>
+    </nav>
   )
 }
