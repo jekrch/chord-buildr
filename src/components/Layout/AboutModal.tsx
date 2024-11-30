@@ -14,7 +14,7 @@ interface AboutModalProps {
 export function AboutModal({ open, onOpenChange }: AboutModalProps) {
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-lg max-h-[80vh] max-w-[95vw] bg-slate-800 text-slate-300 border-slate-700 rounded-md">
+      <DialogContent className="sm:max-w-lg ">
         <DialogHeader className="border-b pb-4">
           <div className="absolute inset-0 bg-background/80" />
         </DialogHeader>

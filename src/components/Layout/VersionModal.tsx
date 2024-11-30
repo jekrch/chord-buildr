@@ -37,7 +37,7 @@ const VersionEntry = ({ version, date, items }: VersionEntryProps) => (
 export function VersionModal({ open, onOpenChange }: VersionModalProps) {
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-lg max-h-[80vh] max-w-[95vw] bg-slate-800 text-slate-300 border-slate-700 rounded-md">
+      <DialogContent className="sm:max-w-lg ">
         <DialogHeader className="border-b pb-4 ">
           <div className="absolute inset-0" />
           <h2 className="text-lg font-semibold text-center">change log</h2>

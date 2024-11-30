@@ -154,7 +154,7 @@ export const HeaderComponent: React.FC = () => {
   }
 
   return (
-    <nav className="fixed top-0 w-full bg-slate-600 border-b shadow-sm z-50 ">
+    <nav className="fixed top-0 w-full bg-[#2c2b2b] border-b shadow-sm z-50 ">
       <div className="flex flex-col p-4 headerContainer">
         <div className="flex gap-2 mb-4 justify-center">
           <Button

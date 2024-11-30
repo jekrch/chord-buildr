@@ -371,9 +371,6 @@ export const ChordInput: React.FC<ChordInputProps> = ({ pianoComponentId, classN
           </SelectContent>
         </Select>
 
-      
-
-       
         {/* Checkboxes */}
         <div className="flex items-center space-x-4">
           <div className="flex items-center space-x-2">
