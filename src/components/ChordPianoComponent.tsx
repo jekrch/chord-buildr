@@ -11,9 +11,12 @@ interface ChordPianoComponentProps {
 export const ChordPianoComponent: React.FC<ChordPianoComponentProps> = ({ pianoComponentId }) => {
   return (
     <>
-      <div className="container chordPiano" id={`piano-${pianoComponentId}`}>
-        <div className="contentBox row">
-          <div className="pianoChordBox">
+      <div 
+        className="container chordPiano" 
+        id={`piano-${pianoComponentId}`}
+      >
+        <div className="!mt-[-1em] sm:mt-0 relative row">
+          <div className="">
             <ChordInput
               key={`c-${pianoComponentId}`}
               pianoComponentId={pianoComponentId}

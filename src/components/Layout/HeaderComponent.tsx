@@ -131,9 +131,12 @@ export const HeaderComponent: React.FC = () => {
 
   const renderProgression = (): JSX.Element[] | undefined => {
     return state.chordPianoSet?.map((piano, i) => (
-      <div key={`ci-${piano.id}`} className="flex items-center">
+      <div
+        key={`ci-${piano.id}`} 
+        className="flex"
+      >
         <Link
-          className="chordListItem cursor-pointer hover:text-blue-600 transition-colors"
+          className="chordListItem cursor-pointer hover:text-blue-600 transition-colors pl-[3px] !ml-[-3px]"
           to={`piano-${piano.id}`}
           spy={true}
           offset={offset}
@@ -142,7 +145,7 @@ export const HeaderComponent: React.FC = () => {
           smooth={true}
           onClick={() => handleItemClick(piano.id)}
         >
-          <div className="chordItem px-2">
+          <div className="chordItem">
             {getChordDisplay(piano.selectedChord)}
           </div>
         </Link>
@@ -198,11 +201,11 @@ export const HeaderComponent: React.FC = () => {
         </div>
 
         <div className="flex items-center progression border-t border-border border-b py-3">
-          <div className="flex flex-wrap gap-1">
+          <div className="flex flex-wrap">
             {renderProgression()}
           </div>
           <FontAwesomeIcon
-            className="ml-2 cursor-pointer progressionEditIcon"
+            className="!ml-[0.8em] mb-[0.4em] cursor-pointer progressionEditIcon"
             icon={faPenToSquare as any}
             onClick={openProgressionEditor}
           />

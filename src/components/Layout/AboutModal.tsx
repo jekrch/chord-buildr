@@ -14,13 +14,13 @@ interface AboutModalProps {
 export function AboutModal({ open, onOpenChange }: AboutModalProps) {
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-lg ">
+      <DialogContent className="sm:max-w-lg">
         <DialogHeader className="border-b pb-4">
-          <div className="absolute inset-0 bg-background/80" />
+          <div className=" inset-0" />
         </DialogHeader>
         
-        <div className="space-y-6">
-          <p className="text-lg text-center">
+        <div className="space-y-6 relative overflow-auto max-h-[60vh]">
+          <p className="text-base text-center">
             Chord Buildr provides an easy way for musicians and music lovers to
             create and share chord progressions.
           </p>
@@ -32,7 +32,7 @@ export function AboutModal({ open, onOpenChange }: AboutModalProps) {
               <h6 className="text-sm font-semibold flex items-center">
                 <Music className="mr-1 h-4 w-4" /> transpose
               </h6>
-              <div className="text-sm text-muted-foreground">
+              <div className="text-sm text-muted-foreground ml-6">
                 Mark a chord as the key and the rest of your progression will
                 transpose as you change its root note.
               </div>
@@ -42,7 +42,7 @@ export function AboutModal({ open, onOpenChange }: AboutModalProps) {
               <h6 className="text-sm font-semibold flex items-center">
                 <Music2Icon className="mr-1 h-4 w-4" /> share
               </h6>
-              <div className="text-sm text-muted-foreground">
+              <div className="text-sm text-muted-foreground ml-6">
                 To share a progression, simply copy the URL. No account needed!
               </div>
             </div>

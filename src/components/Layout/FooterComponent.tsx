@@ -31,50 +31,58 @@ export const FooterComponent: React.FC = () => {
   }
 
   return (
-    <nav className="fixed bottom-0 w-full bg-white border-t shadow-sm z-50 px-4 py-2 flex items-center justify-between footNav">
-      {/* GitHub Link */}
-      <a 
-        href={GITHUB_URL}
-        className="flex items-center no-underline"
-        target="_blank"
-        rel="noopener noreferrer"
-      >
-        <img 
-          className="h-8 w-auto gitSrc" 
-          src={GitHub120} 
-          alt="GitHub Repository"
-        />
-      </a>
+    <nav className="fixed bottom-0 w-full bg-white border-t shadow-sm z-50 px-4 py-2 flex items-center footNav">
+      {/* left aligned items container */}
+      <div className="flex items-center space-x-4 flex-1">
+        {/* GitHub Link */}
+        <a 
+          href={GITHUB_URL}
+          className="flex items-center no-underline"
+          target="_blank"
+          rel="noopener noreferrer"
+        >
+          <img 
+            className="h-8 w-auto gitSrc" 
+            src={GitHub120} 
+            alt="GitHub Repository"
+          />
+        </a>
 
-      {/* Version Button */}
-      <button
-        className="text-gray-600 hover:text-gray-900 px-2 cursor-pointer footNavVersion transition-colors"
-        onClick={() => handleModalShow("version")}
-        tabIndex={0}
-      >
-        {APP_VERSION}
-      </button>
+        {/* Version Button */}
+        <button
+          className="text-gray-300 hover:text-gray-300 cursor-pointer footNavVersion transition-colors"
+          onClick={() => handleModalShow("version")}
+          tabIndex={0}
+        >
+          {APP_VERSION}
+        </button>
 
-      {/* About Button */}
-      <button
-        className="text-gray-600 hover:text-gray-900 px-2 cursor-pointer footNavAbout transition-colors"
-        onClick={() => handleModalShow("about")}
-        tabIndex={0}
-      >
-        about
-      </button>
+        {/* About Button */}
+        <button
+          className="text-gray-300 hover:text-gray-300 cursor-pointer footNavAbout transition-colors"
+          onClick={() => handleModalShow("about")}
+          tabIndex={0}
+        >
+          about
+        </button>
 
-      {/* Settings Icon */}
-      <button
-        className="text-gray-600 hover:text-gray-900 cursor-pointer footNavCog transition-colors"
-        onClick={() => handleModalShow("config")}
-        tabIndex={0}
-      >
-        <FontAwesomeIcon
-          icon={faCog}
-          className="h-5 w-5"
-        />
-      </button>
+        {/* Settings Icon */}
+        <button
+          className=" cursor-pointer text-gray-400 transition-colors"
+          onClick={() => handleModalShow("config")}
+          tabIndex={0}
+        >
+          <FontAwesomeIcon
+            icon={faCog}
+            className="h-5 w-5 transition-transform duration-900 hover:rotate-[30deg]"
+          />
+        </button>
+      </div>
+
+      {/* right aligned title */}
+      <h1 className="text-xl font-semibold titleText mb-[0.3em]">
+        chord buildr
+      </h1>
 
       {/* Modals */}
       <AboutModal
@@ -91,11 +99,6 @@ export const FooterComponent: React.FC = () => {
         open={modalState.config}
         onOpenChange={(open: boolean) => !open && handleModalHide("config")}
       />
-
-      {/* Title */}
-      <h1 className="absolute left-1/2 transform -translate-x-1/2 text-xl font-semibold titleText">
-        chord buildr
-      </h1>
     </nav>
   )
 }

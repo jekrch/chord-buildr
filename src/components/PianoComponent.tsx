@@ -77,12 +77,6 @@ export const PianoComponent: React.FC<PianoComponentProps> = ({
     playPiano(dispatch, state, pianoId)
   }
 
-  const getNumeralChord = (): string => {
-    const piano = getPianoById(state, pianoId)
-    const key = getProgKeyChord(state)
-    return getChordNumeral(key, piano?.selectedChord) ?? ''
-  }
-
   const renderPiano = () => {
     const piano = getPianoById(state, pianoId)?.piano || []
     return piano.map((octave, i) => 
@@ -103,7 +97,7 @@ export const PianoComponent: React.FC<PianoComponentProps> = ({
 
   return (
     <>
-      <div className="pianoContainer">
+      <div className="absolute flex top-0 right-0 left-[6.5em] h-[11.5em]">
         <button
           type="button"
           className="piano-play-button"
@@ -112,13 +106,13 @@ export const PianoComponent: React.FC<PianoComponentProps> = ({
         <div className="pianoBox">
           <button
             type="button"
-            className="close pianoCloseButton"
+            className="relative mr-[-0.5em] top-[-0.6em] ml-[0.1em] !float-left !border-0 !border-none !outline-none"
             aria-label="Close"
             onClick={handleClickRemovePiano}
           >
-            <span aria-hidden="true">&times;</span>
+            <span className="text-gray-400 hover:text-red-300/80 font-medium text-[1.6em] tracking-tighter" aria-hidden="true">&times;</span>
           </button>
-          <ul className="set">{renderPiano()}</ul>
+          <ul className="set mt-3">{renderPiano()}</ul>
         </div>
         <div className="closeContainer">
           <button
@@ -131,9 +125,6 @@ export const PianoComponent: React.FC<PianoComponentProps> = ({
           </button>
         </div>
       </div>
-      {/* <div className="pianoRomanNumeral">
-        {getNumeralChord()}
-      </div> */}
     </>
   )
 }

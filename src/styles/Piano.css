@@ -116,28 +116,6 @@ ul .white:active {
 	margin-right: 0.0em;
 }
 
-.pianoCloseButton {
-	position: relative;
-	margin-right: -0.5em;
-	top: -0.1em;
-	margin-left: 0.1em;
-	z-index: 3;
-	float: left !important;
-	/* background-color: black !important; */
-	color: white !important;
-	border-width: 0 !important;
-	border: none !important;
-	outline: none !important;
-}
-
-.pianoCloseButton:hover {
-	color: rgb(204, 146, 146);
-}
-
-.pianoCloseButton:active {
-	color: rgb(129, 93, 93);
-}
-
 .piano-play-button:active {
 	color: rgb(103, 149, 187);
 	background: linear-gradient(45deg, #222 0%, rgb(75, 78, 82) 100%);

@@ -3,7 +3,7 @@
 @tailwind components;
 @tailwind utilities;
 
-  
+
 /* global.css */
 html body[data-scroll-locked] {
     overflow: visible !important;
@@ -124,11 +124,6 @@ code {
 	margin-bottom: 0.1em;
 }
 
-.pianoChordBox {
-	top: 0em;
-	height: 12em;
-	
-}
 
 .selectorBox {
 	border-color: var(--gray-lighter);
@@ -152,17 +147,6 @@ code {
 	--main-selected-color: #007bff;
 		/* rgb(63, 65, 68); */
 }
-
-.pianoContainer {
-	position: absolute;
-	display: flex;
-	top: 0em;
-	right: 0em;
-	left: 6.5em;
-	height: 11.5em;
-	vertical-align: center;
-}
-
 
 .pianoBox {
 	position: absolute;
@@ -201,9 +185,6 @@ and (min-device-width : 0px)
 and (max-device-width : 630px)
 {
 
-	.contentBox {
-		margin-top: -1em !important;
-	}
 
 	.btn-main {
 		margin-top: 1em;
@@ -452,11 +433,6 @@ and (orientation : portrait) {
 	position: absolute;
 }
 
-.contentBox {
-	margin-top: 0em;
-	position: relative;
-}
-
 
 .chordPiano :first-child {
 	margin-top: 0;
@@ -631,7 +607,7 @@ and (orientation : portrait) {
 	--card-foreground: 211 5% 90%;
 	--popover: 0 1% 15%;
 	--popover-foreground: 211 5% 90%;
-	--primary: 211 91% 40%;
+	--primary: 211 91% 45%;
 	--primary-foreground: 0 0% 100%;
 	--secondary: 211 30% 20%;
 	--secondary-foreground: 0 0% 100%;
