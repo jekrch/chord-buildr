@@ -96,7 +96,7 @@ export const PianoBoardComponent: React.FC = () => {
       {state.chordPianoSet?.length ?? 0 > 0 ? (
         <>
           {renderChordPianoSet()}
-          <div className="h-[10em]" />
+          <div className="h-[100vh]" />
         </>
       ) : (
         <div className="introBody">

@@ -631,7 +631,7 @@ and (orientation : portrait) {
 	--card-foreground: 211 5% 90%;
 	--popover: 0 1% 15%;
 	--popover-foreground: 211 5% 90%;
-	--primary: 211 61% 38%;
+	--primary: 211 91% 40%;
 	--primary-foreground: 0 0% 100%;
 	--secondary: 211 30% 20%;
 	--secondary-foreground: 0 0% 100%;
@@ -641,7 +641,7 @@ and (orientation : portrait) {
 	--accent-foreground: 211 5% 90%;
 	--destructive: 0 59% 46%;
 	--destructive-foreground: 211 5% 90%;
-	--border: 211 30% 46%;
+	--border: 211 20% 46%;
 	--input: 211 30% 46%;
 	--ring: 211 91% 38%;
 	--radius: 0.5rem;

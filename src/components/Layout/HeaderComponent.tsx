@@ -154,9 +154,9 @@ export const HeaderComponent: React.FC = () => {
   }
 
   return (
-    <nav className="fixed top-0 w-full bg-[#2c2b2b] border-b shadow-sm z-50 ">
-      <div className="flex flex-col p-4 headerContainer">
-        <div className="flex gap-2 mb-4 justify-center">
+    <nav className="fixed top-0 w-full bg-background opacity-[98%] shadow-sm z-50 ">
+      <div className="flex flex-col">
+        <div className="flex justify-center bg-primary/10">
           <Button
             variant="default"
             size="sm"
@@ -197,7 +197,7 @@ export const HeaderComponent: React.FC = () => {
           </Button>
         </div>
 
-        <div className="flex items-center progression">
+        <div className="flex items-center progression border-t border-border border-b py-3">
           <div className="flex flex-wrap gap-1">
             {renderProgression()}
           </div>

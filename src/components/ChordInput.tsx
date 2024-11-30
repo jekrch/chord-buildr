@@ -17,6 +17,7 @@ import { useAppContext, getPianoById, getProgKeyChord } from './context/AppConte
 import { updateFlatOrSharpLetter } from '../utils/chordCodeHandler'
 import { cn } from '../lib/utils'
 import { Checkbox } from '../components/ui/checkbox';
+import { getChordNumeral } from '../utils/numeralHelper'
 
 interface ChordInputProps {
   pianoComponentId: number,
@@ -326,16 +327,22 @@ export const ChordInput: React.FC<ChordInputProps> = ({ pianoComponentId, classN
     )
   }
 
+  const getNumeralChord = (): string => {
+    const piano = getPianoById(state, pianoComponentId)
+    const key = getProgKeyChord(state)
+    return getChordNumeral(key, piano?.selectedChord) ?? ''
+  }
+  
   return (
-    <form className={cn("flex items-center gap-4 h-[6em]", className)}>
-      <div className=" items-center space-x-4">
+    <form className={cn("h-[12em] w-[6em]", className)}>
+      <div className="items-center space-y-2 w-full">
         {/* Key Selection */}
         <Select
           value={getKeyRelativeLetter(chordRef.current.selectedChordKey) || 'C'} // Fallback to 'C'
           onValueChange={(value: any) => handleKeySelectChange({ target: { value } } as any)}
         >
-          <SelectTrigger className="w-20">
-            <SelectValue />
+          <SelectTrigger className="w-full h-full">
+            <span className="w-full"><span className="float-left"> <SelectValue /></span>  <span className="float-right mr-1 text-slate-400">{getNumeralChord()}</span></span>
           </SelectTrigger>
           <SelectContent>
             {chordRef.current.noteArray
@@ -351,7 +358,9 @@ export const ChordInput: React.FC<ChordInputProps> = ({ pianoComponentId, classN
               .filter(Boolean)} {/* Remove any null elements */}
           </SelectContent>
         </Select>
-
+        {/* <div className="pianoRomanNumeral">
+        {getNumeralChord()}
+        </div> */}
         {/* Chord Type Selection */}
         <Select
           value={chordRef.current.type || 'major'} // Fallback to 'major'
@@ -372,26 +381,47 @@ export const ChordInput: React.FC<ChordInputProps> = ({ pianoComponentId, classN
         </Select>
 
         {/* Checkboxes */}
-        <div className="flex items-center space-x-4">
-          <div className="flex items-center space-x-2">
-            <Checkbox
-              id={`key-${chordRef.current.id}`}
-              checked={chordRef.current.isProgKey}
-              onCheckedChange={(checked: any) =>
-                handleIsKeyChecked({ target: { checked } } as any)
-              }
-            />
-            <label
-              htmlFor={`key-${chordRef.current.id}`}
-              className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
-            >
-              key
-            </label>
+        <div className="flex-box space-x-2 text-slate-300">
+          <div className="flex space-x-4 mb-2">
+            <div className="space-x-2">
+              <Checkbox
+                id={`key-${chordRef.current.id}`}
+                className="pb-[0.1em]"
+                checked={chordRef.current.isProgKey}
+                onCheckedChange={(checked: any) =>
+                  handleIsKeyChecked({ target: { checked } } as any)
+                }
+              />
+              <label
+                htmlFor={`key-${chordRef.current.id}`}
+                className="text-sm leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+              >
+                key
+              </label>
+            </div>
+
+            <div className="items-center space-x-2">
+              <Checkbox
+                id={`flat-${chordRef.current.id}`}
+                className="pb-[0.1em]"
+                checked={chordRef.current.showFlats}
+                onCheckedChange={(checked: any) =>
+                  handleIsFlatKeyChecked({ target: { checked } } as any)
+                }
+              />
+              <label
+                htmlFor={`flat-${chordRef.current.id}`}
+                className="text-sm leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+              >
+                b
+              </label>
+            </div>
           </div>
 
-          <div className="flex items-center space-x-2">
+          <div className="flex !ml-0 space-x-2 !mb-[0.7em]">
             <Checkbox
               id={`slash-${chordRef.current.id}`}
+              className="pb-[0.1em]"
               checked={chordRef.current.slashChord}
               onCheckedChange={(checked) =>
                 handleIsSlashChordChecked({ target: { checked } } as any)
@@ -399,41 +429,26 @@ export const ChordInput: React.FC<ChordInputProps> = ({ pianoComponentId, classN
             />
             <label
               htmlFor={`slash-${chordRef.current.id}`}
-              className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+              className="text-sm leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
             >
               slash
             </label>
           </div>
 
-          <div className="flex items-center space-x-2">
-            <Checkbox
-              id={`flat-${chordRef.current.id}`}
-              checked={chordRef.current.showFlats}
-              onCheckedChange={(checked: any) =>
-                handleIsFlatKeyChecked({ target: { checked } } as any)
-              }
-            />
-            <label
-              htmlFor={`flat-${chordRef.current.id}`}
-              className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
-            >
-              b
-            </label>
-          </div>
         </div>
 
         {/* Slash Chord Section */}
         <div className="flex items-center">
           <span
             className={cn(
-              "mx-2 text-lg",
+              "mx-1 text-lg",
               !chordRef.current.slashChord && "invisible"
             )}
           >
             /
           </span>
           <div className={cn(
-            "transition-all",
+            "transition-all ml-1",
             !chordRef.current.slashChord && "invisible w-0",
             chordRef.current.slashChord && "w-20"
           )}>
@@ -451,7 +466,7 @@ export const ChordInput: React.FC<ChordInputProps> = ({ pianoComponentId, classN
               </SelectTrigger>
               <SelectContent>
                 <SelectItem value="placeholder" disabled>
-                  Select
+
                 </SelectItem>
                 {chordRef.current.noteArray
                   .map((option, index) => {

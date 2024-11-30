@@ -131,9 +131,9 @@ export const PianoComponent: React.FC<PianoComponentProps> = ({
           </button>
         </div>
       </div>
-      <div className="pianoRomanNumeral">
+      {/* <div className="pianoRomanNumeral">
         {getNumeralChord()}
-      </div>
+      </div> */}
     </>
   )
 }
