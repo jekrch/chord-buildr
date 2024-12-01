@@ -346,7 +346,7 @@ export const ChordInput: React.FC<ChordInputProps> = ({ pianoComponentId, classN
           </SelectTrigger>
           <SelectContent>
             {chordRef.current.noteArray
-              .filter(option => option && option.trim()) // Remove empty strings first
+              //.filter(option => option && option.trim()) // Remove empty strings first
               .map((option, index) => {
                 const relativeValue = getKeyRelativeLetter(option);
                 return relativeValue ? ( // Only render if we have a value
@@ -371,7 +371,7 @@ export const ChordInput: React.FC<ChordInputProps> = ({ pianoComponentId, classN
           </SelectTrigger>
           <SelectContent>
             {chordTypeArray
-              .filter(option => option && option.trim()) // Remove empty strings
+              //.filter(option => option && option.trim()) // Remove empty strings
               .map((option, index) => (
                 <SelectItem key={index} value={option}>
                   {option}
