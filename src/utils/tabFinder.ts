@@ -26,6 +26,7 @@ const normalizeKey = (keyNoteNumber: number): string => {
     // handle special cases and normalize to database format
     const suffixMap: Record<string, string> = {
       'maj': 'major',
+      '': 'major',
       'm': 'minor',
       '+': 'aug',
       'M7': 'maj7',
@@ -86,6 +87,9 @@ const normalizeKey = (keyNoteNumber: number): string => {
       // Not supported: add2 m13 7#11 m7#9 m7b9 m7#5 m7#11 9sus4
       const normalizedSuffix = normalizeSuffix(suffix);
       
+      //console.log(normalizedRoot)
+      //console.log(normalizedSuffix);
+
       // find the chord in the database
       const chordGroup = guitarChords[normalizedRoot];
 

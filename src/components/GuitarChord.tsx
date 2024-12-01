@@ -49,11 +49,11 @@ export const GuitarChord: React.FC<GuitarChordProps> = ({ pianoComponentId }) =>
   }
 
   return (
-    <div className="guitar-chord">
+    <div className="guitar-chord !min-w-[15em] ml-2">
       <div>
         <button
           type="button"
-          className="close guitar-tab-close-button"
+          className="guitar-tab-close-button"
           aria-label="Close"
           onClick={handleClickRemovePiano}
         >
@@ -61,15 +61,15 @@ export const GuitarChord: React.FC<GuitarChordProps> = ({ pianoComponentId }) =>
         </button>
         <button
           type="button"
-          className="guitar-play-btn piano-play-button"
+          className="piano-play-button"
           onClick={handlePlayClick}
         />
       </div>
-      <div className="chord-wrapper">
+      <div className="chord-wrapper inline-block">
         {tabPositions?.length ? (
           <>
             <Chord chord={tabPositions[currentPosition]} instrument={instrument} />
-            <div className="guitar-pos-navigation">
+            <div className="w-[11em]">
               <button onClick={() => setCurrentPosition(prev => prev === 0 ? tabPositions.length - 1 : prev - 1)} className="guitar-pos-button">
                 <FontAwesomeIcon icon={faChevronLeft} className="guitar-pos-chev" />
               </button>

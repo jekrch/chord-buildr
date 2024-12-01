@@ -31,9 +31,9 @@ export const FooterComponent: React.FC = () => {
   }
 
   return (
-    <nav className="fixed bottom-0 w-full bg-white border-t shadow-sm z-50 px-4 py-2 flex items-center footNav">
+    <nav className="fixed bottom-0 w-full z-50 px-4 py-2 flex items-center footNav">
       {/* left aligned items container */}
-      <div className="flex items-center space-x-4 flex-1">
+      <div className="flex items-center space-x-6 flex-1 align-middle">
         {/* GitHub Link */}
         <a 
           href={GITHUB_URL}
@@ -42,7 +42,7 @@ export const FooterComponent: React.FC = () => {
           rel="noopener noreferrer"
         >
           <img 
-            className="h-8 w-auto gitSrc" 
+            className="h-5 w-auto hover:opacity-40" 
             src={GitHub120} 
             alt="GitHub Repository"
           />
@@ -50,7 +50,7 @@ export const FooterComponent: React.FC = () => {
 
         {/* Version Button */}
         <button
-          className="text-gray-300 hover:text-gray-300 cursor-pointer footNavVersion transition-colors"
+          className="text-gray-300 hover:opacity-40 cursor-pointer footNavVersion transition-colors"
           onClick={() => handleModalShow("version")}
           tabIndex={0}
         >
@@ -59,7 +59,7 @@ export const FooterComponent: React.FC = () => {
 
         {/* About Button */}
         <button
-          className="text-gray-300 hover:text-gray-300 cursor-pointer footNavAbout transition-colors"
+          className="text-gray-300 hover:opacity-40 cursor-pointer footNavAbout transition-colors"
           onClick={() => handleModalShow("about")}
           tabIndex={0}
         >
@@ -68,13 +68,13 @@ export const FooterComponent: React.FC = () => {
 
         {/* Settings Icon */}
         <button
-          className=" cursor-pointer text-gray-400 transition-colors"
+          className="cursor-pointer text-gray-400  hover:opacity-40 transition-colors"
           onClick={() => handleModalShow("config")}
           tabIndex={0}
         >
           <FontAwesomeIcon
             icon={faCog}
-            className="h-5 w-5 transition-transform duration-900 hover:rotate-[30deg]"
+            className="h-5 w-5 transition-transform duration-900 hover:rotate-[30deg] align-middle mb-[0.1em]"
           />
         </button>
       </div>

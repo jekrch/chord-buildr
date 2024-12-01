@@ -184,14 +184,11 @@ and (min-device-width : 981px) {
 and (min-device-width : 0px) 
 and (max-device-width : 630px)
 {
-
-
 	.btn-main {
 		margin-top: 1em;
 		margin-top: 0.5em !important;
 		margin-bottom: 0.5em !important;
 	}
-
 }
 
 .pianoCloseButton {
@@ -201,7 +198,6 @@ and (max-device-width : 630px)
 .pianoCloseButtonMobile {
 	visibility: hidden !important;
 }
-
 
 .pianoRomanNumeral {
 	font-size: 1.5em;
@@ -483,7 +479,7 @@ and (orientation : portrait) {
 	background: transparent !important;
 	border: none;
 	max-height: 4em;
-	color: #999;
+	color: #3d3434;
 	cursor: pointer;
 	padding: 8px;
 	z-index: 9999;
@@ -518,11 +514,10 @@ and (orientation : portrait) {
 	visibility: visible !important;
 	margin-left: 0em !important;
 	top: 0em;
-	right: 8.8em;
+	right: 6.3em;
 	position: relative;
-	zoom: 0.7;
-	width: 1.8em;
-	height: 2.2em;
+	width: 1.91em;
+	height: 2.4em;
 	opacity: 1.0 !important;
 	z-index: 99999 !important;
 	color: grey !important;
@@ -534,7 +529,7 @@ and (orientation : portrait) {
 	outline: none !important;
 	box-shadow:
 		-1px -1px 2px var(--main-compononent-gray) inset,
-		0 -3px 2px 3px rgba(46, 45, 45, 0.6) inset,
+		0 -2px 2px 3px rgba(46, 45, 45, 0.6) inset,
 		3px 6px 3px rgba(16, 19, 26, 0.404);
 }
 
@@ -548,9 +543,8 @@ and (orientation : portrait) {
 
 .guitar-chord {
 	display: inline-block;
-	position: absolute;
+	position: relative;
 	width: 11.3em;
-	top: -12em;
 	min-height: 4em !important;
   }
   

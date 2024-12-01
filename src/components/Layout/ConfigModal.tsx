@@ -85,46 +85,46 @@ export function ConfigModal({ open, onOpenChange }: ConfigModalProps): JSX.Eleme
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-lg ">
-        <DialogHeader className="border-b pb-4">
+      <DialogContent className="sm:max-w-lg">
+        <DialogHeader className="border-b pb-5">
           <div />
         </DialogHeader>
         
-        <div className="space-y-8 py-4">
-          <div className="space-y-8">
-            <Select
-              value={settingRef.current.synthType}
-              onValueChange={handleSynthSelectChange}
-            >
-              <SelectTrigger className="w-full">
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent>
-                {Object.entries(synthTypes).map(([key, value]) => (
-                  <SelectItem key={`k-${key}`} value={key}>
-                    {value}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-
-            <Slider
-              value={[localVolume]}
-              onValueChange={handleVolumeDrag}
-              onValueCommit={handleVolumeChangeComplete}
-              max={100}
-              step={1}
-              className="w-full"
-            />
-          </div>
-
-          <div className="flex justify-center">
+        <div className="py-4">
+          <div className="flex items-center gap-6 -ml-1">
             <button
               onClick={onPlayClick}
-              className="text-primary hover:text-primary/80 transition-colors"
+              className="text-primary hover:text-primary/80 transition-colors flex-shrink-0"
             >
-              <Play size={64} className="-mt-4 -ml-4" />
+              <Play size={62} />
             </button>
+
+            <div className="flex-grow space-y-8">
+              <Select
+                value={settingRef.current.synthType}
+                onValueChange={handleSynthSelectChange}
+              >
+                <SelectTrigger className="w-full">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  {Object.entries(synthTypes).map(([key, value]) => (
+                    <SelectItem key={`k-${key}`} value={key}>
+                      {value}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+
+              <Slider
+                value={[localVolume]}
+                onValueChange={handleVolumeDrag}
+                onValueCommit={handleVolumeChangeComplete}
+                max={100}
+                step={1}
+                className="w-full"
+              />
+            </div>
           </div>
         </div>
       </DialogContent>

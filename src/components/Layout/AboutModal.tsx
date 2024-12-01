@@ -19,8 +19,8 @@ export function AboutModal({ open, onOpenChange }: AboutModalProps) {
           <div className=" inset-0" />
         </DialogHeader>
         
-        <div className="space-y-6 relative overflow-auto max-h-[60vh]">
-          <p className="text-base text-center">
+        <div className="space-y-6 relative overflow-auto max-h-[60vh] px-4">
+          <p className="text-sm text-center">
             Chord Buildr provides an easy way for musicians and music lovers to
             create and share chord progressions.
           </p>

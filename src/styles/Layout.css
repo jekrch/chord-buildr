@@ -123,12 +123,7 @@
 	color: rgb(112, 112, 112);
 }
 
-.gitSrc {
-	height: 1.2em;
-	margin-bottom: .2em;
-	margin-right: .3em;
-	margin-left: .4m;
-}
+
 
 .aboutFeatureText {
 	font-size: 14px;
@@ -334,7 +329,7 @@ body.modal-open {
 
 .titleText {
 	vertical-align: middle;
-	position:absolute;
+
 	right: 2em;
 	margin-top: 0.1em;
 	margin-left: 1.5em;

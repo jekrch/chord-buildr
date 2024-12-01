@@ -158,7 +158,7 @@ export const ChordInput: React.FC<ChordInputProps> = ({ pianoComponentId, classN
 
   const handleIsSlashChordChecked = (e: React.ChangeEvent<HTMLInputElement>): void => {
     chordRef.current.slashChord = e.target.checked
-
+    
     if (!chordRef.current.slashChord) {
       chordRef.current.slashNote = "";
     }
@@ -211,16 +211,20 @@ export const ChordInput: React.FC<ChordInputProps> = ({ pianoComponentId, classN
    * to display correct corresponding letter
    */
   function updateChordPianoKey(chordPiano: ChordPiano, newLetter: string): void {
-    chordPiano.selectedKey.noteLetter = newLetter
-    chordPiano.selectedChord.noteLetter = newLetter
+    //chordPiano.selectedKey.noteLetter = newLetter
+    //chordPiano.selectedChord.noteLetter = newLetter
+    
+    const selectedKey = {
+      noteLetter: newLetter,
+      octave: chordPiano.selectedKey.octave ?? 0
+    }
+
+    console.log(newLetter)
 
     dispatch({
       type: 'UPDATE_KEY',
       id: chordPiano.id,
-      payload: {
-        noteLetter: newLetter,
-        octave: chordPiano.selectedKey.octave ?? 0
-      }
+      payload: selectedKey
     })
 
     if (chordPiano.isProgKey) {
@@ -336,6 +340,7 @@ export const ChordInput: React.FC<ChordInputProps> = ({ pianoComponentId, classN
   return (
     <form className={cn("h-[12em] w-[6em]", className)}>
       <div className="items-center space-y-2 w-full">
+        
         {/* Key Selection */}
         <Select
           value={getKeyRelativeLetter(chordRef.current.selectedChordKey) || 'C'} // Fallback to 'C'
@@ -345,8 +350,7 @@ export const ChordInput: React.FC<ChordInputProps> = ({ pianoComponentId, classN
             <span className="w-full"><span className="float-left"> <SelectValue /></span>  <span className="float-right mr-1 text-slate-400">{getNumeralChord()}</span></span>
           </SelectTrigger>
           <SelectContent>
-            {chordRef.current.noteArray
-              //.filter(option => option && option.trim()) // Remove empty strings first
+            {chordRef.current.noteArray        
               .map((option, index) => {
                 const relativeValue = getKeyRelativeLetter(option);
                 return relativeValue ? ( // Only render if we have a value
@@ -462,7 +466,7 @@ export const ChordInput: React.FC<ChordInputProps> = ({ pianoComponentId, classN
               disabled={!chordRef.current.slashChord}
             >
               <SelectTrigger>
-                <SelectValue placeholder="Select" />
+                <SelectValue placeholder="Select">{chordRef.current.slashNote}</SelectValue>
               </SelectTrigger>
               <SelectContent>
                 <SelectItem value="placeholder" disabled>
@@ -492,8 +496,7 @@ export const ChordInput: React.FC<ChordInputProps> = ({ pianoComponentId, classN
                         {keyRelativeValue}
                       </SelectItem>
                     )
-                  })
-                  .filter(Boolean) // Remove null values
+                  })                  
                 }
               </SelectContent>
             </Select>

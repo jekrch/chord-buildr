@@ -62,7 +62,10 @@ export const PianoBoardComponent: React.FC = () => {
   if (true) {
     renderChordPianoSet = (): React.ReactNode => {
       return state.chordPianoSet?.map((chordPiano) => (
-        <div key={`wrapper-${chordPiano.id}-${refresh}`}>
+        <div 
+          className="lg:!ml-[20%]" 
+          key={`wrapper-${chordPiano.id}-${refresh}`}
+        >
           <ChordPianoComponent
             key={`piano-${chordPiano.id}-${refresh}`}
             pianoComponentId={Number(chordPiano.id)}
@@ -73,21 +76,26 @@ export const PianoBoardComponent: React.FC = () => {
     }
   } else {
     renderChordPianoSet = (): React.ReactNode => {
-      return <div className="container">
-        <div className="row g-3 guitar-container">
-          {state.chordPianoSet?.map((chordPiano) => (
-            <div key={chordPiano.id} className="col-12 col-sm-6 col-md-6 col-lg-8">
-              <div className="card">
-                <div className="card-body">
-                  <ChordInput
-                    pianoComponentId={chordPiano.id} />
-                  <GuitarChord pianoComponentId={chordPiano.id} />
+      return (
+        <div className="container mx-auto px-4">
+          <div className="grid gap-3 grid-cols-1 sm:grid-cols-2 lg:grid-cols-1">
+            {state.chordPianoSet?.map((chordPiano) => (
+              <div key={chordPiano.id} className="w-full lg:w-2/3">
+                <div className=" rounded-lg shadow">
+                  <div className="p-4 flex">
+                    <ChordInput 
+                      pianoComponentId={chordPiano.id} 
+                    />
+                    <GuitarChord 
+                      pianoComponentId={chordPiano.id} 
+                    />
+                  </div>
                 </div>
               </div>
-            </div>
-          ))}
+            ))}
+          </div>
         </div>
-      </div>
+      )
     }
   }
 
