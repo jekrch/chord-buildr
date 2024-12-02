@@ -265,7 +265,7 @@ and (orientation : portrait) {
 	.keyCheckBox {
 		position: absolute !important;
 		top: -0.35em;
-		left: 12em;
+		left: 13em;
 		z-index: 9999;
 	}
 

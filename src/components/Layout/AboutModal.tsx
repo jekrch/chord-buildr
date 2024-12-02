@@ -47,7 +47,7 @@ export function AboutModal({ open, onOpenChange }: AboutModalProps) {
             </div>
           </div>
 
-          <div className="pt-[0.5em] text-center text-sm">
+          <div className="pt-[0.7em] text-center text-sm">
             <p className="text-muted-foreground">
               Chord Buildr is an{" "}
               <a
