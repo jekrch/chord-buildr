@@ -43,7 +43,8 @@ Chord Buildr is implemented in React and uses Tone.js for audio playback.
 - Typescript
 - React
 - Tone.js 
-- Bootstrap 
+- Tailwind
+- Shadcn 
 
 ## Getting Started
 
