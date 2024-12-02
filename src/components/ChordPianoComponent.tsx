@@ -2,22 +2,26 @@ import React from "react"
 import "../styles/Piano.css"
 import { PianoComponent } from "./PianoComponent"
 import { ChordInput } from "./ChordInput"
-import PropTypes from "prop-types"
 
-export const ChordPianoComponent = ({ pianoComponentId }) => {
+interface ChordPianoComponentProps {
+  pianoComponentId: number
+}
+
+export const ChordPianoComponent: React.FC<ChordPianoComponentProps> = ({ pianoComponentId }) => {
   return (
     <>
-      <div className="container chordPiano" id={"piano-" + pianoComponentId}>
-        <div className="contentBox row">
-          <div className="pianoChordBox">
+      <div 
+        className="container chordPiano" 
+        id={`piano-${pianoComponentId}`}
+      >
+        <div className="!mt-[-1em] sm:mt-0 relative row">
+          <div className="">
             <ChordInput
               key={`c-${pianoComponentId}`}
-              className="chordBox"
               pianoComponentId={pianoComponentId}
-            />
+            />           
             <PianoComponent
               key={Number(pianoComponentId)}
-              className="pianoBox"
               pianoComponentId={Number(pianoComponentId)}
             />
           </div>
@@ -25,8 +29,4 @@ export const ChordPianoComponent = ({ pianoComponentId }) => {
       </div>
     </>
   )
-}
-
-ChordPianoComponent.propTypes = {
-  pianoComponentId: PropTypes.number.isRequired
 }

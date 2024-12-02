@@ -54,7 +54,7 @@ export function getChordFromCode(chordCode: string): SelectedChord | undefined {
 
     chordCode = processSlashChord(chordCode, chord)
 
-    var indexOfType = getIndexOfType(chordCode);
+    let indexOfType = getIndexOfType(chordCode);
 
     chord.noteLetter = capitalizeFirstLetter(
       chordCode.substring(1, indexOfType)
@@ -113,8 +113,8 @@ function isNumeric(value: string): boolean {
  * if an fbclid was inserted into the code, remove it here
  */
 function removeFbclid(chordCode: string): string {
-  var startIndex = chordCode.indexOf("&fbclid")
-  var fbCode = chordCode.substring(startIndex, startIndex + 69)
+  const startIndex = chordCode.indexOf("&fbclid")
+  let fbCode = chordCode.substring(startIndex, startIndex + 69)
   chordCode = chordCode.replace(fbCode, "")
   console.log("fbCode removed: " + fbCode)
   return chordCode
@@ -167,6 +167,12 @@ export function getProgressionCode(state: AppState): string {
   }
 
   return synthCode + "&p=" + code
+}
+
+export const getChordDisplay = (chord: SelectedChord): string => {
+  return `${chord.noteLetter}${chord.type}${
+    isSlashChord(chord) ? `/${chord.slashNote}` : ""
+  }`
 }
 
 /**

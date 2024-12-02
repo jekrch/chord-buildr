@@ -65,7 +65,7 @@ const initialState: AppState = {
 function getChordPiano(pianoId: number): ChordPiano {
   return {
     id: pianoId,
-    piano: pianoGenerator(), // Assuming this is imported from pianoHelper
+    piano: pianoGenerator(), 
     selectedKey: { noteLetter: "C", octave: 0 },
     selectedChord: {
       noteLetter: "C",

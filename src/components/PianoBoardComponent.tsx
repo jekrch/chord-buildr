@@ -4,6 +4,8 @@ import { useAppContext } from "../components/context/AppContext"
 import { getProgressionCode } from "../utils/chordCodeHandler"
 // @ts-ignores
 import { ChordPianoComponent } from "../components/ChordPianoComponent"
+import { ChordInput } from "./ChordInput"
+import { GuitarChord } from "./GuitarChord"
 
 export const PianoBoardComponent: React.FC = () => {
   const { state, dispatch } = useAppContext();
@@ -44,7 +46,7 @@ export const PianoBoardComponent: React.FC = () => {
     if (!state.chordPianoSet) {
       return
     }
-    
+
     const currentCode = getProgressionCode(state)
     const newParams = history.location.search + history.location.hash
 
@@ -55,32 +57,59 @@ export const PianoBoardComponent: React.FC = () => {
     }
   }, [state, history])
 
-  const renderChordPianoSet = (): React.ReactNode => {
-    return state.chordPianoSet?.map((chordPiano) => (
-      <div key={`wrapper-${chordPiano.id}-${refresh}`}>
-        <ChordPianoComponent
-          id={`piano-${chordPiano.id}`}
-          key={`piano-${chordPiano.id}-${refresh}`}
-          className="row chordPianoComponent"
-          pianoComponentId={Number(chordPiano.id)}
-          history={history}
-        />
-        <div key={`strip-${chordPiano.id}`} className="pianoStrip" />
-      </div>
-    ))
+  let renderChordPianoSet;
+
+  if (true) {
+    renderChordPianoSet = (): React.ReactNode => {
+      return state.chordPianoSet?.map((chordPiano) => (
+        <div 
+          className="lg:!ml-[20%]" 
+          key={`wrapper-${chordPiano.id}-${refresh}`}
+        >
+          <ChordPianoComponent
+            key={`piano-${chordPiano.id}-${refresh}`}
+            pianoComponentId={Number(chordPiano.id)}
+          />
+          <div key={`strip-${chordPiano.id}`} className="pianoStrip" />
+        </div>
+      ))
+    }
+  } else {
+    renderChordPianoSet = (): React.ReactNode => {
+      return (
+        <div className="container mx-auto px-4">
+          <div className="grid gap-3 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 sm:gap-x-[2.8em] sm:!-ml-[3.5em]">
+            {state.chordPianoSet?.map((chordPiano) => (
+              <div key={chordPiano.id} className="w-full lg:w-2/3">
+                <div className=" rounded-lg shadow">
+                  <div className="p-4 flex">
+                    <ChordInput 
+                      pianoComponentId={chordPiano.id} 
+                    />
+                    <GuitarChord 
+                      pianoComponentId={chordPiano.id} 
+                    />
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      )
+    }
   }
 
   return (
     <div key={`pianoBoard-${refresh}`} className="pianoBoard">
       {state.chordPianoSet?.length ?? 0 > 0 ? (
-        <> 
-          {renderChordPianoSet()}   
-          <div className="pianoBoardGutter" />
+        <>
+          {renderChordPianoSet()}
+          <div className="h-[100vh]" />
         </>
       ) : (
         <div className="introBody">
           <div className="introText">
-            welcome to chord buildr<br/>
+            welcome to chord buildr<br />
             use the controls above to get started
           </div>
         </div>

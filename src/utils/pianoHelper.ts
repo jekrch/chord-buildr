@@ -1,11 +1,9 @@
-// represents a single piano key with its properties
-type PianoKey = {
-  note: string;
-  color: 'black' | 'white';
-  selected?: boolean;
-  noteNumber?: number;
-  octave?: number;
-};
+import { NoteKey } from "./chordPianoHandler";
+
+interface PianoKey {
+  note: string
+  color: 'white' | 'black'
+}
 
 const pianoKeys: readonly PianoKey[] = [
   { note: 'C', color: 'white' },
@@ -22,19 +20,21 @@ const pianoKeys: readonly PianoKey[] = [
   { note: 'B', color: 'white' },
 ] as const;
 
-export const pianoGenerator = (): PianoKey[][] => {
-  const piano: PianoKey[][] = [];
+export const pianoGenerator = (): NoteKey[][] => {
+  const piano: NoteKey[][] = [];
   const octaves = 3;
 
   for (let i = 0; i < octaves; i++) {
     // i is each octave
-    const pianoKeysOctave: PianoKey[] = pianoKeys.map((key, index) => ({
+    const pianoKeysOctave: NoteKey[] = pianoKeys.map((key, index) => ({
       note: key.note,
       color: key.color,
       selected: false,
       noteNumber: index + 1,
       octave: i,
-    }));
+      isPlaying: false,
+      isStopping: false
+    } as NoteKey));
 
     piano.push(pianoKeysOctave);
   }
@@ -43,7 +43,7 @@ export const pianoGenerator = (): PianoKey[][] => {
 };
 
 // deselect all keys in the provided piano
-export function clearPianoSelections(piano: PianoKey[][]): void {
+export function clearPianoSelections(piano: NoteKey[][]): void {
   piano.forEach(pianoOctave => {
     pianoOctave.forEach(key => {
       key.selected = false;

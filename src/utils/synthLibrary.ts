@@ -5,7 +5,7 @@ interface SynthState {
   synth: keyof typeof synthTypes;
 }
 
-interface SynthReturn {
+export interface SynthReturn {
   synth: Tone.PolySynth;
   baseDecibel: number;
 }
@@ -107,6 +107,34 @@ function getPluckSynth(): Tone.PolySynth {
   return synth;
 }
 
+function getGuitSynth(): Tone.PolySynth {
+  const synth = new Tone.PolySynth().toDestination();
+  const instr: InstrumentSettings = {
+    "harmonicity": 5,
+    "modulationIndex": 10,
+    "oscillator": {
+      "type": "sine"
+    },
+    "envelope": {
+      "attack": 0.001,
+      "decay": 2,
+      "sustain": 0.1,
+      "release": 2
+    },
+    "modulation": {
+      "type": "square"
+    },
+    "modulationEnvelope": {
+      "attack": 0.002,
+      "decay": 0.2,
+      "sustain": 0,
+      "release": 0.2
+    }
+  };
+  synth.set(instr as any);
+  return synth;
+}
+
 /**
  * Returns a synth as specified by user volume and voice
  * selections, along with the base decibel value (to be
@@ -140,6 +168,10 @@ export function getSynth(state: SynthState): SynthReturn {
       baseDecibel = -8;
       synth = getPluckSynth();
       break;
+    case "g":
+      baseDecibel = -4;
+      synth = getGuitSynth();
+      break;
     case "p":
     default:
       baseDecibel = 2;
@@ -161,5 +193,6 @@ export const synthTypes: Record<string, string> = {
   "w": "wave",
   "s": "swell",
   "o": "organ",
-  "pl": "pluck"
+  "pl": "pluck",
+  "g": "guit"
 };
