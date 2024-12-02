@@ -200,8 +200,8 @@ export const HeaderComponent: React.FC = () => {
           </Button>
         </div>
 
-        <div className="flex items-center progression border-t border-border border-b py-3">
-          <div className="flex flex-wrap">
+        <div className="flex items-center progression border-t border-border border-b py-3 px-4">
+          <div className="flex flex-wrap justify-center">
             {renderProgression()}
           </div>
           <FontAwesomeIcon

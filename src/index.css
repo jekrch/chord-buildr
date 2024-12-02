@@ -72,19 +72,6 @@ code {
 	margin-bottom: 0.0em;
 }
 
-.slashCheckBox {
-	left: 0.3em;
-	font-size: 0.8em;
-	display: block;
-}
-
-.flatCheckBox {
-	margin-top: 1.7em;
-	margin-left: -7.2em;
-	font-size: 0.8em;
-	display: block;
-}
-
 .slashSelection {
 	position: relative;
 	margin-top: 2.1em;
@@ -143,7 +130,7 @@ code {
 	color: white;
 }
 :root {
-    --main-compononent-gray: rgb(80, 79, 79);
+    --main-compononent-gray:  rgb(203 213 225 / 0.15);
 	--main-selected-color: #007bff;
 		/* rgb(63, 65, 68); */
 }
@@ -155,8 +142,8 @@ code {
 	margin-left: 2.7em;
 	height: 100%;
 	width: 42em;
-	color: rgb(133, 133, 133);
-	border: 0.1em solid;
+	color: hsl(var(--border));
+	border: 0.01em solid;
 	border-radius: 0.3em;
 	/* border: 0.1em solid; */
 	/* left: 150px; */
@@ -189,6 +176,7 @@ and (max-device-width : 630px)
 		margin-top: 0.5em !important;
 		margin-bottom: 0.5em !important;
 	}
+
 }
 
 .pianoCloseButton {
@@ -198,6 +186,7 @@ and (max-device-width : 630px)
 .pianoCloseButtonMobile {
 	visibility: hidden !important;
 }
+
 
 .pianoRomanNumeral {
 	font-size: 1.5em;
@@ -221,7 +210,7 @@ and (orientation : portrait) {
 	}
 	
 	.chordPiano {
-		height: 17em;
+		height: 15em;
 	}
 	
 	.slashSelectorBox {
@@ -233,7 +222,7 @@ and (orientation : portrait) {
 		-moz-transform: scale(0.7);
 		max-width: 41em !important;
 		left: -11.5em;
-		margin-top: 9.5em;
+		margin-top: 8.3em;
 		height: 11.2em;
 		margin-left: 0em;
 		margin-right: 0em !important;
@@ -263,32 +252,47 @@ and (orientation : portrait) {
 		margin-top: 1em !important;
 	}
 
+	.chord-select-group {
+		margin-left: 1em;
+		/* padding-top: 1em; */
+		width: 6em;
+	}
+
+	.type-select {
+		margin-top: 0.7em !important;
+	}
+
 	.keyCheckBox {
-		top: -7.8em;
-		left: 9em;
+		position: absolute !important;
+		top: -0.35em;
+		left: 12em;
 		z-index: 9999;
 	}
 
 	.slashCheckBox {
-		top: -6.0em;
-		left: 5.4em;
+		position: absolute;
+		top: 1.4em;
+		left: 8.9em;
 		z-index: 9999;
 	}
 
 	.flatCheckBox {
-		top: -9.35em;
-		left: 13.1em;
+		position: absolute;
+		top: -0.35em;
+		left: 7.9em;
 		z-index: 9999;
 	}
 
 	.piano-play-button {
-		height: 5.9em !important;
+		height: 5.3em !important;
 		left: -8em !important;
 	}
 
-	.slashSymbol {
-		top: -3em !important;
-		left: 3.7em;
+	.slash-container {
+		position: absolute;
+		left: 7.5em;
+		top: 2.4em;
+		z-index: 9999;
 	}
 
 	.slashChordSelection {
@@ -312,9 +316,9 @@ and (orientation : portrait) {
 	.pianoCloseButtonMobile {
 		visibility: visible !important;	
 		/* text-shadow: 0 1px 0 rgb(133, 133, 133); */
-		margin-right: 0em !important;
-		top: 0em;
-		right: 0.5em;
+		margin-right: -4em !important;
+		top: -0.35em;
+		right: -4em;
 		position: relative;		
 		zoom: 0.7;
 		width: 2.2em;
@@ -322,10 +326,10 @@ and (orientation : portrait) {
 		opacity: 1.0 !important;
 		z-index: 99999 !important;
 		color: grey !important;
-		background: rgb(80, 79, 79) !important;
+		background: var(--main-compononent-gray) !important;
 		padding-bottom: 0.5em !important;		
 		padding-right: 0.0em !important;
-		border: 0.1em solid !important;
+		border: 0.01em solid !important;
 		border-radius: 0.3em;
 		outline: none !important;
 		box-shadow: 
@@ -419,10 +423,7 @@ and (orientation : portrait) {
 	}
 }
 
-.keyCheckBox {
-	text-align: left;	
-	font-size: 0.8em;
-}
+
 
 .chordCheckBox label {
 	margin-top: -0.2em !important;
@@ -521,10 +522,10 @@ and (orientation : portrait) {
 	opacity: 1.0 !important;
 	z-index: 99999 !important;
 	color: grey !important;
-	background: rgb(80, 79, 79) !important;
+	background: var(--main-compononent-gray) !important;
 	padding-bottom: 0.5em !important;
 	padding-right: 0.0em !important;
-	border: 0.1em solid !important;
+	border: 0.01em solid !important;
 	border-radius: 0.3em;
 	outline: none !important;
 	box-shadow:

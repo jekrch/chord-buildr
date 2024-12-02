@@ -78,7 +78,7 @@ export const PianoBoardComponent: React.FC = () => {
     renderChordPianoSet = (): React.ReactNode => {
       return (
         <div className="container mx-auto px-4">
-          <div className="grid gap-3 grid-cols-1 sm:grid-cols-2 lg:grid-cols-1">
+          <div className="grid gap-3 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 sm:gap-x-[2.8em] sm:!-ml-[3.5em]">
             {state.chordPianoSet?.map((chordPiano) => (
               <div key={chordPiano.id} className="w-full lg:w-2/3">
                 <div className=" rounded-lg shadow">

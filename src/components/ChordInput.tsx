@@ -158,7 +158,7 @@ export const ChordInput: React.FC<ChordInputProps> = ({ pianoComponentId, classN
 
   const handleIsSlashChordChecked = (e: React.ChangeEvent<HTMLInputElement>): void => {
     chordRef.current.slashChord = e.target.checked
-    
+
     if (!chordRef.current.slashChord) {
       chordRef.current.slashNote = "";
     }
@@ -213,7 +213,7 @@ export const ChordInput: React.FC<ChordInputProps> = ({ pianoComponentId, classN
   function updateChordPianoKey(chordPiano: ChordPiano, newLetter: string): void {
     //chordPiano.selectedKey.noteLetter = newLetter
     //chordPiano.selectedChord.noteLetter = newLetter
-    
+
     const selectedKey = {
       noteLetter: newLetter,
       octave: chordPiano.selectedKey.octave ?? 0
@@ -336,58 +336,60 @@ export const ChordInput: React.FC<ChordInputProps> = ({ pianoComponentId, classN
     const key = getProgKeyChord(state)
     return getChordNumeral(key, piano?.selectedChord) ?? ''
   }
-  
+
   return (
     <form className={cn("h-[12em] w-[6em]", className)}>
       <div className="items-center space-y-2 w-full">
-        
-        {/* Key Selection */}
-        <Select
-          value={getKeyRelativeLetter(chordRef.current.selectedChordKey) || 'C'} // Fallback to 'C'
-          onValueChange={(value: any) => handleKeySelectChange({ target: { value } } as any)}
-        >
-          <SelectTrigger className="w-full h-full">
-            <span className="w-full"><span className="float-left"> <SelectValue /></span>  <span className="float-right mr-1 text-slate-400">{getNumeralChord()}</span></span>
-          </SelectTrigger>
-          <SelectContent>
-            {chordRef.current.noteArray        
-              .map((option, index) => {
-                const relativeValue = getKeyRelativeLetter(option);
-                return relativeValue ? ( // Only render if we have a value
-                  <SelectItem key={index} value={relativeValue}>
-                    {relativeValue}
-                  </SelectItem>
-                ) : null;
-              })
-              .filter(Boolean)} {/* Remove any null elements */}
-          </SelectContent>
-        </Select>
-        {/* <div className="pianoRomanNumeral">
+        <div className="chord-select-group space-y-2">
+          {/* Key Selection */}
+          <Select
+            value={getKeyRelativeLetter(chordRef.current.selectedChordKey) || 'C'} // Fallback to 'C'
+            onValueChange={(value: any) => handleKeySelectChange({ target: { value } } as any)}
+          >
+            <SelectTrigger className="w-full">
+              <span className="w-full"><span className="float-left"> <SelectValue /></span>  <span className="float-right mr-1 text-slate-400">{getNumeralChord()}</span></span>
+            </SelectTrigger>
+            <SelectContent>
+              {chordRef.current.noteArray
+                .map((option, index) => {
+                  const relativeValue = getKeyRelativeLetter(option);
+                  return relativeValue ? ( // Only render if we have a value
+                    <SelectItem key={index} value={relativeValue}>
+                      {relativeValue}
+                    </SelectItem>
+                  ) : null;
+                })
+                .filter(Boolean)} {/* Remove any null elements */}
+            </SelectContent>
+          </Select>
+          {/* <div className="pianoRomanNumeral">
         {getNumeralChord()}
         </div> */}
-        {/* Chord Type Selection */}
-        <Select
-          value={chordRef.current.type || 'major'} // Fallback to 'major'
-          onValueChange={(value: any) => handleTypeSelectChange({ target: { value } } as any)}
-        >
-          <SelectTrigger className="w-24">
-            <SelectValue />
-          </SelectTrigger>
-          <SelectContent>
-            {chordTypeArray
-              //.filter(option => option && option.trim()) // Remove empty strings
-              .map((option, index) => (
-                <SelectItem key={index} value={option}>
-                  {option}
-                </SelectItem>
-              ))}
-          </SelectContent>
-        </Select>
-
+          {/* Chord Type Selection */}
+          <div className="type-select">
+            <Select
+              value={chordRef.current.type || 'major'} // Fallback to 'major'
+              onValueChange={(value: any) => handleTypeSelectChange({ target: { value } } as any)}
+            >
+              <SelectTrigger className="w-24">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                {chordTypeArray
+                  //.filter(option => option && option.trim()) // Remove empty strings
+                  .map((option, index) => (
+                    <SelectItem key={index} value={option}>
+                      {option}
+                    </SelectItem>
+                  ))}
+              </SelectContent>
+            </Select>
+          </div>
+        </div>
         {/* Checkboxes */}
         <div className="flex-box space-x-2 text-slate-300">
           <div className="flex space-x-4 mb-2">
-            <div className="space-x-2">
+            <div className="space-x-2 keyCheckBox">
               <Checkbox
                 id={`key-${chordRef.current.id}`}
                 className="pb-[0.1em]"
@@ -404,7 +406,7 @@ export const ChordInput: React.FC<ChordInputProps> = ({ pianoComponentId, classN
               </label>
             </div>
 
-            <div className="items-center space-x-2">
+            <div className="items-center space-x-2 flatCheckBox">
               <Checkbox
                 id={`flat-${chordRef.current.id}`}
                 className="pb-[0.1em]"
@@ -422,7 +424,7 @@ export const ChordInput: React.FC<ChordInputProps> = ({ pianoComponentId, classN
             </div>
           </div>
 
-          <div className="flex !ml-0 space-x-2 !mb-[0.7em]">
+          <div className="flex !ml-0 space-x-2 !mb-[0.7em] slashCheckBox">
             <Checkbox
               id={`slash-${chordRef.current.id}`}
               className="pb-[0.1em]"
@@ -442,7 +444,7 @@ export const ChordInput: React.FC<ChordInputProps> = ({ pianoComponentId, classN
         </div>
 
         {/* Slash Chord Section */}
-        <div className="flex items-center">
+        <div className="flex items-center slash-container">
           <span
             className={cn(
               "mx-1 text-lg",
@@ -496,7 +498,7 @@ export const ChordInput: React.FC<ChordInputProps> = ({ pianoComponentId, classN
                         {keyRelativeValue}
                       </SelectItem>
                     )
-                  })                  
+                  })
                 }
               </SelectContent>
             </Select>
