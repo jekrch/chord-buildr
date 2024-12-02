@@ -1,9 +1,7 @@
-import React from "react"
 import {
   Dialog,
   DialogContent,
   DialogHeader,
-  DialogTrigger,
 } from "../../components/ui/dialog"
 
 interface VersionEntry {
@@ -21,6 +19,14 @@ interface VersionModalProps {
 
 // version history data stored as a json object
 const versionHistory: VersionEntry[] = [
+  {
+    version: "2.0",
+    date: "12.01.2024",
+    items: [
+      "rolling out new UI",
+      "preparing for upcoming guitar tab support"
+    ]
+  },
   {
     version: "1.8",
     date: "11.03.2024",
@@ -110,12 +116,12 @@ const VersionEntry = ({ version, date, items }: VersionEntryProps) => (
   <div className="border-t border-gray-700 pt-2">
     <div className="text-slate-200 flex gap-2 items-baseline">
       <span className="text-sm">{version}</span>
-      <span className="text-sm text-gray-400">- {date}</span>
+      <span className="text-xs text-gray-400">- {date}</span>
     </div>
     <div className="mt-2 ml-3 space-y-2">
       {items.map((item, index) => (
-        <div key={index} className="flex items-start gap-2 text-gray-300">
-          <span className="mt-2 h-1.5 w-1.5 rounded-full bg-gray-500 flex-shrink-0" />
+        <div key={index} className="flex items-start gap-2 text-gray-300 ml-[0.5em]">
+          <span className="mt-[0.35em] h-1.5 w-1.5 rounded-full bg-gray-500 flex-shrink-0" />
           <span className="text-xs">{item}</span>
         </div>
       ))}

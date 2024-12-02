@@ -314,35 +314,40 @@ and (orientation : portrait) {
 	}
 	
 	.pianoCloseButtonMobile {
-		visibility: visible !important;	
-		/* text-shadow: 0 1px 0 rgb(133, 133, 133); */
+		visibility: visible !important;    
 		margin-right: -4em !important;
 		top: -0.35em;
-		right: -4em;
-		position: relative;		
+		right: -18em;
+		position: relative;        
 		zoom: 0.7;
-		width: 2.2em;
-		height: 2.2em;
+		width: 2.6em;
+		height: 2.6em;
 		opacity: 1.0 !important;
 		z-index: 99999 !important;
 		color: grey !important;
 		background: var(--main-compononent-gray) !important;
-		padding-bottom: 0.5em !important;		
-		padding-right: 0.0em !important;
 		border: 0.01em solid !important;
 		border-radius: 0.3em;
 		outline: none !important;
+		/* remove padding values as they're not needed for centering */
+		/* add display flex for centering */
+		display: flex;
+		align-items: center;
+		justify-content: center;
 		box-shadow: 
 			-1px -1px 2px  var(--main-compononent-gray) inset,
 			0 -3px 2px 3px rgba(46, 45, 45, 0.6) inset, 
 			3px 6px 3px rgba(16, 19, 26, 0.404);
-
 	}
-
+	
 	.mobileClosedBtnText {
-		/* color: rgb(133, 133, 133) !important; */
-		font-size: 1em;
-		font-weight: 350 !important;
+		font-size: 1.6em;
+		font-weight: 850 !important;
+		/* remove absolute positioning */
+		position: static;
+		/* add a slight vertical adjustment if needed */
+		line-height: 1;
+		margin-bottom: 2px;
 	}
 
 	.pianoCloseButtonMobile:active {
@@ -424,6 +429,9 @@ and (orientation : portrait) {
 }
 
 
+.numeral-indicator {
+	z-index: 9999;
+}
 
 .chordCheckBox label {
 	margin-top: -0.2em !important;

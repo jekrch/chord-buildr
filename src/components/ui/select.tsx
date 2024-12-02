@@ -8,7 +8,7 @@ import { cn } from "../../lib/utils"
 const Select = React.forwardRef<
   React.ElementRef<typeof SelectPrimitive.Root>,
   React.ComponentPropsWithoutRef<typeof SelectPrimitive.Root>
->(({ value, defaultValue, onValueChange, ...props }, ref) => {
+>(({ value, defaultValue, onValueChange, ...props }) => {
   // convert empty string to placeholder value internally
   const internalValue = value === "" ? "__empty__" : value
   const internalDefaultValue = defaultValue === "" ? "__empty__" : defaultValue

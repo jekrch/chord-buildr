@@ -6,7 +6,7 @@ import { VersionModal } from "./VersionModal"
 import { ConfigModal } from "./ConfigModal"
 import GitHub120 from "../../images/Github120.png"
 
-const APP_VERSION = "v1.8.1"
+const APP_VERSION = "v2.0"
 const GITHUB_URL = "https://github.com/jekrch/chord-buildr"
 
 export const FooterComponent: React.FC = () => {

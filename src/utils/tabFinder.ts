@@ -1,6 +1,5 @@
-import guitar from "@tombatossals/chords-db/lib/guitar.json"
 import { SelectedChord } from "./chordPianoHandler";
-import { getNoteLetterMapByKey, getNoteNumber } from "./noteManager";
+import { getNoteNumber } from "./noteManager";
 
 // normalize key names to match the database format
 const normalizeKey = (keyNoteNumber: number): string => {
@@ -79,7 +78,7 @@ const normalizeKey = (keyNoteNumber: number): string => {
       const root = selectedChord.noteLetter!;
       const suffix = selectedChord.type ?? '';
       // slash chords not yet supported
-      const bass = selectedChord.slashNote;
+      //const bass = selectedChord.slashNote;
 
       // normalize the root note and suffix to match database format
       const normalizedRoot = normalizeKey(noteNumber!);

@@ -6,9 +6,7 @@ import { faChevronLeft, faChevronRight } from "@fortawesome/free-solid-svg-icons
 import { getPianoById, useAppContext } from "./context/AppContext"
 import { ChordPiano } from "../utils/chordPianoHandler"
 import { findChordPositions } from "../utils/tabFinder"
-import { getChordDisplay } from "../utils/chordCodeHandler"
-import { playMidiNotes, playMidiNotesGuitar, playPiano } from "../utils/synthPlayer"
-import { getSynth } from "../utils/synthLibrary"
+import { playMidiNotesGuitar } from "../utils/synthPlayer"
 
 interface GuitarChordProps {
   pianoComponentId: number;

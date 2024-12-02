@@ -6,9 +6,6 @@ export default defineConfig({
   plugins: [react()],
   css: {
     preprocessorOptions: {
-      scss: {
-        additionalData: `@import "bootstrap/scss/bootstrap";`
-      }
     }
   },
   resolve: {
@@ -16,14 +13,11 @@ export default defineConfig({
       "@": path.resolve(__dirname, "./src"),
     },
   },
-  optimizeDeps: {
-    include: ['bootstrap'],
-  },
   build: {
     rollupOptions: {
       output: {
         manualChunks: {
-          vendor: ['react', 'react-dom', 'bootstrap'],
+          vendor: ['react', 'react-dom'],
         },
       },
     },

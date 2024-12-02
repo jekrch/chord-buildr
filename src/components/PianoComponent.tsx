@@ -3,9 +3,8 @@ import { useHistory } from 'react-router-dom'
 import '../styles/Piano.css'
 // @ts-ignore
 import { Key } from './Key'
-import { useAppContext, getPianoById, getProgKeyChord } from './context/AppContext'
+import { useAppContext, getPianoById } from './context/AppContext'
 import { getNoteLetter } from '../utils/noteManager'
-import { getChordNumeral } from '../utils/numeralHelper'
 import { playPiano } from '../utils/synthPlayer'
 import { getProgressionCode } from "../utils/chordCodeHandler"
 import { NoteKey } from '../utils/chordPianoHandler'
@@ -17,9 +16,9 @@ interface PianoComponentProps {
   forceUpdate?: number
 }
 
-export const PianoComponent: React.FC<PianoComponentProps> = ({ 
-  pianoComponentId, 
-  forceUpdate 
+export const PianoComponent: React.FC<PianoComponentProps> = ({
+  pianoComponentId,
+  forceUpdate
 }) => {
   const { state, dispatch } = useAppContext()
   const pianoId = pianoComponentId
@@ -79,7 +78,7 @@ export const PianoComponent: React.FC<PianoComponentProps> = ({
 
   const renderPiano = () => {
     const piano = getPianoById(state, pianoId)?.piano || []
-    return piano.map((octave, i) => 
+    return piano.map((octave, i) =>
       octave.map((pianoKey: NoteKey) => ({
         ...pianoKey,
         octave: i,
@@ -183,7 +182,7 @@ export const PianoBoardComponent: React.FC = () => {
       ) : (
         <div className="introBody">
           <div className="introText">
-            welcome to chord buildr<br/>
+            welcome to chord buildr<br />
             use the controls above to get started
           </div>
         </div>

@@ -342,26 +342,31 @@ export const ChordInput: React.FC<ChordInputProps> = ({ pianoComponentId, classN
       <div className="items-center space-y-2 w-full">
         <div className="chord-select-group space-y-2">
           {/* Key Selection */}
-          <Select
-            value={getKeyRelativeLetter(chordRef.current.selectedChordKey) || 'C'} // Fallback to 'C'
-            onValueChange={(value: any) => handleKeySelectChange({ target: { value } } as any)}
-          >
-            <SelectTrigger className="w-full">
-              <span className="w-full"><span className="float-left"> <SelectValue /></span>  <span className="float-right mr-1 text-slate-400">{getNumeralChord()}</span></span>
-            </SelectTrigger>
-            <SelectContent>
-              {chordRef.current.noteArray
-                .map((option, index) => {
-                  const relativeValue = getKeyRelativeLetter(option);
-                  return relativeValue ? ( // Only render if we have a value
-                    <SelectItem key={index} value={relativeValue}>
-                      {relativeValue}
-                    </SelectItem>
-                  ) : null;
-                })
-                .filter(Boolean)} {/* Remove any null elements */}
-            </SelectContent>
-          </Select>
+          <div className="relative w-full">
+            <Select
+              value={getKeyRelativeLetter(chordRef.current.selectedChordKey) || 'C'}
+              onValueChange={(value: any) => handleKeySelectChange({ target: { value } } as any)}
+            >
+              <SelectTrigger className="">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                {chordRef.current.noteArray
+                  .map((option, index) => {
+                    const relativeValue = getKeyRelativeLetter(option);
+                    return relativeValue ? (
+                      <SelectItem key={index} value={relativeValue}>
+                        {relativeValue}
+                      </SelectItem>
+                    ) : null;
+                  })
+                  .filter(Boolean)}
+              </SelectContent>
+            </Select>
+            <span className="absolute right-8 top-1/2 -translate-y-1/2 text-slate-400">
+              {getNumeralChord()}
+            </span>
+          </div>
           {/* <div className="pianoRomanNumeral">
         {getNumeralChord()}
         </div> */}

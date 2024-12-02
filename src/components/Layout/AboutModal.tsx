@@ -1,4 +1,3 @@
-import React from "react"
 import {
   Dialog,
   DialogContent,
@@ -19,13 +18,13 @@ export function AboutModal({ open, onOpenChange }: AboutModalProps) {
           <div className=" inset-0" />
         </DialogHeader>
         
-        <div className="space-y-6 relative overflow-auto max-h-[60vh] px-4">
+        <div className="space-y-4 relative overflow-auto max-h-[60vh] px-4">
           <p className="text-sm text-center">
             Chord Buildr provides an easy way for musicians and music lovers to
             create and share chord progressions.
           </p>
           
-          <hr className="border-t border-border" />
+        <div className="border-t border-border" />
           
           <div className="space-y-6">
             <div className="space-y-2">
@@ -48,7 +47,7 @@ export function AboutModal({ open, onOpenChange }: AboutModalProps) {
             </div>
           </div>
 
-          <div className="space-y-2 pt-4 text-center text-sm">
+          <div className="pt-[0.5em] text-center text-sm">
             <p className="text-muted-foreground">
               Chord Buildr is an{" "}
               <a
@@ -73,7 +72,7 @@ export function AboutModal({ open, onOpenChange }: AboutModalProps) {
               </a>
             </p>
             
-            <p className="text-xs text-muted-foreground">
+            <p className="text-xs text-muted-foreground !mt-[2em]">
               &copy; 2020-{new Date().getFullYear()} Jacob Krch All Rights Reserved
             </p>
           </div>
