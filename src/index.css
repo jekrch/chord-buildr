@@ -324,10 +324,11 @@ and (orientation : portrait) {
 		height: 2.6em;
 		opacity: 1.0 !important;
 		z-index: 99999 !important;
-		color: grey !important;
+		color: grey;
 		background: var(--main-compononent-gray) !important;
 		border: 0.01em solid !important;
 		border-radius: 0.3em;
+		border-color: hsl(var(--border)) !important;
 		outline: none !important;
 		/* remove padding values as they're not needed for centering */
 		/* add display flex for centering */
@@ -342,7 +343,7 @@ and (orientation : portrait) {
 	
 	.mobileClosedBtnText {
 		font-size: 1.6em;
-		font-weight: 850 !important;
+		font-weight: 550 !important;
 		/* remove absolute positioning */
 		position: static;
 		/* add a slight vertical adjustment if needed */

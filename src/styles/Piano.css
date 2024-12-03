@@ -125,7 +125,6 @@ ul .white:active {
 }
 .piano-play-button {
 	color: rgb(133, 133, 133);
-	border-color: hsl(var(--border));
 	box-sizing: border-box;
 	position: absolute;
 	display: flex;
@@ -135,6 +134,7 @@ ul .white:active {
 	width: 1.9em !important;
 	height: 100%;
 	border: 0.01em solid;
+	border-color: hsl(var(--border)) !important;
 	border-radius: 0.3em;
 	background: var(--main-compononent-gray);
 	left: 0.20em;
