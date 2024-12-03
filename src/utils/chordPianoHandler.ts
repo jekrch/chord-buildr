@@ -54,6 +54,7 @@ export interface ChordPiano {
   isProgKey?: boolean
   selectedChord: SelectedChord
   rendered?: boolean
+  isPlaying?: boolean;
 }
 
 export function selectChordKeys(chordPiano: ChordPiano): void {

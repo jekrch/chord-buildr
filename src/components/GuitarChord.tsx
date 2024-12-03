@@ -63,7 +63,7 @@ export const GuitarChord: React.FC<GuitarChordProps> = ({ pianoComponentId }) =>
           onClick={handlePlayClick}
         />
       </div>
-      <div className="chord-wrapper inline-block">
+      <div className={`chord-wrapper inline-block ${chordPiano.isPlaying ? '!bg-red-300' : ''}`}>
         {tabPositions?.length ? (
           <>
             <Chord chord={tabPositions[currentPosition]} instrument={instrument} />

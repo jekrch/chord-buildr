@@ -197,6 +197,8 @@ function clearPianoKeyPlaying(dispatch: React.Dispatch<any>, pianoComponent: Cho
     const piano = pianoComponent.piano
     if (!piano) return;
     
+    pianoComponent.isPlaying = true; 
+
     for (let i = 0; i < piano.length; i++) {
       const pianoOctave = piano[i]
 
@@ -209,6 +211,8 @@ function clearPianoKeyPlaying(dispatch: React.Dispatch<any>, pianoComponent: Cho
       }
     }
 
+    pianoComponent.isPlaying = false;
+    
     dispatch({
       type: "UPDATE_PIANO",
       id: pianoComponent.id,

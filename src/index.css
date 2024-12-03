@@ -347,7 +347,7 @@ and (orientation : portrait) {
 		position: static;
 		/* add a slight vertical adjustment if needed */
 		line-height: 1;
-		margin-bottom: 2px;
+		margin-bottom: 4px;
 	}
 
 	.pianoCloseButtonMobile:active {
