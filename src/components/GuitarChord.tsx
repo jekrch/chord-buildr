@@ -14,7 +14,7 @@ interface GuitarChordProps {
 
 export const GuitarChord: React.FC<GuitarChordProps> = ({ pianoComponentId }) => {
   const { state, dispatch } = useAppContext()
-  const [currentPosition, setCurrentPosition] = useState(0)
+  const [chordPosition, setPosition] = useState(0)
 
   const chordPiano: ChordPiano | null = getPianoById(state, pianoComponentId);
 
@@ -41,7 +41,7 @@ export const GuitarChord: React.FC<GuitarChordProps> = ({ pianoComponentId }) =>
     playMidiNotesGuitar(
       dispatch,
       chordPiano,
-      tabPositions[currentPosition].midi
+      tabPositions[chordPosition].midi
     )
   }
 
@@ -78,23 +78,23 @@ export const GuitarChord: React.FC<GuitarChordProps> = ({ pianoComponentId }) =>
               className="cursor-pointer"
             >
               <Chord 
-                chord={tabPositions[currentPosition]} 
+                chord={tabPositions[chordPosition]} 
                 instrument={instrument}
               />
             </div>
             <div className="w-[11em]">
-              <button onClick={() => setCurrentPosition(prev => prev === 0 ? tabPositions.length - 1 : prev - 1)} className="guitar-pos-button">
+              <button onClick={() => setPosition(prev => prev === 0 ? tabPositions.length - 1 : prev - 1)} className="guitar-pos-button">
                 <FontAwesomeIcon icon={faChevronLeft} className="guitar-pos-chev" />
               </button>
               <span className="guitar-pos-indicator">
-                {currentPosition + 1}/{tabPositions.length}
+                {chordPosition + 1}/{tabPositions.length}
               </span>
-              <button onClick={() => setCurrentPosition(prev => prev === tabPositions.length - 1 ? 0 : prev + 1)} className="guitar-pos-button">
+              <button onClick={() => setPosition(prev => prev === tabPositions.length - 1 ? 0 : prev + 1)} className="guitar-pos-button">
                 <FontAwesomeIcon icon={faChevronRight} className="guitar-pos-chev" />
               </button>
             </div>
           </>
-        ) : <div className="mt-[4em] ml-4">
+        ) : <div className="mt-[4em] -ml-[1em]">
               <div className="max-w-[7em] text-slate-400 text-sm">Chord type not supported</div>
             </div>
       }
