@@ -127,10 +127,12 @@ const pianoReducer = (state: AppState, action: PianoAction): AppState => {
     case "UPDATE_PIANO": {
       const updatedSet = state.chordPianoSet?.map((chordPiano) =>
         chordPiano.id === pianoId
-          ? { ...chordPiano, piano: action.payload }
+          ? action.payload 
           : chordPiano
       );
 
+      console.log(updatedSet);
+      
       return {
         ...state,
         chordPianoSet: updatedSet as any

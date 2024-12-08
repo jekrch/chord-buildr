@@ -1,4 +1,4 @@
-import React, { useState } from "react"
+import React, { useState, useEffect } from "react"
 import Chord from "@techies23/react-chords"
 import guitar from "@tombatossals/chords-db/lib/guitar.json"
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
@@ -18,6 +18,10 @@ export const GuitarChord: React.FC<GuitarChordProps> = ({ pianoComponentId }) =>
 
   const chordPiano: ChordPiano | null = getPianoById(state, pianoComponentId);
 
+  useEffect(() => {
+    console.log(chordPiano?.isPlaying)
+  }, [chordPiano?.isPlaying, state.chordPianoSet])
+  
   if (!chordPiano) {
     return;
   }
@@ -35,6 +39,8 @@ export const GuitarChord: React.FC<GuitarChordProps> = ({ pianoComponentId }) =>
 
   const handlePlayClick = (): void => {
     playMidiNotesGuitar(
+      dispatch,
+      chordPiano,
       tabPositions[currentPosition].midi
     )
   }
@@ -55,7 +61,7 @@ export const GuitarChord: React.FC<GuitarChordProps> = ({ pianoComponentId }) =>
           aria-label="Close"
           onClick={handleClickRemovePiano}
         >
-          <span className="align-middle text-[1.5em] inline-block !-mt-[0.05em]" aria-hidden="true">&times;</span>
+          <span className="align-middle text-[1.5em] inline-block !-mt-[0.16em]" aria-hidden="true">&times;</span>
         </button>
         <button
           type="button"
@@ -64,10 +70,18 @@ export const GuitarChord: React.FC<GuitarChordProps> = ({ pianoComponentId }) =>
           onClick={handlePlayClick}
         />
       </div>
-      <div className={`chord-wrapper inline-block ${chordPiano.isPlaying ? '!bg-red-300' : ''}`}>
+      <div className={`chord-wrapper inline-block`} data-playing={chordPiano.isPlaying?.toString()} >
         {tabPositions?.length ? (
           <>
-            <Chord chord={tabPositions[currentPosition]} instrument={instrument} />
+            <div               
+              onClick={handlePlayClick}
+              className="cursor-pointer"
+            >
+              <Chord 
+                chord={tabPositions[currentPosition]} 
+                instrument={instrument}
+              />
+            </div>
             <div className="w-[11em]">
               <button onClick={() => setCurrentPosition(prev => prev === 0 ? tabPositions.length - 1 : prev - 1)} className="guitar-pos-button">
                 <FontAwesomeIcon icon={faChevronLeft} className="guitar-pos-chev" />
@@ -80,7 +94,10 @@ export const GuitarChord: React.FC<GuitarChordProps> = ({ pianoComponentId }) =>
               </button>
             </div>
           </>
-        ) : <div>Chord type not supported</div>}
+        ) : <div className="mt-[4em] ml-4">
+              <div className="max-w-[7em] text-slate-400 text-sm">Chord type not supported</div>
+            </div>
+      }
       </div>
     </div>
   )

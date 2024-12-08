@@ -18,6 +18,7 @@ import { updateFlatOrSharpLetter } from '../utils/chordCodeHandler'
 import { cn } from '../lib/utils'
 import { Checkbox } from '../components/ui/checkbox';
 import { getChordNumeral } from '../utils/numeralHelper'
+import { Combobox, ComboboxItem } from './Combobox';
 
 interface ChordInputProps {
   pianoComponentId: number,
@@ -367,12 +368,26 @@ export const ChordInput: React.FC<ChordInputProps> = ({ pianoComponentId, classN
               {getNumeralChord()}
             </span>
           </div>
-          {/* <div className="pianoRomanNumeral">
-        {getNumeralChord()}
-        </div> */}
           {/* Chord Type Selection */}
           <div className="type-select">
-            <Select
+
+            <Combobox
+              items={chordTypeArray
+                .map((option) => (
+                  {
+                    value: option,
+                    label: option
+                  } as ComboboxItem
+                ))}
+              value={chordRef.current.type}
+              placeholder={chordRef.current.type}
+              searchPlaceholder="Search types..."
+              emptyMessage="No type found."
+              className="w-24"
+              onValueChange={(value: any) => handleTypeSelectChange({ target: { value } } as any)}
+            />
+
+            {/* <Select
               value={chordRef.current.type || 'major'} // Fallback to 'major'
               onValueChange={(value: any) => handleTypeSelectChange({ target: { value } } as any)}
             >
@@ -388,7 +403,7 @@ export const ChordInput: React.FC<ChordInputProps> = ({ pianoComponentId, classN
                     </SelectItem>
                   ))}
               </SelectContent>
-            </Select>
+            </Select> */}
           </div>
         </div>
         {/* Checkboxes */}
@@ -429,86 +444,89 @@ export const ChordInput: React.FC<ChordInputProps> = ({ pianoComponentId, classN
             </div>
           </div>
 
-          <div className="flex !ml-0 space-x-2 !mb-[0.7em] slashCheckBox">
-            <Checkbox
-              id={`slash-${chordRef.current.id}`}
-              className="pb-[0.1em]"
-              checked={chordRef.current.slashChord}
-              onCheckedChange={(checked) =>
-                handleIsSlashChordChecked({ target: { checked } } as any)
-              }
-            />
-            <label
-              htmlFor={`slash-${chordRef.current.id}`}
-              className="text-sm leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
-            >
-              slash
-            </label>
-          </div>
-
+          {state.format !== 'g' && (
+            <div className="flex !ml-0 space-x-2 !mb-[0.7em] slashCheckBox">
+              <Checkbox
+                id={`slash-${chordRef.current.id}`}
+                className="pb-[0.1em]"
+                checked={chordRef.current.slashChord}
+                onCheckedChange={(checked) =>
+                  handleIsSlashChordChecked({ target: { checked } } as any)
+                }
+              />
+              <label
+                htmlFor={`slash-${chordRef.current.id}`}
+                className="text-sm leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+              >
+                slash
+              </label>
+            </div>
+          )}
         </div>
 
         {/* Slash Chord Section */}
-        <div className="flex items-center slash-container">
-          <span
-            className={cn(
-              "mx-1 text-lg",
-              !chordRef.current.slashChord && "invisible"
-            )}
-          >
-            /
-          </span>
-          <div className={cn(
-            "transition-all ml-1",
-            !chordRef.current.slashChord && "invisible w-0",
-            chordRef.current.slashChord && "w-20"
-          )}>
-            <Select
-              defaultValue={chordRef.current.slashNote || "placeholder"}
-              onValueChange={(value: string) => {
-                if (value !== "placeholder") {
-                  handleSlashChordNoteChange({ target: { value } } as any)
-                }
-              }}
-              disabled={!chordRef.current.slashChord}
+        {state.format !== 'g' && (
+          <div className="flex items-center slash-container">
+            <span
+              className={cn(
+                "mx-1 text-lg",
+                !chordRef.current.slashChord && "invisible"
+              )}
             >
-              <SelectTrigger>
-                <SelectValue placeholder="Select">{chordRef.current.slashNote}</SelectValue>
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="placeholder" disabled>
+              /
+            </span>
+            <div className={cn(
+              "transition-all ml-1",
+              !chordRef.current.slashChord && "invisible w-0",
+              chordRef.current.slashChord && "w-20"
+            )}>
+              <Select
+                defaultValue={chordRef.current.slashNote || "placeholder"}
+                onValueChange={(value: string) => {
+                  if (value !== "placeholder") {
+                    handleSlashChordNoteChange({ target: { value } } as any)
+                  }
+                }}
+                disabled={!chordRef.current.slashChord}
+              >
+                <SelectTrigger>
+                  <SelectValue placeholder="Select">{chordRef.current.slashNote}</SelectValue>
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="placeholder" disabled>
 
-                </SelectItem>
-                {chordRef.current.noteArray
-                  .map((option, index) => {
-                    const value = option.trim()
-                    if (!value || !value?.length) return null // Skip empty values
+                  </SelectItem>
+                  {chordRef.current.noteArray
+                    .map((option, index) => {
+                      const value = option.trim()
+                      if (!value || !value?.length) return null // Skip empty values
 
-                    const keyRelativeValue = getKeyRelativeLetter(value)
-                    // Skip if the relative value is empty
-                    if (!keyRelativeValue) return null
+                      const keyRelativeValue = getKeyRelativeLetter(value)
+                      // Skip if the relative value is empty
+                      if (!keyRelativeValue) return null
 
-                    if (equalChroma(chordRef.current.slashNote, value)) {
-                      const slashNoteValue = getKeyRelativeLetter(chordRef.current.slashNote)
-                      // Only render if we have a valid slash note value
-                      return slashNoteValue ? (
-                        <SelectItem key={index} value={slashNoteValue}>
-                          {slashNoteValue}
+                      if (equalChroma(chordRef.current.slashNote, value)) {
+                        const slashNoteValue = getKeyRelativeLetter(chordRef.current.slashNote)
+                        // Only render if we have a valid slash note value
+                        return slashNoteValue ? (
+                          <SelectItem key={index} value={slashNoteValue}>
+                            {slashNoteValue}
+                          </SelectItem>
+                        ) : null
+                      }
+
+                      return (
+                        <SelectItem key={index} value={keyRelativeValue}>
+                          {keyRelativeValue}
                         </SelectItem>
-                      ) : null
-                    }
-
-                    return (
-                      <SelectItem key={index} value={keyRelativeValue}>
-                        {keyRelativeValue}
-                      </SelectItem>
-                    )
-                  })
-                }
-              </SelectContent>
-            </Select>
+                      )
+                    })
+                  }
+                </SelectContent>
+              </Select>
+            </div>
           </div>
-        </div>
+        )}
       </div>
     </form>
   )

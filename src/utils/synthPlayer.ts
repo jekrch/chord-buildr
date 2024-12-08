@@ -9,17 +9,20 @@ import GuitarElectricMp3 from 'tonejs-instrument-guitar-electric-mp3';
 let baseDecibel = 2
 
 export function playPiano(dispatch: React.Dispatch<any>, state: AppState, pianoId: number): void {
-  const pianoComponent = getPianoById(state, pianoId)
+  let pianoComponent = getPianoById(state, pianoId)
 
   if (!pianoComponent) return;
 
   const selectedNotes = getSelectedNotes(pianoComponent.piano!)
 
   if (!isMobile) {
+
+    let newPianoComponent = {...pianoComponent, isPlaying: true} as ChordPiano;
+
     dispatch({
       type: "UPDATE_PIANO",
       id: pianoComponent.id,
-      payload: pianoComponent.piano
+      payload: newPianoComponent
     })
   }
 
@@ -59,10 +62,22 @@ function playNotes(synthReturn: SynthReturn, volume: number, selectedNotes: stri
   Play chord using midi note numbers and the GuitarElectricMp3 sampler
 */
 export async function playMidiNotesGuitar(
+  dispatch: React.Dispatch<any>,
+  chordPiano: ChordPiano,
   midiNotes: number[], 
   noteAdd: number = 0
 ) {
   
+  if (!isMobile) {
+    let newChordPiano = {...chordPiano, isPlaying: true} as ChordPiano;
+
+    dispatch({
+      type: "UPDATE_PIANO",
+      id: newChordPiano.id,
+      payload: newChordPiano
+    })
+  }
+
   // create the sampler
   const sampler = await new Promise<Tone.Sampler>(resolve => {
     const sampler = new GuitarElectricMp3({
@@ -101,6 +116,18 @@ export async function playMidiNotesGuitar(
       baseVelocity - (index * velocityDecrease)  // softer velocity curve
     );
   });
+
+  if (!isMobile) {
+    setTimeout(() => {
+      let newChordPiano = {...chordPiano, isPlaying: false} as ChordPiano;
+
+      dispatch({
+        type: "UPDATE_PIANO",
+        id: newChordPiano.id,
+        payload: newChordPiano
+      })
+    }, 1000);
+  }
 }
 
 export function playMidiNotes(synthReturn: SynthReturn, volume: number, midiNotes: number[], noteAdd: number) {
@@ -196,9 +223,7 @@ function clearPianoKeyPlaying(dispatch: React.Dispatch<any>, pianoComponent: Cho
   setTimeout(() => {
     const piano = pianoComponent.piano
     if (!piano) return;
-    
-    pianoComponent.isPlaying = true; 
-
+  
     for (let i = 0; i < piano.length; i++) {
       const pianoOctave = piano[i]
 
@@ -216,7 +241,7 @@ function clearPianoKeyPlaying(dispatch: React.Dispatch<any>, pianoComponent: Cho
     dispatch({
       type: "UPDATE_PIANO",
       id: pianoComponent.id,
-      payload: pianoComponent.piano
+      payload: pianoComponent
     })
   }, 1500)
 }
