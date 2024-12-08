@@ -373,6 +373,7 @@ and (max-device-width : 630px)
 		.tab-container {
 			padding-right: 0px;
 			padding-left: 0px;
+			margin-left: -20px;
 		}
 	}
 }

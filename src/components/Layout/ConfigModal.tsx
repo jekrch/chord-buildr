@@ -13,6 +13,7 @@ import {
   SelectValue,
 } from '../../components/ui/select'
 import { Slider } from '../../components/ui/slider'
+import { Badge } from '../../components/ui/badge'
 import { useAppContext } from '../context/AppContext'
 import { playPiano } from '../../utils/synthPlayer'
 import { SYNTH_TYPES as SYNTH_TYPES } from '../../utils/synthLibrary'
@@ -146,11 +147,14 @@ export function ConfigModal({ open, onOpenChange }: ConfigModalProps): JSX.Eleme
             
           </div>
           <hr className="mt-[2.5em] "/>
+          <Badge variant="secondary" className="float-right h-5 text-xs font-medium bg-blue-100 text-blue-800 hover:bg-blue-100 mt-[1em]">
+                BETA
+          </Badge>
           <div className="flex mt-[2em]">
             <div className="w-[5em] text-right pr-4 align-middle my-auto text-slate-400">
               format
             </div>
-            <div className="">
+            <div className="flex items-center gap-2">
               <Select
                 value={format}
                 onValueChange={handleUxFormatSelectChange}
@@ -166,6 +170,7 @@ export function ConfigModal({ open, onOpenChange }: ConfigModalProps): JSX.Eleme
                   ))}
                 </SelectContent>
               </Select>
+
             </div>
           </div>
         </div>
