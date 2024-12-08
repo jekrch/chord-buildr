@@ -44,6 +44,7 @@ export interface SelectedChord {
   slash?: boolean
   isKey?:boolean
   slashNote?: string | null
+  position?: number
 }
 
 export interface ChordPiano {

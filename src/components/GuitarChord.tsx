@@ -7,6 +7,7 @@ import { getPianoById, useAppContext } from "./context/AppContext"
 import { ChordPiano } from "../utils/chordPianoHandler"
 import { findChordPositions } from "../utils/tabFinder"
 import { playMidiNotesGuitar } from "../utils/synthPlayer"
+import { MousePointerClick } from "lucide-react"
 
 interface GuitarChordProps {
   pianoComponentId: number;
@@ -53,7 +54,10 @@ export const GuitarChord: React.FC<GuitarChordProps> = ({ pianoComponentId }) =>
   }
 
   return (
-    <div className="guitar-chord !min-w-[15em] ml-2">
+    <div 
+      id={`piano-${pianoComponentId}`}
+      className="guitar-chord !min-w-[15em] ml-2"
+    >
       <div>
         <button
           type="button"
@@ -75,12 +79,13 @@ export const GuitarChord: React.FC<GuitarChordProps> = ({ pianoComponentId }) =>
           <>
             <div               
               onClick={handlePlayClick}
-              className="cursor-pointer"
+              className="cursor-pointer mt-[0.7em] border-slate-400 hover:border-primary/80 border-[0.01em] rounded-md shadow-lg"
             >
               <Chord 
                 chord={tabPositions[chordPosition]} 
                 instrument={instrument}
               />
+              <MousePointerClick className="max-h-[1.6em] absolute -right-[0.2em] top-[9.5em]" color="red"/>
             </div>
             <div className="w-[11em]">
               <button onClick={() => setPosition(prev => prev === 0 ? tabPositions.length - 1 : prev - 1)} className="guitar-pos-button">

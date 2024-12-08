@@ -477,11 +477,12 @@ and (orientation : portrait) {
 }
 
 .guitar-chord svg {
-	height: 10em !important;
+	height: 9.8em !important;
 	width: auto;
 	background-color: rgb(24, 24, 24);
-	border-radius: 15px;
+	border-radius: 12px;
 	filter: invert(0%) sepia(100%) saturate(0%) brightness(168%) contrast(129%);
+	transition: none;
 }
 
 .chord-wrapper[data-playing="true"] svg {

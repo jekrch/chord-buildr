@@ -68,7 +68,7 @@ export async function playMidiNotesGuitar(
   noteAdd: number = 0
 ) {
   
-  if (!isMobile) {
+  if (true || !isMobile) {
     let newChordPiano = {...chordPiano, isPlaying: true} as ChordPiano;
 
     dispatch({
@@ -117,7 +117,7 @@ export async function playMidiNotesGuitar(
     );
   });
 
-  if (!isMobile) {
+  if (true || !isMobile) {
     setTimeout(() => {
       let newChordPiano = {...chordPiano, isPlaying: false} as ChordPiano;
 
