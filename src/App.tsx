@@ -10,20 +10,18 @@ import { ThemeProvider } from './components/theme-provider'
 
 const App: React.FC = () => {
 
+  
   // this silent audio reference is used to prevent the mute function 
   // on iOS devices from blocking tonejs audio
   const silentAudioRef = useRef<HTMLAudioElement>(null)
   const audioInitializedRef = useRef(false)
-  const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent)
 
   // audio initialization
   const initializeAudio = async () => {
     if (!audioInitializedRef.current) {
       try {
         // for ios, we need to play silent audio first
-        if (isIOS) {
-          await silentAudioRef.current?.play()
-        }
+        await silentAudioRef.current?.play()
         
         audioInitializedRef.current = true
         
@@ -67,11 +65,9 @@ const App: React.FC = () => {
                 />
               </Switch>
             </Router>
-            {isIOS && (
-              <audio ref={silentAudioRef} preload="auto">
-                <source src="/silence.mp3" type="audio/mp3" />
-              </audio>
-            )}
+            <audio ref={silentAudioRef} preload="auto">
+              <source src="/silence.mp3" type="audio/mp3" />
+            </audio>
           </div>
 
           <FooterComponent />

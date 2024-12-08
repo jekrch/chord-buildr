@@ -2,7 +2,7 @@ import * as Tone from "tone";
 import { isMobile } from "react-device-detect";
 
 interface SynthState {
-  synth: keyof typeof synthTypes;
+  synth: keyof typeof SYNTH_TYPES;
 }
 
 export interface SynthReturn {
@@ -37,7 +37,7 @@ interface InstrumentSettings {
 }
 
 let synth: Tone.PolySynth | null = null;
-let synthType: keyof typeof synthTypes | null = null;
+let synthType: keyof typeof SYNTH_TYPES | null = null;
 let baseDecibel = 2;
 
 function getPlumberSynth(): Tone.PolySynth {
@@ -188,7 +188,7 @@ export function getSynth(state: SynthState): SynthReturn {
   return { synth, baseDecibel };
 }
 
-export const synthTypes: Record<string, string> = {
+export const SYNTH_TYPES: Record<string, string> = {
   "p": "plumber",
   "w": "wave",
   "s": "swell",

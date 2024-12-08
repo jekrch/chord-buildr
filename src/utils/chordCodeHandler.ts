@@ -1,6 +1,6 @@
 import { isValidChordType, getScaleAdjustedNoteLetter } from "./chordManager"
 import { ChordPiano, createChordPiano, SelectedChord } from "./chordPianoHandler"
-import { synthTypes } from "./synthLibrary"
+import { SYNTH_TYPES } from "./synthLibrary"
 import {
   isValidLetter, 
   getNoteNumber,
@@ -8,10 +8,12 @@ import {
   noteLetterMapWithFlats
 } from "../utils/noteManager"
 import { AppState } from "../components/context/AppContext"
+import { UX_FORMAT_OPTIONS } from "../components/Layout/ConfigModal"
 
 interface SynthSettings {
   volume: number;
   type: string;
+  format: string;
 }
 
 /***
@@ -132,43 +134,6 @@ function processSlashChord(chordCode: string, chord: SelectedChord): string {
   return chordCode
 }
 
-export function getProgressionCode(state: AppState): string {
-  var synthCode = "?s=" + state.synth + ":" + state.volume
-
-  var code = ""
-
-  let keyChord = state.chordPianoSet?.find(c => c.isProgKey)?.selectedChord!;
-
-  if (state.chordPianoSet?.length) {
-    for (let i = 0; i < state.chordPianoSet.length; i++) {
-      var chordPiano = state.chordPianoSet[i]
-      var selectedChord = chordPiano.selectedChord
-
-      if (!selectedChord) continue
-
-      let chordLetter = getScaleAdjustedNoteLetter(keyChord, selectedChord.noteLetter!);
-
-      var chordCode =
-        selectedChord.octave + chordLetter + selectedChord.type
-
-      if (chordPiano.isProgKey) chordCode += "*"
-
-      if (isSlashChord(selectedChord)) {
-        selectedChord.slashNote = updateFlatOrSharpLetter(
-          chordPiano.showFlats || false,
-          selectedChord.slashNote as string
-        )
-        selectedChord.slashNote = getScaleAdjustedNoteLetter(keyChord, selectedChord.slashNote);
-        chordCode += ":" + selectedChord.slashNote
-      }
-
-      code += `(${chordCode})`
-    }
-  }
-
-  return synthCode + "&p=" + code
-}
-
 export const getChordDisplay = (chord: SelectedChord): string => {
   return `${chord.noteLetter}${chord.type}${
     isSlashChord(chord) ? `/${chord.slashNote}` : ""
@@ -242,46 +207,12 @@ export function updateFlatOrSharpLetter(showFlats: boolean | undefined, noteLett
   return noteLetter
 }
 
-/**
- * get a synth settings obj from url code (e.g. pl:100)
- * @param synthCode
- * @returns
- */
-export function getSynthCode(synthCode: string | null): SynthSettings {
-  // init with default synth values
-  var synth: SynthSettings = {
-    volume: 90,
-    type: "p"
-  }
-
-  if (synthCode != null) {
-    if (hasSynthCode(synthCode)) {
-      return synth
-    }
-
-    var codeSplit = synthCode.split(":")
-
-    var type = codeSplit[0]
-    var volume = parseInt(codeSplit[1])
-
-    if (isValidType(type)) {
-      synth.type = type
-    }
-
-    if (isValidVol(volume)) {
-      synth.volume = volume
-    }
-  }
-
-  return synth
-}
-
-function hasSynthCode(synthCode: string): boolean {
-  return synthCode.split(":").length !== 2
-}
-
 function isValidType(type: string): boolean {
-  return Object.keys(synthTypes).includes(type)
+  return Object.keys(SYNTH_TYPES).includes(type)
+}
+
+function isValidFormat(type: string): boolean {
+  return Object.keys(UX_FORMAT_OPTIONS).includes(type)
 }
 
 function isValidVol(volume: number): boolean {
@@ -325,46 +256,104 @@ function validateProgKey(chordPiano: ChordPiano, progKeySet: boolean): boolean {
   return progKeySet
 }
 
+
 export function buildProgFromCode(state: AppState, code: string): AppState {
   if (state.building) {
     return state
   }
 
-  if (code.includes("%")) {
-    code = decodeURIComponent(code)
+  try {
+    // handle percent-encoded strings
+    const decodedCode = code.includes("%") ? decodeURIComponent(code) : code
+
+    // create a url-like string to use URLSearchParams
+    const searchParams = new URLSearchParams(decodedCode.startsWith("?") ? decodedCode : `?${decodedCode}`)
+
+    // get progression code - check both 'prog' and 'p' params
+    const progCode = searchParams.get("prog") || searchParams.get("p")
+    const synthSettings = getSynthCode(searchParams.get("s"))
+
+    // update state with new values
+    state.format = synthSettings.format
+    state.synth = synthSettings.type
+    state.volume = synthSettings.volume
+    state.chordPianoSet = getChordPianoSetFromProgCode(progCode)
+    state.building = false
+
+    updateUrlProgressionCode(state)
+    
+    return state
+  } catch (error) {
+    console.error("error parsing progression code:", error)
+    return {
+      ...state,
+      building: false
+    }
+  }
+}
+
+/**
+ * parses synth settings from url parameter
+ * expected format: "type:volume:format" (e.g. "p:90:p")
+ */
+export function getSynthCode(synthCode: string | null): SynthSettings {
+  // default synth values
+  const defaultSettings: SynthSettings = {
+    volume: 90,
+    type: "p",
+    format: "p"
   }
 
-  var params = getQueryStringParams(code)
+  if (!synthCode) {
+    return defaultSettings
+  }
 
-  var progCode = params.prog != null ? params.prog : params.p
-  var synthSettings = getSynthCode(params.s)
+  const [type, volumeStr, format] = synthCode.split(":")
+  const volume = parseInt(volumeStr)
 
-  state.synth = synthSettings.type
-  state.volume = synthSettings.volume
-  state.chordPianoSet = getChordPianoSetFromProgCode(progCode)
-  state.building = false
-
-  updateUrlProgressionCode(state)
-
-  return state
+  return {
+    type: isValidType(type) ? type : defaultSettings.type,
+    volume: isValidVol(volume) ? volume : defaultSettings.volume,
+    format: isValidFormat(format) ? format : defaultSettings.format
+  }
 }
 
-interface QueryParams {
-  [key: string]: string;
-}
+/**
+ * creates a url query string from the current state without escaping characters
+ */
+export function getProgressionCode(state: AppState): string {
+  const synthCode = `s=${state.synth}:${state.volume}:${state.format}`
+  
+  // build progression code
+  let progCode = ""
+  const keyChord = state.chordPianoSet?.find(c => c.isProgKey)?.selectedChord
 
-export function getQueryStringParams(query: string): QueryParams {
-  return query
-    ? (/^[?]/.test(query) ? query.slice(1) : query)
-        .split("&")
-        .reduce((params: QueryParams, param) => {
-          let [key, value] = param.split("=")
-          params[key] = value
-            ? decodeURIComponent(value.replace(/\+/g, " "))
-            : ""
-          return params
-        }, {})
-    : {}
+  if (state.chordPianoSet?.length) {
+    progCode = state.chordPianoSet
+      .map(piano => {
+        const chord = piano.selectedChord
+        if (!chord) return ""
+
+        const chordLetter = getScaleAdjustedNoteLetter(keyChord, chord.noteLetter!)
+        let chordCode = `${chord.octave}${chordLetter}${chord.type}`
+
+        if (piano.isProgKey) chordCode += "*"
+
+        if (isSlashChord(chord)) {
+          const adjustedSlashNote = getScaleAdjustedNoteLetter(
+            keyChord,
+            updateFlatOrSharpLetter(piano.showFlats || false, chord.slashNote as string)
+          )
+          chordCode += `:${adjustedSlashNote}`
+        }
+
+        return `(${chordCode})`
+      })
+      .join("")
+  }
+
+  // manually construct the query string without escaping
+  return `${synthCode}&p=${progCode}`
 }
 
 export function updateUrlProgressionCode(state: AppState): void {
@@ -372,7 +361,7 @@ export function updateUrlProgressionCode(state: AppState): void {
     return
   }
   
-  var progressionCode = getProgressionCode(state)
+  let progressionCode = getProgressionCode(state)
 
   loadProgressionCode(state, progressionCode)
 }
@@ -440,7 +429,8 @@ function getTypeAndSlash(chord: string, letter: string): { type: string; slash: 
       var lastSlashPos = type.lastIndexOf('/');
       slash = type.substring(lastSlashPos + 1);
       slash = ':' + upperCaseFirst(slash);
-      type = type.substring(0, lastSlashPos);
+      type = type
+      .substring(0, lastSlashPos);
     }
   } catch (err) {
     console.log('Error while extracting slash');

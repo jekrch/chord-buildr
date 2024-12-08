@@ -22,6 +22,7 @@ export interface AppState {
   building: boolean;
   chordPianoSet?: ChordPiano[];
   synth: string;
+  format: string;
   volume: number;
   changed?: number;
   refreshBoard?: number;
@@ -35,6 +36,7 @@ type PianoAction =
   | { type: "UPDATE_CHORD_TYPE"; id?: number; chordType: string }
   | { type: "UPDATE_SLASH_CHORD"; id?: number; isSlashChord: boolean; slashNote: string }
   | { type: "UPDATE_SHOW_FLATS"; id?: number; showFlats: boolean }
+  | { type: "UPDATE_UX_FORMAT"; format: string }
   | { type: "ADD_CHORD_PIANO"; payload: any }
   | { type: "REMOVE_PIANO"; id: number }
   | { type: "REFRESH_BOARD"; }
@@ -57,7 +59,8 @@ const initialState: AppState = {
   currentProgCode: null,
   building: false,
   chordPianoSet: undefined,
-  synth: "p",
+  synth: "p",  // plumber
+  format: "p", // piano
   volume: 90
 };
 
@@ -183,6 +186,12 @@ const pianoReducer = (state: AppState, action: PianoAction): AppState => {
         synth: action.synth
       };
       
+    case "UPDATE_UX_FORMAT":
+      return {
+        ...state,
+        format: action.format
+      };
+
     case "REFRESH_PIANO":
       return {
         ...state,

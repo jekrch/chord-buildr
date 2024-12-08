@@ -100,6 +100,7 @@ export const PianoComponent: React.FC<PianoComponentProps> = ({
         <button
           type="button"
           className="piano-play-button"
+          data-format={state.format}
           onClick={handlePlayClick}
         />
         <div className="pianoBox">

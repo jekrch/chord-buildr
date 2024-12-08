@@ -19,6 +19,7 @@ export const ChordPianoComponent: React.FC<ChordPianoComponentProps> = ({ pianoC
             <ChordInput
               key={`c-${pianoComponentId}`}
               pianoComponentId={pianoComponentId}
+              data-format="p"
             />           
             <PianoComponent
               key={Number(pianoComponentId)}

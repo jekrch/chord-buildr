@@ -340,7 +340,7 @@ export const ChordInput: React.FC<ChordInputProps> = ({ pianoComponentId, classN
   return (
     <form className={cn("h-[12em] w-[6em]", className)}>
       <div className="items-center space-y-2 w-full">
-        <div className="chord-select-group space-y-2">
+        <div className="chord-select-group space-y-2" >
           {/* Key Selection */}
           <div className="relative w-full">
             <Select
@@ -411,7 +411,7 @@ export const ChordInput: React.FC<ChordInputProps> = ({ pianoComponentId, classN
               </label>
             </div>
 
-            <div className="items-center space-x-2 flatCheckBox">
+            <div className="items-center space-x-2 flatCheckBox" data-format={state.format}>
               <Checkbox
                 id={`flat-${chordRef.current.id}`}
                 className="pb-[0.1em]"

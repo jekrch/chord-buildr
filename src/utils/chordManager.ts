@@ -117,7 +117,7 @@ export function getMajorKeyLetter(chord: SelectedChord): string {
  * @param chord - The key object containing type and note letter
  * @param noteLetter - The note letter to adjust
  */
-export function getScaleAdjustedNoteLetter(chord: SelectedChord | null, noteLetter: string): string {
+export function getScaleAdjustedNoteLetter(chord: SelectedChord | null | undefined, noteLetter: string): string {
   if (!chord) {
     return noteLetter
   }

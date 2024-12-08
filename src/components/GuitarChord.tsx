@@ -55,11 +55,12 @@ export const GuitarChord: React.FC<GuitarChordProps> = ({ pianoComponentId }) =>
           aria-label="Close"
           onClick={handleClickRemovePiano}
         >
-          <span aria-hidden="true">&times;</span>
+          <span className="align-middle text-[1.5em] inline-block !-mt-[0.05em]" aria-hidden="true">&times;</span>
         </button>
         <button
           type="button"
           className="piano-play-button"
+          data-format={state.format}
           onClick={handlePlayClick}
         />
       </div>

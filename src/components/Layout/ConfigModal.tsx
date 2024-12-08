@@ -1,4 +1,4 @@
-import { useRef, useState } from 'react'
+import { useEffect, useState } from 'react'
 import { Play } from 'lucide-react'
 import {
   Dialog,
@@ -15,33 +15,52 @@ import {
 import { Slider } from '../../components/ui/slider'
 import { useAppContext } from '../context/AppContext'
 import { playPiano } from '../../utils/synthPlayer'
-import { synthTypes } from '../../utils/synthLibrary'
+import { SYNTH_TYPES as SYNTH_TYPES } from '../../utils/synthLibrary'
 
-interface SettingRef {
-  synthType: string
-  volume: number
-}
 
 interface ConfigModalProps {
   open: boolean
   onOpenChange: (open: boolean) => void
 }
 
+export const UX_FORMAT_OPTIONS: Record<string, string> = {
+  "p": "piano",
+  "g": "guitar",
+};
+
 export function ConfigModal({ open, onOpenChange }: ConfigModalProps): JSX.Element {
   const { state, dispatch } = useAppContext()
-  const settingRef = useRef<SettingRef>({
-    synthType: state.synth,
-    volume: state.volume
-  })
+  const [synthType, setSynthType] = useState<string>(state.synth)
+  const [format, setFormat] = useState<string>(state.format)
+  const [volume, setVolume] = useState<number>(state.volume)
+
+  useEffect(() => {
+    setSynthType(state.synth);
+  }, [state.synth]);
+  
+  useEffect(() => {
+    setVolume(state.volume)
+  }, [state.volume]);
+  
+  useEffect(() => {
+    setFormat(state.format)
+  }, [state.format]);
   
   // temporary state for the volume while dragging
   const [localVolume, setLocalVolume] = useState<number>(state.volume)
 
   const handleSynthSelectChange = (value: string): void => {
-    settingRef.current.synthType = value
+
     dispatch({
       type: 'UPDATE_SYNTH',
-      synth: settingRef.current.synthType
+      synth: value
+    })
+  }
+
+  const handleUxFormatSelectChange = (value: string): void => {
+    dispatch({
+      type: 'UPDATE_UX_FORMAT',
+      format: value
     })
   }
 
@@ -52,16 +71,15 @@ export function ConfigModal({ open, onOpenChange }: ConfigModalProps): JSX.Eleme
 
   // only update the actual volume when the slider is released
   const handleVolumeChangeComplete = (value: number[]): void => {
-    if (settingRef.current.volume === value[0]) {
+    if (volume === value[0]) {
       return
     }
 
     state.building = true
-    settingRef.current.volume = value[0]
-    
+
     dispatch({
       type: 'UPDATE_SYNTH_VOLUME',
-      volume: settingRef.current.volume
+      volume:  value[0]
     })
 
     state.building = false
@@ -89,7 +107,7 @@ export function ConfigModal({ open, onOpenChange }: ConfigModalProps): JSX.Eleme
         <DialogHeader className="border-b pb-5">
           <div />
         </DialogHeader>
-        
+
         <div className="py-4">
           <div className="flex items-center gap-6 -ml-1">
             <button
@@ -101,14 +119,14 @@ export function ConfigModal({ open, onOpenChange }: ConfigModalProps): JSX.Eleme
 
             <div className="flex-grow space-y-8">
               <Select
-                value={settingRef.current.synthType}
+                value={synthType}
                 onValueChange={handleSynthSelectChange}
               >
                 <SelectTrigger className="w-full">
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
-                  {Object.entries(synthTypes).map(([key, value]) => (
+                  {Object.entries(SYNTH_TYPES).map(([key, value]) => (
                     <SelectItem key={`k-${key}`} value={key}>
                       {value}
                     </SelectItem>
@@ -124,6 +142,30 @@ export function ConfigModal({ open, onOpenChange }: ConfigModalProps): JSX.Eleme
                 step={1}
                 className="w-full"
               />
+            </div>
+            
+          </div>
+          <hr className="mt-[2.5em] "/>
+          <div className="flex mt-[2em]">
+            <div className="w-[5em] text-right pr-4 align-middle my-auto text-slate-400">
+              format
+            </div>
+            <div className="">
+              <Select
+                value={format}
+                onValueChange={handleUxFormatSelectChange}
+              >
+                <SelectTrigger className="w-[7em]">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  {Object.entries(UX_FORMAT_OPTIONS).map(([key, value]) => (
+                    <SelectItem key={`format-${key}`} value={key}>
+                      {value}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
             </div>
           </div>
         </div>

@@ -13,6 +13,10 @@ export const PianoBoardComponent: React.FC = () => {
   const [isInitialized, setIsInitialized] = useState<boolean>(false)
   const [refresh, setRefresh] = useState<number>(0)
 
+  // setting data attribute based on the selected format (piano vs guitar)
+  // this is used for conditional css:  :root[data-format="p"] { ...
+  document.documentElement.setAttribute('data-format', state.format);
+
   // handle initial load and URL changes
   useLayoutEffect(() => {
     const handleInitialLoad = () => {
@@ -59,7 +63,7 @@ export const PianoBoardComponent: React.FC = () => {
 
   let renderChordPianoSet;
 
-  if (true) {
+  if (state.format == 'p') {
     renderChordPianoSet = (): React.ReactNode => {
       return state.chordPianoSet?.map((chordPiano) => (
         <div 
@@ -82,7 +86,7 @@ export const PianoBoardComponent: React.FC = () => {
             {state.chordPianoSet?.map((chordPiano) => (
               <div key={chordPiano.id} className="w-full lg:w-2/3">
                 <div className="">
-                  <div className="px-4 flex">
+                  <div className="px-4 flex tab-container">
                     <ChordInput 
                       pianoComponentId={chordPiano.id} 
                     />
