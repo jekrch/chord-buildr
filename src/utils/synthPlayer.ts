@@ -5,13 +5,41 @@ import { isMobile } from "react-device-detect"
 import { ChordPiano, NoteKey } from "./chordPianoHandler"
 // @ts-ignore
 import GuitarElectricMp3 from 'tonejs-instrument-guitar-electric-mp3';
+import { ChordPosition, findChordPositions } from "./tabFinder"
+import guitar from '@tombatossals/chords-db/lib/guitar.json';
 
 let baseDecibel = 2
 
-export function playPiano(dispatch: React.Dispatch<any>, state: AppState, pianoId: number): void {
-  let pianoComponent = getPianoById(state, pianoId)
 
-  if (!pianoComponent) return;
+export function playChord(
+  dispatch: React.Dispatch<any>, 
+  state: AppState, 
+  pianoId: number
+): void {
+
+  let chordPiano = getPianoById(state, pianoId)
+
+  if (!chordPiano) return;
+
+  if (state.format === "g") {
+    playGuitarChord(
+      dispatch, 
+      chordPiano
+    ); 
+  } else {
+    playPianoChord(
+      dispatch, 
+      state,
+      chordPiano
+    )
+  }
+}
+
+export function playPianoChord(
+  dispatch: React.Dispatch<any>, 
+  state: AppState, 
+  pianoComponent: ChordPiano
+): void {
 
   const selectedNotes = getSelectedNotes(pianoComponent.piano!)
 
@@ -271,4 +299,34 @@ function getUserVolumeModifier(userVolume: number | null): number {
 
   //console.log("user modifier " + modifier)
   return modifier
+}
+
+/**
+ * Play the provided chordPiano's selected chord using the guitar 
+ * sampler, taking the selected position from selectedChord.position. 
+ * 
+ * The available tabPositions for the chord can either be provided 
+ * or recalculated if not. 
+ * 
+ * @param dispatch 
+ * @param chordPiano 
+ * @param tabPositions 
+ */
+export function playGuitarChord(
+  dispatch: React.Dispatch<any>,
+  chordPiano: ChordPiano,
+  tabPositions?: ChordPosition[]
+) {
+  if (!tabPositions) {
+      tabPositions = findChordPositions(
+          chordPiano.selectedChord,
+          guitar.chords
+      );
+  }
+  
+  playMidiNotesGuitar(
+      dispatch,
+      chordPiano,
+      tabPositions[chordPiano.selectedChord.position ?? 0].midi
+  )
 }

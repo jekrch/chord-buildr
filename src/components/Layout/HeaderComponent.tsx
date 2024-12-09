@@ -4,7 +4,7 @@ import { Link, scroller } from "react-scroll"
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
 import { faPenToSquare } from "@fortawesome/free-regular-svg-icons"
 import { AppState, useAppContext } from "../context/AppContext"
-import { playPiano } from "../../utils/synthPlayer"
+import { playChord } from "../../utils/synthPlayer"
 import { Button } from '../../components/ui/button';
 import { 
   getChordDisplay, 
@@ -99,7 +99,7 @@ export const HeaderComponent: React.FC = () => {
   }
 
   const handleItemClick = (id: number): void => {
-    playPiano(dispatch, state, id)
+    playChord(dispatch, state, id)
   }
 
   const getCurrentSynthVolCode = (state: AppState): string => {
@@ -136,9 +136,9 @@ export const HeaderComponent: React.FC = () => {
         className="flex"
       >
         <Link
-          className="chordListItem cursor-pointer hover:text-blue-600 transition-colors pl-[3px] !ml-[-3px]"
+          className={`chordListItem cursor-pointer hover:text-blue-600 transition-colors pl-[3px] !ml-[-3px]`}
           to={`piano-${piano.id}`}
-          spy={true}
+          spy={state.format !== "g"}
           offset={offset}
           isDynamic={true}
           duration={500}

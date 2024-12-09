@@ -20,6 +20,15 @@ interface VersionModalProps {
 // version history data stored as a json object
 const versionHistory: VersionEntry[] = [
   {
+    version: "3.0",
+    date: "12.08.2024",
+    items: [
+      "guitar chord diagrams are now supported",
+      "multiple chord positions can be displayed and saved",
+      "strummed samples are used for audio in guitar format"
+    ]
+  },
+  {
     version: "2.0",
     date: "12.01.2024",
     items: [

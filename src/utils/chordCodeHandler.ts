@@ -31,7 +31,8 @@ export function extractOctave(chordCode: string): number {
   return Number(octave);
 }
 
-export function getChordFromCode(chordCode: string): SelectedChord | undefined {
+export 
+function getChordFromCode(chordCode: string): SelectedChord | undefined {
   let chord: SelectedChord = {}
 
   try {
@@ -50,6 +51,17 @@ export function getChordFromCode(chordCode: string): SelectedChord | undefined {
     chord.octave = extractOctave(chordCode);
 
     chordCode = chordCode.replace(")", "")
+
+    console.log(chordCode)
+    // extract position if present
+    const positionMatch = chordCode.match(/\.(\d+)$/)
+    
+    if (positionMatch) {
+      chord.position = parseInt(positionMatch[1]) - 1;
+      chordCode = chordCode.replace(/\.\d+$/, '')
+    }
+
+    //console.log(positionMatch)
 
     chord.isKey = chordCode.includes("*")
     chordCode = chordCode.replace("*", "")
@@ -74,6 +86,7 @@ export function getChordFromCode(chordCode: string): SelectedChord | undefined {
 
   return chord as SelectedChord
 }
+
 
 function logChordAnalysisException(ex: unknown, chordCode: string): void {
   console.log(ex);
@@ -164,13 +177,16 @@ export function getProgressionString(chordPianoSet: ChordPiano[]): string {
       chordCode += "/" + selectedChord.slashNote
     }
 
-    let octave =  undefined;
+    let octave = undefined;
 
     if (selectedChord.octave !== 1) {
       octave = selectedChord.octave;
     }
 
-    code += `${octave ?? ''}${chordCode} `
+    // add position if present
+    const positionSuffix = selectedChord.position !== undefined ? `.${selectedChord.position + 1}` : ''
+    
+    code += `${octave ?? ''}${chordCode}${positionSuffix} `
   }
 
   return code;
@@ -326,7 +342,7 @@ export function getProgressionCode(state: AppState): string {
   
   // build progression code
   let progCode = ""
-  const keyChord = state.chordPianoSet?.find(c => c.isProgKey)?.selectedChord
+  const selectedChord = state.chordPianoSet?.find(c => c.isProgKey)?.selectedChord
 
   if (state.chordPianoSet?.length) {
     progCode = state.chordPianoSet
@@ -334,17 +350,23 @@ export function getProgressionCode(state: AppState): string {
         const chord = piano.selectedChord
         if (!chord) return ""
 
-        const chordLetter = getScaleAdjustedNoteLetter(keyChord, chord.noteLetter!)
+        const chordLetter = getScaleAdjustedNoteLetter(selectedChord, chord.noteLetter!)
+        
         let chordCode = `${chord.octave}${chordLetter}${chord.type}`
-
+        
+        
         if (piano.isProgKey) chordCode += "*"
 
         if (isSlashChord(chord)) {
           const adjustedSlashNote = getScaleAdjustedNoteLetter(
-            keyChord,
+            selectedChord,
             updateFlatOrSharpLetter(piano.showFlats || false, chord.slashNote as string)
           )
           chordCode += `:${adjustedSlashNote}`
+        }
+
+        if (chord.position) {
+          chordCode += `.${chord.position + 1}`  
         }
 
         return `(${chordCode})`
@@ -409,15 +431,23 @@ export function convertProgressionStrToCode(submittedProgressionStr: string): st
   return newProgressionString;
 }
 
-function convertChordStrToCode(chordStr: string): string {
+export function convertChordStrToCode(chordStr: string): string {
   let octave = getOctave(chordStr)
+
+  // extract position if present
+  let position = ''
+  const positionMatch = chordStr.match(/\.(\d+)$/)
+  if (positionMatch) {
+    position = `.${parseInt(positionMatch[1]) + 1}`
+    chordStr = chordStr.replace(/\.\d+$/, '')
+  }
 
   let chord = chordStr.replace(/(^\d+)(.+$)/i, '$2')
   let letter = getLetter(chord)
 
   let { type, slash } = getTypeAndSlash(chord, letter)
 
-  return `${octave}${letter}${type}${slash}`;
+  return `${octave}${letter}${type}${slash}${position}`;
 }
 
 function getTypeAndSlash(chord: string, letter: string): { type: string; slash: string } {

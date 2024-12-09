@@ -1,4 +1,4 @@
-![Version](https://img.shields.io/badge/version-2.0-blue)
+![Version](https://img.shields.io/badge/version-3.0-blue)
 [![Run Tests](https://github.com/jekrch/chord-buildr/actions/workflows/test_on_push.yml/badge.svg)](https://github.com/jekrch/chord-buildr/actions/workflows/test_on_push.yml)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 

@@ -349,7 +349,8 @@ export function createChordPiano(i: number, chordCode: string): ChordPiano | und
         type: chord.type,
         octave: chord.octave,
         slash: chord.slash,
-        slashNote: chord.slashNote
+        slashNote: chord.slashNote,
+        position: chord.position
       }
     }
   }

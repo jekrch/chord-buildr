@@ -137,7 +137,7 @@ export const ChordInput: React.FC<ChordInputProps> = ({ pianoComponentId, classN
   }
 
   const handleTypeSelectChange = (e: React.ChangeEvent<HTMLSelectElement>): void => {
-    console.log(e.target.value)
+    //console.log(e.target.value)
     chordRef.current.type = e.target.value
 
     dispatch({
@@ -220,7 +220,7 @@ export const ChordInput: React.FC<ChordInputProps> = ({ pianoComponentId, classN
       octave: chordPiano.selectedKey.octave ?? 0
     }
 
-    console.log(newLetter)
+    //console.log(newLetter)
 
     dispatch({
       type: 'UPDATE_KEY',

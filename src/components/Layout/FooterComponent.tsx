@@ -6,7 +6,7 @@ import { VersionModal } from "./VersionModal"
 import { ConfigModal } from "./ConfigModal"
 import GitHub120 from "../../images/Github120.png"
 
-const APP_VERSION = "v2.0"
+const APP_VERSION = "v3.0"
 const GITHUB_URL = "https://github.com/jekrch/chord-buildr"
 
 export const FooterComponent: React.FC = () => {
@@ -74,6 +74,7 @@ export const FooterComponent: React.FC = () => {
         >
           <FontAwesomeIcon
             icon={faCog}
+            size="2x"
             className="h-5 w-5 transition-transform duration-900 hover:rotate-[30deg] align-middle mb-[0.1em]"
           />
         </button>

@@ -15,7 +15,7 @@ import {
 import { Slider } from '../../components/ui/slider'
 import { Badge } from '../../components/ui/badge'
 import { useAppContext } from '../context/AppContext'
-import { playPiano } from '../../utils/synthPlayer'
+import { playChord } from '../../utils/synthPlayer'
 import { SYNTH_TYPES as SYNTH_TYPES } from '../../utils/synthLibrary'
 
 
@@ -92,7 +92,7 @@ export function ConfigModal({ open, onOpenChange }: ConfigModalProps): JSX.Eleme
       addChord()
       return
     }
-    playPiano(dispatch, state, pianoSet[0].id)
+    playChord(dispatch, state, pianoSet[0].id)
   }
 
   const addChord = (): void => {

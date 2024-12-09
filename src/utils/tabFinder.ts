@@ -37,7 +37,7 @@ const normalizeKey = (keyNoteNumber: number): string => {
     return suffixMap[suffix] || suffix;
   };
   
-  interface ChordPosition {
+  export interface ChordPosition {
     baseFret: number;
     frets: number[];
     fingers: number[];

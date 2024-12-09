@@ -130,8 +130,6 @@ const pianoReducer = (state: AppState, action: PianoAction): AppState => {
           ? action.payload 
           : chordPiano
       );
-
-      console.log(updatedSet);
       
       return {
         ...state,

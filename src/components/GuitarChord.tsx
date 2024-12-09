@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react"
+import React, { useState } from "react"
 import Chord from "@techies23/react-chords"
 import guitar from "@tombatossals/chords-db/lib/guitar.json"
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
@@ -6,8 +6,8 @@ import { faChevronLeft, faChevronRight } from "@fortawesome/free-solid-svg-icons
 import { getPianoById, useAppContext } from "./context/AppContext"
 import { ChordPiano } from "../utils/chordPianoHandler"
 import { findChordPositions } from "../utils/tabFinder"
-import { playMidiNotesGuitar } from "../utils/synthPlayer"
 import { MousePointerClick } from "lucide-react"
+import { playGuitarChord } from "../utils/synthPlayer"
 
 interface GuitarChordProps {
   pianoComponentId: number;
@@ -15,18 +15,21 @@ interface GuitarChordProps {
 
 export const GuitarChord: React.FC<GuitarChordProps> = ({ pianoComponentId }) => {
   const { state, dispatch } = useAppContext()
-  const [chordPosition, setPosition] = useState(0)
-
   const chordPiano: ChordPiano | null = getPianoById(state, pianoComponentId);
+  const [position, setPosition] = useState(chordPiano?.selectedChord?.position ?? 0)
 
-  useEffect(() => {
-    console.log(chordPiano?.isPlaying)
-  }, [chordPiano?.isPlaying, state.chordPianoSet])
+  // useEffect(() => {
+  //   console.log(chordPiano?.isPlaying)
+  // }, [chordPiano?.isPlaying, state.chordPianoSet])
   
   if (!chordPiano) {
     return;
   }
-  const tabPositions = findChordPositions(chordPiano.selectedChord, guitar.chords);
+
+  const tabPositions = findChordPositions(
+    chordPiano.selectedChord,
+    guitar.chords
+  );
 
   const instrument = {
     strings: 6,
@@ -38,12 +41,25 @@ export const GuitarChord: React.FC<GuitarChordProps> = ({ pianoComponentId }) =>
     },
   }
 
+  const handleNewPosition = (position: number): void => {
+    setPosition(position);
+
+    chordPiano.selectedChord.position = position;
+    //let newChordPiano = {...chordPiano, selectedChord: false} as ChordPiano;
+
+    dispatch({
+      type: "UPDATE_PIANO",
+      id: chordPiano.id,
+      payload: chordPiano
+    })
+  }
+
   const handlePlayClick = (): void => {
-    playMidiNotesGuitar(
-      dispatch,
+    playGuitarChord(
+      dispatch, 
       chordPiano,
-      tabPositions[chordPosition].midi
-    )
+      tabPositions
+    );
   }
 
   const handleClickRemovePiano = (): void => {
@@ -82,19 +98,29 @@ export const GuitarChord: React.FC<GuitarChordProps> = ({ pianoComponentId }) =>
               className="cursor-pointer mt-[0.7em] border-slate-400 hover:border-primary/80 border-[0.01em] rounded-md shadow-lg"
             >
               <Chord 
-                chord={tabPositions[chordPosition]} 
+                chord={tabPositions[position]} 
                 instrument={instrument}
               />
               <MousePointerClick className="max-h-[1.6em] absolute -right-[0.2em] top-[9.5em]" color="red"/>
             </div>
             <div className="w-[11em]">
-              <button onClick={() => setPosition(prev => prev === 0 ? tabPositions.length - 1 : prev - 1)} className="guitar-pos-button">
+              <button 
+                onClick={
+                  () => handleNewPosition(position === 0 ? tabPositions.length - 1 : position - 1)
+                } 
+                className="guitar-pos-button"
+              >
                 <FontAwesomeIcon icon={faChevronLeft} className="guitar-pos-chev" />
               </button>
               <span className="guitar-pos-indicator">
-                {chordPosition + 1}/{tabPositions.length}
+                {position + 1}/{tabPositions.length}
               </span>
-              <button onClick={() => setPosition(prev => prev === tabPositions.length - 1 ? 0 : prev + 1)} className="guitar-pos-button">
+              <button 
+                onClick={
+                  () => handleNewPosition(position === tabPositions.length - 1 ? 0 : position + 1)
+                } 
+                className="guitar-pos-button"
+              >
                 <FontAwesomeIcon icon={faChevronRight} className="guitar-pos-chev" />
               </button>
             </div>
