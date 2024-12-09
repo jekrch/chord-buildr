@@ -27,7 +27,7 @@ Chord Buildr is implemented in React and uses Tone.js for audio playback.
 - **Transposition**: Effortlessly transpose your progressions to different keys.
 - **Shareable URLs**: Save and share your progressions through encoded URLs.
 - **Guitar Chord Diagrams**: Display guitar chord diagrams with multiple positions to choose from.
-- 
+ 
 ### Music Theory Integration
 - **Roman Numeral Notation**: View chord progressions in roman numeral notation when a key is selected.
 - **Key-Aware Notation**: Note letters adjust to display the correct notation given the selected key.
