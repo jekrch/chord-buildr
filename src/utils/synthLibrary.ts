@@ -168,10 +168,6 @@ export function getSynth(state: SynthState): SynthReturn {
       baseDecibel = -8;
       synth = getPluckSynth();
       break;
-    case "g":
-      baseDecibel = -4;
-      synth = getGuitSynth();
-      break;
     case "p":
     default:
       baseDecibel = 2;
@@ -188,11 +184,20 @@ export function getSynth(state: SynthState): SynthReturn {
   return { synth, baseDecibel };
 }
 
-export const SYNTH_TYPES: Record<string, string> = {
-  "p": "plumber",
-  "w": "wave",
-  "s": "swell",
-  "o": "organ",
-  "pl": "pluck",
-  "g": "guit"
-};
+export const SYNTH_TYPES = {
+  "p": { name: "plumber" },
+  "w": { name: "wave" },
+  "s": { name: "swell" },
+  "o": { name: "organ" },
+  "pl": { name: "pluck" },
+  "el": { 
+    name: "electric",
+    // @ts-ignore
+    getSampler: () => import('tonejs-instrument-guitar-electric-mp3')
+  },
+  "ac": { 
+    name: "acoustic",
+    // @ts-ignore
+    getSampler: () => import('tonejs-instrument-guitar-nylon-mp3')
+  }
+} as const

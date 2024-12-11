@@ -129,7 +129,7 @@ export function ConfigModal({ open, onOpenChange }: ConfigModalProps): JSX.Eleme
                 <SelectContent>
                   {Object.entries(SYNTH_TYPES).map(([key, value]) => (
                     <SelectItem key={`k-${key}`} value={key}>
-                      {value}
+                      {value.name}
                     </SelectItem>
                   ))}
                 </SelectContent>

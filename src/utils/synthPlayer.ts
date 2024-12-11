@@ -1,5 +1,5 @@
 import * as Tone from "tone"
-import { getSynth, SynthReturn } from "./synthLibrary"
+import { getSynth, SYNTH_TYPES, SynthReturn } from "./synthLibrary"
 import { AppState, getPianoById } from "../components/context/AppContext"
 import { isMobile } from "react-device-detect"
 import { ChordPiano, NoteKey } from "./chordPianoHandler"
@@ -9,31 +9,6 @@ import { ChordPosition, findChordPositions } from "./tabFinder"
 import guitar from '@tombatossals/chords-db/lib/guitar.json';
 
 let baseDecibel = 2
-
-
-export function playChord(
-  dispatch: React.Dispatch<any>, 
-  state: AppState, 
-  pianoId: number
-): void {
-
-  let chordPiano = getPianoById(state, pianoId)
-
-  if (!chordPiano) return;
-
-  if (state.format === "g") {
-    playGuitarChord(
-      dispatch, 
-      chordPiano
-    ); 
-  } else {
-    playPianoChord(
-      dispatch, 
-      state,
-      chordPiano
-    )
-  }
-}
 
 export function playPianoChord(
   dispatch: React.Dispatch<any>, 
@@ -56,7 +31,7 @@ export function playPianoChord(
 
   const selectedNoteNumbers: number[] = getSelectedNoteNumbers(pianoComponent.piano!)
   const volume = getDecibel(state.volume, selectedNoteNumbers);
-  const synth: SynthReturn = getSynth(state)
+  const synth: SynthReturn = getSynth(state.synth as any)
 
   playNotes(synth, volume, selectedNotes)
 
@@ -86,115 +61,7 @@ function playNotes(synthReturn: SynthReturn, volume: number, selectedNotes: stri
   )
 }
 
-/*
-  Play chord using midi note numbers and the GuitarElectricMp3 sampler
-*/
-export async function playMidiNotesGuitar(
-  dispatch: React.Dispatch<any>,
-  chordPiano: ChordPiano,
-  midiNotes: number[], 
-  noteAdd: number = 0
-) {
-  
-  if (true || !isMobile) {
-    let newChordPiano = {...chordPiano, isPlaying: true} as ChordPiano;
 
-    dispatch({
-      type: "UPDATE_PIANO",
-      id: newChordPiano.id,
-      payload: newChordPiano
-    })
-  }
-
-  // create the sampler
-  const sampler = await new Promise<Tone.Sampler>(resolve => {
-    const sampler = new GuitarElectricMp3({
-      onload: () => resolve(sampler)
-    }) as Tone.Sampler;
-  });
-
-  midiNotes = midiNotes.map(note => note + noteAdd);
-
-  if (Tone.getContext().state !== 'running') {
-    Tone.getContext().resume();
-  }
-
-  sampler.toDestination();
-  sampler.releaseAll();
-
-  const noteNames = midiNotes.map(midi => 
-    Tone.Frequency(midi, "midi").toNote()
-  );
-  
-  const strumDuration = 0.20;
-  const delayPerNote = strumDuration / noteNames.length;
-
-  // velocity decrease on ascending notes for softer sound
-  const baseVelocity = 0.6;  
-  const velocityDecrease = 0.05; 
-
-  noteNames.forEach((noteName, index) => {
-    const now = Tone.now();
-    const startTime = now + (isMobile ? 0.15 : 0.03) + (index * delayPerNote);
-    
-    sampler.triggerAttackRelease(
-      noteName,
-      "1.0",    // duration     
-      startTime,
-      baseVelocity - (index * velocityDecrease)  // softer velocity curve
-    );
-  });
-
-  if (true || !isMobile) {
-    setTimeout(() => {
-      let newChordPiano = {...chordPiano, isPlaying: false} as ChordPiano;
-
-      dispatch({
-        type: "UPDATE_PIANO",
-        id: newChordPiano.id,
-        payload: newChordPiano
-      })
-    }, 1000);
-  }
-}
-
-export function playMidiNotes(synthReturn: SynthReturn, volume: number, midiNotes: number[], noteAdd: number) {
-  const synth = synthReturn.synth
-  baseDecibel = synthReturn.baseDecibel
-
-  midiNotes = midiNotes.map(note => note + noteAdd);
-
-  if (Tone.getContext().state !== 'running') {
-    Tone.getContext().resume()
-  }
-
-  synth.toDestination()
-  synth.releaseAll()
-  synth.volume.value = volume
-  
-  // convert midi notes to frequency values in hz
-  const frequencies = midiNotes.map(midi => {
-    const freq = Tone.Frequency(midi, "midi")
-    return freq.toFrequency()
-  })
-  
-  // calculate strum timing
-  const strumDuration = 0.30 // total time for the strum in seconds
-  const delayPerNote = strumDuration / frequencies.length
-
-  // play each note with progressive delay
-  frequencies.forEach((freq, index) => {
-    const now = Tone.now()
-    const startTime = now + (isMobile ? 0.15 : 0.03) + (index * delayPerNote)
-    
-    synth.triggerAttackRelease(
-      freq,
-      "1.1",
-      startTime,
-      0.7 - (index * 0.05) // slightly decrease velocity for each subsequent note
-    )
-  })
-}
 
 function getSelectedNotes(piano: NoteKey[][]): string[] {
   const selectedNotes: string[] = []
@@ -301,6 +168,146 @@ function getUserVolumeModifier(userVolume: number | null): number {
   return modifier
 }
 
+
+
+
+//////////////////////
+
+
+
+type InstrumentKey = keyof typeof SYNTH_TYPES
+
+// cache for loaded samplers
+const samplers: {
+  [key: string]: Tone.Sampler
+} = {}
+
+// get or create sampler instance
+async function getInstrumentSampler(type: InstrumentKey): Promise<Tone.Sampler> {
+  // return cached sampler if available
+  if (samplers[type]) {
+    return samplers[type]
+  }
+
+  const instrument = SYNTH_TYPES[type]
+  if (!instrument || !('getSampler' in instrument)) {
+    throw new Error(`no sampler available for instrument type: ${type}`)
+  }
+
+  // dynamically import and initialize the sampler
+  const SamplerModule = await instrument.getSampler()
+  
+  // create and cache the sampler
+  const sampler = await new Promise<Tone.Sampler>(resolve => {
+    const sampler = new SamplerModule.default({
+      onload: () => resolve(sampler)
+    }) as Tone.Sampler
+  })
+
+  samplers[type] = sampler
+  return sampler
+}
+
+export function playChord(
+  dispatch: React.Dispatch<any>, 
+  state: AppState, 
+  pianoId: number
+): void {
+  let chordPiano = getPianoById(state, pianoId)
+
+  if (!chordPiano) return
+
+  if (state.format === "g") {
+    // default to electric guitar if not specified
+    const guitarType = state.synth === 'ac' ? 'ac' : 'el' as InstrumentKey
+    
+    playGuitarChord(
+      dispatch, 
+      chordPiano,
+      undefined,
+      guitarType
+    )
+  } else {
+    playPianoChord(
+      dispatch, 
+      state,
+      chordPiano
+    )
+  }
+}
+
+/*
+  Play chord using midi note numbers and the specified sampler
+*/
+export async function playMidiNotesGuitar(
+  dispatch: React.Dispatch<any>,
+  chordPiano: ChordPiano,
+  midiNotes: number[], 
+  instrumentType: InstrumentKey,
+  noteAdd: number = 0
+) {
+  if (true || !isMobile) {
+    let newChordPiano = {...chordPiano, isPlaying: true} as ChordPiano
+    
+    dispatch({
+      type: "UPDATE_PIANO",
+      id: newChordPiano.id,
+      payload: newChordPiano
+    })
+  }
+
+  try {
+    // get or load the appropriate sampler
+    const sampler = await getInstrumentSampler(instrumentType)
+
+    midiNotes = midiNotes.map(note => note + noteAdd)
+
+    if (Tone.getContext().state !== 'running') {
+      Tone.getContext().resume()
+    }
+
+    sampler.toDestination()
+    sampler.releaseAll()
+
+    const noteNames = midiNotes.map(midi => 
+      Tone.Frequency(midi, "midi").toNote()
+    )
+    
+    const strumDuration = 0.20
+    const delayPerNote = strumDuration / noteNames.length
+
+    // velocity decrease on ascending notes for softer sound
+    const baseVelocity = 0.6
+    const velocityDecrease = 0.05
+
+    noteNames.forEach((noteName, index) => {
+      const now = Tone.now()
+      const startTime = now + (isMobile ? 0.15 : 0.03) + (index * delayPerNote)
+      
+      sampler.triggerAttackRelease(
+        noteName,
+        "1.0",    // duration     
+        startTime,
+        baseVelocity - (index * velocityDecrease)  // softer velocity curve
+      )
+    })
+  } catch (error) {
+    console.error('failed to load or play instrument sampler:', error)
+  }
+
+  if (true || !isMobile) {
+    setTimeout(() => {
+      let newChordPiano = {...chordPiano, isPlaying: false} as ChordPiano
+
+      dispatch({
+        type: "UPDATE_PIANO",
+        id: newChordPiano.id,
+        payload: newChordPiano
+      })
+    }, 1000)
+  }
+}
+
 /**
  * Play the provided chordPiano's selected chord using the guitar 
  * sampler, taking the selected position from selectedChord.position. 
@@ -315,18 +322,20 @@ function getUserVolumeModifier(userVolume: number | null): number {
 export function playGuitarChord(
   dispatch: React.Dispatch<any>,
   chordPiano: ChordPiano,
-  tabPositions?: ChordPosition[]
+  tabPositions?: ChordPosition[],
+  instrumentType: InstrumentKey = 'el'
 ) {
   if (!tabPositions) {
-      tabPositions = findChordPositions(
-          chordPiano.selectedChord,
-          guitar.chords
-      );
+    tabPositions = findChordPositions(
+      chordPiano.selectedChord,
+      guitar.chords
+    )
   }
   
   playMidiNotesGuitar(
-      dispatch,
-      chordPiano,
-      tabPositions[chordPiano.selectedChord.position ?? 0].midi
+    dispatch,
+    chordPiano,
+    tabPositions[chordPiano.selectedChord.position ?? 0].midi,
+    instrumentType
   )
 }

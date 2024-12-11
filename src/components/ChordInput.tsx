@@ -18,7 +18,7 @@ import { updateFlatOrSharpLetter } from '../utils/chordCodeHandler'
 import { cn } from '../lib/utils'
 import { Checkbox } from '../components/ui/checkbox';
 import { getChordNumeral } from '../utils/numeralHelper'
-import { Combobox, ComboboxItem } from './Combobox';
+//import { Combobox, ComboboxItem } from './Combobox';
 
 interface ChordInputProps {
   pianoComponentId: number,
@@ -371,7 +371,7 @@ export const ChordInput: React.FC<ChordInputProps> = ({ pianoComponentId, classN
           {/* Chord Type Selection */}
           <div className="type-select">
 
-            <Combobox
+            {/* <Combobox
               items={chordTypeArray
                 .map((option) => (
                   {
@@ -385,9 +385,9 @@ export const ChordInput: React.FC<ChordInputProps> = ({ pianoComponentId, classN
               emptyMessage="No type found."
               className="w-24"
               onValueChange={(value: any) => handleTypeSelectChange({ target: { value } } as any)}
-            />
+            /> */}
 
-            {/* <Select
+            <Select
               value={chordRef.current.type || 'major'} // Fallback to 'major'
               onValueChange={(value: any) => handleTypeSelectChange({ target: { value } } as any)}
             >
@@ -403,7 +403,7 @@ export const ChordInput: React.FC<ChordInputProps> = ({ pianoComponentId, classN
                     </SelectItem>
                   ))}
               </SelectContent>
-            </Select> */}
+            </Select> 
           </div>
         </div>
         {/* Checkboxes */}

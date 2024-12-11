@@ -481,7 +481,7 @@ and (orientation : portrait) {
 	width: auto;
 	background-color: rgb(24, 24, 24);
 	border-radius: 12px;
-	filter: invert(0%) sepia(100%) saturate(0%) brightness(168%) contrast(129%);
+	filter: invert(0%) sepia(70%) saturate(0%) brightness(168%) contrast(139%);
 	transition: none;
 }
 
