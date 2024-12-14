@@ -58,8 +58,9 @@ export const GuitarChord: React.FC<GuitarChordProps> = ({ pianoComponentId }) =>
     playGuitarChord(
       dispatch, 
       chordPiano,
+      state.synth as any,
+      state.volume,
       tabPositions,
-      state.synth as any
     );
   }
 

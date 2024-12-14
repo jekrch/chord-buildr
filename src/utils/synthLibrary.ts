@@ -37,7 +37,7 @@ interface InstrumentSettings {
 }
 
 let synth: Tone.PolySynth | null = null;
-let synthType: keyof typeof SYNTH_TYPES | null = null;
+let synthType: string;
 let baseDecibel = 2;
 
 function getPlumberSynth(): Tone.PolySynth {
@@ -140,12 +140,12 @@ function getGuitSynth(): Tone.PolySynth {
  * selections, along with the base decibel value (to be
  * modified as determined by the chord)
  */
-export function getSynth(state: SynthState): SynthReturn {
-  if (synth !== null && synthType === state.synth) {
+export function getSynth(synthName: string): SynthReturn {
+
+  if (synth !== null && synthType === synthName) {
     return { synth, baseDecibel };
   }
-
-  synthType = state.synth;
+  synthType = synthName;
 
   if (synth !== null) {
     synth.dispose();
@@ -193,11 +193,13 @@ export const SYNTH_TYPES = {
   "el": { 
     name: "electric",
     // @ts-ignore
-    getSampler: () => import('tonejs-instrument-guitar-electric-mp3')
+    getSampler: () => import('tonejs-instrument-guitar-electric-mp3'),
+    baseDecibel: 2
   },
   "ac": { 
     name: "acoustic",
     // @ts-ignore
-    getSampler: () => import('tonejs-instrument-guitar-nylon-mp3')
+    getSampler: () => import('tonejs-instrument-guitar-nylon-mp3'),
+    baseDecibel: 2
   }
 } as const

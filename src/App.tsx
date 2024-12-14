@@ -10,7 +10,6 @@ import { ThemeProvider } from './components/theme-provider'
 
 const App: React.FC = () => {
 
-  
   // this silent audio reference is used to prevent the mute function 
   // on iOS devices from blocking tonejs audio
   const silentAudioRef = useRef<HTMLAudioElement>(null)
