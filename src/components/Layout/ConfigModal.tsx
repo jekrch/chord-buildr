@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import { Play } from 'lucide-react'
+import { Play, AudioLinesIcon } from 'lucide-react'
 import {
   Dialog,
   DialogContent,
@@ -17,6 +17,8 @@ import { Badge } from '../../components/ui/badge'
 import { useAppContext } from '../context/AppContext'
 import { playChord } from '../../utils/synthPlayer'
 import { SYNTH_TYPES as SYNTH_TYPES } from '../../utils/synthLibrary'
+//import { SamplerOptions } from 'tone';
+
 
 
 interface ConfigModalProps {
@@ -129,7 +131,14 @@ export function ConfigModal({ open, onOpenChange }: ConfigModalProps): JSX.Eleme
                 <SelectContent>
                   {Object.entries(SYNTH_TYPES).map(([key, value]) => (
                     <SelectItem key={`k-${key}`} value={key}>
-                      {value.name}
+                      <div className="flex items-center gap-2 w-full">
+                        {value.name}
+                          <div className="ml-[8em] absolute float-right">
+                            {value?.getSampler && (
+                              <AudioLinesIcon size={16} />
+                            )}
+                        </div>
+                      </div>
                     </SelectItem>
                   ))}
                 </SelectContent>

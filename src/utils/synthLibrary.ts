@@ -1,10 +1,6 @@
 import * as Tone from "tone";
 import { isMobile } from "react-device-detect";
 
-interface SynthState {
-  synth: keyof typeof SYNTH_TYPES;
-}
-
 export interface SynthReturn {
   synth: Tone.PolySynth;
   decibelModifier: number;
@@ -107,33 +103,33 @@ function getPluckSynth(): Tone.PolySynth {
   return synth;
 }
 
-function getGuitSynth(): Tone.PolySynth {
-  const synth = new Tone.PolySynth().toDestination();
-  const instr: InstrumentSettings = {
-    "harmonicity": 5,
-    "modulationIndex": 10,
-    "oscillator": {
-      "type": "sine"
-    },
-    "envelope": {
-      "attack": 0.001,
-      "decay": 2,
-      "sustain": 0.1,
-      "release": 2
-    },
-    "modulation": {
-      "type": "square"
-    },
-    "modulationEnvelope": {
-      "attack": 0.002,
-      "decay": 0.2,
-      "sustain": 0,
-      "release": 0.2
-    }
-  };
-  synth.set(instr as any);
-  return synth;
-}
+// function getGuitSynth(): Tone.PolySynth {
+//   const synth = new Tone.PolySynth().toDestination();
+//   const instr: InstrumentSettings = {
+//     "harmonicity": 5,
+//     "modulationIndex": 10,
+//     "oscillator": {
+//       "type": "sine"
+//     },
+//     "envelope": {
+//       "attack": 0.001,
+//       "decay": 2,
+//       "sustain": 0.1,
+//       "release": 2
+//     },
+//     "modulation": {
+//       "type": "square"
+//     },
+//     "modulationEnvelope": {
+//       "attack": 0.002,
+//       "decay": 0.2,
+//       "sustain": 0,
+//       "release": 0.2
+//     }
+//   };
+//   synth.set(instr as any);
+//   return synth;
+// }
 
 /**
  * Returns a synth as specified by user volume and voice
@@ -184,22 +180,41 @@ export function getSynth(synthName: string): SynthReturn {
   return { synth, decibelModifier: decibelModifier };
 }
 
-export const SYNTH_TYPES = {
-  "p": { name: "plumber" },
-  "w": { name: "wave" },
-  "s": { name: "swell" },
-  "o": { name: "organ" },
-  "pl": { name: "pluck" },
+export interface SynthType {
+  name: string;
+  type: string;
+  getSampler?: () => Promise<any>;
+  decibelModifier?: number;
+}
+
+export const SYNTH_TYPES: Record<string, SynthType> = {
+  "p": { name: "plumber", type: "synth" },
+  "w": { name: "wave", type: "synth" },
+  "s": { name: "swell", type: "synth" },
+  "o": { name: "organ", type: "synth" },
+  "pl": { name: "pluck", type: "synth" },
   "el": { 
-    name: "electric",
+    name: "electric guitar",
     // @ts-ignore
     getSampler: () => import('tonejs-instrument-guitar-electric-mp3'),
-    decibelModifier: 3
+    decibelModifier: 3, 
+    type: "sampler"
   },
   "ac": { 
-    name: "acoustic",
+    name: "acoustic guitar",
     // @ts-ignore
     getSampler: () => import('tonejs-instrument-guitar-nylon-mp3'),
-    decibelModifier: -2
+    decibelModifier: -2, 
+    type: "sampler"
+  },
+  "h": { 
+    name: "harp",
+    // @ts-ignore
+    getSampler: () => import('tonejs-instrument-harp-mp3'),
+    decibelModifier: -2, 
+    type: "sampler"
   }
 } as const
+
+
+export type SynthKey = keyof typeof SYNTH_TYPES

@@ -1,10 +1,9 @@
 import * as Tone from "tone"
-import { getSynth, SYNTH_TYPES, SynthReturn } from './synthLibrary'
+import { getSynth, SYNTH_TYPES, SynthKey, SynthReturn } from './synthLibrary'
 import { AppState, getPianoById } from "../components/context/AppContext"
 import { isMobile } from "react-device-detect"
 import { ChordPiano, NoteKey } from "./chordPianoHandler"
 // @ts-ignore
-import GuitarElectricMp3 from 'tonejs-instrument-guitar-electric-mp3'
 import { ChordPosition, findChordPositions } from "./tabFinder"
 import guitar from '@tombatossals/chords-db/lib/guitar.json'
 
@@ -36,8 +35,6 @@ interface AudioOptions {
   useStrum?: boolean
 }
 
-type InstrumentKey = keyof typeof SYNTH_TYPES
-
 function getSelectedNotes(piano: NoteKey[][]): string[] {
   const selectedNotes: string[] = []
 
@@ -59,24 +56,6 @@ function getSelectedNotes(piano: NoteKey[][]): string[] {
   }
 
   return selectedNotes
-}
-
-function getSelectedNoteNumbers(piano: NoteKey[][]) {
-  const selectedNoteNumbers: number[] = []
-
-  for (let octaveIndex = 0; octaveIndex < piano.length; octaveIndex++) {
-    const pianoOctave = piano[octaveIndex]
-
-    for (let j = 0; j < pianoOctave.length; j++) {
-      const noteKey = pianoOctave[j]
-
-      if (noteKey.selected) {
-        const absoluteNoteNumber = noteKey.noteNumber + noteKey.octave * 12
-        selectedNoteNumbers.push(absoluteNoteNumber)
-      }
-    }
-  }
-  return selectedNoteNumbers
 }
 
 function clearPianoKeyPlaying(dispatch: React.Dispatch<any>, pianoComponent: ChordPiano): void {
@@ -138,8 +117,13 @@ function getUserVolumeModifier(userVolume: number | null): number {
   return modifier
 }
 
-// get or create sampler instance with decibelModifier configuration
-async function getInstrumentSampler(type: InstrumentKey): Promise<ToneSampler | undefined> {
+/**
+ * get or create sampler instance with decibelModifier configuration
+ * 
+ * @param type 
+ * @returns 
+ */
+async function getInstrumentSampler(type: SynthKey): Promise<ToneSampler | undefined> {
   if (samplers[type]) {
     return samplers[type]
   }
@@ -150,6 +134,8 @@ async function getInstrumentSampler(type: InstrumentKey): Promise<ToneSampler | 
   }
 
   try {
+    if (!instrument.getSampler) return;
+
     const SamplerModule = await instrument.getSampler()
     
     let sampler = await new Promise<Tone.Sampler>(resolve => {
@@ -175,7 +161,14 @@ function getNoteNumber(note: string): number {
   return Tone.Frequency(note).toMidi() - 72
 }
 
-// unified playback function that handles both synth and sampler with optional strumming
+/**
+ * Play the provided notes using either the synth or sampler as provided and either strummed 
+ * or concurrently. Delay is used to improve performance on mobile and volume is determined 
+ * by several factors: synth vs sampler, synth pitch, user volume setting, voice modifier from 
+ * SYNTH_TYPES
+ * 
+ * @param options 
+ */
 async function playNotes(options: AudioOptions) {
   let { synth, sampler, notes, volume, delay, duration, velocity, useStrum, decibelModifier } = options
 
@@ -186,87 +179,171 @@ async function playNotes(options: AudioOptions) {
   }
 
   if (sampler) {
-    sampler.toDestination()
-    sampler.releaseAll()
-    
-    if (volume !== undefined && decibelModifier !== undefined) {
-      let calculatedVolume = decibelModifier + getUserVolumeModifier(volume)
 
-      sampler.volume.value = Math.min(calculatedVolume, MAX_SAMPLER_VOLUME)
-      //console.log(calculatedVolume)
-      //console.log(sampler.volume.value)
-    }
+    initSampler(sampler, volume, decibelModifier)
 
     if (useStrum) {
-      const strumDuration = 0.20
-      const delayPerNote = strumDuration / notes.length
-      const noteVelocity = velocity || 0.6
-
-      notes.forEach((note, index) => {
-        const now = Tone.now()
-        const startTime = now + baseDelay + (index * delayPerNote)
-        
-        sampler.triggerAttackRelease(
-          note,
-          duration || "1.0",
-          startTime,
-          noteVelocity
-        )
-      })
+      playSamplerNotesStrum(
+        notes, 
+        velocity,
+        baseDelay, 
+        sampler, 
+        duration
+      )
     } else {
-      const now = Tone.now()
-      notes.forEach(note => {
-        sampler.triggerAttackRelease(
-          note,
-          duration || "1.0",
-          now + baseDelay,
-          velocity || 0.7
-        )
-      })
+      playSamplerNotes(
+        notes, 
+        sampler, 
+        duration, 
+        baseDelay, 
+        velocity
+      );
     }
   } else if (synth) {
-    if (synth.decibelModifier) {
-      // if we're strumming with a synth we should shave 10 off of the vol
-      // to compensate for louder effect
-      volume = volume! + synth.decibelModifier - 10;
-    }
-    
-    synth.synth.toDestination()
-    synth.synth.releaseAll()
+
+    volume = initSynth(synth, volume)
 
     if (useStrum) {
-      const strumDuration = 0.20
-      const delayPerNote = strumDuration / notes.length
-      const noteVelocity = velocity || 0.7
-      
-      notes.forEach((note, index) => {
-        const noteNumber = getNoteNumber(note)
-        const noteDecibel = getDecibel(volume || 0, [noteNumber])
-        //console.log(noteDecibel);
-        synth.synth.volume.value = noteDecibel
-        
-        synth.synth.triggerAttackRelease(
-          note,
-          duration || "1.1",
-          Tone.now() + baseDelay + (index * delayPerNote),
-          noteVelocity
-        )
-      })
+      playSynthNotesStrum(
+        notes, 
+        velocity, 
+        volume, 
+        synth, 
+        duration, 
+        baseDelay
+      )
     } else {
       // get midi numbers for all notes
-      const noteNumbers = notes.map(getNoteNumber)
-      const noteDecibel = getDecibel(volume || 0, noteNumbers)
-      //console.log(noteDecibel)
-      synth.synth.volume.value = noteDecibel
-
-      synth.synth.triggerAttackRelease(
-        notes,
-        duration || "1.1",
-        Tone.now() + baseDelay,
-        velocity || 0.7
-      )
+      playSynthNotes(
+        notes, 
+        volume, 
+        synth, 
+        duration, 
+        baseDelay, 
+        velocity
+      );
     }
   }
+}
+
+function initSynth(synth: SynthReturn, volume: number | undefined) {
+  if (synth.decibelModifier) {
+    // if we're strumming with a synth we should shave 10 off of the vol
+    // to compensate for louder effect
+    volume = volume! + synth.decibelModifier - 10
+  }
+
+  synth.synth.toDestination()
+  synth.synth.releaseAll()
+
+  return volume
+}
+
+function initSampler(
+  sampler: Tone.Sampler, 
+  volume: number | undefined, 
+  decibelModifier: number | undefined
+) {
+  sampler.toDestination()
+  sampler.releaseAll()
+
+  if (volume !== undefined && decibelModifier !== undefined) {
+    let calculatedVolume = decibelModifier + getUserVolumeModifier(volume)
+
+    sampler.volume.value = Math.min(calculatedVolume, MAX_SAMPLER_VOLUME)
+    //console.log(calculatedVolume)
+    //console.log(sampler.volume.value)
+  }
+}
+
+function playSamplerNotes(
+  notes: string[], 
+  sampler: Tone.Sampler, 
+  duration: string | undefined, 
+  baseDelay: number, 
+  velocity: number | undefined
+) {
+  const now = Tone.now()
+  notes.forEach(note => {
+    sampler.triggerAttackRelease(
+      note,
+      duration || "1.0",
+      now + baseDelay,
+      velocity || 0.7
+    )
+  })
+}
+
+function playSamplerNotesStrum(
+  notes: string[], 
+  velocity: number | undefined, 
+  baseDelay: number, 
+  sampler: Tone.Sampler, 
+  duration: string | undefined
+) {
+  const strumDuration = 0.20
+  const delayPerNote = strumDuration / notes.length
+  const noteVelocity = velocity || 0.6
+
+  notes.forEach((note, index) => {
+    const now = Tone.now()
+    const startTime = now + baseDelay + (index * delayPerNote)
+
+    sampler.triggerAttackRelease(
+      note,
+      duration || "1.0",
+      startTime,
+      noteVelocity
+    )
+  })
+}
+
+function playSynthNotesStrum(
+  notes: string[], 
+  velocity: number | undefined, 
+  volume: number | undefined, 
+  synth: SynthReturn,
+   duration: string | undefined, 
+   baseDelay: number
+  ) {
+  const strumDuration = 0.20
+  const delayPerNote = strumDuration / notes.length
+  const noteVelocity = velocity || 0.7
+
+  notes.forEach((note, index) => {
+    const noteNumber = getNoteNumber(note)
+    const noteDecibel = getDecibel(volume || 0, [noteNumber])
+    //console.log(noteDecibel);
+    synth.synth.volume.value = noteDecibel
+
+    synth.synth.triggerAttackRelease(
+      note,
+      duration || "1.1",
+      Tone.now() + baseDelay + (index * delayPerNote),
+      noteVelocity
+    )
+  })
+}
+
+function playSynthNotes(
+  notes: string[], 
+  volume: number | undefined, 
+  synth: SynthReturn, 
+  duration: string | undefined, 
+  baseDelay: number, 
+  velocity: number | undefined
+) {
+  const noteNumbers = notes.map(getNoteNumber)
+  const noteDecibel = getDecibel(volume || 0, noteNumbers)
+  //console.log(noteDecibel)
+  synth.synth.volume.value = noteDecibel
+
+  synth.synth.triggerAttackRelease(
+    notes,
+    duration || "1.1",
+    Tone.now() + baseDelay,
+    velocity || 0.7
+  )
 }
 
 /**
@@ -319,7 +396,7 @@ export async function playChord(
 
   try {
     const useStrum = state.format === "g"
-    const instrumentType = state.synth as InstrumentKey
+    const instrumentType = state.synth as SynthKey
     
     let notes: string[]
 
