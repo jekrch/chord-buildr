@@ -1,11 +1,11 @@
-import React, { useEffect, useState } from "react"
-import { Link, scroller } from "react-scroll"
+import React, { useEffect, useRef, useState } from "react"
 
+import { Link, scroller } from "react-scroll"
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
 import { faPenToSquare } from "@fortawesome/free-regular-svg-icons"
 import { AppState, useAppContext } from "../context/AppContext"
 import { playChordById } from "../../utils/synthPlayer"
-import { Button } from '../../components/ui/button';
+import { Button } from '../../components/ui/button'
 import { 
   getChordDisplay, 
   getProgressionString, 
@@ -25,8 +25,51 @@ export const HeaderComponent: React.FC = () => {
   const { state, dispatch } = useAppContext();
   const [newChordAdded, setNewChordAdded] = useState(false);
   const [currPlayChordIndex, setCurrPlayChordIndex] = useState(-1);
+  const [headerOffset, setHeaderOffset] = useState(-130);
+  const headerRef = useRef<HTMLElement>(null);
   
-  const offset = -130
+  /**
+   * When a chord is played we want it to be scrolled to. Where we 
+   * scroll to should be determined in part by the height of this
+   * header so the header doesn't cover the chord when the header 
+   * height expands due to large progressions
+   */
+  useEffect(() => {
+    const updateOffset = () => {
+      if (headerRef.current) {
+        const headerHeight = headerRef.current.getBoundingClientRect().height;
+        setHeaderOffset(-headerHeight - 10); // Add 10px buffer
+        console.log(-headerHeight - 10)
+      }
+    };
+
+    // Initial calculation
+    updateOffset();
+
+    // Set up resize observer to recalculate when header size changes
+    const resizeObserver = new ResizeObserver(updateOffset);
+    if (headerRef.current) {
+      resizeObserver.observe(headerRef.current);
+    }
+
+    return () => {
+      resizeObserver.disconnect();
+    };
+  }, [state.chordPianoSet]); // recalculate when chord set changes
+
+  const navigateToPianoById = (pianoId: number): void => {
+    const targetKey = `piano-${pianoId}`
+    const options: ScrollOptions = {
+      duration: 500,
+      smooth: true,
+      offset: headerOffset, // Use dynamic offset
+      spy: true,
+      hashSpy: true,
+      to: targetKey
+    }
+
+    scroller.scrollTo(targetKey, options)
+  }
 
   const handleClickPlay = (): void => {
     if (!state.chordPianoSet?.length) {
@@ -71,19 +114,7 @@ export const HeaderComponent: React.FC = () => {
     }
   }, [state.chordPianoSet, newChordAdded])
 
-  const navigateToPianoById = (pianoId: number): void => {
-    const targetKey = `piano-${pianoId}`
-    const options: ScrollOptions = {
-      duration: 500,
-      smooth: true,
-      offset,
-      spy: true,
-      hashSpy: true,
-      to: targetKey
-    }
 
-    scroller.scrollTo(targetKey, options)
-  }
 
   const handleClickClear = (): void => {
     dispatch({
@@ -139,7 +170,7 @@ export const HeaderComponent: React.FC = () => {
           className={`chordListItem cursor-pointer hover:text-blue-600 transition-colors pl-[3px] !ml-[-3px]`}
           to={`piano-${piano.id}`}
           spy={state.format !== "g"}
-          offset={offset}
+          offset={headerOffset}
           isDynamic={true}
           duration={500}
           smooth={true}
@@ -157,7 +188,10 @@ export const HeaderComponent: React.FC = () => {
   }
 
   return (
-    <nav className="fixed top-0 w-full bg-background opacity-[98%] shadow-sm z-50 ">
+    <nav
+      ref={headerRef} 
+      className="fixed top-0 w-full bg-background opacity-[98%] shadow-sm z-50 "
+    >
       <div className="flex flex-col">
         <div className="flex justify-center bg-primary/10">
           <Button
