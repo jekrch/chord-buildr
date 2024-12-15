@@ -7,7 +7,7 @@ import { getPianoById, useAppContext } from "./context/AppContext"
 import { ChordPiano } from "../utils/chordPianoHandler"
 import { findChordPositions } from "../utils/tabFinder"
 import { MousePointerClick } from "lucide-react"
-import { playGuitarChord } from "../utils/synthPlayer"
+import { playChord } from "../utils/synthPlayer"
 
 interface GuitarChordProps {
   pianoComponentId: number;
@@ -55,12 +55,11 @@ export const GuitarChord: React.FC<GuitarChordProps> = ({ pianoComponentId }) =>
   }
 
   const handlePlayClick = (): void => {
-    playGuitarChord(
+    playChord(
       dispatch, 
+      state,
       chordPiano,
-      state.synth as any,
-      state.volume,
-      tabPositions,
+      tabPositions
     );
   }
 

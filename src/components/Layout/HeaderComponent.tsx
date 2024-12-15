@@ -4,7 +4,7 @@ import { Link, scroller } from "react-scroll"
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
 import { faPenToSquare } from "@fortawesome/free-regular-svg-icons"
 import { AppState, useAppContext } from "../context/AppContext"
-import { playChord } from "../../utils/synthPlayer"
+import { playChordById } from "../../utils/synthPlayer"
 import { Button } from '../../components/ui/button';
 import { 
   getChordDisplay, 
@@ -99,7 +99,7 @@ export const HeaderComponent: React.FC = () => {
   }
 
   const handleItemClick = (id: number): void => {
-    playChord(dispatch, state, id)
+    playChordById(dispatch, state, id)
   }
 
   const getCurrentSynthVolCode = (state: AppState): string => {

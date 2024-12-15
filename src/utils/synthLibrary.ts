@@ -7,7 +7,7 @@ interface SynthState {
 
 export interface SynthReturn {
   synth: Tone.PolySynth;
-  baseDecibel: number;
+  decibelModifier: number;
 }
 
 interface InstrumentSettings {
@@ -38,7 +38,7 @@ interface InstrumentSettings {
 
 let synth: Tone.PolySynth | null = null;
 let synthType: string;
-let baseDecibel = 2;
+let decibelModifier = 2;
 
 function getPlumberSynth(): Tone.PolySynth {
   const synth = new Tone.PolySynth().toDestination();
@@ -143,7 +143,7 @@ function getGuitSynth(): Tone.PolySynth {
 export function getSynth(synthName: string): SynthReturn {
 
   if (synth !== null && synthType === synthName) {
-    return { synth, baseDecibel };
+    return { synth, decibelModifier: decibelModifier };
   }
   synthType = synthName;
 
@@ -153,24 +153,24 @@ export function getSynth(synthName: string): SynthReturn {
 
   switch (synthType) {
     case "w":
-      baseDecibel = -1;
+      decibelModifier = -10;
       synth = getWaveSynth();
       break;
     case "s":
-      baseDecibel = 16;
+      decibelModifier = 0;
       synth = getSwellSynth();
       break;
     case "o":
-      baseDecibel = -3;
+      decibelModifier = -20;
       synth = getOrganSynth();
       break;
     case "pl":
-      baseDecibel = -8;
+      decibelModifier = -30;
       synth = getPluckSynth();
       break;
     case "p":
     default:
-      baseDecibel = 2;
+      decibelModifier = -10;
       synth = getPlumberSynth();
       break;
   }
@@ -181,7 +181,7 @@ export function getSynth(synthName: string): SynthReturn {
     synth.set({ latencyHint: "balanced" });
   }
 
-  return { synth, baseDecibel };
+  return { synth, decibelModifier: decibelModifier };
 }
 
 export const SYNTH_TYPES = {
@@ -194,12 +194,12 @@ export const SYNTH_TYPES = {
     name: "electric",
     // @ts-ignore
     getSampler: () => import('tonejs-instrument-guitar-electric-mp3'),
-    baseDecibel: 2
+    decibelModifier: 3
   },
   "ac": { 
     name: "acoustic",
     // @ts-ignore
     getSampler: () => import('tonejs-instrument-guitar-nylon-mp3'),
-    baseDecibel: 2
+    decibelModifier: -2
   }
 } as const

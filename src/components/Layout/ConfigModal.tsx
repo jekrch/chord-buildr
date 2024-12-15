@@ -92,7 +92,7 @@ export function ConfigModal({ open, onOpenChange }: ConfigModalProps): JSX.Eleme
       addChord()
       return
     }
-    playChord(dispatch, state, pianoSet[0].id)
+    playChord(dispatch, state, pianoSet[0])
   }
 
   const addChord = (): void => {

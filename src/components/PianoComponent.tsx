@@ -5,7 +5,7 @@ import '../styles/Piano.css'
 import { Key } from './Key'
 import { useAppContext, getPianoById } from './context/AppContext'
 import { getNoteLetter } from '../utils/noteManager'
-import { playChord } from '../utils/synthPlayer'
+import { playChordById } from '../utils/synthPlayer'
 import { getProgressionCode } from "../utils/chordCodeHandler"
 import { NoteKey } from '../utils/chordPianoHandler'
 // @ts-ignores
@@ -73,7 +73,7 @@ export const PianoComponent: React.FC<PianoComponentProps> = ({
   }
 
   const handlePlayClick = (): void => {
-    playChord(dispatch, state, pianoId)
+    playChordById(dispatch, state, pianoId)
   }
 
   const renderPiano = () => {
