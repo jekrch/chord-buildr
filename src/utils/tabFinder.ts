@@ -1,6 +1,17 @@
 import { SelectedChord } from "./chordPianoHandler";
 import { getNoteNumber } from "./noteManager";
 
+export const UNSUPPORTED_GUITAR_CHORDS = [
+  'add2', 
+  'm13', 
+  '7#11', 
+  'm7#9', 
+  'm7b9', 
+  'm7#5', 
+  'm7#11', 
+  '9sus4'
+]
+
 // normalize key names to match the database format
 const normalizeKey = (keyNoteNumber: number): string => {
     const keyMap: Record<number, string> = {

@@ -73,20 +73,22 @@ export const GuitarChord: React.FC<GuitarChordProps> = ({ pianoComponentId }) =>
   return (
     <div 
       id={`piano-${pianoComponentId}`}
-      className="guitar-chord !min-w-[15em] ml-2"
+      className="guitar-chord !min-w-[15em] ml-1"
     >
-      <div>
+      <div className="!w-[1.9em] !h-[2.3em] !left-[0.2em] pl-1">
         <button
           type="button"
-          className="guitar-tab-close-button"
+          className="guitar-tab-close-button items-center justify-center !left-0"
           aria-label="Close"
           onClick={handleClickRemovePiano}
         >
-          <span className="align-middle text-[1.5em] inline-block !-mt-[0.16em]" aria-hidden="true">&times;</span>
+          <div className="mt-[0.1em]">
+            <span className="text-2xl leading-none" aria-hidden="true">&times;</span>
+          </div>
         </button>
         <button
           type="button"
-          className="piano-play-button"
+          className="piano-play-button relative !h-[8em] !mt-[0.5em] !top-0 !left-0"
           data-format={state.format}
           onClick={handlePlayClick}
         />

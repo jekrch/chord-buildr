@@ -1,4 +1,4 @@
-import { useRef, useEffect } from 'react'
+import { useRef, useEffect, ReactNode } from 'react'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../components/ui/select'
 import {
   noteLetterMapWithSharps,
@@ -18,6 +18,7 @@ import { updateFlatOrSharpLetter } from '../utils/chordCodeHandler'
 import { cn } from '../lib/utils'
 import { Checkbox } from '../components/ui/checkbox';
 import { getChordNumeral } from '../utils/numeralHelper'
+import { UNSUPPORTED_GUITAR_CHORDS } from '../utils/tabFinder'
 //import { Combobox, ComboboxItem } from './Combobox';
 
 interface ChordInputProps {
@@ -338,6 +339,22 @@ export const ChordInput: React.FC<ChordInputProps> = ({ pianoComponentId, classN
     return getChordNumeral(key, piano?.selectedChord) ?? ''
   }
 
+  const getOptionText = (option: string): ReactNode => {
+    
+    if (
+      state.format === "g" && 
+      UNSUPPORTED_GUITAR_CHORDS.includes(option)
+    ) {
+      return (
+        <span className="text-slate-500">
+          {option}
+        </span>
+      )
+    }
+    return (<>{option}</>);
+
+  }
+
   return (
     <form className={cn("h-[12em] w-[6em]", className)}>
       <div className="items-center space-y-2 w-full">
@@ -399,7 +416,7 @@ export const ChordInput: React.FC<ChordInputProps> = ({ pianoComponentId, classN
                   //.filter(option => option && option.trim()) // Remove empty strings
                   .map((option, index) => (
                     <SelectItem key={index} value={option}>
-                      {option}
+                      {getOptionText(option)}
                     </SelectItem>
                   ))}
               </SelectContent>

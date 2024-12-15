@@ -477,7 +477,7 @@ and (orientation : portrait) {
 }
 
 .guitar-chord svg {
-	height: 9.8em !important;
+	height: 9.7em !important;
 	width: auto;
 	background-color: rgb(24, 24, 24);
 	border-radius: 12px;
@@ -498,7 +498,7 @@ and (orientation : portrait) {
 .chord-wrapper {
 	width: auto;
 	border-radius: calc(var(--radius) - 0px);
-	left: 1.3em;
+	left: 1em;
 	top: -3em;
 	position: relative;
 }
@@ -554,9 +554,9 @@ and (orientation : portrait) {
 	visibility: visible !important;
 	margin-left: 0em !important;
 	top: 0em;
-	right: 6.27em;
+	right: 6.4em;
 	position: relative;
-	width: 1.91em;
+	width: 1.9em;
 	height: 2.23em;
 	opacity: 1.0 !important;
 	z-index: 99999 !important;
@@ -566,6 +566,7 @@ and (orientation : portrait) {
 	padding-right: 0.0em !important;
 	border: 0.01em solid !important;
 	border-radius: 0.3em;
+	border-color: hsl(var(--border)) !important;
 	outline: none !important;
 	box-shadow:
 		-1px -1px 2px var(--main-compononent-gray) inset,
