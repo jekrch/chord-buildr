@@ -438,7 +438,7 @@ export function convertChordStrToCode(chordStr: string): string {
   let position = ''
   const positionMatch = chordStr.match(/\.(\d+)$/)
   if (positionMatch) {
-    position = `.${parseInt(positionMatch[1]) + 1}`
+    position = `.${parseInt(positionMatch[1])}`
     chordStr = chordStr.replace(/\.\d+$/, '')
   }
 
