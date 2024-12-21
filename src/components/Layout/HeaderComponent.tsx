@@ -11,6 +11,7 @@ import {
   getProgressionString, 
   convertProgressionStrToCode 
 } from "../../utils/chordCodeHandler"
+import { generateBaseUrlParams } from "../../utils/urlUtil"
 
 interface ScrollOptions {
   duration: number
@@ -38,15 +39,15 @@ export const HeaderComponent: React.FC = () => {
     const updateOffset = () => {
       if (headerRef.current) {
         const headerHeight = headerRef.current.getBoundingClientRect().height;
-        setHeaderOffset(-headerHeight - 10); // Add 10px buffer
+        setHeaderOffset(-headerHeight - 10); // add 10px buffer
         console.log(-headerHeight - 10)
       }
     };
 
-    // Initial calculation
+    // initial calculation
     updateOffset();
 
-    // Set up resize observer to recalculate when header size changes
+    // set up resize observer to recalculate when header size changes
     const resizeObserver = new ResizeObserver(updateOffset);
     if (headerRef.current) {
       resizeObserver.observe(headerRef.current);
@@ -119,7 +120,7 @@ export const HeaderComponent: React.FC = () => {
   const handleClickClear = (): void => {
     dispatch({
       type: "BUILD_PROG_FROM_CODE",
-      payload: "?s=p:90&p="
+      payload: generateBaseUrlParams(state)
     })
   }
 
@@ -248,3 +249,4 @@ export const HeaderComponent: React.FC = () => {
     </nav>
   )
 }
+
