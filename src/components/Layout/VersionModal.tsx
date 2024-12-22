@@ -20,6 +20,15 @@ interface VersionModalProps {
 // version history data stored as a json object
 const versionHistory: VersionEntry[] = [
   {
+    version: "4.0",
+    date: "12.22.2024",
+    items: [
+      "ukulele chord diagrams are now available through settings > format",
+      "improvements made to guitar chord UI",
+      "several bugfixes related to guitar chord functionality"
+    ]
+  },
+  {
     version: "3.1",
     date: "12.15.2024",
     items: [
