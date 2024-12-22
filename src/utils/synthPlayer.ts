@@ -398,9 +398,9 @@ export async function playChord(
     
     let notes: string[]
 
-    console.log(useStrum);
-    console.log(chordPiano.selectedChord);
-    console.log("!!!!!!!!!!!!!!!!!!!!!!!!!")
+    // console.log(useStrum);
+    // console.log(chordPiano.selectedChord);
+
     if (useStrum && chordPiano.selectedChord) {
 
       const instrument: Instrument = getInstrumentByFormat(state.format);
