@@ -12,6 +12,7 @@ import {
   convertProgressionStrToCode 
 } from "../../utils/chordCodeHandler"
 import { generateBaseUrlParams } from "../../utils/urlUtil"
+import { isGuitar } from "../../utils/guitarUtil"
 
 interface ScrollOptions {
   duration: number
@@ -170,7 +171,7 @@ export const HeaderComponent: React.FC = () => {
         <Link
           className={`chordListItem cursor-pointer hover:text-blue-600 transition-colors pl-[3px] !ml-[-3px]`}
           to={`piano-${piano.id}`}
-          spy={state.format !== "g"}
+          spy={!isGuitar(state.format)}
           offset={headerOffset}
           isDynamic={true}
           duration={500}

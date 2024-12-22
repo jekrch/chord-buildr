@@ -29,6 +29,7 @@ interface ConfigModalProps {
 export const UX_FORMAT_OPTIONS: Record<string, string> = {
   "p": "piano",
   "g": "guitar",
+  "u": "ukulele",
 };
 
 export function ConfigModal({ open, onOpenChange }: ConfigModalProps): JSX.Element {

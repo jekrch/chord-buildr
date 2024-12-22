@@ -1,5 +1,64 @@
 import { SelectedChord } from "./chordPianoHandler";
 import { getNoteNumber } from "./noteManager";
+import guitar from '@tombatossals/chords-db/lib/guitar.json';
+import ukulele from '@tombatossals/chords-db/lib/ukulele.json';
+
+export interface Instrument {
+  strings: number,
+  fretsOnChord: number,
+  name: string,
+  tunings: Record<string, string[]>
+  chords: any
+}
+
+export const guitarInstrument: Instrument = {
+  strings: 6,
+  fretsOnChord: 4,
+  name: "Guitar",
+  tunings: {
+    standard: ["E", "A", "D", "G", "B", "E"],
+  },
+  chords: guitar.chords
+}
+
+export const ukuleleInstrument: Instrument = {
+  strings: 4,
+  fretsOnChord: 4,
+  name: 'Ukulele',
+  tunings: {
+      standard:["G","C","E","A"]
+  },
+  chords: ukulele.chords
+}
+
+/**
+ * Returns the guitar instrument (standard or ukulele) corresponding to 
+ * the provided format code.
+ * 
+ * @param format 
+ * @returns 
+ */
+function getInstrumentByFormat(format: string): Instrument {
+  switch(format) {
+    case "g": 
+      return guitarInstrument;
+    case "u":
+      return ukuleleInstrument;
+    default:
+      throw Error("Invalid guitar format")
+  } 
+}
+
+/**
+ * Returns whether the provided format is a "guitar" format. This 
+ * covers either standard 6 string or ukulele 
+ * 
+ * @param format 
+ * @returns 
+ */
+function isGuitar(format: string): boolean {
+  return ["g", "u"].includes(format)
+}
 
 export const UNSUPPORTED_GUITAR_CHORDS = [
   'add2', 
@@ -12,22 +71,39 @@ export const UNSUPPORTED_GUITAR_CHORDS = [
   '9sus4'
 ]
 
+const guitarKeyMap: Record<number, string> = {
+  1: 'C',
+  2: 'Csharp',
+  3: 'D',
+  4: 'Eb',
+  5: 'E',
+  6: 'F',
+  7: 'Fsharp',
+  8: 'G',
+  9: 'Ab',
+  10: 'A',
+  11: 'Bb',
+  12: 'B'
+}
+
+const ukuleleKeyMap: Record<number, string> = {
+  1: 'C',
+  2: 'Db',
+  3: 'D',
+  4: 'Eb',
+  5: 'E',
+  6: 'F',
+  7: 'Gb',
+  8: 'G',
+  9: 'Ab',
+  10: 'A',
+  11: 'Bb',
+  12: 'B'
+}
+
 // normalize key names to match the database format
-const normalizeKey = (keyNoteNumber: number): string => {
-    const keyMap: Record<number, string> = {
-        1: 'C',
-        2: 'Csharp',
-        3: 'D',
-        4: 'Eb',
-        5: 'E',
-        6: 'F',
-        7: 'Fsharp',
-        8: 'G',
-        9: 'Ab',
-        10: 'A',
-        11: 'Bb',
-        12: 'B'
-    }
+const normalizeKey = (keyNoteNumber: number, format: string): string => {
+    const keyMap: Record<number, string> = format === "g" ? guitarKeyMap : ukuleleKeyMap;
     return keyMap[keyNoteNumber];
   };
   
@@ -81,7 +157,8 @@ const normalizeKey = (keyNoteNumber: number): string => {
   
   const findChordPositions = (
     selectedChord: SelectedChord, 
-    guitarChords: Record<string, ChordInfo[]>
+    guitarChords: Record<string, ChordInfo[]>,
+    format: string
   ): ChordPosition[] => {
     try {
 
@@ -92,7 +169,7 @@ const normalizeKey = (keyNoteNumber: number): string => {
       //const bass = selectedChord.slashNote;
 
       // normalize the root note and suffix to match database format
-      const normalizedRoot = normalizeKey(noteNumber!);
+      const normalizedRoot = normalizeKey(noteNumber!, format);
 
       // Not supported: add2 m13 7#11 m7#9 m7b9 m7#5 m7#11 9sus4
       const normalizedSuffix = normalizeSuffix(suffix);
@@ -124,4 +201,4 @@ const normalizeKey = (keyNoteNumber: number): string => {
     }
   };
   
-  export { findChordPositions, parseChordName, normalizeKey, normalizeSuffix };
+  export { findChordPositions, isGuitar, parseChordName, normalizeKey, normalizeSuffix, getInstrumentByFormat };

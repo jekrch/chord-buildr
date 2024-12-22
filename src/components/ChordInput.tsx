@@ -18,7 +18,7 @@ import { updateFlatOrSharpLetter } from '../utils/chordCodeHandler'
 import { cn } from '../lib/utils'
 import { Checkbox } from '../components/ui/checkbox';
 import { getChordNumeral } from '../utils/numeralHelper'
-import { UNSUPPORTED_GUITAR_CHORDS } from '../utils/tabFinder'
+import { UNSUPPORTED_GUITAR_CHORDS } from '../utils/guitarUtil'
 //import { Combobox, ComboboxItem } from './Combobox';
 
 interface ChordInputProps {

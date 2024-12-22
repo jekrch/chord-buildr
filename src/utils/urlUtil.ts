@@ -1,3 +1,5 @@
+import { AppState } from "../components/context/AppContext";
+
 /**
  * From the provided state, generate the base URL params. Currently that's just the synth 
  * and an empty progression 

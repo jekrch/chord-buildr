@@ -4,8 +4,7 @@ import { AppState, getPianoById } from "../components/context/AppContext"
 import { isMobile } from "react-device-detect"
 import { ChordPiano, NoteKey } from "./chordPianoHandler"
 // @ts-ignore
-import { ChordPosition, findChordPositions } from "./tabFinder"
-import guitar from '@tombatossals/chords-db/lib/guitar.json'
+import { ChordPosition, findChordPositions, getInstrumentByFormat as getGuitarInstrument, Instrument as GuitarInstrument, isGuitar } from "./guitarUtil"
 
 // maximum allowed volume in decibels to prevent audio clipping
 const MAX_SYNTH_VOLUME = 5
@@ -38,13 +37,13 @@ interface AudioOptions {
 function getSelectedNotes(piano: NoteKey[][]): string[] {
   const selectedNotes: string[] = []
 
-  for (let octiveIndex = 0; octiveIndex < piano.length; octiveIndex++) {
-    const pianoOctave = piano[octiveIndex]
+  for (let octaveIndex = 0; octaveIndex < piano.length; octaveIndex++) {
+    const pianoOctave = piano[octaveIndex]
 
     for (let j = 0; j < pianoOctave.length; j++) {
       const noteKey = pianoOctave[j]
       if (noteKey.selected) {
-        const note = `${noteKey.note.toUpperCase()}${octiveIndex + 3}`
+        const note = `${noteKey.note.toUpperCase()}${octaveIndex + 3}`
         selectedNotes.push(note)
 
         if (!isMobile) {
@@ -395,18 +394,26 @@ export async function playChord(
   }
 
   try {
-    const useStrum = state.format === "g"
+    const useStrum = isGuitar(state.format)
     const instrumentType = state.synth as SynthKey
     
     let notes: string[]
 
+    console.log(useStrum);
+    console.log(chordPiano.selectedChord);
+    console.log("!!!!!!!!!!!!!!!!!!!!!!!!!")
     if (useStrum && chordPiano.selectedChord) {
 
-      // if the tabPositions were provided, fetch them now
-      tabPositions = tabPositions ?? findChordPositions(
-        chordPiano.selectedChord,
-        guitar.chords
-      )
+      const instrument: GuitarInstrument = getGuitarInstrument(state.format);
+
+      // if the tabPositions weren't provided, fetch them now
+      if (!tabPositions) {
+        tabPositions = findChordPositions(
+          chordPiano.selectedChord,
+          instrument.chords,
+          state.format
+        )
+      }
 
       // get the selected position
       notes = tabPositions[chordPiano.selectedChord.position ?? 0].midi

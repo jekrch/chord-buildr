@@ -7,6 +7,7 @@ import { ChordPianoComponent } from "../components/ChordPianoComponent"
 import { ChordInput } from "./ChordInput"
 import { GuitarChord } from "./GuitarChord"
 import useNavHeight from "../utils/hooks/useNavHeight"
+import { isGuitar } from '../utils/guitarUtil';
 
 // memoized wrapper components to prevent unnecessary re-renders
 const MemoizedChordPiano = memo(({ id, refresh }: { id: number, refresh: number }) => (
@@ -123,7 +124,7 @@ export const PianoBoardComponent: React.FC = () => {
       className="pianoBoard"
       style={{ marginTop: `${navHeight - 100}px` }}
     >
-      {state.format === 'p' ? renderPianoSet : renderGuitarSet}
+      {!isGuitar(state.format) ? renderPianoSet : renderGuitarSet}
       <div className="h-[100vh]" />
     </div>
   )

@@ -1,13 +1,13 @@
 import React, { useState } from "react"
 import Chord from "@techies23/react-chords"
-import guitar from "@tombatossals/chords-db/lib/guitar.json"
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
 import { faChevronLeft, faChevronRight } from "@fortawesome/free-solid-svg-icons"
 import { getPianoById, useAppContext } from "./context/AppContext"
 import { ChordPiano } from "../utils/chordPianoHandler"
-import { findChordPositions } from "../utils/tabFinder"
+import { findChordPositions, getInstrumentByFormat } from "../utils/guitarUtil"
 import { MousePointerClick } from "lucide-react"
 import { playChord } from "../utils/synthPlayer"
+import { Instrument } from "../utils/guitarUtil"
 
 interface GuitarChordProps {
   pianoComponentId: number;
@@ -26,20 +26,14 @@ export const GuitarChord: React.FC<GuitarChordProps> = ({ pianoComponentId }) =>
     return;
   }
 
+  const instrument: Instrument = getInstrumentByFormat(state.format);
+  
   const tabPositions = findChordPositions(
     chordPiano.selectedChord,
-    guitar.chords
+    instrument.chords,
+    state.format
   );
 
-  const instrument = {
-    strings: 6,
-    fretsOnChord: 4,
-    name: "Guitar",
-    keys: [],
-    tunings: {
-      standard: ["E", "A", "D", "G", "B", "E"],
-    },
-  }
 
   const handleNewPosition = (position: number): void => {
     setPosition(position);
@@ -136,3 +130,4 @@ export const GuitarChord: React.FC<GuitarChordProps> = ({ pianoComponentId }) =>
     </div>
   )
 }
+
