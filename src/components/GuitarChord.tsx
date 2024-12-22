@@ -4,7 +4,7 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
 import { faChevronLeft, faChevronRight } from "@fortawesome/free-solid-svg-icons"
 import { getPianoById, useAppContext } from "./context/AppContext"
 import { ChordPiano } from "../utils/chordPianoHandler"
-import { findChordPositions, getInstrumentByFormat } from "../utils/guitarUtil"
+import { findChordPositions, getInstrumentByFormat, isGuitar } from "../utils/guitarUtil"
 import { MousePointerClick } from "lucide-react"
 import { playChord } from "../utils/synthPlayer"
 import { Instrument } from "../utils/guitarUtil"
@@ -83,7 +83,7 @@ export const GuitarChord: React.FC<GuitarChordProps> = ({ pianoComponentId }) =>
         <button
           type="button"
           className="piano-play-button relative !h-[8em] !mt-[0.5em] !top-0 !left-0"
-          data-format={state.format}
+          data-format={isGuitar(state.format) ? "g" : "p"}
           onClick={handlePlayClick}
         />
       </div>

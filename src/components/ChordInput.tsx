@@ -443,7 +443,7 @@ export const ChordInput: React.FC<ChordInputProps> = ({ pianoComponentId, classN
               </label>
             </div>
 
-            <div className="items-center space-x-2 flatCheckBox" data-format={state.format}>
+            <div className="items-center space-x-2 flatCheckBox" data-format={isGuitar(state.format) ? 'g' : 'p'}>
               <Checkbox
                 id={`flat-${chordRef.current.id}`}
                 className="pb-[0.1em]"
@@ -461,7 +461,7 @@ export const ChordInput: React.FC<ChordInputProps> = ({ pianoComponentId, classN
             </div>
           </div>
 
-          {state.format !== 'g' && (
+          {!isGuitar(state.format) && (
             <div className="flex !ml-0 space-x-2 !mb-[0.7em] slashCheckBox">
               <Checkbox
                 id={`slash-${chordRef.current.id}`}
@@ -482,7 +482,7 @@ export const ChordInput: React.FC<ChordInputProps> = ({ pianoComponentId, classN
         </div>
 
         {/* Slash Chord Section */}
-        {state.format !== 'g' && (
+        {!isGuitar(state.format) && (
           <div className="flex items-center slash-container">
             <span
               className={cn(

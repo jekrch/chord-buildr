@@ -40,7 +40,7 @@ export const PianoBoardComponent: React.FC = () => {
 
   // move format data attribute setting to an effect to avoid unnecessary document updates
   useEffect(() => {
-    document.documentElement.setAttribute('data-format', state.format);
+    document.documentElement.setAttribute('data-format', isGuitar(state.format) ? 'g' : 'p');
   }, [state.format])
 
   // handle initial load and URL changes
