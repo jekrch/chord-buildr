@@ -4,10 +4,10 @@ import { playChord, playChordById } from './synthPlayer'
 import GuitarElectricMp3 from 'tonejs-instrument-guitar-electric-mp3'
 import { ChordPiano } from './chordPianoHandler'
 import { AppState } from '../components/context/AppContext'
-import { findChordPositions, getInstrumentByFormat, guitarInstrument, Instrument, isGuitar } from './guitarUtil'
+import {   guitarInstrument, isGuitar } from './guitarUtil'
 import { SamplerOptions } from 'tone'
-import guitar from '@tombatossals/chords-db/lib/guitar.json';
-import * as guitarUtil from './guitarUtil' 
+//import guitar from '@tombatossals/chords-db/lib/guitar.json';
+//import * as guitarUtil from './guitarUtil' 
 
 // mock modules
 vi.mock('tone', () => ({
