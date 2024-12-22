@@ -18,7 +18,7 @@ import { updateFlatOrSharpLetter } from '../utils/chordCodeHandler'
 import { cn } from '../lib/utils'
 import { Checkbox } from '../components/ui/checkbox';
 import { getChordNumeral } from '../utils/numeralHelper'
-import { UNSUPPORTED_GUITAR_CHORDS } from '../utils/guitarUtil'
+import { isGuitar, UNSUPPORTED_GUITAR_CHORDS } from '../utils/guitarUtil'
 //import { Combobox, ComboboxItem } from './Combobox';
 
 interface ChordInputProps {
@@ -342,7 +342,7 @@ export const ChordInput: React.FC<ChordInputProps> = ({ pianoComponentId, classN
   const getOptionText = (option: string): ReactNode => {
     
     if (
-      state.format === "g" && 
+      isGuitar(state.format) && 
       UNSUPPORTED_GUITAR_CHORDS.includes(option)
     ) {
       return (

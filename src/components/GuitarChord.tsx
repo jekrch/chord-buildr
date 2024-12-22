@@ -67,7 +67,7 @@ export const GuitarChord: React.FC<GuitarChordProps> = ({ pianoComponentId }) =>
   return (
     <div 
       id={`piano-${pianoComponentId}`}
-      className="guitar-chord !min-w-[15em] ml-1"
+      className="guitar-chord !min-w-[15em] ml-1 "
     >
       <div className="!w-[1.9em] !h-[2.3em] !left-[0.2em] pl-1">
         <button
@@ -92,7 +92,7 @@ export const GuitarChord: React.FC<GuitarChordProps> = ({ pianoComponentId }) =>
           <>
             <div               
               onClick={handlePlayClick}
-              className="cursor-pointer mt-[0.7em] border-slate-400 hover:border-primary/80 border-[0.01em] rounded-md shadow-lg"
+              className="cursor-pointer mt-[0.7em] border-slate-400 hover:border-primary/80 border-[0.01em] rounded-[8px] shadow-lg"
             >
               <Chord 
                 chord={tabPositions[position]} 

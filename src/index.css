@@ -480,7 +480,7 @@ and (orientation : portrait) {
 	height: 9.7em !important;
 	width: auto;
 	background-color: rgb(24, 24, 24);
-	border-radius: 12px;
+	border-radius: 9px;
 	filter: invert(0%) sepia(70%) saturate(0%) brightness(168%) contrast(139%);
 	transition: none;
 }
