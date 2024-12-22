@@ -201,4 +201,4 @@ const normalizeKey = (keyNoteNumber: number, format: string): string => {
     }
   };
   
-  export { findChordPositions, isGuitar, parseChordName, normalizeKey, normalizeSuffix, getInstrumentByFormat };
+  export { getInstrumentByFormat, findChordPositions, isGuitar, parseChordName, normalizeKey, normalizeSuffix };

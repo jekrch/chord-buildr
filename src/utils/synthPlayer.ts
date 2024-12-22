@@ -3,8 +3,7 @@ import { getSynth, SYNTH_TYPES, SynthKey, SynthReturn } from './synthLibrary'
 import { AppState, getPianoById } from "../components/context/AppContext"
 import { isMobile } from "react-device-detect"
 import { ChordPiano, NoteKey } from "./chordPianoHandler"
-// @ts-ignore
-import { ChordPosition, findChordPositions, getInstrumentByFormat as getGuitarInstrument, Instrument as GuitarInstrument, isGuitar } from "./guitarUtil"
+import { ChordPosition, findChordPositions, getInstrumentByFormat, Instrument, isGuitar } from "./guitarUtil"
 
 // maximum allowed volume in decibels to prevent audio clipping
 const MAX_SYNTH_VOLUME = 5
@@ -404,7 +403,7 @@ export async function playChord(
     console.log("!!!!!!!!!!!!!!!!!!!!!!!!!")
     if (useStrum && chordPiano.selectedChord) {
 
-      const instrument: GuitarInstrument = getGuitarInstrument(state.format);
+      const instrument: Instrument = getInstrumentByFormat(state.format);
 
       // if the tabPositions weren't provided, fetch them now
       if (!tabPositions) {

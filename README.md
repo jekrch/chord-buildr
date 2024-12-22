@@ -1,4 +1,4 @@
-![Version](https://img.shields.io/badge/version-3.1-blue)
+![Version](https://img.shields.io/badge/version-4.0-blue)
 [![Run Tests](https://github.com/jekrch/chord-buildr/actions/workflows/test_on_push.yml/badge.svg)](https://github.com/jekrch/chord-buildr/actions/workflows/test_on_push.yml)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
@@ -6,7 +6,7 @@
 
 [www.chordbuildr.com](https://www.chordbuildr.com)
 
-Chord Buildr was created to make it easy for musicians and music enthusiasts to explore and share chord progressions. Users can specify a series of chords, see their notes displayed on interactive keyboards or guitar chord diagrams, transpose them, and play audio. Progressions are encoded in the URL, which can be saved for future reference or shared with others.
+Chord Buildr was created to make it easy for musicians and music enthusiasts to explore and share chord progressions. Users can specify a series of chords, see their notes displayed on interactive keyboards or guitar/ukulele chord diagrams, transpose them, and play audio. Progressions are encoded in the URL, which can be saved for future reference or shared with others.
 
 Chord Buildr is implemented in React and uses Tone.js for audio playback.
 
@@ -26,7 +26,7 @@ Chord Buildr is implemented in React and uses Tone.js for audio playback.
 - **Audio Playback**: Listen to your chord progressions by clicking on the progression or chord play buttons.
 - **Transposition**: Effortlessly transpose your progressions to different keys.
 - **Shareable URLs**: Save and share your progressions through encoded URLs.
-- **Guitar Chord Diagrams**: Display guitar chord diagrams with multiple positions to choose from.
+- **Guitar/Ukulele Chord Diagrams**: Display guitar chord diagrams with multiple positions to choose from. Chords can be displayed for either standard six-string or ukulele
  
 ### Music Theory Integration
 - **Roman Numeral Notation**: View chord progressions in roman numeral notation when a key is selected.
