@@ -54,7 +54,7 @@ Chord Buildr is implemented in React and uses Tone.js for audio playback.
 To run Chord Buildr locally:
 
 1. Install dependencies with `npm install`
-2. Start the development server with `npm run start`
+2. Start with `npm run start`
 3. Execute tests with `npm run test`
 
 ## License
