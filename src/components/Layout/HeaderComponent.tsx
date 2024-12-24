@@ -41,7 +41,6 @@ export const HeaderComponent: React.FC = () => {
       if (headerRef.current) {
         const headerHeight = headerRef.current.getBoundingClientRect().height;
         setHeaderOffset(-headerHeight - 10); // add 10px buffer
-        console.log(-headerHeight - 10)
       }
     };
 

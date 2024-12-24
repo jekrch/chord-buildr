@@ -50,7 +50,8 @@ function getWaveSynth(): Tone.PolySynth {
 
 function getSwellSynth(): Tone.PolySynth {
   const synth = new Tone.PolySynth().toDestination();
-  // synth.voice = Tone.AMSynth;
+  //@ts-ignore
+  synth.voice = Tone.AMSynth;
   // synth.set({})
   return synth;
 }
@@ -136,26 +137,17 @@ function getPluckSynth(): Tone.PolySynth {
  * selections, along with the base decibel value (to be
  * modified as determined by the chord)
  */
-export function getSynth(synthName: string): SynthReturn {
-
-  if (synth !== null && synthType === synthName) {
-    return { synth, decibelModifier: decibelModifier };
-  }
-  synthType = synthName;
-
-  if (synth !== null) {
-    synth.dispose();
-  }
+export function getSynth(synthType: string): SynthReturn {
 
   switch (synthType) {
     case "w":
       decibelModifier = -10;
       synth = getWaveSynth();
       break;
-    case "s":
-      decibelModifier = 0;
-      synth = getSwellSynth();
-      break;
+    // case "s":
+    //   decibelModifier = 10;
+    //   synth = getSwellSynth();
+    //   break;
     case "o":
       decibelModifier = -20;
       synth = getOrganSynth();
@@ -190,7 +182,7 @@ export interface SynthType {
 export const SYNTH_TYPES: Record<string, SynthType> = {
   "p": { name: "plumber", type: "synth" },
   "w": { name: "wave", type: "synth" },
-  "s": { name: "swell", type: "synth" },
+  //"s": { name: "swell", type: "synth" },
   "o": { name: "organ", type: "synth" },
   "pl": { name: "pluck", type: "synth" },
   "el": { 
@@ -215,6 +207,5 @@ export const SYNTH_TYPES: Record<string, SynthType> = {
     type: "sampler"
   }
 } as const
-
 
 export type SynthKey = keyof typeof SYNTH_TYPES

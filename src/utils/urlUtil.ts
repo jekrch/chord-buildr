@@ -8,5 +8,5 @@ import { AppState } from "../components/context/AppContext";
  * @returns 
  */
 export function generateBaseUrlParams(state: AppState): string | null {
-    return `?s=${state.synth ?? "p"}:${state.volume ?? 90}:${state.format ?? "p"}&p=`
+    return `?s=${state.synth ?? "p"}:${state.volume ?? 80}:${state.format ?? "p"}&p=`
 }

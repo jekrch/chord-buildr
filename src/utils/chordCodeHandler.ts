@@ -315,7 +315,7 @@ export function buildProgFromCode(state: AppState, code: string): AppState {
 export function getSynthCode(synthCode: string | null): SynthSettings {
   // default synth values
   const defaultSettings: SynthSettings = {
-    volume: 90,
+    volume: 80,
     type: "p",
     format: "p"
   }

@@ -61,7 +61,7 @@ const initialState: AppState = {
   chordPianoSet: undefined,
   synth: "p",  // plumber
   format: "p", // piano
-  volume: 90
+  volume: 80
 };
 
 // Helper Functions

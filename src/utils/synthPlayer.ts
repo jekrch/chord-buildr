@@ -11,19 +11,47 @@ const MAX_SAMPLER_VOLUME = 4;
 
 let decibelModifier = 2
 
-interface ToneSampler {
-  sampler: Tone.Sampler
-  decibelModifier?: number
-}
-
 // cache for loaded samplers and their configurations
 const samplers: {
   [key: string]: ToneSampler
 } = {}
 
+const synths: {
+  [key: string]: ToneSynth
+} = {}
+
+// eq settings interface
+interface EQSettings {
+  low: number    // frequency range: 20-250 Hz
+  mid: number    // frequency range: 250-2000 Hz
+  high: number   // frequency range: 2000-20000 Hz
+}
+
+interface ToneSampler {
+  sampler: Tone.Sampler
+  decibelModifier?: number
+  eq?: Tone.EQ3,
+  eqSettings?: Partial<EQSettings>
+}
+
+interface ToneSynth {
+  synth: Tone.PolySynth
+  eq: Tone.EQ3
+  eqSettings: EQSettings
+  decibelModifier?: number
+}
+
+// default eq settings in decibels
+const DEFAULT_EQ: EQSettings = {
+  low: 7,
+  mid: 2,
+  high: 10
+}
+
 interface AudioOptions {
-  synth?: SynthReturn
-  sampler?: Tone.Sampler
+  toneSynth?: ToneSynth
+  toneSampler?: ToneSampler,
+  eq?: Tone.EQ3;
   decibelModifier?: number
   notes: string[]
   volume?: number
@@ -132,7 +160,7 @@ async function getInstrumentSampler(type: SynthKey): Promise<ToneSampler | undef
   }
 
   try {
-    if (!instrument.getSampler) return;
+    if (!instrument.getSampler) return
 
     const SamplerModule = await instrument.getSampler()
     
@@ -142,10 +170,16 @@ async function getInstrumentSampler(type: SynthKey): Promise<ToneSampler | undef
       }) as Tone.Sampler
     })
 
+    // create eq for the sampler
+    const eq: Tone.EQ3 = createEQ()
+    console.log(eq);
+
     samplers[type] = {
       sampler,
-      decibelModifier: Math.min(instrument.decibelModifier || 0, MAX_SYNTH_VOLUME)
-    }
+      eq,
+      eqSettings: DEFAULT_EQ,
+      decibelModifier: Math.min(instrument.decibelModifier || 0, MAX_SAMPLER_VOLUME)
+    } as ToneSampler;
     
     return samplers[type]
   } catch (error) {
@@ -168,7 +202,9 @@ function getNoteNumber(note: string): number {
  * @param options 
  */
 async function playNotes(options: AudioOptions) {
-  let { synth, sampler, notes, volume, delay, duration, velocity, useStrum, decibelModifier } = options
+  let { toneSynth, toneSampler, notes, volume, delay, duration, velocity, useStrum } = options
+
+  let decibelModifier = toneSampler?.decibelModifier ?? toneSynth?.decibelModifier;
 
   const baseDelay = delay ? Number(delay.replace('+', '')) : 0
 
@@ -176,37 +212,37 @@ async function playNotes(options: AudioOptions) {
     Tone.getContext().resume()
   }
 
-  if (sampler) {
+  if (toneSampler) {
 
-    initSampler(sampler, volume, decibelModifier)
+    initSampler(toneSampler, volume, decibelModifier)
 
     if (useStrum) {
       playSamplerNotesStrum(
         notes, 
         velocity,
         baseDelay, 
-        sampler, 
+        toneSampler.sampler, 
         duration
       )
     } else {
       playSamplerNotes(
         notes, 
-        sampler, 
+        toneSampler.sampler, 
         duration, 
         baseDelay, 
         velocity
       );
     }
-  } else if (synth) {
+  } else if (toneSynth) {
 
-    volume = initSynth(synth, volume)
+    volume = initSynth(toneSynth, volume)
 
     if (useStrum) {
       playSynthNotesStrum(
         notes, 
         velocity, 
         volume, 
-        synth, 
+        toneSynth.synth, 
         duration, 
         baseDelay
       )
@@ -215,7 +251,7 @@ async function playNotes(options: AudioOptions) {
       playSynthNotes(
         notes, 
         volume, 
-        synth, 
+        toneSynth.synth, 
         duration, 
         baseDelay, 
         velocity
@@ -224,33 +260,59 @@ async function playNotes(options: AudioOptions) {
   }
 }
 
-function initSynth(synth: SynthReturn, volume: number | undefined) {
-  if (synth.decibelModifier) {
-    // if we're strumming with a synth we should shave 10 off of the vol
-    // to compensate for louder effect
-    volume = volume! + synth.decibelModifier - 10
+function initSynth(toneSynth: ToneSynth, volume: number | undefined) {
+
+  //toneSynth.synth.disconnect()
+
+  // apply eq settings
+  if (toneSynth.eqSettings.low !== 0 || toneSynth.eqSettings.mid !== 0 || toneSynth.eqSettings.high !== 0) {
+    applyEQSettings(toneSynth.eq, toneSynth.eqSettings)
+    toneSynth.synth.chain(toneSynth.eq, Tone.Destination)
+    toneSynth.synth.toDestination()
+  } else {
+    toneSynth.synth.toDestination()
   }
 
-  synth.synth.toDestination()
-  synth.synth.releaseAll()
+  console.log(toneSynth.synth);
+
+  if (toneSynth.decibelModifier) {
+    // if we're strumming with a synth we should shave 10 off of the vol
+    // to compensate for louder effect
+    volume = volume! + toneSynth.decibelModifier - 10
+  }
+
+  toneSynth.synth.releaseAll()
 
   return volume
 }
 
 function initSampler(
-  sampler: Tone.Sampler, 
-  volume: number | undefined, 
+  toneSampler: ToneSampler,
+  volume: number | undefined,
   decibelModifier: number | undefined
 ) {
-  sampler.toDestination()
+  let sampler = toneSampler.sampler;
+  let eq = toneSampler.eq;
+  let eqSettings = toneSampler.eqSettings;
+
+  sampler.disconnect();
+
+  console.log(eqSettings);
+
+  // only use eq if we have non-zero settings
+  if (eq && eqSettings && (eqSettings.low !== 0 || eqSettings.mid !== 0 || eqSettings.high !== 0)) {
+    applyEQSettings(eq, eqSettings)
+    sampler.chain(eq, Tone.Destination)
+  } else {
+    // bypass eq completely if all settings are zero or undefined
+    sampler.toDestination()
+  }
+  
   sampler.releaseAll()
 
   if (volume !== undefined && decibelModifier !== undefined) {
     let calculatedVolume = decibelModifier + getUserVolumeModifier(volume)
-
     sampler.volume.value = Math.min(calculatedVolume, MAX_SAMPLER_VOLUME)
-    //console.log(calculatedVolume)
-    //console.log(sampler.volume.value)
   }
 }
 
@@ -300,43 +362,52 @@ function playSynthNotesStrum(
   notes: string[], 
   velocity: number | undefined, 
   volume: number | undefined, 
-  synth: SynthReturn,
-   duration: string | undefined, 
-   baseDelay: number
-  ) {
+  synth: Tone.PolySynth,
+  duration: string | undefined, 
+  baseDelay: number
+) {
   const strumDuration = 0.20
   const delayPerNote = strumDuration / notes.length
   const noteVelocity = velocity || 0.7
+  
+  // Release any existing voices before starting new strum
+  synth.releaseAll()
 
   notes.forEach((note, index) => {
     const noteNumber = getNoteNumber(note)
     const noteDecibel = getDecibel(volume || 0, [noteNumber])
-    //console.log(noteDecibel);
-    synth.synth.volume.value = noteDecibel
+    synth.volume.value = noteDecibel
 
-    synth.synth.triggerAttackRelease(
+    synth.triggerAttackRelease(
       note,
       duration || "1.1",
       Tone.now() + baseDelay + (index * delayPerNote),
       noteVelocity
     )
   })
+
 }
 
 function playSynthNotes(
   notes: string[], 
   volume: number | undefined, 
-  synth: SynthReturn, 
+  synth: Tone.PolySynth, 
   duration: string | undefined, 
   baseDelay: number, 
   velocity: number | undefined
 ) {
   const noteNumbers = notes.map(getNoteNumber)
   const noteDecibel = getDecibel(volume || 0, noteNumbers)
-  //console.log(noteDecibel)
-  synth.synth.volume.value = noteDecibel
+  synth.volume.value = noteDecibel
 
-  synth.synth.triggerAttackRelease(
+  // Release all voices before playing new ones
+  synth.releaseAll()
+
+  // Convert duration string to seconds for precise timing
+  const durationInSeconds = Tone.Time(duration || "1.1").toSeconds()
+  
+  // Play the new notes
+  synth.triggerAttackRelease(
     notes,
     duration || "1.1",
     Tone.now() + baseDelay,
@@ -369,6 +440,7 @@ export async function playChordById(
     tabPositions,
   );
 }
+
 
 /**
  * Play the chord for the provided chordPiano
@@ -424,13 +496,13 @@ export async function playChord(
       notes = getSelectedNotes(chordPiano.piano!)
     }
     
-    const samplerConfig = await getInstrumentSampler(instrumentType)
-    let synthConfig = !samplerConfig ? getSynth(instrumentType as any) : undefined;
+    const toneSampler = await getInstrumentSampler(instrumentType)
+
+    let toneSynth = !toneSampler ? getToneSynth(instrumentType) : undefined;
     
     await playNotes({
-      sampler: samplerConfig?.sampler,
-      decibelModifier: samplerConfig?.decibelModifier ?? synthConfig?.decibelModifier,
-      synth: synthConfig,
+      toneSampler: toneSampler,
+      toneSynth: toneSynth,
       notes,
       volume: state.volume,
       delay: isMobile ? "+0.15" : "+0.03",
@@ -453,4 +525,64 @@ export async function playChord(
       })
     }, 1000)
   }
+}
+
+
+function getToneSynth(instrumentType: string) {
+  
+  // If the synth exists and is not disposed, reuse it
+  if (synths[instrumentType] && !synths[instrumentType].synth.disposed) {
+    synths[instrumentType].synth.releaseAll()
+    return synths[instrumentType];
+  } else {
+    cleanupSynths();
+  }
+
+  // Only create a new synth if we don't have one or if it was disposed
+  let returnSynth: SynthReturn = getSynth(instrumentType as any);
+  
+  synths[instrumentType] = {
+    synth: returnSynth.synth,
+    eq: createEQ(),
+    eqSettings: DEFAULT_EQ,
+    decibelModifier: returnSynth.decibelModifier
+  } as ToneSynth;
+
+  synths[instrumentType].synth.releaseAll();
+
+  return synths[instrumentType];
+}
+
+function cleanupSynths() {
+  Object.keys(synths).forEach(key => {
+    try {
+      if (synths[key]) {
+        synths[key].eq.dispose();
+        synths[key].synth.dispose();
+        delete synths[key];
+      }
+    } catch (error) {
+      console.warn(`Error cleaning up synth ${key}:`, error);
+    }
+  });
+}
+
+/**
+ * create a new eq3 instance with default settings
+ */
+function createEQ(): Tone.EQ3 {
+  const eq = new Tone.EQ3()
+  eq.low.value = DEFAULT_EQ.low
+  eq.mid.value = DEFAULT_EQ.mid
+  eq.high.value = DEFAULT_EQ.high
+  return eq
+}
+
+/**
+ * apply eq settings to the provided eq instance
+ */
+function applyEQSettings(eq: Tone.EQ3, settings: Partial<EQSettings>) {
+  if (settings.low !== undefined) eq.low.value = settings.low
+  if (settings.mid !== undefined) eq.mid.value = settings.mid
+  if (settings.high !== undefined) eq.high.value = settings.high
 }
