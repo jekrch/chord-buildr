@@ -30,7 +30,7 @@ interface ToneSampler {
   sampler: Tone.Sampler
   decibelModifier?: number
   eq?: Tone.EQ3,
-  eqSettings?: Partial<EQSettings>
+  eqSettings?: EQSettings
 }
 
 interface ToneSynth {
@@ -41,7 +41,7 @@ interface ToneSynth {
 }
 
 // default eq settings in decibels
-const DEFAULT_EQ: EQSettings = {
+export const DEFAULT_EQ: EQSettings = {
   low: 0,
   mid: 0,
   high: 0
@@ -304,20 +304,29 @@ async function playNotes(options: AudioOptions) {
   }
 }
 
+/**
+ * Initialize the synth with the provided volume and eq settings
+ * 
+ * @param toneSynth 
+ * @param volume 
+ * @returns 
+ */
 function initSynth(toneSynth: ToneSynth, volume: number | undefined) {
 
   //toneSynth.synth.disconnect()
 
-  // apply eq settings
-  if (toneSynth.eqSettings.low !== 0 || toneSynth.eqSettings.mid !== 0 || toneSynth.eqSettings.high !== 0) {
+  // apply eq settings if there are any
+  if (
+    !hasFlatEq(toneSynth.eqSettings)
+  ) {
+
     applyEQSettings(toneSynth.eq, toneSynth.eqSettings)
     toneSynth.synth.chain(toneSynth.eq, Tone.Destination)
     toneSynth.synth.toDestination()
+
   } else {
     toneSynth.synth.toDestination()
   }
-
-  console.log(toneSynth.synth);
 
   if (toneSynth.decibelModifier) {
     // if we're strumming with a synth we should shave 10 off of the vol
@@ -330,6 +339,38 @@ function initSynth(toneSynth: ToneSynth, volume: number | undefined) {
   return volume
 }
 
+/**
+ * Determine if the eq settings are all zero
+ * 
+ * @param toneSynth 
+ * @returns 
+ */
+export function hasFlatEq(eqSettings: EQSettings) {
+  return eqSettings.low === 0 && 
+         eqSettings.mid === 0 && 
+         eqSettings.high === 0
+}
+
+/**
+ * Determine if the EQ settings are not equal
+ * 
+ * @param eq 
+ * @param eqSettings 
+ * @returns 
+ */
+export function notEqual(eq: EQSettings, eqSettings: EQSettings): boolean {
+  return eq.low !== eqSettings.low || 
+         eq.mid !== eqSettings.mid || 
+         eq.high !== eqSettings.high;
+}
+
+/**
+ * Initialize the sampler with the provided volume and eq settings
+ * 
+ * @param toneSampler 
+ * @param volume 
+ * @param decibelModifier 
+ */
 function initSampler(
   toneSampler: ToneSampler,
   volume: number | undefined,
@@ -341,10 +382,12 @@ function initSampler(
 
   sampler.disconnect();
 
-  console.log(eqSettings);
-
-  // only use eq if we have non-zero settings
-  if (eq && eqSettings && (eqSettings.low !== 0 || eqSettings.mid !== 0 || eqSettings.high !== 0)) {
+  // only use eq if we have thems
+  if (
+      eq &&
+      eqSettings && 
+      !hasFlatEq(eqSettings)
+  ) {
     applyEQSettings(eq, eqSettings)
     sampler.chain(eq, Tone.Destination)
   } else {
@@ -360,6 +403,15 @@ function initSampler(
   }
 }
 
+/**
+ * Play the provided notes strummed using the provided sampler
+ * 
+ * @param notes 
+ * @param sampler 
+ * @param duration 
+ * @param baseDelay 
+ * @param velocity 
+ */
 function playSamplerNotes(
   notes: string[], 
   sampler: Tone.Sampler, 
@@ -378,6 +430,15 @@ function playSamplerNotes(
   })
 }
 
+/**
+ * Play the provided notes strummed using the provided sampler
+ * 
+ * @param notes 
+ * @param velocity 
+ * @param baseDelay 
+ * @param sampler 
+ * @param duration 
+ */
 function playSamplerNotesStrum(
   notes: string[], 
   velocity: number | undefined, 
@@ -402,6 +463,16 @@ function playSamplerNotesStrum(
   })
 }
 
+/**
+ * Play the provided notes strummed using the provided synth
+ * 
+ * @param notes 
+ * @param velocity 
+ * @param volume 
+ * @param synth 
+ * @param duration 
+ * @param baseDelay 
+ */
 function playSynthNotesStrum(
   notes: string[], 
   velocity: number | undefined, 
@@ -432,6 +503,16 @@ function playSynthNotesStrum(
 
 }
 
+/**
+ * Play the provided notes using the provided synth
+ * 
+ * @param notes 
+ * @param volume 
+ * @param synth 
+ * @param duration 
+ * @param baseDelay 
+ * @param velocity 
+ */
 function playSynthNotes(
   notes: string[], 
   volume: number | undefined, 
@@ -448,7 +529,7 @@ function playSynthNotes(
   synth.releaseAll()
 
   // Convert duration string to seconds for precise timing
-  const durationInSeconds = Tone.Time(duration || "1.1").toSeconds()
+  //const durationInSeconds = Tone.Time(duration || "1.1").toSeconds()
   
   // Play the new notes
   synth.triggerAttackRelease(
@@ -485,9 +566,9 @@ export async function playChordById(
   );
 }
 
-
 /**
  * Play the chord for the provided chordPiano
+ * 
  * @param dispatch 
  * @param state 
  * @param chordPiano 
@@ -571,7 +652,13 @@ export async function playChord(
   }
 }
 
-
+/**
+ * Fetch the sampler for the provided instrument type
+ * 
+ * @param instrumentType 
+ * @param eqSettings 
+ * @returns 
+ */
 function getToneSynth(
   instrumentType: string, 
   eqSettings: EQSettings = DEFAULT_EQ
@@ -606,6 +693,10 @@ function getToneSynth(
   return synths[instrumentType];
 }
 
+/**
+ * Dispose of all synths and eq instances. This is necessary to prevent memory leaks
+ * and to ensure that the audio context is properly cleaned up.
+ */
 function cleanupSynths() {
   Object.keys(synths).forEach(key => {
     try {

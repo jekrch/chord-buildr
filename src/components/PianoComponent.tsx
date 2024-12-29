@@ -1,14 +1,12 @@
 import React, { useEffect, useRef } from 'react'
 import { useHistory } from 'react-router-dom'
 import '../styles/Piano.css'
-// @ts-ignore
 import { Key } from './Key'
 import { useAppContext, getPianoById } from './context/AppContext'
 import { getNoteLetter } from '../utils/noteManager'
 import { playChordById } from '../utils/synthPlayer'
-import { getProgressionCode } from "../utils/chordCodeHandler"
+import { getStateParamsCode } from "../utils/chordCodeHandler"
 import { NoteKey } from '../utils/chordPianoHandler'
-// @ts-ignores
 import { ChordPianoComponent } from "../components/ChordPianoComponent"
 
 interface PianoComponentProps {
@@ -149,8 +147,11 @@ export const PianoBoardComponent: React.FC = () => {
   }, [dispatch, history.location])
 
   useEffect(() => {
-    const currentCode = getProgressionCode(state)
+    const currentCode = getStateParamsCode(state)
     const newParams = history.location.search + history.location.hash
+
+    // console.log(currentCode);
+    // console.log(newParams)
 
     if (!state.building && currentCode !== newParams) {
       dispatch({

@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 
 interface KnobProps {
   value: number;
@@ -14,6 +14,7 @@ export const Knob: React.FC<KnobProps> = ({ value, min, max, onChange, label }) 
   const [startValue, setStartValue] = useState(0);
   // local state to handle the visual position during dragging
   const [currentValue, setCurrentValue] = useState(value);
+  const knobRef = useRef<HTMLDivElement>(null);
 
   // convert value to rotation angle (from -150 to 150 degrees)
   const getRotation = (val: number) => {
@@ -22,10 +23,32 @@ export const Knob: React.FC<KnobProps> = ({ value, min, max, onChange, label }) 
     return -150 + (percentage * 300);
   };
 
-  const handleMouseDown = (e: React.MouseEvent) => {
+  const handleStart = (clientY: number) => {
     setIsDragging(true);
-    setStartY(e.clientY);
+    setStartY(clientY);
     setStartValue(currentValue);
+  };
+
+  const handleMove = (clientY: number) => {
+    if (!isDragging) return;
+
+    const deltaY = startY - clientY;
+    const deltaValue = (deltaY / 100) * (max - min);
+    const newValue = Math.min(max, Math.max(min, startValue + deltaValue));
+    
+    setCurrentValue(Math.round(newValue));
+  };
+
+  const handleEnd = () => {
+    if (isDragging) {
+      setIsDragging(false);
+      onChange(currentValue);
+    }
+  };
+
+  // mouse event handlers
+  const handleMouseDown = (e: React.MouseEvent) => {
+    handleStart(e.clientY);
   };
 
   // sync the local value with prop when it changes externally
@@ -35,22 +58,14 @@ export const Knob: React.FC<KnobProps> = ({ value, min, max, onChange, label }) 
     }
   }, [value, isDragging]);
 
+  // setup mouse events
   useEffect(() => {
     const handleMouseMove = (e: MouseEvent) => {
-      if (!isDragging) return;
-
-      const deltaY = startY - e.clientY;
-      const deltaValue = (deltaY / 100) * (max - min);
-      const newValue = Math.min(max, Math.max(min, startValue + deltaValue));
-      
-      // update local state during drag
-      setCurrentValue(Math.round(newValue));
+      handleMove(e.clientY);
     };
 
     const handleMouseUp = () => {
-      setIsDragging(false);
-      // only trigger onChange when mouse is released
-      onChange(currentValue);
+      handleEnd();
     };
 
     if (isDragging) {
@@ -64,9 +79,44 @@ export const Knob: React.FC<KnobProps> = ({ value, min, max, onChange, label }) 
     };
   }, [isDragging, startY, startValue, min, max, onChange, currentValue]);
 
+  // setup touch events with non-passive listeners
+  useEffect(() => {
+    const element = knobRef.current;
+    if (!element) return;
+
+    const handleTouchStart = (e: TouchEvent) => {
+      e.preventDefault();
+      const touch = e.touches[0];
+      handleStart(touch.clientY);
+    };
+
+    const handleTouchMove = (e: TouchEvent) => {
+      e.preventDefault();
+      const touch = e.touches[0];
+      handleMove(touch.clientY);
+    };
+
+    const handleTouchEnd = (e: TouchEvent) => {
+      e.preventDefault();
+      handleEnd();
+    };
+
+    // add touch event listeners with { passive: false }
+    element.addEventListener('touchstart', handleTouchStart, { passive: false });
+    element.addEventListener('touchmove', handleTouchMove, { passive: false });
+    element.addEventListener('touchend', handleTouchEnd, { passive: false });
+
+    return () => {
+      element.removeEventListener('touchstart', handleTouchStart);
+      element.removeEventListener('touchmove', handleTouchMove);
+      element.removeEventListener('touchend', handleTouchEnd);
+    };
+  }, [isDragging, startY, startValue, min, max, onChange, currentValue]);
+
   return (
     <div className="flex flex-col items-center gap-2">
       <div 
+        ref={knobRef}
         className="w-10 h-10 rounded-full bg-gray-500 relative cursor-pointer select-none"
         onMouseDown={handleMouseDown}
       >

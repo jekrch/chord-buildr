@@ -17,7 +17,7 @@ import {
 import { Slider } from '../../components/ui/slider'
 import { Badge } from '../../components/ui/badge'
 import { useAppContext } from '../context/AppContext'
-import { EQSettings, playChord } from '../../utils/synthPlayer'
+import { EQSettings, notEqual, playChord } from '../../utils/synthPlayer'
 import { SYNTH_TYPES as SYNTH_TYPES } from '../../utils/synthLibrary'
 
 interface ConfigModalProps {
@@ -36,18 +36,18 @@ export function ConfigModal({ open, onOpenChange }: ConfigModalProps): JSX.Eleme
   const [synthType, setSynthType] = useState<string>(state.synth)
   const [format, setFormat] = useState<string>(state.format)
   const [volume, setVolume] = useState<number>(state.volume)
-  const [eqSettings, setEqSettings] = useState<EQSettings>({
-    low: 0,
-    mid: 0,
-    high: 0
-  })
+  const [eqSettings, setEqSettings] = useState<EQSettings>(state.eq);
 
   useEffect(() => {
-    dispatch({
-      type: 'UPDATE_EQ',
-      eq: eqSettings
-    })
-    console.log('eqSettings', eqSettings)
+
+    if (
+      notEqual(state.eq, eqSettings)
+    ) {
+      dispatch({
+        type: 'UPDATE_EQ',
+        eq: eqSettings
+      })
+    }
   }, [eqSettings]);
 
   // useEffect(() => {
@@ -175,7 +175,7 @@ export function ConfigModal({ open, onOpenChange }: ConfigModalProps): JSX.Eleme
           <div className="mt-8 pt-6 border-t">
             <div className="w-full text-slate-400 mb-4">equalizer</div>
             <div className="flex items-center gap-8">
-              <div className="mr-10">
+              <div className="sm:mr-10">
               <Button
                 variant="default"
                 size="sm"

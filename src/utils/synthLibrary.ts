@@ -33,7 +33,6 @@ interface InstrumentSettings {
 }
 
 let synth: Tone.PolySynth | null = null;
-let synthType: string;
 let decibelModifier = 2;
 
 function getPlumberSynth(): Tone.PolySynth {
@@ -48,13 +47,13 @@ function getWaveSynth(): Tone.PolySynth {
   return synth;
 }
 
-function getSwellSynth(): Tone.PolySynth {
-  const synth = new Tone.PolySynth().toDestination();
-  //@ts-ignore
-  synth.voice = Tone.AMSynth;
-  // synth.set({})
-  return synth;
-}
+// function getSwellSynth(): Tone.PolySynth {
+//   const synth = new Tone.PolySynth().toDestination();
+//   //@ts-ignore
+//   synth.voice = Tone.AMSynth;
+//   // synth.set({})
+//   return synth;
+// }
 
 function getOrganSynth(): Tone.PolySynth {
   const synth = new Tone.PolySynth().toDestination();

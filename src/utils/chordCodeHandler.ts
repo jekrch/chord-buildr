@@ -9,11 +9,13 @@ import {
 } from "../utils/noteManager"
 import { AppState } from "../components/context/AppContext"
 import { UX_FORMAT_OPTIONS } from "../components/Layout/ConfigModal"
+import { DEFAULT_EQ, EQSettings, hasFlatEq } from "./synthPlayer"
 
 interface SynthSettings {
   volume: number;
   type: string;
   format: string;
+  eq: EQSettings;
 }
 
 /***
@@ -52,7 +54,6 @@ function getChordFromCode(chordCode: string): SelectedChord | undefined {
 
     chordCode = chordCode.replace(")", "")
 
-    console.log(chordCode)
     // extract position if present
     const positionMatch = chordCode.match(/\.(\d+)$/)
     
@@ -273,6 +274,12 @@ function validateProgKey(chordPiano: ChordPiano, progKeySet: boolean): boolean {
 }
 
 
+/**
+ * Builds a progression from a provided code
+ * @param state 
+ * @param code 
+ * @returns 
+ */
 export function buildProgFromCode(state: AppState, code: string): AppState {
   if (state.building) {
     return state
@@ -287,12 +294,14 @@ export function buildProgFromCode(state: AppState, code: string): AppState {
 
     // get progression code - check both 'prog' and 'p' params
     const progCode = searchParams.get("prog") || searchParams.get("p")
-    const synthSettings = getSynthCode(searchParams.get("s"))
+    const synthSettings = parseSynthCode(searchParams.get("s"))
 
     // update state with new values
     state.format = synthSettings.format
     state.synth = synthSettings.type
     state.volume = synthSettings.volume
+    state.eq = synthSettings.eq
+
     state.chordPianoSet = getChordPianoSetFromProgCode(progCode)
     state.building = false
 
@@ -310,63 +319,99 @@ export function buildProgFromCode(state: AppState, code: string): AppState {
 
 /**
  * parses synth settings from url parameter
- * expected format: "type:volume:format" (e.g. "p:90:p")
+ * expected format: "type:volume:format:eq" (e.g. "p:90:p:0-10-0")
  */
-export function getSynthCode(synthCode: string | null): SynthSettings {
+export function parseSynthCode(synthCode: string | null): SynthSettings {
+  
   // default synth values
-  const defaultSettings: SynthSettings = {
+  let defaultSettings: SynthSettings = {
     volume: 80,
     type: "p",
-    format: "p"
+    format: "p",
+    eq: DEFAULT_EQ
   }
 
   if (!synthCode) {
     return defaultSettings
   }
 
-  const [type, volumeStr, format] = synthCode.split(":")
+  const [type, volumeStr, format, eq] = synthCode.split(":")
   const volume = parseInt(volumeStr)
+  
+  let eqSettings: EQSettings = DEFAULT_EQ;
 
+  if (eq) {
+    const [low, mid, high] = eq.split(".");
+
+    eqSettings.low = parseInt(low);
+    eqSettings.mid = parseInt(mid);
+    eqSettings.high = parseInt(high);
+  }
+    
   return {
     type: isValidType(type) ? type : defaultSettings.type,
     volume: isValidVol(volume) ? volume : defaultSettings.volume,
-    format: isValidFormat(format) ? format : defaultSettings.format
+    format: isValidFormat(format) ? format : defaultSettings.format,
+    eq: eqSettings
   }
 }
 
 /**
  * creates a url query string from the current state without escaping characters
  */
-export function getProgressionCode(state: AppState): string {
-  const synthCode = `s=${state.synth}:${state.volume}:${state.format}`
-  
-  // build progression code
-  let progCode = ""
-  const selectedChord = state.chordPianoSet?.find(c => c.isProgKey)?.selectedChord
+export function getStateParamsCode(state: AppState): string {
 
+  let synthCode = getSynthCode(state)
+
+  // build progression code
+  let progCode = getProgressionCode(state)
+
+  if (synthCode?.length) {
+    synthCode = `s=${synthCode}`
+  }
+
+  if (progCode?.length) {
+    progCode = `p=${progCode}`
+  }
+
+  // manually construct the query string
+  return `${synthCode}&${progCode}`
+}
+
+/**
+ * Generates a progression code from the current state
+ * 
+ * @param state 
+ * @returns 
+ */
+function getProgressionCode(state: AppState) {
+  let progCode = ""
+
+  const selectedKeyChord = state.chordPianoSet?.find(c => c.isProgKey)?.selectedChord
+
+  // if there is a prog key, add it to the start of the progression
   if (state.chordPianoSet?.length) {
     progCode = state.chordPianoSet
       .map(piano => {
         const chord = piano.selectedChord
         if (!chord) return ""
 
-        const chordLetter = getScaleAdjustedNoteLetter(selectedChord, chord.noteLetter!)
-        
+        const chordLetter = getScaleAdjustedNoteLetter(selectedKeyChord, chord.noteLetter!)
+
         let chordCode = `${chord.octave}${chordLetter}${chord.type}`
-        
-        
+
         if (piano.isProgKey) chordCode += "*"
 
         if (isSlashChord(chord)) {
           const adjustedSlashNote = getScaleAdjustedNoteLetter(
-            selectedChord,
+            selectedKeyChord,
             updateFlatOrSharpLetter(piano.showFlats || false, chord.slashNote as string)
           )
           chordCode += `:${adjustedSlashNote}`
         }
 
         if (chord.position) {
-          chordCode += `.${chord.position + 1}`  
+          chordCode += `.${chord.position + 1}`
         }
 
         return `(${chordCode})`
@@ -374,8 +419,22 @@ export function getProgressionCode(state: AppState): string {
       .join("")
   }
 
-  // manually construct the query string without escaping
-  return `${synthCode}&p=${progCode}`
+  return progCode
+}
+
+/**
+ * Generates a synth code from the current state
+ * @param state 
+ * @returns 
+ */
+function getSynthCode(state: AppState) {
+  let synthCode = `${state.synth}:${state.volume}:${state.format}`
+
+  // if the eq is not the default, add it to the synth code
+  if (!hasFlatEq(state.eq)) {
+    synthCode += `:${state.eq.low}.${state.eq.mid}.${state.eq.high}`
+  }
+  return synthCode
 }
 
 export function updateUrlProgressionCode(state: AppState): void {
@@ -383,7 +442,7 @@ export function updateUrlProgressionCode(state: AppState): void {
     return
   }
   
-  let progressionCode = getProgressionCode(state)
+  let progressionCode = getStateParamsCode(state)
 
   loadProgressionCode(state, progressionCode)
 }

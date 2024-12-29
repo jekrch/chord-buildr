@@ -1,7 +1,7 @@
 import React, { useEffect, useState, useLayoutEffect, useMemo, memo } from "react"
 import { useHistory } from "react-router-dom"
 import { useAppContext } from "../components/context/AppContext"
-import { getProgressionCode } from "../utils/chordCodeHandler"
+import { getStateParamsCode } from "../utils/chordCodeHandler"
 // @ts-ignores
 import { ChordPianoComponent } from "../components/ChordPianoComponent"
 import { ChordInput } from "./ChordInput"
@@ -66,7 +66,7 @@ export const PianoBoardComponent: React.FC = () => {
   useEffect(() => {
     if (!state.chordPianoSet) return
 
-    const currentCode = getProgressionCode(state)
+    const currentCode = "?" + getStateParamsCode(state)
     const newParams = history.location.search + history.location.hash
 
     if (currentCode !== newParams) {

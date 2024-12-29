@@ -27,7 +27,7 @@ export interface AppState {
   volume: number;
   changed?: number;
   refreshBoard?: number; 
-  eq?: EQSettings;
+  eq: EQSettings;
 }
 
 type PianoAction =
