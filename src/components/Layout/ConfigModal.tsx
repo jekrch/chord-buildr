@@ -15,9 +15,9 @@ import {
   SelectValue,
 } from '../../components/ui/select'
 import { Slider } from '../../components/ui/slider'
-import { Badge } from '../../components/ui/badge'
+//import { Badge } from '../../components/ui/badge'
 import { useAppContext } from '../context/AppContext'
-import { EQSettings, notEqual, playChord } from '../../utils/synthPlayer'
+import { DEFAULT_EQ, EQSettings, notEqual, playChord } from '../../utils/synthPlayer'
 import { SYNTH_TYPES as SYNTH_TYPES } from '../../utils/synthLibrary'
 
 interface ConfigModalProps {
@@ -36,7 +36,9 @@ export function ConfigModal({ open, onOpenChange }: ConfigModalProps): JSX.Eleme
   const [synthType, setSynthType] = useState<string>(state.synth)
   const [format, setFormat] = useState<string>(state.format)
   const [volume, setVolume] = useState<number>(state.volume)
-  const [eqSettings, setEqSettings] = useState<EQSettings>(state.eq);
+  const [eqSettings, setEqSettings] = useState<EQSettings>(state.eq ?? DEFAULT_EQ);
+
+  console.log(eqSettings);
 
   useEffect(() => {
 
@@ -173,17 +175,16 @@ export function ConfigModal({ open, onOpenChange }: ConfigModalProps): JSX.Eleme
           </div>
 
           <div className="mt-8 pt-6 border-t">
-            <div className="w-full text-slate-400 mb-4">equalizer</div>
-            <div className="flex items-center gap-8">
-              <div className="sm:mr-10">
-              <Button
-                variant="default"
-                size="sm"
-                onClick={() => setEqSettings({ low: 0, mid: 0, high: 0 })}
-                className="ml-2"
-              >
-                reset
-              </Button>
+            <div className="flex items-start gap-6">
+              <div className="flex flex-col items-end w-[5em] pr-4">
+                <div className="text-slate-400 mb-4">equalizer</div>
+                <Button
+                  variant="default"
+                  size="sm"
+                  onClick={() => setEqSettings({ low: 0, mid: 0, high: 0 })}
+                >
+                  reset
+                </Button>
               </div>
               <div className="flex flex-grow justify-between mr-4">
                 <Knob
@@ -212,9 +213,9 @@ export function ConfigModal({ open, onOpenChange }: ConfigModalProps): JSX.Eleme
           </div>
 
           <hr className="mt-8" />
-          <Badge variant="secondary" className="float-right h-5 text-xs font-medium bg-blue-100 text-blue-800 hover:bg-blue-100 mt-[1em]">
+          {/* <Badge variant="secondary" className="float-right h-5 text-xs font-medium bg-blue-100 text-blue-800 hover:bg-blue-100 mt-[1em]">
             BETA
-          </Badge>
+          </Badge> */}
           <div className="flex mt-[2em]">
             <div className="w-[5em] text-right pr-4 align-middle my-auto text-slate-400">
               format
@@ -235,6 +236,7 @@ export function ConfigModal({ open, onOpenChange }: ConfigModalProps): JSX.Eleme
                   ))}
                 </SelectContent>
               </Select>
+              <span className="text-slate-500 ml-2 text-xs">choose an instr to display chords on</span>
             </div>
           </div>
         </div>

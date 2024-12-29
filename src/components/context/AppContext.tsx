@@ -13,7 +13,7 @@ import {
   updateUrlProgressionCode, buildProgFromCode
 } from "../../utils/chordCodeHandler"
 import React, { useReducer, createContext, useEffect, ReactNode } from "react";
-import { EQSettings } from "../../utils/synthPlayer";
+import { DEFAULT_EQ, EQSettings } from "../../utils/synthPlayer";
 
 
 export interface AppState {
@@ -65,11 +65,7 @@ const initialState: AppState = {
   synth: "p",  // plumber
   format: "p", // piano
   volume: 80,
-  eq: {
-    low: -10,
-    mid: 10,
-    high: -10
-  }
+  eq: DEFAULT_EQ
 };
 
 // Helper Functions

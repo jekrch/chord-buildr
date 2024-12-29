@@ -128,7 +128,7 @@ export const Knob: React.FC<KnobProps> = ({ value, min, max, onChange, label }) 
           }}
         />
         <div className="absolute inset-0 flex items-center justify-center text-sm font-medium">
-          <div className="bg-slate-700 w-6 h-6 text-center pt-[0.1em] rounded-full">
+          <div className="bg-gray-700 w-6 h-6 text-center pt-[0.1em] rounded-full">
             {currentValue}
           </div>
         </div>

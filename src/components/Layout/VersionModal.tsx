@@ -20,6 +20,13 @@ interface VersionModalProps {
 // version history data stored as a json object
 const versionHistory: VersionEntry[] = [
   {
+    version: "4.1",
+    date: "12.29.2024",
+    items: [
+      "EQ settings are now available in the synth settings modal",
+    ]
+  },
+  {
     version: "4.0",
     date: "12.22.2024",
     items: [

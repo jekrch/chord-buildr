@@ -347,7 +347,7 @@ export function parseSynthCode(synthCode: string | null): SynthSettings {
     eqSettings.mid = parseInt(mid);
     eqSettings.high = parseInt(high);
   }
-    
+
   return {
     type: isValidType(type) ? type : defaultSettings.type,
     volume: isValidVol(volume) ? volume : defaultSettings.volume,

@@ -21,13 +21,13 @@ export const GuitarChord: React.FC<GuitarChordProps> = ({ pianoComponentId }) =>
   // useEffect(() => {
   //   console.log(chordPiano?.isPlaying)
   // }, [chordPiano?.isPlaying, state.chordPianoSet])
-  
+
   if (!chordPiano) {
     return;
   }
 
   const instrument: Instrument = getInstrumentByFormat(state.format);
-  
+
   const tabPositions = findChordPositions(
     chordPiano.selectedChord,
     instrument.chords,
@@ -50,7 +50,7 @@ export const GuitarChord: React.FC<GuitarChordProps> = ({ pianoComponentId }) =>
 
   const handlePlayClick = (): void => {
     playChord(
-      dispatch, 
+      dispatch,
       state,
       chordPiano,
       tabPositions
@@ -65,20 +65,18 @@ export const GuitarChord: React.FC<GuitarChordProps> = ({ pianoComponentId }) =>
   }
 
   return (
-    <div 
+    <div
       id={`piano-${pianoComponentId}`}
       className="guitar-chord !min-w-[15em] ml-1 "
     >
       <div className="!w-[1.9em] !h-[2.3em] !left-[0.2em] pl-1">
         <button
           type="button"
-          className="guitar-tab-close-button items-center justify-center !left-0"
+          className="guitar-tab-close-button flex items-center justify-center !left-0"
           aria-label="Close"
           onClick={handleClickRemovePiano}
         >
-          <div className="mt-[0.1em]">
-            <span className="text-2xl leading-none" aria-hidden="true">&times;</span>
-          </div>
+          <span className="text-2xl leading-none mt-[0.05em]" aria-hidden="true">&times;</span>
         </button>
         <button
           type="button"
@@ -90,21 +88,21 @@ export const GuitarChord: React.FC<GuitarChordProps> = ({ pianoComponentId }) =>
       <div className={`chord-wrapper inline-block`} data-playing={chordPiano.isPlaying?.toString()} >
         {tabPositions?.length ? (
           <>
-            <div               
+            <div
               onClick={handlePlayClick}
               className="cursor-pointer mt-[0.7em] border-slate-400 hover:border-primary/80 border-[0.01em] rounded-[8px] shadow-lg"
             >
-              <Chord 
-                chord={tabPositions[position]} 
+              <Chord
+                chord={tabPositions[position]}
                 instrument={instrument}
               />
-              <MousePointerClick className="max-h-[1.6em] absolute -right-[0.2em] top-[9.5em]" color="red"/>
+              <MousePointerClick className="max-h-[1.6em] absolute -right-[0.2em] top-[9.5em]" color="red" />
             </div>
             <div className="w-[11em]">
-              <button 
+              <button
                 onClick={
                   () => handleNewPosition(position === 0 ? tabPositions.length - 1 : position - 1)
-                } 
+                }
                 className="guitar-pos-button"
               >
                 <FontAwesomeIcon icon={faChevronLeft} className="guitar-pos-chev" />
@@ -112,10 +110,10 @@ export const GuitarChord: React.FC<GuitarChordProps> = ({ pianoComponentId }) =>
               <span className="guitar-pos-indicator">
                 {position + 1}/{tabPositions.length}
               </span>
-              <button 
+              <button
                 onClick={
                   () => handleNewPosition(position === tabPositions.length - 1 ? 0 : position + 1)
-                } 
+                }
                 className="guitar-pos-button"
               >
                 <FontAwesomeIcon icon={faChevronRight} className="guitar-pos-chev" />
@@ -123,9 +121,9 @@ export const GuitarChord: React.FC<GuitarChordProps> = ({ pianoComponentId }) =>
             </div>
           </>
         ) : <div className="mt-[4em] -ml-[1em]">
-              <div className="max-w-[7em] text-slate-400 text-sm">Chord type not supported</div>
-            </div>
-      }
+          <div className="max-w-[7em] text-slate-400 text-sm">Chord type not supported</div>
+        </div>
+        }
       </div>
     </div>
   )
