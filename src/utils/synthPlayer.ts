@@ -20,8 +20,7 @@ const synths: {
   [key: string]: ToneSynth
 } = {}
 
-// eq settings interface
-interface EQSettings {
+export interface EQSettings {
   low: number    // frequency range: 20-250 Hz
   mid: number    // frequency range: 250-2000 Hz
   high: number   // frequency range: 2000-20000 Hz
@@ -43,9 +42,9 @@ interface ToneSynth {
 
 // default eq settings in decibels
 const DEFAULT_EQ: EQSettings = {
-  low: 7,
-  mid: 2,
-  high: 10
+  low: 0,
+  mid: 0,
+  high: 0
 }
 
 interface AudioOptions {
@@ -149,8 +148,15 @@ function getUserVolumeModifier(userVolume: number | null): number {
  * @param type 
  * @returns 
  */
-async function getInstrumentSampler(type: SynthKey): Promise<ToneSampler | undefined> {
+async function getInstrumentSampler(
+  type: SynthKey, 
+  eqSettings: EQSettings = DEFAULT_EQ
+): Promise<ToneSampler | undefined> {
+
   if (samplers[type]) {
+    if (samplers[type].eqSettings !== eqSettings) {
+      samplers[type].eqSettings = eqSettings
+    }
     return samplers[type]
   }
 
@@ -172,13 +178,15 @@ async function getInstrumentSampler(type: SynthKey): Promise<ToneSampler | undef
 
     // create eq for the sampler
     const eq: Tone.EQ3 = createEQ()
-    console.log(eq);
 
     samplers[type] = {
       sampler,
       eq,
-      eqSettings: DEFAULT_EQ,
-      decibelModifier: Math.min(instrument.decibelModifier || 0, MAX_SAMPLER_VOLUME)
+      eqSettings: eqSettings,
+      decibelModifier: Math.min(
+          (instrument.decibelModifier || 0) + getVolumeCompensation(eqSettings), 
+          MAX_SAMPLER_VOLUME
+      )
     } as ToneSampler;
     
     return samplers[type]
@@ -186,6 +194,42 @@ async function getInstrumentSampler(type: SynthKey): Promise<ToneSampler | undef
     console.error('failed to load instrument sampler:', error)
     return undefined
   }
+}
+
+/*
+  * Get the volume compensation for the EQ settings
+  * 
+  * @param eqSettings 
+  * @returns 
+  */
+function getVolumeCompensation(eqSettings?: Partial<EQSettings>): number {
+  if (!eqSettings) return 0
+  
+  const eqBoost = calculateEQVolumeBoost(eqSettings)
+  // negative value to compensate for the boost
+  return -eqBoost
+}
+
+/**
+ * Calculate the volume boost based on the EQ settings
+ * 
+ * @param eqSettings 
+ * @returns 
+ */
+function calculateEQVolumeBoost(eqSettings: Partial<EQSettings>): number {
+  // each band contributes to overall volume, but with different weights
+  const lowWeight = 2.8
+  const midWeight = 3.0
+  const highWeight = 2.9
+  
+  // only consider positive values as boosting volume
+  const lowBoost = Math.max(0, (eqSettings.low ?? 0)) * lowWeight
+  const midBoost = Math.max(0, (eqSettings.mid ?? 0)) * midWeight
+  const highBoost = Math.max(0, (eqSettings.high ?? 0)) * highWeight
+  
+  // sum the weighted boosts and apply a scaling factor
+  // 0.3 factor determined through testing to provide natural sound
+  return (lowBoost + midBoost + highBoost) * 0.3
 }
 
 // convert note name to midi number 
@@ -496,9 +540,9 @@ export async function playChord(
       notes = getSelectedNotes(chordPiano.piano!)
     }
     
-    const toneSampler = await getInstrumentSampler(instrumentType)
+    const toneSampler = await getInstrumentSampler(instrumentType, state.eq)
 
-    let toneSynth = !toneSampler ? getToneSynth(instrumentType) : undefined;
+    let toneSynth = !toneSampler ? getToneSynth(instrumentType, state.eq) : undefined;
     
     await playNotes({
       toneSampler: toneSampler,
@@ -528,24 +572,33 @@ export async function playChord(
 }
 
 
-function getToneSynth(instrumentType: string) {
+function getToneSynth(
+  instrumentType: string, 
+  eqSettings: EQSettings = DEFAULT_EQ
+) {
   
   // If the synth exists and is not disposed, reuse it
   if (synths[instrumentType] && !synths[instrumentType].synth.disposed) {
     synths[instrumentType].synth.releaseAll()
+    if (synths[instrumentType].eqSettings !== eqSettings) {
+      synths[instrumentType].eqSettings = eqSettings
+    }
     return synths[instrumentType];
   } else {
     cleanupSynths();
   }
 
   // Only create a new synth if we don't have one or if it was disposed
-  let returnSynth: SynthReturn = getSynth(instrumentType as any);
+  let synthReturn: SynthReturn = getSynth(instrumentType as any);
   
   synths[instrumentType] = {
-    synth: returnSynth.synth,
+    synth: synthReturn.synth,
     eq: createEQ(),
-    eqSettings: DEFAULT_EQ,
-    decibelModifier: returnSynth.decibelModifier
+    eqSettings,
+          decibelModifier: Math.min(
+          (synthReturn.decibelModifier || 0) + getVolumeCompensation(eqSettings), 
+          MAX_SAMPLER_VOLUME
+      )
   } as ToneSynth;
 
   synths[instrumentType].synth.releaseAll();

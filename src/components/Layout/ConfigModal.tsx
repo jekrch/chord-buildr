@@ -1,5 +1,7 @@
 import { useEffect, useState } from 'react'
 import { Play, AudioLinesIcon } from 'lucide-react'
+import { Button } from '../../components/ui/button'
+import { Knob } from '../Knob'
 import {
   Dialog,
   DialogContent,
@@ -15,11 +17,8 @@ import {
 import { Slider } from '../../components/ui/slider'
 import { Badge } from '../../components/ui/badge'
 import { useAppContext } from '../context/AppContext'
-import { playChord } from '../../utils/synthPlayer'
+import { EQSettings, playChord } from '../../utils/synthPlayer'
 import { SYNTH_TYPES as SYNTH_TYPES } from '../../utils/synthLibrary'
-//import { SamplerOptions } from 'tone';
-
-
 
 interface ConfigModalProps {
   open: boolean
@@ -37,24 +36,41 @@ export function ConfigModal({ open, onOpenChange }: ConfigModalProps): JSX.Eleme
   const [synthType, setSynthType] = useState<string>(state.synth)
   const [format, setFormat] = useState<string>(state.format)
   const [volume, setVolume] = useState<number>(state.volume)
+  const [eqSettings, setEqSettings] = useState<EQSettings>({
+    low: 0,
+    mid: 0,
+    high: 0
+  })
+
+  useEffect(() => {
+    dispatch({
+      type: 'UPDATE_EQ',
+      eq: eqSettings
+    })
+    console.log('eqSettings', eqSettings)
+  }, [eqSettings]);
+
+  // useEffect(() => {
+  //   return;
+  //   setEqSettings(state.eq!);
+  // }, [state.eq]);
 
   useEffect(() => {
     setSynthType(state.synth);
   }, [state.synth]);
-  
+
   useEffect(() => {
     setVolume(state.volume)
   }, [state.volume]);
-  
+
   useEffect(() => {
     setFormat(state.format)
   }, [state.format]);
-  
+
   // temporary state for the volume while dragging
   const [localVolume, setLocalVolume] = useState<number>(state.volume)
 
   const handleSynthSelectChange = (value: string): void => {
-
     dispatch({
       type: 'UPDATE_SYNTH',
       synth: value
@@ -83,7 +99,7 @@ export function ConfigModal({ open, onOpenChange }: ConfigModalProps): JSX.Eleme
 
     dispatch({
       type: 'UPDATE_SYNTH_VOLUME',
-      volume:  value[0]
+      volume: value[0]
     })
 
     state.building = false
@@ -107,13 +123,13 @@ export function ConfigModal({ open, onOpenChange }: ConfigModalProps): JSX.Eleme
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-lg">
-        <DialogHeader className="border-b pb-5">
+      <DialogContent className="sm:max-w-lg max-h-[90vh] flex flex-col">
+        <DialogHeader className="border-b pb-5 flex-shrink-0">
           <div />
         </DialogHeader>
 
-        <div className="py-4">
-          <div className="flex items-center gap-6 -ml-1">
+        <div className="py-4 overflow-y-auto">
+          <div className="flex items-center gap-6 -ml-3">
             <button
               onClick={onPlayClick}
               className="text-primary hover:text-primary/80 transition-colors flex-shrink-0"
@@ -134,10 +150,10 @@ export function ConfigModal({ open, onOpenChange }: ConfigModalProps): JSX.Eleme
                     <SelectItem key={`k-${key}`} value={key}>
                       <div className="flex items-center gap-2 w-full">
                         {value.name}
-                          <div className="ml-[8em] absolute float-right">
-                            {value?.getSampler && (
-                              <AudioLinesIcon size={16} />
-                            )}
+                        <div className="ml-[8em] absolute float-right">
+                          {value?.getSampler && (
+                            <AudioLinesIcon size={16} />
+                          )}
                         </div>
                       </div>
                     </SelectItem>
@@ -154,11 +170,50 @@ export function ConfigModal({ open, onOpenChange }: ConfigModalProps): JSX.Eleme
                 className="w-full"
               />
             </div>
-            
           </div>
-          <hr className="mt-[2.5em] "/>
+
+          <div className="mt-8 pt-6 border-t">
+            <div className="w-full text-slate-400 mb-4">equalizer</div>
+            <div className="flex items-center gap-8">
+              <div className="mr-10">
+              <Button
+                variant="default"
+                size="sm"
+                onClick={() => setEqSettings({ low: 0, mid: 0, high: 0 })}
+                className="ml-2"
+              >
+                reset
+              </Button>
+              </div>
+              <div className="flex flex-grow justify-between mr-4">
+                <Knob
+                  value={eqSettings.low}
+                  min={-10}
+                  max={10}
+                  onChange={(value: any) => setEqSettings((prev: any) => ({ ...prev, low: value }))}
+                  label="low"
+                />
+                <Knob
+                  value={eqSettings.mid}
+                  min={-10}
+                  max={10}
+                  onChange={(value: any) => setEqSettings((prev: any) => ({ ...prev, mid: value }))}
+                  label="mid"
+                />
+                <Knob
+                  value={eqSettings.high}
+                  min={-10}
+                  max={10}
+                  onChange={(value: any) => setEqSettings((prev: any) => ({ ...prev, high: value }))}
+                  label="high"
+                />
+              </div>
+            </div>
+          </div>
+
+          <hr className="mt-8" />
           <Badge variant="secondary" className="float-right h-5 text-xs font-medium bg-blue-100 text-blue-800 hover:bg-blue-100 mt-[1em]">
-                BETA
+            BETA
           </Badge>
           <div className="flex mt-[2em]">
             <div className="w-[5em] text-right pr-4 align-middle my-auto text-slate-400">
@@ -180,7 +235,6 @@ export function ConfigModal({ open, onOpenChange }: ConfigModalProps): JSX.Eleme
                   ))}
                 </SelectContent>
               </Select>
-
             </div>
           </div>
         </div>
@@ -188,5 +242,3 @@ export function ConfigModal({ open, onOpenChange }: ConfigModalProps): JSX.Eleme
     </Dialog>
   )
 }
-
-export default ConfigModal

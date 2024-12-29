@@ -13,6 +13,7 @@ import {
   updateUrlProgressionCode, buildProgFromCode
 } from "../../utils/chordCodeHandler"
 import React, { useReducer, createContext, useEffect, ReactNode } from "react";
+import { EQSettings } from "../../utils/synthPlayer";
 
 
 export interface AppState {
@@ -25,7 +26,8 @@ export interface AppState {
   format: string;
   volume: number;
   changed?: number;
-  refreshBoard?: number;
+  refreshBoard?: number; 
+  eq?: EQSettings;
 }
 
 type PianoAction =
@@ -33,6 +35,7 @@ type PianoAction =
   | { type: "UPDATE_KEY"; id?: number; payload: SelectedKey }
   | { type: "UPDATE_SYNTH"; synth: string }
   | { type: "UPDATE_SYNTH_VOLUME"; volume: number }
+  | { type: "UPDATE_EQ"; eq: EQSettings }
   | { type: "UPDATE_CHORD_TYPE"; id?: number; chordType: string }
   | { type: "UPDATE_SLASH_CHORD"; id?: number; isSlashChord: boolean; slashNote: string }
   | { type: "UPDATE_SHOW_FLATS"; id?: number; showFlats: boolean }
@@ -61,7 +64,12 @@ const initialState: AppState = {
   chordPianoSet: undefined,
   synth: "p",  // plumber
   format: "p", // piano
-  volume: 80
+  volume: 80,
+  eq: {
+    low: -10,
+    mid: 10,
+    high: -10
+  }
 };
 
 // Helper Functions
@@ -205,6 +213,13 @@ const pianoReducer = (state: AppState, action: PianoAction): AppState => {
       return {
         ...state,
         volume: action.volume
+      };
+
+    case "UPDATE_EQ":
+
+      return {
+        ...state,
+        eq: action.eq
       };
 
     case "UPDATE_CHORD_TYPE": {
