@@ -33,7 +33,7 @@ Chord Buildr is implemented in React and uses Tone.js for audio playback.
 - **Key-Aware Notation**: Note letters adjust to display the correct notation given the selected key.
 
 ### Customization Options
-- **Synth Settings**: Adjust volume and choose from multiple synth voice options.
+- **Synth Settings**: Adjust volume, EQ, and choose from multiple synth voice options.
 - **Note Display**: Option to show notes as flats or sharps.
 
 ### User Interface
