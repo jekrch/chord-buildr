@@ -20,6 +20,15 @@ interface VersionModalProps {
 // version history data stored as a json object
 const versionHistory: VersionEntry[] = [
   {
+    version: "4.2",
+    date: "01.05.2025",
+    items: [
+      "added inline instrument selector",
+      "animated welcome page",
+      "fixed bug with progression editor when no progression is set"
+    ]
+  },
+  {
     version: "4.1",
     date: "12.29.2024",
     items: [

@@ -123,7 +123,14 @@
 	color: rgb(112, 112, 112);
 }
 
+.instrumentIcon {
+	color: grey;
+	cursor: pointer;
+}
 
+.instrumentIcon:hover {
+	color: rgb(112, 112, 112);
+}
 
 .aboutFeatureText {
 	font-size: 14px;

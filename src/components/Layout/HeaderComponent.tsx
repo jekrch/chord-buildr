@@ -139,6 +139,7 @@ export const HeaderComponent: React.FC = () => {
   }
 
   const openProgressionEditor = (): void => {
+ 
     const synthVolCode = getCurrentSynthVolCode(state)
     const progressionString = getProgressionString(state.chordPianoSet!)
     const submittedProgressionStr = window.prompt("Enter your progression", progressionString)
@@ -240,7 +241,7 @@ export const HeaderComponent: React.FC = () => {
             {renderProgression()}
           </div>
           <FontAwesomeIcon
-            className="!ml-[0.8em] mb-[0.4em] cursor-pointer progressionEditIcon"
+            className="!ml-[0.8em] mb-[0.4em] cursor-pointer progressionEditIcon "
             icon={faPenToSquare as any}
             onClick={openProgressionEditor}
           />

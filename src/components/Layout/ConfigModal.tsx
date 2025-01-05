@@ -38,8 +38,6 @@ export function ConfigModal({ open, onOpenChange }: ConfigModalProps): JSX.Eleme
   const [volume, setVolume] = useState<number>(state.volume)
   const [eqSettings, setEqSettings] = useState<EQSettings>(state.eq ?? DEFAULT_EQ);
 
-  console.log(eqSettings);
-
   useEffect(() => {
 
     if (

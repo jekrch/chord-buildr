@@ -175,18 +175,11 @@ export const PianoBoardComponent: React.FC = () => {
 
   return (
     <div className="pianoBoard">
-      {state.chordPianoSet?.length ? (
+      {state.chordPianoSet?.length && (
         <>
           {renderChordPianoSet()}
           <div className="pianoBoardGutter" />
         </>
-      ) : (
-        <div className="introBody">
-          <div className="introText">
-            welcome to chord buildr<br />
-            use the controls above to get started
-          </div>
-        </div>
       )}
     </div>
   )

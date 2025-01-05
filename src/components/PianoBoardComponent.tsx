@@ -2,14 +2,15 @@ import React, { useEffect, useState, useLayoutEffect, useMemo, memo } from "reac
 import { useHistory } from "react-router-dom"
 import { useAppContext } from "../components/context/AppContext"
 import { getStateParamsCode } from "../utils/chordCodeHandler"
-// @ts-ignores
 import { ChordPianoComponent } from "../components/ChordPianoComponent"
 import { ChordInput } from "./ChordInput"
 import { GuitarChord } from "./GuitarChord"
 import useNavHeight from "../utils/hooks/useNavHeight"
-import { isGuitar } from '../utils/guitarUtil';
+import { isGuitar } from '../utils/guitarUtil'
+import InlineConfig from './InlineConfig'
+import MusicalAnimation from "./MusicalAnimation"
 
-// memoized wrapper components to prevent unnecessary re-renders
+// existing memoized components remain the same
 const MemoizedChordPiano = memo(({ id, refresh }: { id: number, refresh: number }) => (
   <div className="lg:!ml-[20%]">
     <ChordPianoComponent
@@ -32,18 +33,16 @@ const MemoizedGuitarChordSet = memo(({ id }: { id: number }) => (
 ))
 
 export const PianoBoardComponent: React.FC = () => {
-  const { state, dispatch } = useAppContext();
+  const { state, dispatch } = useAppContext()
   const history = useHistory()
   const [isInitialized, setIsInitialized] = useState<boolean>(false)
   const [refresh, setRefresh] = useState<number>(0)
-  const navHeight = useNavHeight('nav') // adjust selector if your nav has a different selector
+  const navHeight = useNavHeight('nav')
 
-  // move format data attribute setting to an effect to avoid unnecessary document updates
   useEffect(() => {
-    document.documentElement.setAttribute('data-format', isGuitar(state.format) ? 'g' : 'p');
+    document.documentElement.setAttribute('data-format', isGuitar(state.format) ? 'g' : 'p')
   }, [state.format])
 
-  // handle initial load and URL changes
   useLayoutEffect(() => {
     if (!isInitialized && (history.location.search || history.location.hash)) {
       dispatch({
@@ -55,14 +54,12 @@ export const PianoBoardComponent: React.FC = () => {
     }
   }, [history.location.search, history.location.hash, isInitialized, dispatch])
 
-  // used to force a rerender from other components 
   useLayoutEffect(() => {
     if (state.refreshBoard && state.refreshBoard !== refresh) {
       setRefresh(state.refreshBoard)
     }
   }, [state.refreshBoard, refresh])
 
-  // update URL when state changes - memoized to prevent unnecessary calculations
   useEffect(() => {
     if (!state.chordPianoSet) return
 
@@ -74,7 +71,6 @@ export const PianoBoardComponent: React.FC = () => {
     }
   }, [state, history])
 
-  // memoize the chord set rendering functions to prevent unnecessary recalculations
   const renderPianoSet = useMemo(() => {
     if (!state.chordPianoSet) return null
     
@@ -104,15 +100,16 @@ export const PianoBoardComponent: React.FC = () => {
     )
   }, [state.chordPianoSet])
 
-  // early return if no chord set
   if (!state.chordPianoSet?.length) {
     return (
       <div className="pianoBoard">
         <div className="introBody">
+          <MusicalAnimation />
           <div className="introText">
             welcome to chord buildr<br />
             use the controls above to get started
           </div>
+          <InlineConfig />
         </div>
       </div>
     )
@@ -125,6 +122,7 @@ export const PianoBoardComponent: React.FC = () => {
       style={{ marginTop: `${navHeight - 100}px` }}
     >
       {!isGuitar(state.format) ? renderPianoSet : renderGuitarSet}
+      <InlineConfig className="-ml-[2.4em]"/>
       <div className="h-[100vh]" />
     </div>
   )

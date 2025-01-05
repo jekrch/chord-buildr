@@ -164,6 +164,8 @@ export const getChordDisplay = (chord: SelectedChord): string => {
 export function getProgressionString(chordPianoSet: ChordPiano[]): string {
   let code = '';
 
+  if (!chordPianoSet) return code;
+  
   for (let i = 0; i < chordPianoSet.length; i++) {
     let chordPiano = chordPianoSet[i]
     let selectedChord = chordPiano.selectedChord
