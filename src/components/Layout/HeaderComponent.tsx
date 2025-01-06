@@ -174,7 +174,7 @@ export const HeaderComponent: React.FC = () => {
         className="flex"
       >
         <Link
-          className={`chordListItem cursor-pointer hover:text-blue-600 transition-colors pl-[3px] !ml-[-3px] ${piano.id === currentlyPlayingPianoId ? "!text-blue-500 underline underline-offset-8" : 0}`}
+          className={`chordListItem cursor-pointer hover:text-blue-600 transition-colors pl-[3px] !ml-[-3px] ${piano.id === currentlyPlayingPianoId ? "!text-blue-500 underline underline-offset-8" : ''}`}
           to={`piano-${piano.id}`}
           spy={!isGuitar(state.format)}
           offset={headerOffset}
