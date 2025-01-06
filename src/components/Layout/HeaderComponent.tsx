@@ -28,6 +28,7 @@ export const HeaderComponent: React.FC = () => {
   const [newChordAdded, setNewChordAdded] = useState(false);
   const [currPlayChordIndex, setCurrPlayChordIndex] = useState(-1);
   const [headerOffset, setHeaderOffset] = useState(-130);
+  const [currentlyPlayingPianoId, setCurrentlyPlayingPianoId] = useState<number | undefined>(undefined);
   const headerRef = useRef<HTMLElement>(null);
   
   /**
@@ -37,6 +38,10 @@ export const HeaderComponent: React.FC = () => {
    * height expands due to large progressions
    */
   useEffect(() => {
+
+    const playingPianoId = state.chordPianoSet?.filter(piano => piano.isPlaying)[0]?.id;
+    setCurrentlyPlayingPianoId(playingPianoId);
+
     const updateOffset = () => {
       if (headerRef.current) {
         const headerHeight = headerRef.current.getBoundingClientRect().height;
@@ -169,7 +174,7 @@ export const HeaderComponent: React.FC = () => {
         className="flex"
       >
         <Link
-          className={`chordListItem cursor-pointer hover:text-blue-600 transition-colors pl-[3px] !ml-[-3px]`}
+          className={`chordListItem cursor-pointer hover:text-blue-600 transition-colors pl-[3px] !ml-[-3px] ${piano.id === currentlyPlayingPianoId ? "!text-blue-500 underline underline-offset-8" : 0}`}
           to={`piano-${piano.id}`}
           spy={!isGuitar(state.format)}
           offset={headerOffset}
