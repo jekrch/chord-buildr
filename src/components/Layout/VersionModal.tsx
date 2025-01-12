@@ -20,6 +20,13 @@ interface VersionModalProps {
 // version history data stored as a json object
 const versionHistory: VersionEntry[] = [
   {
+    version: "4.3",
+    date: "01.12.2025",
+    items: [
+      "implemented umami for analytics",
+    ]
+  },
+  {
     version: "4.2",
     date: "01.05.2025",
     items: [
