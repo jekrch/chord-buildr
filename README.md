@@ -4,7 +4,7 @@
 
 # Chord Buildr :musical_keyboard:
 
-[www.chordbuildr.com](https://www.chordbuildr.com)
+[chordbuildr.com](https://www.chordbuildr.com)
 
 Chord Buildr was created to make it easy for musicians and music enthusiasts to explore and share chord progressions. Users can specify a series of chords, see their notes displayed on interactive keyboards or guitar/ukulele chord diagrams, transpose them, and play audio. Progressions are encoded in the URL, which can be saved for future reference or shared with others.
 
