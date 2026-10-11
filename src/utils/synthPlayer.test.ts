@@ -4,7 +4,7 @@ import { DEFAULT_EQ, playChord, playChordById } from './synthPlayer'
 import GuitarElectricMp3 from 'tonejs-instrument-guitar-electric-mp3'
 import { ChordPiano } from './chordPianoHandler'
 import { AppState } from '../components/context/AppContext'
-import {   guitarInstrument, isGuitar } from './guitarUtil'
+import { isGuitar } from './guitarUtil'
 import { SamplerOptions } from 'tone'
 //import guitar from '@tombatossals/chords-db/lib/guitar.json';
 //import * as guitarUtil from './guitarUtil' 
@@ -12,7 +12,8 @@ import { SamplerOptions } from 'tone'
 // mock modules
 vi.mock('tone', () => ({
   Sampler: vi.fn(),
-  EQ3: vi.fn(() => {
+  // regular function so it can be called with `new`
+  EQ3: vi.fn(function () {
     return {
       low: { value: 0 },
       mid: { value: 0 },
@@ -50,32 +51,9 @@ vi.mock('react-device-detect', () => ({
 }))
 
 
-const mockGuitarInstrument = {
-  name: 'guitar',
-  chords: [],
-  tuning: ['E', 'A', 'D', 'G', 'B', 'E'],
-  base: 40
-} as const;
-
-// Mock the entire module at the top level
 vi.mock('./guitarUtil', () => ({
-  guitarInstrument: mockGuitarInstrument,
-  isGuitar: vi.fn((format: string) => {
-      console.log('isGuitar called with:', format)
-      return true
-  }),
-  getInstrumentByFormat: vi.fn((format: string) => {
-      console.log('getInstrumentByFormat called with:', format)
-      return guitarInstrument
-  }),
-  findChordPositions: vi.fn().mockReturnValue([{
-      midi: [60, 64, 67],
-      fingers: [],
-      frets: [],
-      baseFret: 0,
-      barres: []
-  }])
-}));
+  isGuitar: vi.fn().mockReturnValue(false)
+}))
 
 
 vi.mock('../components/context/AppContext', () => ({
@@ -281,9 +259,7 @@ describe('playChord', () => {
     const appContext = vi.mocked(await import('../components/context/AppContext'))
     appContext.getPianoById.mockReturnValue(mockChordPiano)
 
-    vi.mock('./guitarUtil', () => ({
-      isGuitar: vi.fn().mockReturnValue(false)
-    }));
+    vi.mocked(isGuitar).mockReturnValue(false);
     
     const mockSynth = {
       synth: {

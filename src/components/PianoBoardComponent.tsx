@@ -1,5 +1,5 @@
 import React, { useEffect, useState, useLayoutEffect, useMemo, useRef, memo } from "react"
-import { useHistory } from "react-router-dom"
+import { useLocation, useNavigate } from "react-router"
 import { useAppContext } from "../components/context/AppContext"
 import { getStateParamsCode } from "../utils/chordCodeHandler"
 import { ChordPianoComponent } from "../components/ChordPianoComponent"
@@ -33,7 +33,8 @@ const MemoizedGuitarChordSet = memo(({ id, entering }: { id: number, entering: b
 
 export const PianoBoardComponent: React.FC = () => {
   const { state, dispatch } = useAppContext()
-  const history = useHistory()
+  const location = useLocation()
+  const navigate = useNavigate()
   const [isInitialized, setIsInitialized] = useState<boolean>(false)
   const [refresh, setRefresh] = useState<number>(0)
   const navHeight = useNavHeight('nav')
@@ -60,15 +61,15 @@ export const PianoBoardComponent: React.FC = () => {
   }, [state.format])
 
   useLayoutEffect(() => {
-    if (!isInitialized && (history.location.search || history.location.hash)) {
+    if (!isInitialized && (location.search || location.hash)) {
       dispatch({
         type: "BUILD_PROG_FROM_CODE",
-        payload: history.location.search + history.location.hash
+        payload: location.search + location.hash
       })
       setIsInitialized(true)
       setRefresh(prev => prev + 1)
     }
-  }, [history.location.search, history.location.hash, isInitialized, dispatch])
+  }, [location.search, location.hash, isInitialized, dispatch])
 
   useLayoutEffect(() => {
     if (state.refreshBoard && state.refreshBoard !== refresh) {
@@ -80,12 +81,15 @@ export const PianoBoardComponent: React.FC = () => {
     if (!state.chordPianoSet) return
 
     const currentCode = "?" + getStateParamsCode(state)
-    const newParams = history.location.search + history.location.hash
+    const newParams = location.search + location.hash
 
     if (currentCode !== newParams) {
-      history.push({ search: currentCode })
+      navigate({ search: currentCode })
     }
-  }, [state, history])
+    // only sync when state changes; re-running on location changes would
+    // push the old state back over back/forward navigation
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [state, navigate])
 
   /**
    * size the bottom spacer so the page can scroll just far enough for the

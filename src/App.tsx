@@ -1,6 +1,5 @@
 import React, { useEffect, useRef } from 'react'
-import { Route, Switch } from 'react-router'
-import { BrowserRouter as Router } from 'react-router-dom'
+import { BrowserRouter as Router, Route, Routes } from 'react-router'
 import { AppProvider } from './components/context/AppContext'
 import { HeaderComponent } from './components/Layout/HeaderComponent'
 import { PianoBoardComponent } from './components/PianoBoardComponent'
@@ -56,13 +55,10 @@ const App: React.FC = () => {
 
           <main className="pb-16">
             <Router>
-              <Switch>
-                <Route
-                  exact
-                  path={['/', '/chord-buildr/']}
-                  component={PianoBoardComponent}
-                />
-              </Switch>
+              <Routes>
+                <Route path="/" element={<PianoBoardComponent />} />
+                <Route path="/chord-buildr/" element={<PianoBoardComponent />} />
+              </Routes>
             </Router>
             <audio ref={silentAudioRef} preload="auto">
               <source src="/silence.mp3" type="audio/mp3" />

@@ -1,5 +1,5 @@
 import React, { useEffect, useRef } from 'react'
-import { useHistory } from 'react-router-dom'
+import { useLocation } from 'react-router'
 import { Play, X } from 'lucide-react'
 import '../styles/Piano.css'
 import { Key } from './Key'
@@ -128,14 +128,14 @@ export const PianoComponent: React.FC<PianoComponentProps> = ({
 
 export const PianoBoardComponent: React.FC = () => {
   const { state, dispatch } = useAppContext()
-  const history = useHistory()
+  const location = useLocation()
   const [refresh, setRefresh] = React.useState(0)
   const initialLoadRef = useRef(false)
 
   useEffect(() => {
     if (!initialLoadRef.current) {
       initialLoadRef.current = true
-      const newParams = history.location.search + history.location.hash
+      const newParams = location.search + location.hash
       if (newParams) {
         dispatch({
           type: 'BUILD_PROG_FROM_CODE',
@@ -144,11 +144,11 @@ export const PianoBoardComponent: React.FC = () => {
         setRefresh(prev => prev + 1)
       }
     }
-  }, [dispatch, history.location])
+  }, [dispatch, location])
 
   useEffect(() => {
     const currentCode = getStateParamsCode(state)
-    const newParams = history.location.search + history.location.hash
+    const newParams = location.search + location.hash
 
     // console.log(currentCode);
     // console.log(newParams)
@@ -160,7 +160,7 @@ export const PianoBoardComponent: React.FC = () => {
       })
       setRefresh(prev => prev + 1)
     }
-  }, [history.location.search, history.location.hash, state.building, dispatch])
+  }, [location.search, location.hash, state.building, dispatch])
 
   const renderChordPianoSet = () => {
     return state.chordPianoSet?.map((chordPiano) => (
