@@ -232,6 +232,10 @@ export const HeaderComponent: React.FC = () => {
     ))
   }
 
+  // icons carry a few px of empty space inside their box, so the leading
+  // padding is trimmed to keep icon + label optically centered
+  const actionButtonClass = "pl-2 pr-2.5 sm:h-9 sm:pl-3.5 sm:pr-4"
+
   // Return a fragment <> to include the modal as a sibling to the nav.
   return (
     <>
@@ -242,7 +246,8 @@ export const HeaderComponent: React.FC = () => {
         <div className="flex items-center justify-center gap-1.5 px-3 py-2.5 sm:gap-2.5 sm:py-3">
           <Button
             size="sm"
-            className="px-2.5 sm:h-9 sm:px-4"
+            // the filled triangle reads larger than the outline icons beside it
+            className={cn(actionButtonClass, "[&_svg]:size-3.5")}
             onClick={handleClickPlay}
             disabled={!state.chordPianoSet?.length}
           >
@@ -251,7 +256,7 @@ export const HeaderComponent: React.FC = () => {
           </Button>
           <Button
             size="sm"
-            className="px-2.5 sm:h-9 sm:px-4"
+            className={actionButtonClass}
             onClick={handleClickAddChord}
           >
             <Plus />
@@ -261,7 +266,7 @@ export const HeaderComponent: React.FC = () => {
           <Button
             variant="secondary"
             size="sm"
-            className="px-2.5 sm:h-9 sm:px-4"
+            className={actionButtonClass}
             disabled={!state.previousProgCodes?.length}
             onClick={handleUndoClick}
           >
@@ -271,7 +276,7 @@ export const HeaderComponent: React.FC = () => {
           <Button
             variant="secondary"
             size="sm"
-            className="px-2.5 sm:h-9 sm:px-4"
+            className={actionButtonClass}
             disabled={!state.chordPianoSet?.length}
             onClick={handleClickClear}
           >

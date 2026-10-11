@@ -1,4 +1,5 @@
 import { SelectedChord } from "./chordPianoHandler";
+import { chordMap } from "./chordManager";
 import { getNoteNumber } from "./noteManager";
 import guitar from '@tombatossals/chords-db/lib/guitar.json';
 import ukulele from '@tombatossals/chords-db/lib/ukulele.json';
@@ -71,6 +72,8 @@ export const UNSUPPORTED_GUITAR_CHORDS = [
   '9sus4',
   '5',
   '7sus2',
+  // chords-db's "alt" voicings are 1 3 b5, not the altered dominant in chordMap
+  'alt',
   'x'
 ]
 
@@ -142,7 +145,27 @@ const normalizeKey = (keyNoteNumber: number, format: string): string => {
     positions: ChordPosition[];
   }
   
-  const parseChordName = (chordName: string): { root: string; suffix: string; bass?: string } => {
+  /**
+   * Returns the intervals (semitones above the root, 0-11) sounded by the
+   * position that don't belong to the chord type. Leaving chord tones out
+   * is fine; any interval returned here means the voicing is wrong.
+   */
+  const getNonChordIntervals = (
+    position: ChordPosition,
+    rootNoteNumber: number,
+    type: string
+  ): number[] => {
+    const chordIntervals = new Set((chordMap[type] ?? []).map(interval => interval % 12));
+    // note numbers start at C = 1
+    const rootPitchClass = (rootNoteNumber - 1) % 12;
+    const sounded = new Set(position.midi.map(midi => (midi - rootPitchClass + 12) % 12));
+
+    return [...sounded]
+      .filter(interval => !chordIntervals.has(interval))
+      .sort((a, b) => a - b);
+  };
+
+  const parseChordName =(chordName: string): { root: string; suffix: string; bass?: string } => {
     // match pattern: root + suffix + optional bass note
     const pattern = /^([A-G][b#]?)([^/]*)(?:\/([A-G][b#]?))?$/;
     const match = chordName.match(pattern);
@@ -196,7 +219,11 @@ const normalizeKey = (keyNoteNumber: number, format: string): string => {
         return [];
       }
     
-      return chord.positions;
+      // chords-db has some voicings with wrong notes; hide them rather than
+      // show a diagram for a different chord
+      return chord.positions.filter(
+        position => getNonChordIntervals(position, noteNumber!, suffix).length === 0
+      );
 
     } catch (error: any) {
       console.error(`Error finding chord positions: ${error.message}`);
@@ -204,4 +231,4 @@ const normalizeKey = (keyNoteNumber: number, format: string): string => {
     }
   };
   
-  export { getInstrumentByFormat, findChordPositions, isGuitar, parseChordName, normalizeKey, normalizeSuffix };
+  export { getInstrumentByFormat, findChordPositions, getNonChordIntervals, isGuitar, parseChordName, normalizeKey, normalizeSuffix };

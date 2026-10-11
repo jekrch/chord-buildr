@@ -50,10 +50,12 @@ export const PianoBoardComponent: React.FC = () => {
    *
    * switching format keeps the board (and the format toggle on it) mounted
    * and only swaps the chord list, which then runs the view transition
-   * itself
+   * itself. guitar and ukulele share a layout, so switching between them
+   * keeps the cards too and only their charts change
    */
   const boardKey = `${refresh}-${hasChords}`
-  const viewKey = `${boardKey}-${state.format}`
+  const layout = isGuitar(state.format) ? 'fretted' : 'piano'
+  const viewKey = `${boardKey}-${layout}`
   const chordIds = state.chordPianoSet?.map((chordPiano) => chordPiano.id) ?? []
   const [view, setView] = useState({ viewKey, boardKey, ids: chordIds, formatSwitched: false })
   if (view.viewKey !== viewKey) {
@@ -198,7 +200,7 @@ export const PianoBoardComponent: React.FC = () => {
       style={{ paddingTop: `${navHeight + 16}px` }}
     >
       <div ref={contentRef}>
-        <div key={state.format} className={cn(view.formatSwitched && "view-enter")}>
+        <div key={layout} className={cn(view.formatSwitched && "view-enter")}>
           {!isGuitar(state.format) ? (
             <div className="flex flex-col gap-3 sm:gap-4">{renderPianoSet}</div>
           ) : renderGuitarSet}

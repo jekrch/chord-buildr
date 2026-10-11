@@ -3,6 +3,7 @@ import { Guitar, Piano } from "lucide-react"
 import { useAppContext } from "../components/context/AppContext"
 import { cn } from "../lib/utils"
 import { withViewTransition } from "../utils/chordTransitions"
+import { isGuitar } from "../utils/guitarUtil"
 
 const FORMAT_OPTIONS = [
   { value: 'p', label: 'Piano', icon: <Piano className="h-4 w-4" /> },
@@ -108,10 +109,12 @@ const InlineConfig: React.FC<InlineConfigProps> = ({ className = "" }) => {
 
   const handleFormatChange = (format: string) => {
     if (format === state.format) return
+    // guitar <-> ukulele keeps the cards and only swaps their charts
+    const kind = isGuitar(format) && isGuitar(state.format) ? 'instrument' : undefined
     withViewTransition(() => dispatch({
       type: 'UPDATE_UX_FORMAT',
       format: format
-    }))
+    }), kind)
   }
 
   return (

@@ -513,3 +513,58 @@
 ::view-transition-new(format-toggle) {
 	animation: none;
 }
+
+/*
+	guitar <-> ukulele keeps every card in place, so instead of the page
+	crossfade only each card's chart and position tabs swap: the old one
+	fades and softens out while the new one settles in. GuitarChord gives
+	those parts a per-card --swap-name, which only becomes a
+	view-transition-name while this kind of transition runs
+*/
+:root[data-view-transition="instrument"] .diagram-art,
+:root[data-view-transition="instrument"] .diagram-placeholder,
+:root[data-view-transition="instrument"] .position-tabs {
+	view-transition-name: var(--swap-name);
+	view-transition-class: instrument-swap;
+}
+
+.diagram-art {
+	display: block;
+}
+
+:root[data-view-transition="instrument"]::view-transition-old(root) {
+	display: none;
+}
+
+:root[data-view-transition="instrument"]::view-transition-new(root) {
+	animation: none;
+}
+
+::view-transition-group(*.instrument-swap) {
+	animation-duration: 320ms;
+	animation-timing-function: cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+::view-transition-old(*.instrument-swap) {
+	animation: instrument-swap-out 180ms ease-in both;
+}
+
+::view-transition-new(*.instrument-swap) {
+	animation: instrument-swap-in 320ms cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+@keyframes instrument-swap-out {
+	to {
+		opacity: 0;
+		transform: scale(0.98);
+		filter: blur(2px);
+	}
+}
+
+@keyframes instrument-swap-in {
+	from {
+		opacity: 0;
+		transform: scale(0.97);
+		filter: blur(2px);
+	}
+}

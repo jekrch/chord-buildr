@@ -598,6 +598,8 @@ export async function playChord(
     // console.log(useStrum);
     // console.log(chordPiano.selectedChord);
 
+    let position: ChordPosition | undefined
+
     if (useStrum && chordPiano.selectedChord) {
 
       const instrument: Instrument = getInstrumentByFormat(state.format);
@@ -613,12 +615,15 @@ export async function playChord(
 
       // get the selected position, falling back to the first if the stored
       // one doesn't exist for this chord
-      const position = tabPositions[chordPiano.selectedChord.position ?? 0] ?? tabPositions[0]
+      position = tabPositions[chordPiano.selectedChord.position ?? 0] ?? tabPositions[0]
+    }
+
+    // chords without a guitar diagram play the piano voicing instead
+    if (position) {
       notes = position.midi
         .map((midi) => {
           return Tone.Frequency(midi, "midi").toNote()
         })
-
     } else {
       notes = getSelectedNotes(chordPiano.piano!)
     }

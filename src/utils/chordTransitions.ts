@@ -74,17 +74,34 @@ function settleFlipTargets(before: Map<Element, DOMRect>): void {
   })
 }
 
+let activeTransition: ViewTransition | null = null
+
 /**
  * runs a state update inside a view transition where the browser supports
  * them, so the outgoing view crossfades into the incoming one instead of
  * being swapped out in a single frame. the update is flushed synchronously
- * so the new dom is in place when the transition captures it
+ * so the new dom is in place when the transition captures it.
+ *
+ * `kind` is set as data-view-transition on the root element while the
+ * transition runs, so Layout.css can style that kind of transition alone
  */
-export function withViewTransition(update: () => void): void {
+export function withViewTransition(update: () => void, kind?: string): void {
   if (typeof document.startViewTransition !== "function" || prefersReducedMotion()) {
     update()
     return
   }
 
-  document.startViewTransition(() => flushSync(update))
+  const root = document.documentElement
+  // set before the old state is captured, and kept until the end
+  if (kind) root.dataset.viewTransition = kind
+  else delete root.dataset.viewTransition
+
+  const transition = document.startViewTransition(() => flushSync(update))
+  activeTransition = transition
+  transition.finished.finally(() => {
+    // a newer transition owns the attribute now
+    if (activeTransition !== transition) return
+    activeTransition = null
+    delete root.dataset.viewTransition
+  })
 }

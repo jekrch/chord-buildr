@@ -66,6 +66,11 @@ export const GuitarChord: React.FC<GuitarChordProps> = ({ pianoComponentId }) =>
 
   const isPlaying = Boolean(chordPiano.isPlaying)
 
+  // names the parts that crossfade when switching guitar <-> ukulele;
+  // see the instrument view transition in Layout.css
+  const swapName = (part: string) =>
+    ({ "--swap-name": `${part}-${pianoComponentId}` }) as React.CSSProperties
+
   return (
     <>
       <div className="chord-card__rail">
@@ -90,13 +95,17 @@ export const GuitarChord: React.FC<GuitarChordProps> = ({ pianoComponentId }) =>
             aria-label="Play chord"
             onClick={handlePlayClick}
           >
-            <Chord
-              chord={tabPositions[position]}
-              instrument={instrument}
-            />
+            <span className="diagram-art" style={swapName("diagram")}>
+              <Chord
+                chord={tabPositions[position]}
+                instrument={instrument}
+              />
+            </span>
           </button>
         ) : (
-          <div className="grid aspect-[8/7] w-full place-items-center rounded-[0.625rem] border border-dashed border-border px-4 text-center text-sm text-muted-foreground">
+          <div
+            style={swapName("diagram")}
+            className="diagram-placeholder grid aspect-[8/7] w-full place-items-center rounded-[0.625rem] border border-dashed border-border px-4 text-center text-sm text-muted-foreground">
             Chord type not supported
           </div>
         )}
@@ -118,7 +127,7 @@ export const GuitarChord: React.FC<GuitarChordProps> = ({ pianoComponentId }) =>
             className="position-tabs"
             role="group"
             aria-label="Chord position"
-            style={{ "--position": position } as React.CSSProperties}
+            style={{ "--position": position, ...swapName("positions") } as React.CSSProperties}
           >
             <span className="position-tabs__indicator" aria-hidden="true" />
             {tabPositions.map((_: unknown, i: number) => (
