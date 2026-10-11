@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useState, type JSX } from 'react'
 import { Play, AudioLinesIcon } from 'lucide-react'
 import { Button } from '../../components/ui/button'
 import { Knob } from '../Knob'

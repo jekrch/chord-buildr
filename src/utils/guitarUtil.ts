@@ -7,7 +7,7 @@ export interface Instrument {
   strings: number,
   fretsOnChord: number,
   name: string,
-  tunings: Record<string, string[]>
+  tunings: { standard: string[] }
   chords: any
 }
 

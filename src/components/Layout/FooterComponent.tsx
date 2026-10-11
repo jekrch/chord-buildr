@@ -4,7 +4,7 @@ import { faCog } from "@fortawesome/free-solid-svg-icons"
 import { AboutModal } from "./AboutModal"
 import { VersionModal } from "./VersionModal"
 import { ConfigModal } from "./ConfigModal"
-import GitHub120 from "../../images/Github120.png"
+import GitHub120 from "../../images/GitHub120.png"
 
 const APP_VERSION = "v4.4"
 const GITHUB_URL = "https://github.com/jekrch/chord-buildr"

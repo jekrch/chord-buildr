@@ -157,7 +157,7 @@ export const HeaderComponent: React.FC = () => {
     }
   }
 
-  const renderProgression = (): JSX.Element[] | undefined => {
+  const renderProgression = (): React.JSX.Element[] | undefined => {
     return state.chordPianoSet?.map((piano, i) => (
       <div
         key={`ci-${piano.id}`} 

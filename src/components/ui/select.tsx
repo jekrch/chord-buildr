@@ -5,10 +5,12 @@ import { Check, ChevronDown, ChevronUp } from "lucide-react"
 import { cn } from "../../lib/utils"
 
 // wrap the root component to handle empty string conversion
-const Select = React.forwardRef<
-  React.ElementRef<typeof SelectPrimitive.Root>,
-  React.ComponentPropsWithoutRef<typeof SelectPrimitive.Root>
->(({ value, defaultValue, onValueChange, ...props }) => {
+const Select = ({
+  value,
+  defaultValue,
+  onValueChange,
+  ...props
+}: React.ComponentProps<typeof SelectPrimitive.Root>) => {
   // convert empty string to placeholder value internally
   const internalValue = value === "" ? "__empty__" : value
   const internalDefaultValue = defaultValue === "" ? "__empty__" : defaultValue
@@ -21,13 +23,12 @@ const Select = React.forwardRef<
   return (
     <SelectPrimitive.Root
       {...props}
-      //ref={ref as any}
       value={internalValue}
       defaultValue={internalDefaultValue}
       onValueChange={handleValueChange}
     />
   )
-})
+}
 Select.displayName = SelectPrimitive.Root.displayName
 
 const SelectGroup = SelectPrimitive.Group
