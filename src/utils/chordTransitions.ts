@@ -5,7 +5,7 @@ const EASE_OUT = "cubic-bezier(0.22, 1, 0.36, 1)"
 const EXIT_MS = 180
 const SETTLE_MS = 300
 
-const prefersReducedMotion = (): boolean =>
+export const prefersReducedMotion = (): boolean =>
   window.matchMedia?.("(prefers-reduced-motion: reduce)").matches ?? false
 
 /**
@@ -74,34 +74,17 @@ function settleFlipTargets(before: Map<Element, DOMRect>): void {
   })
 }
 
-let activeTransition: ViewTransition | null = null
-
 /**
  * runs a state update inside a view transition where the browser supports
  * them, so the outgoing view crossfades into the incoming one instead of
  * being swapped out in a single frame. the update is flushed synchronously
- * so the new dom is in place when the transition captures it.
- *
- * `kind` is set as data-view-transition on the root element while the
- * transition runs, so Layout.css can style that kind of transition alone
+ * so the new dom is in place when the transition captures it
  */
-export function withViewTransition(update: () => void, kind?: string): void {
+export function withViewTransition(update: () => void): void {
   if (typeof document.startViewTransition !== "function" || prefersReducedMotion()) {
     update()
     return
   }
 
-  const root = document.documentElement
-  // set before the old state is captured, and kept until the end
-  if (kind) root.dataset.viewTransition = kind
-  else delete root.dataset.viewTransition
-
-  const transition = document.startViewTransition(() => flushSync(update))
-  activeTransition = transition
-  transition.finished.finally(() => {
-    // a newer transition owns the attribute now
-    if (activeTransition !== transition) return
-    activeTransition = null
-    delete root.dataset.viewTransition
-  })
+  document.startViewTransition(() => flushSync(update))
 }

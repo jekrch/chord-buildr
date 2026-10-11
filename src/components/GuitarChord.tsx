@@ -1,12 +1,13 @@
-import React from "react"
+import React, { useState } from "react"
 import Chord from "@techies23/react-chords"
 import { getPianoById, useAppContext } from "./context/AppContext"
 import { ChordPiano } from "../utils/chordPianoHandler"
-import { findChordPositions, getInstrumentByFormat } from "../utils/guitarUtil"
+import { findChordPositions, getInstrumentByFormat, isGuitar } from "../utils/guitarUtil"
 import { Play, X } from "lucide-react"
 import { playChord } from "../utils/synthPlayer"
 import { Instrument } from "../utils/guitarUtil"
-import { removeChordWithTransition } from "../utils/chordTransitions"
+import { prefersReducedMotion, removeChordWithTransition } from "../utils/chordTransitions"
+import { cn } from "../lib/utils"
 
 interface GuitarChordProps {
   pianoComponentId: number;
@@ -16,6 +17,18 @@ export const GuitarChord: React.FC<GuitarChordProps> = ({ pianoComponentId }) =>
   const { state, dispatch } = useAppContext()
   const chordPiano: ChordPiano | null = getPianoById(state, pianoComponentId);
 
+  /**
+   * switching guitar <-> ukulele keeps this card mounted. the chart for the
+   * instrument being left stays drawn under the new one while it fades
+   * out, and the new chart settles in on top
+   */
+  const [shownFormat, setShownFormat] = useState(state.format)
+  const [leavingFormat, setLeavingFormat] = useState<string | null>(null)
+  if (shownFormat !== state.format) {
+    setShownFormat(state.format)
+    setLeavingFormat(isGuitar(shownFormat) && !prefersReducedMotion() ? shownFormat : null)
+  }
+
   // useEffect(() => {
   //   console.log(chordPiano?.isPlaying)
   // }, [chordPiano?.isPlaying, state.chordPianoSet])
@@ -24,18 +37,30 @@ export const GuitarChord: React.FC<GuitarChordProps> = ({ pianoComponentId }) =>
     return;
   }
 
-  const instrument: Instrument = getInstrumentByFormat(state.format);
+  const getChart = (format: string) => {
+    const instrument: Instrument = getInstrumentByFormat(format)
+    const tabPositions = findChordPositions(
+      chordPiano.selectedChord,
+      instrument.chords,
+      format
+    )
+    // the stored position can outlive the chord it was picked for (e.g. after
+    // changing the root or type), so fall back to the first position
+    const storedPosition = chordPiano.selectedChord.position ?? 0
+    const position = storedPosition < tabPositions.length ? storedPosition : 0
+    return { instrument, tabPositions, position }
+  }
 
-  const tabPositions = findChordPositions(
-    chordPiano.selectedChord,
-    instrument.chords,
-    state.format
-  );
+  const { instrument, tabPositions, position } = getChart(state.format)
+  const leaving = leavingFormat ? getChart(leavingFormat) : null
+  const entering = Boolean(leavingFormat)
+  // the position tabs stay mounted across the switch; only tabs the old
+  // instrument didn't have (or the whole group, if it had none) fade in
+  const leavingTabCount = leaving ? leaving.tabPositions.length : tabPositions.length
 
-  // the stored position can outlive the chord it was picked for (e.g. after
-  // changing the root or type), so fall back to the first position
-  const storedPosition = chordPiano.selectedChord.position ?? 0
-  const position = storedPosition < tabPositions.length ? storedPosition : 0
+  const handleEnterEnd = (event: React.AnimationEvent): void => {
+    if (event.target === event.currentTarget) setLeavingFormat(null)
+  }
 
   const handleNewPosition = (position: number): void => {
     chordPiano.selectedChord.position = position;
@@ -66,11 +91,6 @@ export const GuitarChord: React.FC<GuitarChordProps> = ({ pianoComponentId }) =>
 
   const isPlaying = Boolean(chordPiano.isPlaying)
 
-  // names the parts that crossfade when switching guitar <-> ukulele;
-  // see the instrument view transition in Layout.css
-  const swapName = (part: string) =>
-    ({ "--swap-name": `${part}-${pianoComponentId}` }) as React.CSSProperties
-
   return (
     <>
       <div className="chord-card__rail">
@@ -95,17 +115,40 @@ export const GuitarChord: React.FC<GuitarChordProps> = ({ pianoComponentId }) =>
             aria-label="Play chord"
             onClick={handlePlayClick}
           >
-            <span className="diagram-art" style={swapName("diagram")}>
-              <Chord
-                chord={tabPositions[position]}
-                instrument={instrument}
-              />
+            <span className="diagram-stack">
+              {leaving?.tabPositions.length ? (
+                <span
+                  key={`leaving-${leavingFormat}`}
+                  className="diagram-art instrument-leave"
+                  aria-hidden="true"
+                >
+                  <Chord
+                    chord={leaving.tabPositions[leaving.position]}
+                    instrument={leaving.instrument}
+                  />
+                </span>
+              ) : null}
+              <span
+                key={state.format}
+                className={cn("diagram-art", entering && "instrument-enter")}
+                onAnimationEnd={handleEnterEnd}
+              >
+                <Chord
+                  chord={tabPositions[position]}
+                  instrument={instrument}
+                />
+              </span>
             </span>
           </button>
         ) : (
           <div
-            style={swapName("diagram")}
-            className="diagram-placeholder grid aspect-[8/7] w-full place-items-center rounded-[0.625rem] border border-dashed border-border px-4 text-center text-sm text-muted-foreground">
+            key={state.format}
+            onAnimationEnd={handleEnterEnd}
+            className={cn(
+              "grid aspect-[8/7] w-full place-items-center rounded-[0.625rem] border border-dashed border-border px-4 text-center text-sm text-muted-foreground",
+              entering && "instrument-enter"
+            )}
+          >
             Chord type not supported
           </div>
         )}
@@ -124,17 +167,20 @@ export const GuitarChord: React.FC<GuitarChordProps> = ({ pianoComponentId }) =>
 
         {tabPositions?.length > 1 && (
           <div
-            className="position-tabs"
+            className={cn("position-tabs", entering && leavingTabCount <= 1 && "instrument-enter")}
             role="group"
             aria-label="Chord position"
-            style={{ "--position": position, ...swapName("positions") } as React.CSSProperties}
+            style={{ "--position": position } as React.CSSProperties}
           >
             <span className="position-tabs__indicator" aria-hidden="true" />
             {tabPositions.map((_: unknown, i: number) => (
               <button
                 key={i}
                 type="button"
-                className="position-tab"
+                className={cn(
+                  "position-tab",
+                  entering && leavingTabCount > 1 && i >= leavingTabCount && "instrument-enter"
+                )}
                 aria-label={`Position ${i + 1} of ${tabPositions.length}`}
                 aria-pressed={i === position}
                 title={`Position ${i + 1}`}

@@ -117,9 +117,12 @@
 
 /*
 	guitar cards share the remove column with the position tabs. the two
-	spacers grow together, but the bottom one starts out as tall as the x,
-	so the tabs center on the whole card when there's room and give up the
-	bottom space first, settling just under the x, when there isn't
+	spacers grow together, and the tabs are pulled up by the x's height,
+	so they center on the whole card when there's room and settle just
+	under the x when there isn't. the top spacer's floor makes up for the
+	pull. pulling up rather than padding out the bottom spacer keeps this
+	column's own height down to the x plus the tabs, so the chart, not
+	this column, sets the card height and the play rail shrinks to match
 */
 .chord-card__side {
 	grid-area: remove;
@@ -133,17 +136,17 @@
 .chord-card__side::before,
 .chord-card__side::after {
 	content: "";
+	flex: 1 1 0;
+	min-height: 0;
 }
 
 .chord-card__side::before {
 	order: -1;
-	flex: 1 1 0;
-	min-height: 0.375rem;
+	min-height: calc(1.75rem + 0.375rem);
 }
 
-.chord-card__side::after {
-	flex: 1 1 calc(1.75rem + 0.375rem);
-	min-height: 0;
+.chord-card__side > .position-tabs {
+	margin-top: -1.75rem;
 }
 
 /*
@@ -477,10 +480,57 @@
 	animation: chord-enter 300ms cubic-bezier(0.22, 1, 0.36, 1) backwards;
 }
 
+/*
+	guitar <-> ukulele keeps each card mounted and swaps only its chart
+	and position tabs (see GuitarChord). the old chart sits in the same
+	grid cell as the new one and fades out under it. plain dom
+	animations of opacity and transform: view transitions (page
+	snapshots) jittered on iOS Safari
+*/
+.diagram-stack {
+	display: grid;
+}
+
+.diagram-stack > * {
+	grid-area: 1 / 1;
+}
+
+.diagram-art {
+	display: block;
+}
+
+@keyframes instrument-leave {
+	to {
+		opacity: 0;
+		transform: scale(0.98);
+	}
+}
+
+@keyframes instrument-enter {
+	from {
+		opacity: 0;
+		transform: scale(0.97);
+	}
+}
+
+.instrument-leave {
+	pointer-events: none;
+	animation: instrument-leave 180ms ease-in forwards;
+}
+
+.instrument-enter {
+	animation: instrument-enter 320ms cubic-bezier(0.22, 1, 0.36, 1) backwards;
+}
+
 @media (prefers-reduced-motion: reduce) {
 	.view-enter,
-	.chord-enter {
+	.chord-enter,
+	.instrument-enter {
 		animation: none;
+	}
+
+	.instrument-leave {
+		display: none;
 	}
 }
 
@@ -512,59 +562,4 @@
 
 ::view-transition-new(format-toggle) {
 	animation: none;
-}
-
-/*
-	guitar <-> ukulele keeps every card in place, so instead of the page
-	crossfade only each card's chart and position tabs swap: the old one
-	fades and softens out while the new one settles in. GuitarChord gives
-	those parts a per-card --swap-name, which only becomes a
-	view-transition-name while this kind of transition runs
-*/
-:root[data-view-transition="instrument"] .diagram-art,
-:root[data-view-transition="instrument"] .diagram-placeholder,
-:root[data-view-transition="instrument"] .position-tabs {
-	view-transition-name: var(--swap-name);
-	view-transition-class: instrument-swap;
-}
-
-.diagram-art {
-	display: block;
-}
-
-:root[data-view-transition="instrument"]::view-transition-old(root) {
-	display: none;
-}
-
-:root[data-view-transition="instrument"]::view-transition-new(root) {
-	animation: none;
-}
-
-::view-transition-group(*.instrument-swap) {
-	animation-duration: 320ms;
-	animation-timing-function: cubic-bezier(0.22, 1, 0.36, 1);
-}
-
-::view-transition-old(*.instrument-swap) {
-	animation: instrument-swap-out 180ms ease-in both;
-}
-
-::view-transition-new(*.instrument-swap) {
-	animation: instrument-swap-in 320ms cubic-bezier(0.22, 1, 0.36, 1) both;
-}
-
-@keyframes instrument-swap-out {
-	to {
-		opacity: 0;
-		transform: scale(0.98);
-		filter: blur(2px);
-	}
-}
-
-@keyframes instrument-swap-in {
-	from {
-		opacity: 0;
-		transform: scale(0.97);
-		filter: blur(2px);
-	}
 }

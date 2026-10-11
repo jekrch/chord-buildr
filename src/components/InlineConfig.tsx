@@ -109,12 +109,14 @@ const InlineConfig: React.FC<InlineConfigProps> = ({ className = "" }) => {
 
   const handleFormatChange = (format: string) => {
     if (format === state.format) return
-    // guitar <-> ukulele keeps the cards and only swaps their charts
-    const kind = isGuitar(format) && isGuitar(state.format) ? 'instrument' : undefined
-    withViewTransition(() => dispatch({
+    const update = () => dispatch({
       type: 'UPDATE_UX_FORMAT',
       format: format
-    }), kind)
+    })
+    // guitar <-> ukulele keeps the cards, which crossfade their own charts
+    // (see GuitarChord), so the page itself isn't transitioned
+    if (isGuitar(format) && isGuitar(state.format)) update()
+    else withViewTransition(update)
   }
 
   return (
