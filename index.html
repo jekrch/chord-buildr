@@ -9,6 +9,22 @@
   <meta name="description" content="A tool for creating and sharing chord progressions" />
 
   <title>Chord Buildr</title>
+  <!-- apply the theme before first paint so the page doesn't flash white while the app loads.
+       keep the storage key and default in sync with ThemeProvider in App.tsx -->
+  <script>
+    (function () {
+      var theme = 'dark'
+      try { theme = localStorage.getItem('vite-ui-theme') || 'dark' } catch (e) {}
+      if (theme === 'system') {
+        theme = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light'
+      }
+      document.documentElement.classList.add(theme)
+    })()
+  </script>
+  <style>
+    html { background: hsl(220 14% 97%); color-scheme: light; }
+    html.dark { background: hsl(220 6% 10%); color-scheme: dark; }
+  </style>
   <script defer src="https://analytics.jacobkrch.com/script.js" data-website-id="db28d895-cbd4-4c44-9158-e88153507f3d"></script>
 </head>
 
