@@ -107,7 +107,7 @@ export const PianoComponent: React.FC<PianoComponentProps> = ({
           title="Play chord"
           onClick={handlePlayClick}
         >
-          <Play className="h-3.5 w-3.5 fill-current" />
+          <Play className="ml-0.5 h-3.5 w-3.5 fill-current" />
         </button>
       </div>
       <div className="chord-card__keys keyboard-well">

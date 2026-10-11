@@ -68,7 +68,10 @@ export const UNSUPPORTED_GUITAR_CHORDS = [
   'm7b9', 
   'm7#5', 
   'm7#11', 
-  '9sus4'
+  '9sus4',
+  '5',
+  '7sus2',
+  'x'
 ]
 
 const guitarKeyMap: Record<number, string> = {
@@ -171,7 +174,7 @@ const normalizeKey = (keyNoteNumber: number, format: string): string => {
       // normalize the root note and suffix to match database format
       const normalizedRoot = normalizeKey(noteNumber!, format);
 
-      // Not supported: add2 m13 7#11 m7#9 m7b9 m7#5 m7#11 9sus4
+      // Not supported: see UNSUPPORTED_GUITAR_CHORDS
       const normalizedSuffix = normalizeSuffix(suffix);
       
       //console.log(normalizedRoot)

@@ -73,3 +73,18 @@ function settleFlipTargets(before: Map<Element, DOMRect>): void {
     )
   })
 }
+
+/**
+ * runs a state update inside a view transition where the browser supports
+ * them, so the outgoing view crossfades into the incoming one instead of
+ * being swapped out in a single frame. the update is flushed synchronously
+ * so the new dom is in place when the transition captures it
+ */
+export function withViewTransition(update: () => void): void {
+  if (typeof document.startViewTransition !== "function" || prefersReducedMotion()) {
+    update()
+    return
+  }
+
+  document.startViewTransition(() => flushSync(update))
+}

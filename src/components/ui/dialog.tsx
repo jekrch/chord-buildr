@@ -43,7 +43,8 @@ const DialogContent = React.forwardRef<
       {...props}
     >
       {children}
-      <DialogPrimitive.Close className="absolute right-3 top-3 rounded-md p-1.5 text-muted-foreground transition-colors hover:bg-accent hover:text-foreground focus:outline-none focus-visible:ring-2 focus-visible:ring-ring disabled:pointer-events-none">
+      {/* inset by padding - 6px so the 28px button centers on the 16px title line */}
+      <DialogPrimitive.Close className="absolute right-3.5 top-3.5 grid h-7 w-7 place-items-center rounded-md text-muted-foreground sm:right-[1.125rem] sm:top-[1.125rem] transition-colors hover:bg-accent hover:text-foreground focus:outline-none focus-visible:ring-2 focus-visible:ring-ring disabled:pointer-events-none">
         <X className="h-4 w-4" />
         <span className="sr-only">Close</span>
       </DialogPrimitive.Close>

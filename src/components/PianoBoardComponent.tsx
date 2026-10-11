@@ -46,15 +46,20 @@ export const PianoBoardComponent: React.FC = () => {
   /**
    * a view is the welcome screen or a board in one format. chords already
    * present when a view mounts arrive with the view's own transition, so
-   * only chords added after that get the chord-enter animation
+   * only chords added after that get the chord-enter animation.
+   *
+   * switching format keeps the board (and the format toggle on it) mounted
+   * and only swaps the chord list, which then runs the view transition
+   * itself
    */
-  const viewKey = `${refresh}-${state.format}-${hasChords}`
+  const boardKey = `${refresh}-${hasChords}`
+  const viewKey = `${boardKey}-${state.format}`
   const chordIds = state.chordPianoSet?.map((chordPiano) => chordPiano.id) ?? []
-  const [viewChords, setViewChords] = useState({ viewKey, ids: chordIds })
-  if (viewChords.viewKey !== viewKey) {
-    setViewChords({ viewKey, ids: chordIds })
+  const [view, setView] = useState({ viewKey, boardKey, ids: chordIds, formatSwitched: false })
+  if (view.viewKey !== viewKey) {
+    setView({ viewKey, boardKey, ids: chordIds, formatSwitched: view.boardKey === boardKey })
   }
-  const initialIds = viewChords.ids
+  const initialIds = view.ids
 
   useEffect(() => {
     document.documentElement.setAttribute('data-format', isGuitar(state.format) ? 'g' : 'p')
@@ -84,7 +89,9 @@ export const PianoBoardComponent: React.FC = () => {
     const newParams = location.search + location.hash
 
     if (currentCode !== newParams) {
-      navigate({ search: currentCode })
+      // chord names can contain '#', so pass a string and let the router
+      // split it into search and hash (matching how the code is read back)
+      navigate(currentCode)
     }
     // only sync when state changes; re-running on location changes would
     // push the old state back over back/forward navigation
@@ -182,7 +189,7 @@ export const PianoBoardComponent: React.FC = () => {
 
   return (
     <div
-      key={`pianoBoard-${viewKey}`}
+      key={`pianoBoard-${boardKey}`}
       ref={boardRef}
       className={cn(
         "pianoBoard view-enter mx-auto w-full px-2.5 sm:px-4",
@@ -191,9 +198,11 @@ export const PianoBoardComponent: React.FC = () => {
       style={{ paddingTop: `${navHeight + 16}px` }}
     >
       <div ref={contentRef}>
-        {!isGuitar(state.format) ? (
-          <div className="flex flex-col gap-3 sm:gap-4">{renderPianoSet}</div>
-        ) : renderGuitarSet}
+        <div key={state.format} className={cn(view.formatSwitched && "view-enter")}>
+          {!isGuitar(state.format) ? (
+            <div className="flex flex-col gap-3 sm:gap-4">{renderPianoSet}</div>
+          ) : renderGuitarSet}
+        </div>
         <div data-flip>
           <InlineConfig className="mt-10" />
         </div>

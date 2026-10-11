@@ -611,8 +611,10 @@ export async function playChord(
         )
       }
 
-      // get the selected position
-      notes = tabPositions[chordPiano.selectedChord.position ?? 0].midi
+      // get the selected position, falling back to the first if the stored
+      // one doesn't exist for this chord
+      const position = tabPositions[chordPiano.selectedChord.position ?? 0] ?? tabPositions[0]
+      notes = position.midi
         .map((midi) => {
           return Tone.Frequency(midi, "midi").toNote()
         })
