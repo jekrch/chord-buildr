@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useLayoutEffect, useMemo, memo } from "react"
+import React, { useEffect, useState, useLayoutEffect, useMemo, useRef, memo } from "react"
 import { useHistory } from "react-router-dom"
 import { useAppContext } from "../components/context/AppContext"
 import { getStateParamsCode } from "../utils/chordCodeHandler"
@@ -9,27 +9,26 @@ import useNavHeight from "../utils/hooks/useNavHeight"
 import { isGuitar } from '../utils/guitarUtil'
 import InlineConfig from './InlineConfig'
 import MusicalAnimation from "./MusicalAnimation"
+import { cn } from "../lib/utils"
 
 // existing memoized components remain the same
-const MemoizedChordPiano = memo(({ id, refresh }: { id: number, refresh: number }) => (
-  <div className="lg:!ml-[20%]">
-    <ChordPianoComponent
-      key={`piano-${id}-${refresh}`}
-      pianoComponentId={Number(id)}
-    />
-    <div className="pianoStrip" />
-  </div>
+const MemoizedChordPiano = memo(({ id, refresh, entering }: { id: number, refresh: number, entering: boolean }) => (
+  <ChordPianoComponent
+    key={`piano-${id}-${refresh}`}
+    pianoComponentId={Number(id)}
+    className={cn(entering && "chord-enter")}
+  />
 ))
 
-const MemoizedGuitarChordSet = memo(({ id }: { id: number }) => (
-  <div className="lg:w-2/3 w-[23em] h-[14em]">
-    <div>
-      <div className="px-4 flex tab-container">
-        <ChordInput pianoComponentId={id} />
-        <GuitarChord pianoComponentId={id} />
-      </div>
-    </div>
-  </div>
+const MemoizedGuitarChordSet = memo(({ id, entering }: { id: number, entering: boolean }) => (
+  <article
+    id={`piano-${id}`}
+    className={cn("chord-card chord-card--guitar", entering && "chord-enter")}
+    data-flip
+  >
+    <ChordInput className="chord-card__controls" pianoComponentId={id} />
+    <GuitarChord pianoComponentId={id} />
+  </article>
 ))
 
 export const PianoBoardComponent: React.FC = () => {
@@ -38,6 +37,23 @@ export const PianoBoardComponent: React.FC = () => {
   const [isInitialized, setIsInitialized] = useState<boolean>(false)
   const [refresh, setRefresh] = useState<number>(0)
   const navHeight = useNavHeight('nav')
+  const boardRef = useRef<HTMLDivElement>(null)
+  const contentRef = useRef<HTMLDivElement>(null)
+  const spacerRef = useRef<HTMLDivElement>(null)
+  const hasChords = !!state.chordPianoSet?.length
+
+  /**
+   * a view is the welcome screen or a board in one format. chords already
+   * present when a view mounts arrive with the view's own transition, so
+   * only chords added after that get the chord-enter animation
+   */
+  const viewKey = `${refresh}-${state.format}-${hasChords}`
+  const chordIds = state.chordPianoSet?.map((chordPiano) => chordPiano.id) ?? []
+  const [viewChords, setViewChords] = useState({ viewKey, ids: chordIds })
+  if (viewChords.viewKey !== viewKey) {
+    setViewChords({ viewKey, ids: chordIds })
+  }
+  const initialIds = viewChords.ids
 
   useEffect(() => {
     document.documentElement.setAttribute('data-format', isGuitar(state.format) ? 'g' : 'p')
@@ -71,6 +87,45 @@ export const PianoBoardComponent: React.FC = () => {
     }
   }, [state, history])
 
+  /**
+   * size the bottom spacer so the page can scroll just far enough for the
+   * last chord to reach the top (below the header), and no further
+   */
+  useLayoutEffect(() => {
+    const board = boardRef.current
+    const content = contentRef.current
+    const spacer = spacerRef.current
+    if (!board || !content || !spacer) return
+
+    const updateSpacer = () => {
+      const chords = content.querySelectorAll('[id^="piano-"]')
+      const lastChord = chords[chords.length - 1]
+      if (!lastChord) {
+        spacer.style.height = '0px'
+        return
+      }
+      const currentSpacer = spacer.getBoundingClientRect().height
+      const lastChordTop = lastChord.getBoundingClientRect().top + window.scrollY
+      const scrollHeightWithoutSpacer = document.documentElement.scrollHeight - currentSpacer
+      // matches the offset used when navigating to a chord from the header
+      const targetScrollTop = lastChordTop - navHeight - 10
+      const needed = targetScrollTop + window.innerHeight - scrollHeightWithoutSpacer
+      spacer.style.height = `${Math.max(0, Math.ceil(needed))}px`
+    }
+
+    updateSpacer()
+    const resizeObserver = new ResizeObserver(updateSpacer)
+    resizeObserver.observe(content)
+    window.addEventListener('resize', updateSpacer)
+    // the first measurement is taken mid view-enter, offset by its lift
+    board.addEventListener('animationend', updateSpacer)
+    return () => {
+      resizeObserver.disconnect()
+      window.removeEventListener('resize', updateSpacer)
+      board.removeEventListener('animationend', updateSpacer)
+    }
+  }, [navHeight, viewKey])
+
   const renderPianoSet = useMemo(() => {
     if (!state.chordPianoSet) return null
     
@@ -79,51 +134,67 @@ export const PianoBoardComponent: React.FC = () => {
         key={`wrapper-${chordPiano.id}-${refresh}`}
         id={chordPiano.id}
         refresh={refresh}
+        entering={!initialIds.includes(chordPiano.id)}
       />
     ))
-  }, [state.chordPianoSet, refresh])
+  }, [state.chordPianoSet, refresh, initialIds])
 
   const renderGuitarSet = useMemo(() => {
     if (!state.chordPianoSet) return null
 
     return (
-      <div className="container mx-auto px-4">
-        <div className="grid spacing-x-3 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 2xl:grid-cols-4 sm:gap-x-[4.8em] sm:!-ml-[3.5em]">
+      <div className="guitar-board">
+        <div className="guitar-grid">
           {state.chordPianoSet.map((chordPiano) => (
             <MemoizedGuitarChordSet
               key={chordPiano.id}
               id={chordPiano.id}
+              entering={!initialIds.includes(chordPiano.id)}
             />
           ))}
         </div>
       </div>
     )
-  }, [state.chordPianoSet])
+  }, [state.chordPianoSet, initialIds])
 
   if (!state.chordPianoSet?.length) {
     return (
-      <div className="pianoBoard">
-        <div className="introBody">
-          <MusicalAnimation />
-          <div className="introText">
-            welcome to chord buildr<br />
-            use the controls above to get started
-          </div>
-          <InlineConfig />
-        </div>
+      <div
+        key="welcome"
+        className="pianoBoard view-enter mx-auto flex max-w-md flex-col items-center px-6 text-center"
+        style={{ paddingTop: `${navHeight + 80}px` }}
+      >
+        <MusicalAnimation />
+        <h1 className="mt-10 text-lg font-semibold tracking-tight">
+          Welcome to Chord Buildr
+        </h1>
+        <p className="mt-1.5 text-sm text-muted-foreground">
+          Use the controls above to get started.
+        </p>
+        <InlineConfig className="mt-8" />
       </div>
     )
   }
 
   return (
-    <div 
-      key={`pianoBoard-${refresh}`} 
-      className="pianoBoard"
-      style={{ marginTop: `${navHeight - 100}px` }}
+    <div
+      key={`pianoBoard-${viewKey}`}
+      ref={boardRef}
+      className={cn(
+        "pianoBoard view-enter mx-auto w-full px-2.5 sm:px-4",
+        isGuitar(state.format) ? "max-w-[84rem]" : "max-w-[62rem]"
+      )}
+      style={{ paddingTop: `${navHeight + 16}px` }}
     >
-      {!isGuitar(state.format) ? renderPianoSet : renderGuitarSet}
-      <InlineConfig className="-ml-[2.4em]"/>
-      <div className="h-[100vh]" />
+      <div ref={contentRef}>
+        {!isGuitar(state.format) ? (
+          <div className="flex flex-col gap-3 sm:gap-4">{renderPianoSet}</div>
+        ) : renderGuitarSet}
+        <div data-flip>
+          <InlineConfig className="mt-10" />
+        </div>
+      </div>
+      <div ref={spacerRef} aria-hidden="true" />
     </div>
   )
 }

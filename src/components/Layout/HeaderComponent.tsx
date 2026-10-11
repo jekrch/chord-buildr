@@ -1,7 +1,6 @@
-import React, { useEffect, useRef, useState } from "react"
+import React, { useEffect, useLayoutEffect, useRef, useState } from "react"
 import { Link, scroller } from "react-scroll"
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
-import { faPenToSquare } from "@fortawesome/free-regular-svg-icons"
+import { Eraser, Play, Plus, SquarePen, Undo2 } from "lucide-react"
 import { AppState, useAppContext } from "../context/AppContext"
 import { playChordById } from "../../utils/synthPlayer"
 import { Button } from '../../components/ui/button'
@@ -12,6 +11,7 @@ import {
 } from "../../utils/chordCodeHandler"
 import { generateBaseUrlParams } from "../../utils/urlUtil"
 import { isGuitar } from "../../utils/guitarUtil"
+import { cn } from "../../lib/utils"
 // NEW: Import the modal component from its own file
 import { ProgressionEditorModal } from "./ProgressionEditorModal" 
 
@@ -32,6 +32,9 @@ export const HeaderComponent: React.FC = () => {
   const [currentlyPlayingPianoId, setCurrentlyPlayingPianoId] = useState<number | undefined>(undefined);
   const [isProgressionEditorOpen, setIsProgressionEditorOpen] = useState(false);
   const headerRef = useRef<HTMLElement>(null);
+  const progressionRef = useRef<HTMLDivElement>(null);
+  const [activePianoId, setActivePianoId] = useState<number | undefined>(undefined);
+  const [indicator, setIndicator] = useState({ x: 0, y: 0, width: 0, visible: false, snap: true });
   
     /**
    * When a chord is played we want it to be scrolled to. Where we 
@@ -58,6 +61,46 @@ export const HeaderComponent: React.FC = () => {
       resizeObserver.disconnect();
     };
   }, [state.chordPianoSet]); // recalculate when chord set changes
+
+  /**
+   * Slide the strip's underline to the playing chord, or to the one the
+   * page is scrolled to when nothing is playing. When it has been hidden
+   * it jumps straight to its spot (snap) and fades in instead of sliding
+   * over from wherever it was last
+   */
+  const indicatorPianoId = currentlyPlayingPianoId ?? activePianoId;
+
+  useLayoutEffect(() => {
+    const container = progressionRef.current;
+    if (!container) return;
+
+    const place = () => {
+      const link = indicatorPianoId === undefined
+        ? null
+        : container.querySelector<HTMLElement>(`[data-piano-id="${indicatorPianoId}"]`);
+
+      setIndicator(prev => {
+        if (!link) return prev.visible ? { ...prev, visible: false } : prev;
+
+        // inset by the link's horizontal padding so the line sits under the text
+        const next = {
+          x: link.offsetLeft + 4,
+          y: link.offsetTop + link.offsetHeight,
+          width: link.offsetWidth - 8,
+          visible: true,
+          snap: !prev.visible
+        };
+        const unchanged = prev.visible && prev.x === next.x && prev.y === next.y && prev.width === next.width;
+        return unchanged ? prev : next;
+      });
+    };
+
+    place();
+    // chords reflow when the strip wraps, the window resizes or fonts load
+    const resizeObserver = new ResizeObserver(place);
+    resizeObserver.observe(container);
+    return () => resizeObserver.disconnect();
+  }, [indicatorPianoId, state.chordPianoSet]);
 
   const navigateToPianoById = (pianoId: number): void => {
     const targetKey = `piano-${pianoId}`
@@ -105,8 +148,12 @@ export const HeaderComponent: React.FC = () => {
     if (!state.chordPianoSet?.length) return
 
     if (newChordAdded) {
-      const lastPianoId = state.chordPianoSet[state.chordPianoSet.length - 1].id ?? 0;
-      navigateToPianoById(lastPianoId)
+      // the first chord mounts the board itself, mid view-enter lift, and
+      // there is nothing above it to scroll past
+      if (state.chordPianoSet.length > 1) {
+        const lastPianoId = state.chordPianoSet[state.chordPianoSet.length - 1].id ?? 0;
+        navigateToPianoById(lastPianoId)
+      }
       setNewChordAdded(false)
     }
   }, [state.chordPianoSet, newChordAdded])
@@ -160,25 +207,26 @@ export const HeaderComponent: React.FC = () => {
   const renderProgression = (): React.JSX.Element[] | undefined => {
     return state.chordPianoSet?.map((piano, i) => (
       <div
-        key={`ci-${piano.id}`} 
-        className="flex"
+        key={`ci-${piano.id}`}
+        className="flex items-center"
       >
         <Link
-          className={`chordListItem cursor-pointer hover:text-blue-600 transition-colors pl-[3px] !ml-[-3px] ${piano.id === currentlyPlayingPianoId ? "!text-blue-500 underline underline-offset-8" : ''}`}
+          className={cn("chord-link", piano.id === currentlyPlayingPianoId && "is-playing")}
+          data-piano-id={piano.id}
           to={`piano-${piano.id}`}
           spy={!isGuitar(state.format)}
           offset={headerOffset}
           isDynamic={true}
           duration={500}
           smooth={true}
+          onSetActive={() => setActivePianoId(piano.id)}
+          onSetInactive={() => setActivePianoId(id => (id === piano.id ? undefined : id))}
           onClick={() => handleItemClick(piano.id)}
         >
-          <div className="chordItem">
-            {getChordDisplay(piano.selectedChord)}
-          </div>
+          {getChordDisplay(piano.selectedChord)}
         </Link>
         {i !== (state.chordPianoSet?.length ?? 0) - 1 && (
-          <span className="mx-2">|</span>
+          <span className="mx-2 h-3.5 w-px bg-border" aria-hidden="true" />
         )}
       </div>
     ))
@@ -188,57 +236,82 @@ export const HeaderComponent: React.FC = () => {
   return (
     <>
       <nav
-        ref={headerRef} 
-        className="fixed top-0 w-full bg-background opacity-[98%] shadow-sm z-50 "
+        ref={headerRef}
+        className="fixed inset-x-0 top-0 z-50 border-b border-border bg-background/95 backdrop-blur-sm"
       >
-        <div className="flex flex-col">
-          <div className="flex justify-center bg-primary/10">
-            <Button
-              variant="default"
-              size="sm"
-              className="btn-main chord-btn"
-              onClick={handleClickPlay}
-              disabled={!state.chordPianoSet?.length}
-            >
-              Play
-            </Button>
-            <Button
-              variant="default"
-              size="sm"
-              className="btn-main chord-btn"
-              onClick={handleClickAddChord}
-            >
-              Add
-            </Button>
-            <Button
-              variant="default"
-              size="sm"
-              className="btn-main chord-btn"
-              disabled={!state.previousProgCodes?.length}
-              onClick={handleUndoClick}
-            >
-              Undo
-            </Button>
-            <Button
-              variant="default"
-              size="sm"
-              className="btn-main chord-btn"
-              disabled={!state.chordPianoSet?.length}
-              onClick={handleClickClear}
-            >
-              Clear
-            </Button>
-          </div>
+        <div className="flex items-center justify-center gap-1.5 px-3 py-2.5 sm:gap-2.5 sm:py-3">
+          <Button
+            size="sm"
+            className="px-2.5 sm:h-9 sm:px-4"
+            onClick={handleClickPlay}
+            disabled={!state.chordPianoSet?.length}
+          >
+            <Play className="fill-current" />
+            Play
+          </Button>
+          <Button
+            size="sm"
+            className="px-2.5 sm:h-9 sm:px-4"
+            onClick={handleClickAddChord}
+          >
+            <Plus />
+            Add
+          </Button>
+          <span className="mx-0.5 h-5 w-px bg-border sm:mx-1" aria-hidden="true" />
+          <Button
+            variant="secondary"
+            size="sm"
+            className="px-2.5 sm:h-9 sm:px-4"
+            disabled={!state.previousProgCodes?.length}
+            onClick={handleUndoClick}
+          >
+            <Undo2 />
+            Undo
+          </Button>
+          <Button
+            variant="secondary"
+            size="sm"
+            className="px-2.5 sm:h-9 sm:px-4"
+            disabled={!state.chordPianoSet?.length}
+            onClick={handleClickClear}
+          >
+            <Eraser />
+            Clear
+          </Button>
+        </div>
 
-          <div className="flex items-center justify-center progression border-t border-border border-b py-3 px-4">
-            <div className="flex flex-wrap justify-center">
-              {renderProgression()}
+        <div className="border-t border-border/70 bg-card/60">
+          <div className="mx-auto flex min-h-11 max-w-[62rem] items-center justify-center gap-2 px-4 py-2">
+            <div
+              ref={progressionRef}
+              className="relative flex flex-wrap items-center justify-center gap-y-2"
+            >
+              {state.chordPianoSet?.length ? (
+                renderProgression()
+              ) : (
+                <span className="text-sm text-muted-foreground">No chords yet</span>
+              )}
+              <span
+                className="chord-indicator"
+                aria-hidden="true"
+                data-snap={indicator.snap.toString()}
+                style={{
+                  width: indicator.width,
+                  transform: `translate(${indicator.x}px, ${indicator.y}px)`,
+                  opacity: indicator.visible ? 1 : 0
+                }}
+              />
             </div>
-            <FontAwesomeIcon
-              className="!ml-[0.8em] mb-[0.4em] cursor-pointer progressionEditIcon "
-              icon={faPenToSquare as any}
+            <Button
+              variant="ghost"
+              size="icon-sm"
+              className="ml-1 shrink-0"
+              aria-label="Edit progression as text"
+              title="Edit progression as text"
               onClick={openProgressionEditor}
-            />
+            >
+              <SquarePen />
+            </Button>
           </div>
         </div>
       </nav>

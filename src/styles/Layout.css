@@ -1,405 +1,370 @@
+/* ---------------------------------------------------------------
+	chord cards
+	piano:  < 860px   [play][controls][x]   wide [controls][play][keys][x]
+	                 [keys...........]
+	guitar: [controls][play][diagram][x]
 
-.mainHeader {
-	z-index: 9999;
-	padding-top: 0em;
-	padding-bottom: 0em;
-	text-align: center;
-	align-items: center;
-	background-color: rgba(44, 43, 43, 0.99);
-	will-change: transform;
+	the remove button always sits at the far end of the card so it is
+	never next to the play bar
+--------------------------------------------------------------- */
+
+.chord-card {
+	display: grid;
+	gap: 0.75rem;
+	padding: 0.625rem;
+	border: 1px solid hsl(var(--border));
+	border-radius: 0.875rem;
+	background: hsl(var(--card));
+	box-shadow: 0 1px 2px rgb(0 0 0 / 0.25);
 }
 
-.mainHeader:before {
-	z-index: 0;
-		content: '';
-	position:absolute;
-	top: 0;
-	right: 0;
-	bottom: 0;
-	left: 0;
-	background-image: linear-gradient(to bottom right,#28384277,#13234267);
-	opacity: .90; 
+/*
+	guitar card grid. columns are 1fr so multi-column rows fill the board,
+	but once it drops to a single column (< 2 × 26rem + gap) the card is
+	capped and centered instead of stretching edge to edge
+*/
+.guitar-board {
+	container-type: inline-size;
 }
 
-.aboutDescriptionText {
-	font-size: 14px;
-	margin-top: -.1em;
-	margin-bottom: -1em;
-	/* margin-left: 0.2em; */
-	text-align: center;
+.guitar-grid {
+	display: grid;
+	gap: 0.75rem;
+	grid-template-columns: repeat(auto-fill, minmax(min(100%, 26rem), 1fr));
 }
 
-.versionDescriptionText {
-	margin-top: -.3em;
-	margin-bottom: -0.9em;
-	text-align: center;
-	font-weight: 600;
-	font-size: 1.1em;
-}
-
-.creditsText {
-	margin-top: 0em;
-	margin-left: -0.7em;
-	margin-bottom: 0em;
-	line-height: 1.5em;
-	font-size: 0.9em;
-    color: lightgray;
-	text-align: center;
-}
-
-.copyrightText{
-	color: gray;
-	left: -1.2em;
-	position: relative;
-	font-size: 0.7em !important;
-	bottom: -3.2em;
-	margin-top: 0.5em;
-	
-}
-
-.configSettings {
-	margin-left: 6em;
-	/* width: 15em; */
-	/* margin-right: -2em; */
-	margin-bottom: -3em;
-	margin-top: -1.5em;
-}
-
-.synthSelector {
-	font-size: 1.1em;
-	padding-left: 0.6em;
-}
-
-.configChordPlayBtn {
-	margin-left: 4em;
-
-}
-
-.chordPlayIcon {
-	/* margin-top: -2.9em;
-	margin-left: -4.4em; */
-	/* height: 4.8em; */
-	color: grey;
-}
-
-.chordPlayIcon:hover {
-	color:#007bff;
-	cursor: pointer;
-}
-
-.chordPlayIcon:active {
-	color:#0253aa;
-	cursor: pointer;
-}
-
-.footNav {
-	background-color: rgb(44, 43, 43);
-	height: 2.5em;
-}
-
-.footNavText {
-	font-size: 0.75em;
-}
-
-.footNavAbout {
-	font-size: 0.75em;
-	margin-left: 2em;
-}
-
-.footNavVersion {
-	font-size: 0.75em;
-	margin-left: 0em;
-}
-
-.progressionEditIcon {
-	margin-left: 0.5em;
-	margin-top: 0.15em;
-	height: 1.2em;
-	color: grey;
-	cursor: pointer;
-}
-
-.progressionEditIcon:hover {
-	color: rgb(112, 112, 112);
-}
-
-.instrumentIcon {
-	color: grey;
-	cursor: pointer;
-}
-
-.instrumentIcon:hover {
-	color: rgb(112, 112, 112);
-}
-
-.aboutFeatureText {
-	font-size: 14px;
-	margin-left: 2.2em;
-}
-
-.mainContainer {
-	
-	position:relative;
-	display: inline-block;
-	padding-left:2em;
-	width: 100%;
-	height: 100%;
-	padding-top: 8em;
-	margin-top: 0em;
-	bottom: auto;
-	overflow: auto;
-}
-
-.modal-open { 
-	overflow-y: auto !important;
-	overflow-x: auto !important;
-	margin-right: -0em !important;
-	padding-right: -0em !important;
-	z-index: 1000;
-}
-
-.modal {
-	z-index: 1000;
-}
-
-body.modal-open {
-    padding-right: 0px !important;
-}
-
-.navbar {
-    padding-right: 16px !important;
-}
-.verHeader {
-	font-size: 0.9em;
-	font-weight: 600;
-	position: relative;
-	padding-right:1em;
-	overflow: hidden;
-	margin-left: 0.7em;
-	margin-bottom: 0.3em;
-}
-
-.modal-header {
-	border-bottom: 1px solid #969a9e;
-}
-
-.verHeader:after {
-    content:"";
-    display: inline-block;
-    height: 0.7em;
-    vertical-align: bottom;
-    width: 100%;
-    margin-right: -100%;
-    margin-left: 10px;
-    border-top: 1px solid rgba(255, 255, 255, 0.438);
-}
- 
-.verDate {
-	font-size: 0.9em;
-	font-weight: 400;
-}
-
-.verItem {
-	display: list-item;          
-    list-style-type: circle;      
-    list-style-position: inside;
-	margin-left: 3.3em;
-	padding-left: 1em;
-    text-indent: -1.4em;
-	font-size: 0.85em;
-}
-
-.modal-header {
-	border-bottom-color: rgb(142, 140, 140) !important;
-}
-
-.modalLine {
-	border-top: 1px solid #969a9e;
-	margin: 2em -1em;
-}
-
-.modal-content {
-	padding: 0.5em 1em 1em 1em;
- 	/* background: rgb(44, 43, 43); */
-	 
-	 background: rgba(47, 49, 49, 0.99) !important;
-	 color: rgb(214, 214, 214);
-	 box-shadow: 4px 8px 4px rgba(16, 19, 26, 0.404) !important;
-}
-
-.modalText {
-	color:#90c0ec !important
-}
-
-.modalHeader {
-	height: 3.2em;
-}
-
-.modalHeader .close {
-	margin-top: -1.1em !important;
-	margin-right: -1em !important;
-}
-
-.verModalBody {
-	margin-bottom: 0.5em;
-}
-
-.modalText:hover {
-	color:#6ca4da !important
-}
-
-/* .modal-backdrop {
-    z-index: 9999 !important;
-  } */
-  
-.modal-header .close {
-	color: white;	
-}
-
-.modal-header .close:hover {
-	color: white;	
-}
-
-.footNavAbout:hover,
-.footNavCog:hover,
-.footNavVersion:hover,
-.gitSrc:hover {
-	opacity: 0.5 !important;
-	cursor: pointer;
-}
-
-
-.footNavCog:hover {
-    -webkit-animation: spin 900ms none normal;
-    animation: spin 900ms none normal;
-}
-
-@-webkit-keyframes spin {
-    0% {
-        -webkit-transform: rotate(0deg);
-        transform: rotate(0deg);
-    }
-    100% {
-        -webkit-transform: rotate(59deg);
-        transform: rotate(59deg);
-    }
-}
-@keyframes spin {
-    0% {
-        -webkit-transform: rotate(0deg);
-        transform: rotate(0deg);
-    }
-    100% {
-        -webkit-transform: rotate(59deg);
-        transform: rotate(59deg);
-    }
-}
-
-.chord-btn {
-	display: inline-block;
-	margin: 1em 1em;
-	z-index: 110;
-}
-
-.buttonContainer {
-	
-	
-	justify-content: center !important;
-	text-align: center;
-	margin-top: 0em;
-}
-
-.progression {
-	/* display: flex; */
-	margin-top: 0em;
-	margin-bottom: 0em;
-	justify-content: center;
-	border: 20 20 20 20;
-	border-style: ridge;
-	border-color: rgb(40, 70, 109);
-	background-color: rgb(44, 43, 43);
-	will-change: transform;
-	/* background-color:black; */
-
-	/* background-color: rgb(25, 88, 72); */
-	/* padding: 0 0 1em 0; */
-}
-
-.pianoBoard {
-	will-change: transform;
-	will-change: transform;
-	position: relative;
-	margin-top: 0em;
-	/* padding-top: 4em; */
-	margin-bottom: 5em;
-}
-
-.titleText {
-	vertical-align: middle;
-
-	right: 2em;
-	margin-top: 0.1em;
-	margin-left: 1.5em;
-	font-size: 1.1em;
-	font-weight: 400;
-	color: rgb(255, 255, 255);
-	text-shadow: 0 1px 0 #ccc,
-	0 2px 0 #061929,
-	0 3px 0 rgb(62, 125, 184);
-}
-
-.titleText:hover {
-	color: rgb(238, 238, 238);
-	text-shadow: 0 1px 0 #ccc,
-	0 2px 0 #061929,
-	0 4px 0 rgb(62, 125, 184);
-}
-
-.chordListItem{
-	color: white;
-	display: inline-block;
-	text-align: center;
-	padding-right: 0.3em;
-	margin-left: 0.1em;
-	margin-right: -0.1em;
-}
-
-.chordItem {
-	background: transparent;
-	background-color: transparent;
-	z-index: 9999;
-}
-
-.chordListItem:hover {
-	cursor: pointer;
-	text-decoration: none !important;
-	color: white;
-}
-
-@media(hover: hover) and (pointer: fine) {
-	.chordListItem:hover {
-		cursor: pointer;
-		text-decoration: none !important;
-		text-underline-offset: 7.2px;
-		transition: 0.1s ease-in;
-		border-color: var(--main-selected-color);
-		color: rgb(137, 175, 206);
+@media (min-width: 640px) {
+	.guitar-grid {
+		gap: 1rem;
 	}
 }
 
-.chordListItem:active {
-	color: var(--main-selected-color);
+@container (max-width: 52.99rem) {
+	.guitar-grid {
+		grid-template-columns: minmax(0, 32rem);
+		justify-content: center;
+	}
 }
 
-.progression a {
-	
-	border: solid 0px transparent;
-	border-bottom-width: 2px;
-	height: 1.8em;
+.chord-card--piano {
+	grid-template-columns: 2.25rem minmax(0, 1fr) 1.75rem;
+	grid-template-areas:
+		"rail controls remove"
+		"keys keys keys";
 }
 
-.progression .active{
-	/* background: rgba(38, 115, 179, 0.3) !important; */
-	border-style: solid;
-	border-color: var(--main-selected-color);
+.chord-card--guitar {
+	grid-template-columns: 6rem 2.25rem minmax(0, 1fr) 1.75rem;
+	grid-template-areas: "controls rail diagram remove";
+}
+
+@media (min-width: 640px) {
+	.chord-card {
+		padding: 0.75rem;
+	}
+
+	.chord-card--guitar {
+		grid-template-columns: 7.5rem 2.25rem minmax(0, 1fr) 1.75rem;
+	}
+}
+
+/*
+	side-by-side piano layout only once the keyboard can get ~520px of
+	width; below that it keeps the stacked layout so keys stay wide
+*/
+@media (min-width: 860px) {
+	.chord-card--piano {
+		gap: 1rem;
+		grid-template-columns: 10.5rem 2.25rem minmax(0, 1fr) 1.75rem;
+		grid-template-areas: "controls rail keys remove";
+	}
+
+	.chord-card--piano .chord-card__controls {
+		align-self: center;
+	}
+}
+
+.chord-card__controls { grid-area: controls; min-width: 0; }
+.chord-card__keys     { grid-area: keys; min-width: 0; }
+.chord-card__diagram  { grid-area: diagram; min-width: 0; }
+
+.chord-card__rail {
+	grid-area: rail;
+	align-self: stretch;
+	display: flex;
+	flex-direction: column;
+}
+
+.chord-card__remove {
+	grid-area: remove;
+	align-self: start;
+}
+
+/*
+	chord controls. stacked by default, kept short so the keyboard (not the
+	controls) sets the card height:   [note        ]
+	                                  [type   ][/ bass]
+	                                  [key  b  slash]
+	narrow piano cards use two columns instead, and the type row wrapper
+	dissolves so type and bass land in their own cells
+*/
+.chord-form {
+	display: grid;
+	gap: 0.5rem;
+	grid-template-columns: minmax(0, 1fr);
+	grid-template-areas:
+		"note"
+		"typerow"
+		"options";
+	align-content: start;
+}
+
+.chord-form__note    { grid-area: note; }
+.chord-form__options { grid-area: options; }
+
+.chord-form__type-row {
+	grid-area: typerow;
+	display: flex;
+	align-items: center;
+	gap: 0.375rem;
+}
+
+.chord-form__type {
+	flex: 1 1 0;
+	min-width: 0;
+}
+
+/* bass notes are at most two characters; keep this tight so the chord
+   type beside it has room for the longest names (maj7b5, maj7#5) */
+.chord-form__type-row .chord-form__slash {
+	flex: 0 0 3.875rem;
+}
+
+@media (max-width: 859.98px) {
+	.chord-card--piano .chord-form {
+		column-gap: 0.75rem;
+		grid-template-columns: 6.5rem minmax(0, 1fr);
+		grid-template-areas:
+			"note options"
+			"type slash";
+		align-items: center;
+	}
+
+	.chord-card--piano .chord-form__type-row {
+		display: contents;
+	}
+
+	.chord-card--piano .chord-form__type  { grid-area: type; }
+	.chord-card--piano .chord-form__slash { grid-area: slash; }
+}
+
+.rail-button {
+	display: grid;
+	place-items: center;
+	border-radius: 0.5rem;
+	color: hsl(var(--muted-foreground));
+	transition: color 0.15s, background-color 0.15s, border-color 0.15s;
+}
+
+.rail-button:focus-visible {
+	outline: 2px solid hsl(var(--ring));
+	outline-offset: 2px;
+}
+
+.rail-remove {
+	width: 1.75rem;
+	height: 1.75rem;
+}
+
+.rail-remove:hover {
+	color: hsl(var(--destructive));
+	background: hsl(var(--destructive) / 0.1);
+}
+
+.rail-play {
+	flex: 1;
+	min-height: 2.75rem;
+	border: 1px solid hsl(var(--border));
+	background: hsl(var(--secondary));
+	box-shadow: inset 0 1px 0 rgb(255 255 255 / 0.04), 0 1px 2px rgb(0 0 0 / 0.3);
+}
+
+.rail-play:hover {
+	color: hsl(var(--foreground));
+	border-color: hsl(var(--input));
+	background: hsl(var(--accent));
+}
+
+.rail-play:active {
+	box-shadow: inset 0 1px 3px rgb(0 0 0 / 0.45);
+}
+
+.rail-play[data-playing="true"] {
+	color: hsl(var(--playing));
+	border-color: hsl(var(--playing) / 0.5);
+}
+
+/* ---------------------------------------------------------------
+	guitar / ukulele diagrams
+	react-chords draws everything in #444/#555/white; recolor here
+--------------------------------------------------------------- */
+
+.diagram-frame {
+	display: block;
+	width: 100%;
+	max-width: 12.5rem;
+	padding: 0.5rem 0.375rem 0.25rem;
+	border: 1px solid hsl(var(--border));
+	border-radius: 0.625rem;
+	background-color: hsl(var(--well));
+	cursor: pointer;
+	transition: border-color 0.15s, background-color 0.6s ease-in-out;
+}
+
+.diagram-frame:hover {
+	border-color: hsl(var(--primary) / 0.6);
+}
+
+.diagram-frame:focus-visible {
+	outline: 2px solid hsl(var(--ring));
+	outline-offset: 2px;
+}
+
+.diagram-frame[data-playing="true"] {
+	border-color: hsl(var(--playing) / 0.55);
+	background-color: hsl(var(--playing) / 0.12);
+}
+
+.diagram-frame svg {
+	display: block;
+	width: 100%;
+	height: auto;
+}
+
+.diagram-frame svg [stroke="#444"] { stroke: hsl(var(--diagram-ink)); }
+.diagram-frame svg [fill="#444"]   { fill: hsl(var(--diagram-ink)); }
+.diagram-frame svg [fill="#555"]   { fill: hsl(var(--diagram-ink)); }
+.diagram-frame svg text[fill="#444"] { fill: hsl(var(--diagram-label)); }
+.diagram-frame svg text[fill="white"] { fill: hsl(var(--well)); font-weight: 700; }
+
+/* ---------------------------------------------------------------
+	header progression strip
+--------------------------------------------------------------- */
+
+.chord-link {
+	position: relative;
+	padding: 0.125rem 0.25rem;
+	border-radius: 0.25rem;
+	font-size: 0.9375rem;
+	font-weight: 500;
+	color: hsl(var(--foreground));
+	cursor: pointer;
+	white-space: nowrap;
+	transition: color 0.15s;
+}
+
+/*
+	one underline shared by the whole strip, slid under the playing chord,
+	or the one scrolled to when nothing is playing. HeaderComponent sets
+	its position and width; it fades rather than grows when it first shows
+*/
+.chord-indicator {
+	position: absolute;
+	top: 0;
+	left: 0;
+	height: 2px;
+	margin-top: calc(0.3rem - 2px);
+	border-radius: 1px;
+	background: hsl(var(--primary));
+	pointer-events: none;
+	transition:
+		transform 0.3s cubic-bezier(0.22, 1, 0.36, 1),
+		width 0.3s cubic-bezier(0.22, 1, 0.36, 1),
+		opacity 0.2s ease;
+}
+
+.chord-indicator[data-snap="true"] {
+	transition: opacity 0.2s ease;
+}
+
+.chord-link.is-playing {
+	color: hsl(var(--key-selected));
+}
+
+@media (hover: hover) and (pointer: fine) {
+	.chord-link:hover {
+		color: hsl(var(--key-selected));
+	}
+}
+
+/* ---------------------------------------------------------------
+	footer wordmark: a quieter take on the original stacked shadow
+--------------------------------------------------------------- */
+
+.wordmark {
+	font-size: 1.0625rem;
+	font-weight: 600;
+	letter-spacing: -0.01em;
+	color: hsl(var(--foreground));
+	text-shadow: 0 2px 0 hsl(var(--primary) / 0.55);
+	user-select: none;
+}
+
+/* ---------------------------------------------------------------
+	transitions
+	view-enter   welcome screen / board mounting, format switches,
+	             a rebuilt progression
+	chord-enter  a chord added to a board that's already showing
+	removal is animated in utils/chordTransitions.ts
+--------------------------------------------------------------- */
+
+/*
+	opacity is full by 65% while the lift keeps easing out, so the view
+	reads as already there and settling. backwards fill, not forwards: a
+	transform left on the board afterwards would make it the containing
+	block for any position: fixed descendant
+*/
+@keyframes view-enter {
+	0% {
+		opacity: 0;
+		transform: translate3d(0, 14px, 0);
+	}
+	65% {
+		opacity: 1;
+	}
+	100% {
+		opacity: 1;
+		transform: translate3d(0, 0, 0);
+	}
+}
+
+.view-enter {
+	animation: view-enter 420ms cubic-bezier(0.22, 1, 0.36, 1) backwards;
+}
+
+/*
+	scales from the card's top edge instead of lifting, so the card's top
+	is already where it will end up when the header scrolls to it
+*/
+@keyframes chord-enter {
+	from {
+		opacity: 0;
+		transform: scale(0.97);
+	}
+	to {
+		opacity: 1;
+		transform: scale(1);
+	}
+}
+
+.chord-enter {
+	transform-origin: top center;
+	animation: chord-enter 300ms cubic-bezier(0.22, 1, 0.36, 1) backwards;
+}
+
+@media (prefers-reduced-motion: reduce) {
+	.view-enter,
+	.chord-enter {
+		animation: none;
+	}
 }

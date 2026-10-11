@@ -1,11 +1,12 @@
 import { useEffect, useState, type JSX } from 'react'
-import { Play, AudioLinesIcon } from 'lucide-react'
+import { Play, AudioLinesIcon, Volume2 } from 'lucide-react'
 import { Button } from '../../components/ui/button'
 import { Knob } from '../Knob'
 import {
   Dialog,
   DialogContent,
   DialogHeader,
+  DialogTitle,
 } from '../../components/ui/dialog'
 import {
   Select,
@@ -19,6 +20,7 @@ import { Slider } from '../../components/ui/slider'
 import { useAppContext } from '../context/AppContext'
 import { DEFAULT_EQ, EQSettings, notEqual, playChord } from '../../utils/synthPlayer'
 import { SYNTH_TYPES as SYNTH_TYPES } from '../../utils/synthLibrary'
+import { FormatToggle } from '../InlineConfig'
 
 interface ConfigModalProps {
   open: boolean
@@ -123,44 +125,47 @@ export function ConfigModal({ open, onOpenChange }: ConfigModalProps): JSX.Eleme
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-lg max-h-[90vh] flex flex-col">
-        <DialogHeader className="border-b pb-5 flex-shrink-0">
-          <div />
+      <DialogContent className="flex max-h-[90vh] flex-col sm:max-w-md" aria-describedby={undefined}>
+        <DialogHeader className="flex-shrink-0">
+          <DialogTitle>Settings</DialogTitle>
         </DialogHeader>
 
-        <div className="py-4 overflow-y-auto">
-          <div className="flex items-center gap-6 -ml-3">
-            <button
-              onClick={onPlayClick}
-              className="text-primary hover:text-primary/80 transition-colors flex-shrink-0"
-            >
-              <Play size={62} />
-            </button>
-
-            <div className="flex-grow space-y-8">
+        <div className="-mx-1 space-y-6 overflow-y-auto px-1">
+          <section className="space-y-3">
+            <h3 className={SECTION_LABEL}>Sound</h3>
+            <div className="flex items-center gap-3">
+              <button
+                onClick={onPlayClick}
+                aria-label="Preview sound"
+                title="Preview sound"
+                className="grid h-9 w-9 flex-shrink-0 place-items-center rounded-full bg-primary text-primary-foreground shadow-sm transition-colors hover:bg-primary/90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-card"
+              >
+                <Play className="ml-0.5 h-4 w-4 fill-current" />
+              </button>
               <Select
                 value={synthType}
                 onValueChange={handleSynthSelectChange}
               >
-                <SelectTrigger className="w-full">
+                <SelectTrigger className="flex-1" aria-label="Voice">
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
                   {Object.entries(SYNTH_TYPES).map(([key, value]) => (
                     <SelectItem key={`k-${key}`} value={key}>
-                      <div className="flex items-center gap-2 w-full">
+                      <span className="flex items-center gap-2">
                         {value.name}
-                        <div className="ml-[8em] absolute float-right">
-                          {value?.getSampler && (
-                            <AudioLinesIcon size={16} />
-                          )}
-                        </div>
-                      </div>
+                        {value?.getSampler && (
+                          <AudioLinesIcon className="h-3.5 w-3.5 text-muted-foreground" aria-label="sampled" />
+                        )}
+                      </span>
                     </SelectItem>
                   ))}
                 </SelectContent>
               </Select>
+            </div>
 
+            <div className="flex items-center gap-3 pl-1">
+              <Volume2 className="h-4 w-4 flex-shrink-0 text-muted-foreground" aria-hidden="true" />
               <Slider
                 value={[localVolume]}
                 onValueChange={handleVolumeDrag}
@@ -168,77 +173,66 @@ export function ConfigModal({ open, onOpenChange }: ConfigModalProps): JSX.Eleme
                 max={100}
                 step={1}
                 className="w-full"
+                aria-label="Volume"
+              />
+              <span className="w-7 text-right text-xs tabular-nums text-muted-foreground">
+                {localVolume}
+              </span>
+            </div>
+          </section>
+
+          <section className="space-y-4 border-t border-border pt-5">
+            <div className="flex items-center justify-between">
+              <h3 className={SECTION_LABEL}>Equalizer</h3>
+              <Button
+                variant="ghost"
+                size="sm"
+                className="-my-1 h-7 px-2 text-xs"
+                onClick={() => setEqSettings({ low: 0, mid: 0, high: 0 })}
+              >
+                Reset
+              </Button>
+            </div>
+            <div className="flex justify-around px-2">
+              <Knob
+                value={eqSettings.low}
+                min={-10}
+                max={10}
+                onChange={(value: any) => setEqSettings((prev: any) => ({ ...prev, low: value }))}
+                label="Low"
+              />
+              <Knob
+                value={eqSettings.mid}
+                min={-10}
+                max={10}
+                onChange={(value: any) => setEqSettings((prev: any) => ({ ...prev, mid: value }))}
+                label="Mid"
+              />
+              <Knob
+                value={eqSettings.high}
+                min={-10}
+                max={10}
+                onChange={(value: any) => setEqSettings((prev: any) => ({ ...prev, high: value }))}
+                label="High"
               />
             </div>
-          </div>
+          </section>
 
-          <div className="mt-8 pt-6 border-t">
-            <div className="flex items-start gap-6">
-              <div className="flex flex-col items-end w-[5em] pr-4">
-                <div className="text-slate-400 mb-4">equalizer</div>
-                <Button
-                  variant="default"
-                  size="sm"
-                  onClick={() => setEqSettings({ low: 0, mid: 0, high: 0 })}
-                >
-                  reset
-                </Button>
-              </div>
-              <div className="flex flex-grow justify-between mr-4">
-                <Knob
-                  value={eqSettings.low}
-                  min={-10}
-                  max={10}
-                  onChange={(value: any) => setEqSettings((prev: any) => ({ ...prev, low: value }))}
-                  label="low"
-                />
-                <Knob
-                  value={eqSettings.mid}
-                  min={-10}
-                  max={10}
-                  onChange={(value: any) => setEqSettings((prev: any) => ({ ...prev, mid: value }))}
-                  label="mid"
-                />
-                <Knob
-                  value={eqSettings.high}
-                  min={-10}
-                  max={10}
-                  onChange={(value: any) => setEqSettings((prev: any) => ({ ...prev, high: value }))}
-                  label="high"
-                />
-              </div>
-            </div>
-          </div>
-
-          <hr className="mt-8" />
-          {/* <Badge variant="secondary" className="float-right h-5 text-xs font-medium bg-blue-100 text-blue-800 hover:bg-blue-100 mt-[1em]">
-            BETA
-          </Badge> */}
-          <div className="flex mt-[2em]">
-            <div className="w-[5em] text-right pr-4 align-middle my-auto text-slate-400">
-              format
-            </div>
-            <div className="flex items-center gap-2">
-              <Select
-                value={format}
-                onValueChange={handleUxFormatSelectChange}
-              >
-                <SelectTrigger className="w-[7em]">
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  {Object.entries(UX_FORMAT_OPTIONS).map(([key, value]) => (
-                    <SelectItem key={`format-${key}`} value={key}>
-                      {value}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-              <span className="text-slate-500 ml-2 text-xs">choose an instr to display chords on</span>
-            </div>
-          </div>
+          <section className="space-y-3 border-t border-border pt-5">
+            <h3 className={SECTION_LABEL}>Display</h3>
+            <FormatToggle
+              value={format}
+              onChange={handleUxFormatSelectChange}
+              className="flex w-full [&>button]:flex-1 [&>button]:justify-center"
+            />
+            <p className="text-xs text-muted-foreground">
+              Choose the instrument chords are shown on.
+            </p>
+          </section>
         </div>
       </DialogContent>
     </Dialog>
   )
 }
+
+const SECTION_LABEL = "text-sm font-medium text-foreground"

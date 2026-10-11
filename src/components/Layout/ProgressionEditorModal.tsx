@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { Button } from '../../components/ui/button';
 import {
     Dialog,
@@ -28,59 +28,74 @@ export const ProgressionEditorModal: React.FC<ProgressionEditorModalProps> = ({
 }) => {
     const [progression, setProgression] = useState(initialProgression);
 
+    // a saved progression waiting for the close animation to finish.
+    // rebuilding the board in the same frame as the close would stall
+    // the main thread and the dialog would vanish instead of fading out
+    const pendingSave = useRef<string | null>(null);
+
+    const flushPendingSave = () => {
+        if (pendingSave.current === null) return;
+        const saved = pendingSave.current;
+        pendingSave.current = null;
+        onSave(saved);
+    };
+
     // When the modal opens, this effect syncs the textarea's content 
     // with the current progression from the app state.
     useEffect(() => {
         if (open) {
+            // reopened before the previous close finished animating
+            flushPendingSave();
             setProgression(initialProgression);
         }
     }, [initialProgression, open]);
 
-    // Calls the onSave callback and closes the modal
+    // Closes the modal; onSave runs once it has animated out
     const handleSaveClick = () => {
-        onSave(progression);
+        pendingSave.current = progression;
         onOpenChange(false);
     };
 
     return (
         <Dialog open={open} onOpenChange={onOpenChange}>
-            <DialogContent className="sm:max-w-lg bg-background text-foreground rounded-lg shadow-2xl">
-                <DialogHeader className="border-b border-border px-2 pt-4 pb-6">
-                    <DialogTitle className="text-xl font-semibold">Edit Progression</DialogTitle>
-                    <DialogDescription className="text-muted-foreground">
-                        Manually enter your chord progression below.
+            <DialogContent
+                className="sm:max-w-lg"
+                // fires after the content unmounts, i.e. after the exit animation
+                onCloseAutoFocus={flushPendingSave}
+            >
+                <DialogHeader>
+                    <DialogTitle>Edit progression</DialogTitle>
+                    <DialogDescription>
+                        Type or paste chords. Separate them with spaces or commas.
                     </DialogDescription>
                 </DialogHeader>
-                <div className="py-2 px-2 space-y-4">
-                    <div className="grid w-full gap-4">
-                        <Label htmlFor="progression-input" className="!text-sm font-normal">Progression</Label>
-                        <Textarea
-                            id="progression-input"
-                            value={progression}
-                            onChange={(e) => setProgression(e.target.value)}
-                            className="min-h-[120px] text-base resize-none bg-gradient-to-tl from-bg-background/10 to-gray-900/80 border-border focus:ring-ring focus:ring-offset-background"
-                            placeholder="e.g., Cmaj7 Am7 Dm7 G7"
-                        />
-                    </div>
+                <div className="space-y-2">
+                    <Label htmlFor="progression-input" className="sr-only">Progression</Label>
+                    <Textarea
+                        id="progression-input"
+                        value={progression}
+                        onChange={(e) => setProgression(e.target.value)}
+                        className="min-h-[120px] resize-none font-mono text-sm md:text-sm"
+                        placeholder="e.g. Cmaj7 Am7 Dm7 G7"
+                        spellCheck={false}
+                        autoCapitalize="off"
+                        autoCorrect="off"
+                    />
                     <p className="text-xs text-muted-foreground">
-                        Separate chords with spaces or commas. Example: <code className="font-mono ml-1 rounded-md">C, G, Am F</code>
+                        Example: <code className="rounded bg-secondary px-1.5 py-0.5 text-foreground">C, G, Am F</code>
                     </p>
                 </div>
-                <DialogFooter className="py-4 border-t border-border bg-transparent">
-                    <div className="mx-auto space-x-4 -mb-2 mt-2">
-                        <DialogClose asChild>
-                            <Button type="button" variant="outline">
-                                Cancel
-                            </Button>
-                        </DialogClose>
-                        <Button type="button" onClick={handleSaveClick}>
-                            Update
+                <DialogFooter className="gap-2 sm:gap-0">
+                    <DialogClose asChild>
+                        <Button type="button" variant="ghost">
+                            Cancel
                         </Button>
-                    </div>
+                    </DialogClose>
+                    <Button type="button" onClick={handleSaveClick}>
+                        Update
+                    </Button>
                 </DialogFooter>
-
             </DialogContent>
-
         </Dialog>
     );
 };

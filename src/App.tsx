@@ -50,11 +50,11 @@ const App: React.FC = () => {
 
   return (
     <ThemeProvider defaultTheme="dark" storageKey="vite-ui-theme">
-      <div className="App">
+      <div className="min-h-screen bg-background text-foreground">
         <AppProvider>
           <HeaderComponent />
 
-          <div className="mainContainer">
+          <main className="pb-16">
             <Router>
               <Switch>
                 <Route
@@ -67,7 +67,7 @@ const App: React.FC = () => {
             <audio ref={silentAudioRef} preload="auto">
               <source src="/silence.mp3" type="audio/mp3" />
             </audio>
-          </div>
+          </main>
 
           <FooterComponent />
         </AppProvider>

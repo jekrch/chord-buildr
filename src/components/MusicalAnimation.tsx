@@ -9,7 +9,7 @@ const MusicalAnimation = () => {
         {staffLines.map((_, index) => (
           <div
             key={`staff-${index}`}
-            className="absolute w-full h-px bg-gradient-to-r from-transparent via-gray-700 to-transparent -mt-1"
+            className="absolute w-full h-px bg-gradient-to-r from-transparent via-muted-foreground/30 to-transparent -mt-1"
             style={{
               top: `${index * 7}px`,
             }}

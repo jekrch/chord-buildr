@@ -1,13 +1,12 @@
 import React, { useState } from "react"
 import Chord from "@techies23/react-chords"
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
-import { faChevronLeft, faChevronRight } from "@fortawesome/free-solid-svg-icons"
 import { getPianoById, useAppContext } from "./context/AppContext"
 import { ChordPiano } from "../utils/chordPianoHandler"
-import { findChordPositions, getInstrumentByFormat, isGuitar } from "../utils/guitarUtil"
-import { MousePointerClick } from "lucide-react"
+import { findChordPositions, getInstrumentByFormat } from "../utils/guitarUtil"
+import { ChevronLeft, ChevronRight, Play, X } from "lucide-react"
 import { playChord } from "../utils/synthPlayer"
 import { Instrument } from "../utils/guitarUtil"
+import { removeChordWithTransition } from "../utils/chordTransitions"
 
 interface GuitarChordProps {
   pianoComponentId: number;
@@ -58,74 +57,89 @@ export const GuitarChord: React.FC<GuitarChordProps> = ({ pianoComponentId }) =>
   }
 
   const handleClickRemovePiano = (): void => {
-    dispatch({
+    removeChordWithTransition(pianoComponentId, () => dispatch({
       type: 'REMOVE_PIANO',
       id: pianoComponentId
-    })
+    }))
   }
 
+  const isPlaying = Boolean(chordPiano.isPlaying)
+
+  const pagerButtonClass =
+    "grid h-7 w-7 place-items-center rounded-md text-muted-foreground transition-colors " +
+    "hover:bg-accent hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+
   return (
-    <div
-      id={`piano-${pianoComponentId}`}
-      className="guitar-chord !min-w-[15em] ml-1 "
-    >
-      <div className="!w-[1.9em] !h-[2.3em] !left-[0.2em] pl-1">
+    <>
+      <div className="chord-card__rail">
         <button
           type="button"
-          className="guitar-tab-close-button flex items-center justify-center !left-0"
-          aria-label="Close"
-          onClick={handleClickRemovePiano}
-        >
-          <span className="text-2xl leading-none mt-[0.05em]" aria-hidden="true">&times;</span>
-        </button>
-        <button
-          type="button"
-          className="piano-play-button relative !h-[8em] !mt-[0.5em] !top-0 !left-0"
-          data-format={isGuitar(state.format) ? "g" : "p"}
+          className="rail-button rail-play"
+          data-playing={isPlaying.toString()}
+          aria-label="Play chord"
+          title="Play chord"
           onClick={handlePlayClick}
-        />
+        >
+          <Play className="h-3.5 w-3.5 fill-current" />
+        </button>
       </div>
-      <div className={`chord-wrapper inline-block`} data-playing={chordPiano.isPlaying?.toString()} >
+
+      <div className="chord-card__diagram flex flex-col items-center gap-1.5">
         {tabPositions?.length ? (
           <>
-            <div
+            <button
+              type="button"
+              className="diagram-frame"
+              data-playing={isPlaying.toString()}
+              aria-label="Play chord"
               onClick={handlePlayClick}
-              className="cursor-pointer mt-[0.7em] border-slate-400 hover:border-primary/80 border-[0.01em] rounded-[8px] shadow-lg"
             >
               <Chord
                 chord={tabPositions[position]}
                 instrument={instrument}
               />
-              <MousePointerClick className="max-h-[1.6em] absolute -right-[0.2em] top-[9.5em]" color="red" />
-            </div>
-            <div className="w-[11em]">
+            </button>
+            <div className="flex items-center gap-1">
               <button
+                type="button"
+                aria-label="Previous position"
                 onClick={
                   () => handleNewPosition(position === 0 ? tabPositions.length - 1 : position - 1)
                 }
-                className="guitar-pos-button"
+                className={pagerButtonClass}
               >
-                <FontAwesomeIcon icon={faChevronLeft} className="guitar-pos-chev" />
+                <ChevronLeft className="h-4 w-4" />
               </button>
-              <span className="guitar-pos-indicator">
-                {position + 1}/{tabPositions.length}
+              <span className="min-w-[2.75rem] text-center text-xs tabular-nums text-muted-foreground">
+                {position + 1} / {tabPositions.length}
               </span>
               <button
+                type="button"
+                aria-label="Next position"
                 onClick={
                   () => handleNewPosition(position === tabPositions.length - 1 ? 0 : position + 1)
                 }
-                className="guitar-pos-button"
+                className={pagerButtonClass}
               >
-                <FontAwesomeIcon icon={faChevronRight} className="guitar-pos-chev" />
+                <ChevronRight className="h-4 w-4" />
               </button>
             </div>
           </>
-        ) : <div className="mt-[4em] -ml-[1em]">
-          <div className="max-w-[7em] text-slate-400 text-sm">Chord type not supported</div>
-        </div>
-        }
+        ) : (
+          <div className="grid aspect-[8/7] w-full max-w-[12.5rem] place-items-center rounded-[0.625rem] border border-dashed border-border px-4 text-center text-sm text-muted-foreground">
+            Chord type not supported
+          </div>
+        )}
       </div>
-    </div>
+      <button
+        type="button"
+        className="chord-card__remove rail-button rail-remove"
+        aria-label="Remove chord"
+        title="Remove chord"
+        onClick={handleClickRemovePiano}
+      >
+        <X className="h-4 w-4" />
+      </button>
+    </>
   )
 }
-

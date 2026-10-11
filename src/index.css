@@ -1,671 +1,121 @@
-
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
-
-/* global.css */
+/* radix scroll-lock would otherwise shift the page when a dialog opens */
 html body[data-scroll-locked] {
-    overflow: visible !important;
-    margin-right: 0 !important;
-  } 
-
-html {
-	box-sizing: border-box;
-	font-family: "Arial";
+	overflow: visible !important;
+	margin-right: 0 !important;
 }
 
-/**
-     * Make all elements from the DOM inherit from the parent box-sizing
-     * Since `*` has a specificity of 0, it does not override the `html` value
-     * making all elements inheriting from the root box-sizing value
-     * See: https://css-tricks.com/inheriting-box-sizing-probably-slightly-better-best-practice/
-     */
-*,
-*::before,
-*::after {
-	box-sizing: inherit;
-}
+@layer base {
+	:root {
+		--background: 220 14% 97%;
+		--foreground: 220 10% 12%;
+		--card: 0 0% 100%;
+		--card-foreground: 220 10% 12%;
+		--popover: 0 0% 100%;
+		--popover-foreground: 220 10% 12%;
+		--primary: 212 100% 45%;
+		--primary-foreground: 0 0% 100%;
+		--secondary: 220 12% 93%;
+		--secondary-foreground: 220 10% 12%;
+		--muted: 220 12% 94%;
+		--muted-foreground: 220 6% 42%;
+		--accent: 220 12% 90%;
+		--accent-foreground: 220 10% 12%;
+		--destructive: 0 72% 48%;
+		--destructive-foreground: 0 0% 100%;
+		--border: 220 10% 86%;
+		--input: 220 10% 80%;
+		--ring: 212 100% 50%;
+		--radius: 0.5rem;
 
-body {
-	margin: 0;
-	font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Roboto", "Oxygen",
-		"Ubuntu", "Cantarell", "Fira Sans", "Droid Sans", "Helvetica Neue",
-		sans-serif;
-	-webkit-font-smoothing: antialiased;
-	-moz-osx-font-smoothing: grayscale;
-	background-color: #222121 !important;
-}
+		/* instrument surfaces */
+		--well: 220 8% 16%;
+		--key-selected: 211 100% 52%;
+		--playing: 163 68% 45%;
+		--diagram-ink: 220 6% 72%;
+		--diagram-label: 220 5% 55%;
 
-.introBody {
-	/* margin-top: 100px; */
-	height: 50vh;
-	margin-top: 100px;
-	display: relative;
-	margin-right: 35px
-}
+		--scrollbar-thumb: 220 8% 74%;
+		--scrollbar-thumb-hover: 220 8% 62%;
+		--scrollbar-track: transparent;
 
-.introText {
-	text-align: center;
-	color: #8cafc1;
-	color: #696969;
-
-    text-shadow: 
-      -1px -1px 1px #111, 
-      2px 2px 1px #1b1b22;
-	  vertical-align: middle;
-}	
-
-code {
-	font-family: source-code-pro, Menlo, Monaco, Consolas, "Courier New",
-		monospace;
-}
-
-.chordInputSelection {
-	width: 6.2em;
-	height: 50px;
-	margin-left: 0em;	
-}
-
-.keySelection {
-	margin-top: 0.3em;
-	margin-bottom: 0.0em;
-}
-
-.slashSelection {
-	position: relative;
-	margin-top: 2.1em;
-	right: 0.8em;
-	width: 100%;
-	display: flex;
-}
-
-.slashChordSelection {
-	position: relative;
-	display: inline-block;
-	margin-left: 1.5em !important;
-	margin-top: 0.5em;
-	width: 4.2em;
-	height: 54px;
-
-}
-
-.slashSymbol {
-	position: relative;
-	display: inline-block;
-	top: 0.1em;
-	margin-left: 0.7em;
-	margin-right: -0.4em;
-	font-size: 1.8em;
-	font-weight: 700;
-}
-
-.slashSymbol[display-option="false"],
-.slashChordSelection[display-option="false"] {
-	/* display: none; */
-	visibility: hidden !important;
-}
-
-.typeSelection{
-	margin-top: 0.0em;
-	margin-bottom: 0.1em;
-}
-
-
-.selectorBox {
-	border-color: var(--gray-lighter);
-	font-weight: bold !important;
-	font-size: 20px !important;
-	height: 38px !important;
-	padding-top: 0.15em !important;
-	padding-left: 0.35em !important;
-}
-
-.chordInputForm {
-	top: 0em;
-	margin-top: 0em;
-	position: relative;
-	width: 7em;
-	font-weight: 400;
-	color: white;
-}
-:root {
-    --main-compononent-gray:  rgb(203 213 225 / 0.15);
-	--main-selected-color: #007bff;
-		/* rgb(63, 65, 68); */
-}
-
-.pianoBox {
-	position: absolute;
-	display: inline-block;
-	margin-top: 0em;
-	margin-left: 2.7em;
-	height: 100%;
-	width: 42em;
-	color: hsl(var(--border));
-	border: 0.01em solid;
-	border-radius: 0.3em;
-	/* border: 0.1em solid; */
-	/* left: 150px; */
-	box-shadow: 1px 2px #888888;
-	border-radius: 0.3em;
-	
-	background: var(--main-compononent-gray);
-	/* box-shadow: 3px 6px 3px rgba(16, 19, 26, 0.404) !important; */
-	box-shadow: 
-		-1px -1px 2px  var(--main-compononent-gray) inset,
-		0 -3px 2px 3px rgba(46, 45, 45, 0.6) inset, 
-		3px 6px 3px rgba(16, 19, 26, 0.404) !important;
-}
-
-@media only screen 
-and (min-device-width : 981px) {
-
-	
-	.pianoBox {
-		margin-left: 2.9em;
-	}
-}
-
-@media only screen 
-and (min-device-width : 0px) 
-and (max-device-width : 630px)
-{
-	.btn-main {
-		margin-top: 1em;
-		margin-top: 0.5em !important;
-		margin-bottom: 0.5em !important;
+		color-scheme: light;
 	}
 
-}
+	.dark {
+		--background: 220 6% 10%;
+		--foreground: 220 9% 92%;
+		--card: 220 6% 13%;
+		--card-foreground: 220 9% 92%;
+		--popover: 220 6% 14%;
+		--popover-foreground: 220 9% 92%;
+		--primary: 212 100% 47%;
+		--primary-foreground: 0 0% 100%;
+		--secondary: 220 6% 18%;
+		--secondary-foreground: 220 9% 92%;
+		--muted: 220 6% 16%;
+		--muted-foreground: 220 6% 62%;
+		--accent: 220 6% 21%;
+		--accent-foreground: 220 9% 95%;
+		--destructive: 0 72% 51%;
+		--destructive-foreground: 0 0% 100%;
+		--border: 220 6% 21%;
+		--input: 220 6% 26%;
+		--ring: 212 100% 55%;
 
-.pianoCloseButton {
-	visibility: visible !important;
-}
+		--well: 220 8% 7%;
 
-.pianoCloseButtonMobile {
-	visibility: hidden !important;
-}
+		--scrollbar-thumb: 220 6% 26%;
+		--scrollbar-thumb-hover: 220 6% 34%;
 
-
-.pianoRomanNumeral {
-	font-size: 1.5em;
-	margin: -12.75em 0 0 1.6em; 
-	width: 3em;
-	pointer-events: none;
-	color:rgb(105, 105, 105);
-	position: absolute;
-	text-align: right; 
-	font-size: 16px;
-}
-
-
-:root[data-format="p"] {
-	/* Mobile */
-	@media only screen 
-	and (min-device-width : 0px) 
-	and (max-device-width : 560px)
-	and (orientation : portrait) {
-
-		.pianoRomanNumeral {
-			margin: -12.72em 0 0 2.5em;
-		}
-		
-		.chordPiano {
-			height: 15em;
-		}
-		
-		.slashSelectorBox {
-			width: 105% !important;
-		}
-		
-		.pianoBox {
-			zoom: 0.7;
-			-moz-transform: scale(0.7);
-			max-width: 41em !important;
-			left: -11.5em;
-			margin-top: 8.3em;
-			height: 11.2em;
-			margin-left: 0em;
-			margin-right: 0em !important;
-			display: flex !important;
-			width: 136vw ; 
-			width: calc(var(--vw, 1vw) * 136) ;
-			overflow-x: auto;
-			overflow-y: hidden;
-			padding-top: 0em;
-			padding-bottom: 0em;
-			padding-left: 2em !important;
-			padding-right: 2em !important;
-			white-space: nowrap;
-		}
-
-		.white:last-child {
-			margin-right: 0em;
-		}
-
-		.set {
-			top: 0.1em !important;
-			padding: 0em !important;
-			padding-left: 0em;
-			left: -1.8em !important;
-			margin-right: -2em !important;
-			margin-top: 0em !important;
-			margin-top: 1em !important;
-		}
-
-		.chord-select-group {
-			margin-left: 1em;
-			/* padding-top: 1em; */
-			width: 6em;
-		}
-
-		.type-select {
-			margin-top: 0.7em !important;
-		}
-
-		.keyCheckBox {
-			position: absolute !important;
-			top: -0.35em;
-			left: 13em;
-			z-index: 9999;
-		}
-
-		.slashCheckBox {
-			position: absolute;
-			top: 1.4em;
-			left: 8.9em;
-			z-index: 9999;
-		}
-
-		.flatCheckBox {
-			position: absolute;
-			top: -0.35em;
-			left: 7.9em;
-			z-index: 9999;
-		}
-
-		.piano-play-button {
-			height: 5.3em !important;
-			left: -8em !important;
-		}
-
-		.slash-container {
-			position: absolute;
-			left: 7.5em;
-			top: 2.4em;
-			z-index: 9999;
-		}
-
-		.slashChordSelection {
-			top: -5.7em;
-			left: 6.7em;
-			z-index: 9999;
-		}
-
-		.chordInputForm {
-			left: 1em !important;
-		}
-		
-		.pianoCloseButton {
-			visibility: hidden !important;
-		}
-
-		.closeContainer {
-			width: 100%;
-		}
-		
-		.pianoCloseButtonMobile {
-			visibility: visible !important;    
-			margin-right: -4em !important;
-			top: -0.35em;
-			right: -18em;
-			position: relative;        
-			zoom: 0.7;
-			width: 2.6em;
-			height: 2.6em;
-			opacity: 1.0 !important;
-			z-index: 99999 !important;
-			color: grey;
-			background: var(--main-compononent-gray) !important;
-			border: 0.01em solid !important;
-			border-radius: 0.3em;
-			border-color: hsl(var(--border)) !important;
-			outline: none !important;
-			/* remove padding values as they're not needed for centering */
-			/* add display flex for centering */
-			display: flex;
-			align-items: center;
-			justify-content: center;
-			box-shadow: 
-				-1px -1px 2px  var(--main-compononent-gray) inset,
-				0 -3px 2px 3px rgba(46, 45, 45, 0.6) inset, 
-				3px 6px 3px rgba(16, 19, 26, 0.404);
-		}
-		
-		.mobileClosedBtnText {
-			font-size: 1.6em;
-			font-weight: 550 !important;
-			/* remove absolute positioning */
-			position: static;
-			/* add a slight vertical adjustment if needed */
-			line-height: 1;
-			margin-bottom: 4px;
-		}
-
-		.pianoCloseButtonMobile:active {
-			/* color: rgb(133, 133, 133) !important; */
-			background: linear-gradient(45deg, #222 0%, rgb(75, 78, 82) 100%) !important;
-			box-shadow: -1px -1px 2px rgba(255, 255, 255, 0.2) inset,
-				0 -5px 2px 3px rgba(46, 45, 45, 0.6) inset, 
-				0 2px 4px rgba(0, 0, 0, 0.5) !important;
-		}	
-	}   
-}
-
-:root[data-format="g"] {
-	/* Mobile */
-	@media only screen 
-	and (min-device-width : 0px) 
-	and (max-device-width : 560px)
-	and (orientation : portrait) {
-
-		.tab-container {
-			padding-right: 0px;
-			padding-left: 0px;
-			margin-left: -20px;
-		}
-	}
-}
-
-@media only screen 
-and (min-device-width : 500px) 
-and (max-device-width : 560px)
-and (orientation : portrait) {
-
-	.set {
-		top: 0.1em !important;
-		padding: 0em !important;
-		padding-left: 0em;
-		left: -1.8em !important;
-		margin-right: -2em !important;
-		margin-top: 0em !important;
-		margin-top: 1em !important;
+		color-scheme: dark;
 	}
 
-	.pianoBox {
-		zoom: 0.80;
-		-moz-transform: scale(0.80);
-		left: -10em;
-		top: -1em;
-		width: 120vw !important;
-		
+	* {
+		@apply border-border;
+	}
+
+	html {
+		-webkit-text-size-adjust: 100%;
+		/* inherited, so this covers every scroll container (Firefox, Chrome 121+) */
+		scrollbar-color: hsl(var(--scrollbar-thumb)) var(--scrollbar-track);
+	}
+
+	/* Safari and older Chromium */
+	::-webkit-scrollbar {
+		width: 10px;
+		height: 10px;
+	}
+
+	::-webkit-scrollbar-track {
+		background: var(--scrollbar-track);
+	}
+
+	::-webkit-scrollbar-thumb {
+		background-color: hsl(var(--scrollbar-thumb));
+		border: 2px solid transparent;
+		border-radius: 9999px;
+		background-clip: content-box;
+	}
+
+	::-webkit-scrollbar-thumb:hover {
+		background-color: hsl(var(--scrollbar-thumb-hover));
+	}
+
+	::-webkit-scrollbar-corner {
+		background: transparent;
+	}
+
+	body {
+		@apply bg-background font-sans text-foreground antialiased;
+		margin: 0;
+		-webkit-tap-highlight-color: transparent;
+	}
+
+	code {
+		font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", monospace;
 	}
 }
-
-/* Mobile */
-@media only screen 
-and (min-device-width : 0px) 
-and (max-device-width : 300px)
-and (orientation : portrait) {
-
-	.chord-btn {
-		margin-right: 0em !important;
-	}
-	.buttonContainer {
-		margin-left: -2.5em !important;
-	}
-}
-
-/* iPhone X */
-@media only screen 
-and (device-width : 375px)
-and (orientation : portrait) {
-
-	.pianoBox {
-		width: 32em;
-	}
-}
-
-/* iPhone 6/7/8 Plus */
-@media only screen 
-and (device-width : 414px)
-and (orientation : portrait) {
-
-	.pianoBox {
-		width: 35.5em;
-	}
-}
-
-/* iPhone 5/SE */
-@media only screen 
-and (device-width : 320px)
-and (orientation : portrait) {
-
-	.pianoBox {
-		width: 27.4em;
-	}
-}
-
-
-.numeral-indicator {
-	z-index: 9999;
-}
-
-.chordCheckBox label {
-	margin-top: -0.2em !important;
-	position: absolute;
-}
-
-
-.chordPiano :first-child {
-	margin-top: 0;
-}
-
-.chordPiano {
-	margin-top: 0em;
-	position: relative;
-	padding-top: 2em;
-	will-change: transform;
-	
-}
-
-.footNavAbout:hover,
-.gitSrc:hover {
-	opacity: 0.5 !important;
-	cursor: pointer;
-}
-
-.guitar-chord svg {
-	height: 9.7em !important;
-	width: auto;
-	background-color: rgb(24, 24, 24);
-	border-radius: 9px;
-	filter: invert(0%) sepia(70%) saturate(0%) brightness(168%) contrast(139%);
-	transition: none;
-}
-
-.chord-wrapper[data-playing="true"] svg {
-	background: #102721;
-	transition: 0.6s ease-in-out;
-}
-
-.chord-wrapper[data-playing="false"] svg {
-	background: rgb(24, 24, 24);
-	transition: 0.6s ease-in-out;
-}
-
-.chord-wrapper {
-	width: auto;
-	border-radius: calc(var(--radius) - 0px);
-	left: 1em;
-	top: -3em;
-	position: relative;
-}
-
-.guitar-pos-navigation {
-	position: absolute;
-	bottom: -2.2em;
-	width: 100%;
-	display: flex;
-	justify-content: center;
-	align-items: center;
-	gap: 0.5rem;
-	background-color: transparent;
-}
-
-.guitar-pos-button {
-	position: relative;
-	background: transparent !important;
-	border: none;
-	max-height: 4em;
-	color: #3d3434;
-	cursor: pointer;
-	padding: 8px;
-	z-index: 9999;
-}
-
-.guitar-pos-button:hover {
-	color: #666;
-}
-
-.guitar-pos-indicator {
-	font-size: 0.95rem;
-	color: #999;
-	position: relative;
-	z-index: 9999;
-}
-
-.guitar-pos-chev {
-	background-color: transparent !important;
-	height: 1.3em !important;
-	width: 1.2em !important;
-	max-height: 1em !important;
-	margin: 0 0.4em;
-	pointer-events: none;
-}
-
-.guitar-chord .piano-play-button {
-	max-height: 7em !important;
-	top: 1.78em;
-}
-
-.guitar-tab-close-button {
-	visibility: visible !important;
-	margin-left: 0em !important;
-	top: 0em;
-	right: 6.4em;
-	position: relative;
-	width: 1.9em;
-	height: 2.23em;
-	opacity: 1.0 !important;
-	z-index: 99999 !important;
-	color: grey !important;
-	background: var(--main-compononent-gray) !important;
-	padding-bottom: 0.5em !important;
-	padding-right: 0.0em !important;
-	border: 0.01em solid !important;
-	border-radius: 0.3em;
-	border-color: hsl(var(--border)) !important;
-	outline: none !important;
-	box-shadow:
-		-1px -1px 2px var(--main-compononent-gray) inset,
-		0 -2px 2px 3px rgba(46, 45, 45, 0.6) inset,
-		3px 6px 3px rgba(16, 19, 26, 0.404);
-}
-
-.guitar-tab-close-button:active {
-	/* color: rgb(133, 133, 133) !important; */
-	background: linear-gradient(45deg, #222 0%, rgb(75, 78, 82) 100%) !important;
-	box-shadow: -1px -1px 2px rgba(255, 255, 255, 0.2) inset,
-		0 -5px 2px 3px rgba(46, 45, 45, 0.6) inset,
-		0 2px 4px rgba(0, 0, 0, 0.5) !important;
-}
-
-.guitar-chord {
-	display: inline-block;
-	position: relative;
-	width: 11.3em;
-	min-height: 4em !important;
-  }
-  
-  /* .guitar-chord {
-	display: inline-block;
-	position: absolute;
-	left: 7.2em;
-	top: 0;
-	width: auto;
-	min-height: 4em;
-	background-color: transparent !important;
-} */
-
-  .card-body {
-	background-color: red;
-	width: 29em !important;
-	min-width: 7em !important;
-	position: relative;
-	display: inline-block;
-  }
-
-  .guitar-container {
-	margin-top: 4em
-  }
-
-  @layer base {
-  
-:root  {
-	--background: 211 59% 95%;
-	--foreground: 211 5% 10%;
-	--card: 211 50% 90%;
-	--card-foreground: 211 5% 15%;
-	--popover: 211 59% 95%;
-	--popover-foreground: 211 95% 10%;
-	--primary: 211 91% 38%;
-	--primary-foreground: 0 0% 100%;
-	--secondary: 211 30% 70%;
-	--secondary-foreground: 0 0% 0%;
-	--muted: 173 30% 85%;
-	--muted-foreground: 211 5% 40%;
-	--accent: 173 30% 80%;
-	--accent-foreground: 211 5% 15%;
-	--destructive: 0 59% 46%;
-	--destructive-foreground: 211 5% 90%;
-	--border: 211 30% 50%;
-	--input: 211 30% 46%;
-	--ring: 211 91% 38%;
-	--radius: 0.5rem;
-  }
-  .dark  {
-	--background: 0 1% 15%;
-	--foreground: 211 5% 90%;
-	--card: 211 50% 10%;
-	--card-foreground: 211 5% 90%;
-	--popover: 0 1% 15%;
-	--popover-foreground: 211 5% 90%;
-	--primary: 211 91% 45%;
-	--primary-foreground: 0 0% 100%;
-	--secondary: 211 30% 20%;
-	--secondary-foreground: 0 0% 100%;
-	--muted: 173 30% 25%;
-	--muted-foreground: 211 5% 60%;
-	--accent: 573 30% 25%;
-	--accent-foreground: 211 5% 90%;
-	--destructive: 0 59% 46%;
-	--destructive-foreground: 211 5% 90%;
-	--border: 211 20% 46%;
-	--input: 211 30% 46%;
-	--ring: 211 91% 38%;
-	--radius: 0.5rem;
-  }
-  
-}
-
-  @layer base {
-  * {
-    @apply border-border;
-	}
-  body {
-    @apply bg-background text-foreground;
-	}
-}
-

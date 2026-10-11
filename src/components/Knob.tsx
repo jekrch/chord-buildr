@@ -113,31 +113,65 @@ export const Knob: React.FC<KnobProps> = ({ value, min, max, onChange, label }) 
     };
   }, [isDragging, startY, startValue, min, max, onChange, currentValue]);
 
+  const rotation = getRotation(currentValue);
+  const zeroRotation = getRotation(Math.min(max, Math.max(min, 0)));
+  const displayValue = currentValue > 0 ? `+${currentValue}` : `${currentValue}`;
+
   return (
-    <div className="flex flex-col items-center gap-2">
-      <div 
+    <div className="flex flex-col items-center gap-1.5">
+      <div
         ref={knobRef}
-        className="w-10 h-10 rounded-full bg-gray-500 relative cursor-pointer select-none"
+        role="slider"
+        aria-label={label}
+        aria-valuemin={min}
+        aria-valuemax={max}
+        aria-valuenow={currentValue}
+        className="relative h-14 w-14 cursor-ns-resize touch-none select-none"
         onMouseDown={handleMouseDown}
       >
-        <div 
-          className="absolute w-1 h-5 bg-slate-200 rounded-full left-1/2 -translate-x-1/2 origin-bottom"
-          style={{ 
-            transform: `translateX(-50%) rotate(${getRotation(currentValue)}deg)`,
-            bottom: '50%'
-          }}
-        />
-        <div className="absolute inset-0 flex items-center justify-center text-sm font-medium">
-          <div className="bg-gray-700 w-6 h-6 text-center pt-[0.1em] rounded-full">
-            {currentValue}
-          </div>
+        <svg viewBox="0 0 56 56" className="absolute inset-0 h-full w-full" aria-hidden="true">
+          <path
+            d={describeArc(28, 28, 25, -150, 150)}
+            fill="none"
+            stroke="hsl(var(--secondary))"
+            strokeWidth="3"
+            strokeLinecap="round"
+          />
+          {rotation !== zeroRotation && (
+            <path
+              d={describeArc(28, 28, 25, Math.min(zeroRotation, rotation), Math.max(zeroRotation, rotation))}
+              fill="none"
+              stroke="hsl(var(--primary))"
+              strokeWidth="3"
+              strokeLinecap="round"
+            />
+          )}
+        </svg>
+        <div className="absolute inset-[9px] rounded-full border border-border bg-gradient-to-b from-accent to-secondary shadow-[0_2px_4px_rgb(0_0_0/0.4),inset_0_1px_0_rgb(255_255_255/0.06)]">
+          <div
+            className="absolute bottom-1/2 left-1/2 h-[42%] w-[2px] origin-bottom rounded-full bg-foreground"
+            style={{ transform: `translateX(-50%) rotate(${rotation}deg)` }}
+          />
         </div>
       </div>
       {label && (
-        <span className="text-sm text-slate-400">{label}</span>
+        <span className="text-xs text-muted-foreground">{label}</span>
       )}
+      <span className="-mt-1 text-xs font-medium tabular-nums">{displayValue}</span>
     </div>
   );
 };
+
+// svg arc path between two angles, measured clockwise from 12 o'clock
+function describeArc(cx: number, cy: number, r: number, startDeg: number, endDeg: number): string {
+  const point = (deg: number) => {
+    const rad = (deg * Math.PI) / 180;
+    return { x: cx + r * Math.sin(rad), y: cy - r * Math.cos(rad) };
+  };
+  const start = point(startDeg);
+  const end = point(endDeg);
+  const largeArc = endDeg - startDeg > 180 ? 1 : 0;
+  return `M ${start.x} ${start.y} A ${r} ${r} 0 ${largeArc} 1 ${end.x} ${end.y}`;
+}
 
 export default Knob;

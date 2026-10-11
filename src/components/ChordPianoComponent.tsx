@@ -2,31 +2,29 @@ import React from "react"
 import "../styles/Piano.css"
 import { PianoComponent } from "./PianoComponent"
 import { ChordInput } from "./ChordInput"
+import { cn } from "../lib/utils"
 
 interface ChordPianoComponentProps {
   pianoComponentId: number
+  className?: string
 }
 
-export const ChordPianoComponent: React.FC<ChordPianoComponentProps> = ({ pianoComponentId }) => {
+export const ChordPianoComponent: React.FC<ChordPianoComponentProps> = ({ pianoComponentId, className }) => {
   return (
-    <>
-      <div 
-        className="container chordPiano" 
-        id={`piano-${pianoComponentId}`}
-      >
-        <div className="!mt-[-1em] sm:mt-0 relative row">
-          <div className="">
-            <ChordInput
-              key={`c-${pianoComponentId}`}
-              pianoComponentId={pianoComponentId}
-            />           
-            <PianoComponent
-              key={Number(pianoComponentId)}
-              pianoComponentId={Number(pianoComponentId)}
-            />
-          </div>
-        </div>
-      </div>
-    </>
+    <article
+      className={cn("chord-card chord-card--piano", className)}
+      id={`piano-${pianoComponentId}`}
+      data-flip
+    >
+      <ChordInput
+        key={`c-${pianoComponentId}`}
+        className="chord-card__controls"
+        pianoComponentId={pianoComponentId}
+      />
+      <PianoComponent
+        key={Number(pianoComponentId)}
+        pianoComponentId={Number(pianoComponentId)}
+      />
+    </article>
   )
 }

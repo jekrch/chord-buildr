@@ -1,190 +1,160 @@
 /*
-	Thanks to zastrow for getting us started with his piano css at 
+	Thanks to zastrow for getting us started with his piano css at
 	https://codepen.io/zastrow/pen/oDBki
+
+	Key geometry is expressed in em so the whole keyboard scales with a
+	single font-size. Three octaves come out to ~39.4em wide; keys are a
+	little shorter than a real piano's so they don't read as skinny.
 */
-.set {
+
+.keyboard-well {
+	container-type: inline-size;
 	display: flex;
-	justify-content: center;
-	margin: 0 0 0 0;
-	top: 0.38em;
-	margin-right: 0.2em;
+	align-items: flex-start;
+	overflow-x: auto;
+	overflow-y: hidden;
+	/* thin bezel only: the keys should take up nearly all of the well */
+	padding: 0.1875rem;
+	border: 1px solid hsl(var(--border));
+	border-radius: 0.5rem;
+	background: hsl(var(--well));
+	box-shadow: inset 0 1px 2px rgb(0 0 0 / 0.4);
 }
 
-ul {
-	height: auto;
-	width: auto;
-	margin: 1em auto;
-	padding: 1em 1em 1em 1em;
+.keyboard {
+	/* fill the width of the well; overflow scrolls below the floor */
+	font-size: clamp(7px, calc(100cqw / 39.5), 24px);
+	display: flex;
+	flex-shrink: 0;
+	width: max-content;
+	margin: 0 auto;
+	padding: 0;
+	list-style: none;
+}
+
+.keyboard li {
 	position: relative;
-}
-
-li {
+	flex-shrink: 0;
 	margin: 0;
 	padding: 0;
 	list-style: none;
-	position: relative;
-	float: left;
+	cursor: pointer;
 }
 
-ul .white {
-	height: 8.9em;
-	width: 2.4em;
+.keyboard .white {
 	z-index: 1;
-	border-left: 1px solid #bbb;
-	border-bottom: 1px solid #bbb;
-	border-radius: 0 0 5px 5px;
-	box-shadow: -1px 0 0 rgba(255, 255, 255, 0.8) inset, 0 0 5px #ccc inset,
-		0 0 3px rgba(0, 0, 0, 0.2);
-	background: linear-gradient(to bottom, #eee 0%, #fff 100%);
+	height: 8.2em;
+	width: 2.4em;
+	border-left: 1px solid #b9bcc2;
+	border-bottom: 1px solid #a9adb4;
+	border-radius: 0 0 0.3em 0.3em;
+	background: linear-gradient(to bottom, #e6e8eb 0%, #fbfbfc 12%, #ffffff 88%, #eef0f2 100%);
+	box-shadow: inset 0 -0.3em 0 rgb(0 0 0 / 0.05), 0 1px 2px rgb(0 0 0 / 0.35);
 }
 
-ul .white:active {
-	border-top: 1px solid #777;
-	border-left: 1px solid #999;
-	border-bottom: 1px solid #999;
-	box-shadow: 2px 0 3px rgba(0, 0, 0, 0.1) inset,
-		-5px 5px 20px rgba(0, 0, 0, 0.2) inset, 0 0 3px rgba(0, 0, 0, 0.2);
-	background: linear-gradient(to bottom, #fff 0%, #e9e9e9 100%);
+.keyboard .white:active {
+	background: linear-gradient(to bottom, #dcdfe3 0%, #f2f3f5 100%);
+	box-shadow: inset 0 -0.15em 0 rgb(0 0 0 / 0.06), inset 2px 0 3px rgb(0 0 0 / 0.08);
 }
 
-
-
-.white[key-selected="true"] {
-	background: #007bff;
-
-	/* transition: 0.1s; */
-}
-
-.black[key-selected="true"] {
-	background: #007bff;
-
-	/* transition: 0.1s; */
-}
-
-.black[key-playing="true"],
-.white[key-playing="true"] {
-	background: #25C196;
-	transition: 0.6s ease-in-out;
-}
-
-.white[key-selected="true"][key-stopping="true"],
-.black[key-selected="true"][key-stopping="true"] {
-	background: #007bff;
-	transition: 0.4s ease-in-out;
-}
-
-  
-.black {
-	height: 5em;
-	width: 1.5em;
-	margin: 0 0 0 -1em;
-	right: 0.2em;
+.keyboard .black {
 	z-index: 2;
-	border: solid #000;
-	border-width: 0px 1px 1px 1px;
-	border-radius: 0 0 3px 3px;
-	box-shadow: -1px -1px 2px rgba(255, 255, 255, 0.2) inset,
-		0 -5px 2px 3px rgba(0, 0, 0, 0.6) inset, 0 2px 4px rgba(0, 0, 0, 0.5);
-	background: linear-gradient(45deg, #222 0%, #555 100%);
+	right: 0.2em;
+	height: 4.6em;
+	width: 1.5em;
+	margin-left: -1em;
+	border: 1px solid #0a0b0c;
+	border-top: 0;
+	border-radius: 0 0 0.2em 0.2em;
+	background: linear-gradient(to bottom, #2c2e33 0%, #1a1b1e 100%);
+	box-shadow:
+		inset 0 -0.35em 0 rgb(255 255 255 / 0.07),
+		inset 1px 0 0 rgb(255 255 255 / 0.05),
+		0 2px 3px rgb(0 0 0 / 0.5);
 }
 
-.black:active {
-	box-shadow: -1px -1px 2px rgba(255, 255, 255, 0.2) inset,
-		0 -2px 2px 3px rgba(0, 0, 0, 0.6) inset, 0 1px 2px rgba(0, 0, 0, 0.5);
-	background: linear-gradient(to right, #444 0%, #222 100%);
+.keyboard .black:active {
+	background: linear-gradient(to bottom, #232528 0%, #161719 100%);
+	box-shadow:
+		inset 0 -0.15em 0 rgb(255 255 255 / 0.06),
+		0 1px 1px rgb(0 0 0 / 0.5);
 }
 
-.A,
-.B,
-.G,
-.D,
-.E {
-	margin: 0 0 0 -1em;
-}
+/*
+	wide layout: the well stretches to the full card row (the height of the
+	play bar) and the keys stretch with it. black keys keep their usual
+	proportion of the white key length.
+*/
+@media (min-width: 860px) {
+	.keyboard-well {
+		align-self: stretch;
+		align-items: stretch;
+	}
 
-.F, .C {
-	width: 2.3em !important; 
-}
+	.keyboard .white {
+		height: auto;
+		min-height: 8.2em;
+	}
 
-.E, .B {
-	margin-right: -8px;
-}
-
-.B-2{
-	border-radius: 5px 0 5px 5px !important;
-	width: 2em !important;
-	margin-right: 0.0em;
-}
-
-.piano-play-button:active {
-	color: rgb(103, 149, 187);
-	background: linear-gradient(45deg, #222 0%, rgb(75, 78, 82) 100%);
-	box-shadow: -1px -1px 2px rgba(255, 255, 255, 0.2) inset,
-		0 -5px 2px 3px rgba(46, 45, 45, 0.6) inset, 
-		0 2px 4px rgba(0, 0, 0, 0.5);
-}
-.piano-play-button {
-	color: rgb(133, 133, 133);
-	box-sizing: border-box;
-	position: absolute;
-	display: flex;
-	align-items: center;
-	vertical-align: center;
-	/* transform: scale(var(--ggs, 1)); */
-	width: 1.9em !important;
-	height: 100%;
-	border: 0.01em solid;
-	border-color: hsl(var(--border)) !important;
-	border-radius: 0.3em;
-	background: var(--main-compononent-gray);
-	left: 0.20em;
-	margin-top: 1em;
-	padding: 0em;
-	outline: none !important;
-	box-shadow: 
-		-1px -1px 2px  var(--main-compononent-gray) inset,
-		0 -3px 2px 3px rgba(46, 45, 45, 0.6) inset, 
-		3px 6px 3px rgba(16, 19, 26, 0.404);
-}
-
-@media only screen 
-and (min-device-width : 981px) {
-
-	.piano-play-button {
-		left: 0.3em;
+	.keyboard .black {
+		align-self: flex-start;
+		height: 56%;
+		min-height: 4.6em;
 	}
 }
 
-.piano-play-button::before {
-	content: "";
-	display: inline-block;
-	text-align: center;
-	align-items: center;
-	box-sizing: border-box;
-	position: relative;
-	height: 0.7em;
-	border-top: 0.4em solid transparent;
-	border-bottom: 0.4em solid transparent;
-	border-left: 0.5em solid;
-	margin-left: 0.6em;
-	
-	/* left: 0.3em; */
-	outline: none !important;
+/* white keys that sit after a black key tuck underneath it */
+.keyboard .D,
+.keyboard .E,
+.keyboard .G,
+.keyboard .A,
+.keyboard .B {
+	margin-left: -1em;
 }
 
-
-
-/* Mobile*/
-@media only screen 
-and (min-device-width : 320px) 
-and (max-device-width : 980px) {
-
-	/* .piano-play-button {
-		height: 8em;
-	} */
+.keyboard .C,
+.keyboard .F {
+	width: 2.3em;
 }
 
-.chordPianoComponent {
-	z-index: 200;
+.keyboard .E,
+.keyboard .B {
+	margin-right: -0.5em;
 }
 
+.keyboard .B-2 {
+	width: 2em;
+	margin-right: 0;
+}
+
+/*
+	selection + playback states. selected keys use a solid background-color
+	(with a light sheen on top) so the blue -> green playback fade can
+	transition smoothly, as the original flat colors did.
+*/
+.keyboard .white[key-selected="true"] {
+	background-color: hsl(var(--key-selected));
+	background-image: linear-gradient(to bottom, rgb(0 0 0 / 0.14) 0%, rgb(255 255 255 / 0.08) 14%, transparent 100%);
+	box-shadow: inset 0 -0.3em 0 rgb(0 0 0 / 0.12), 0 1px 2px rgb(0 0 0 / 0.35);
+}
+
+.keyboard .black[key-selected="true"] {
+	border-color: hsl(212 100% 20%);
+	background-color: hsl(var(--key-selected));
+	background-image: linear-gradient(to bottom, rgb(255 255 255 / 0.06) 0%, rgb(0 0 0 / 0.22) 100%);
+	box-shadow:
+		inset 0 -0.35em 0 rgb(0 0 0 / 0.15),
+		0 2px 3px rgb(0 0 0 / 0.5);
+}
+
+.keyboard .white[key-playing="true"],
+.keyboard .black[key-playing="true"] {
+	background-color: hsl(var(--playing));
+	background-image: none;
+	transition: background-color 0.6s ease-in-out;
+}
+
+.keyboard .white[key-selected="true"][key-stopping="true"],
+.keyboard .black[key-selected="true"][key-stopping="true"] {
+	transition: background-color 0.4s ease-in-out;
+}

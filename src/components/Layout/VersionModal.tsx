@@ -2,6 +2,7 @@ import {
   Dialog,
   DialogContent,
   DialogHeader,
+  DialogTitle,
 } from "../../components/ui/dialog"
 
 interface VersionEntry {
@@ -19,7 +20,15 @@ interface VersionModalProps {
 
 // version history data stored as a json object
 const versionHistory: VersionEntry[] = [
-    {
+  {
+    version: "5.0",
+    date: "10.11.2026",
+    items: [
+      "migrated to Bun",
+      "refreshed and refactored UI",
+    ]
+  },
+  {
     version: "4.4",
     date: "06.21.2025",
     items: [
@@ -170,34 +179,42 @@ const versionHistory: VersionEntry[] = [
   }
 ];
 
+// dates are stored as MM.DD.YYYY
+const formatDate = (date: string): string => {
+  const [month, day, year] = date.split('.').map(Number)
+  if (!month || !day || !year) return date
+  return new Date(year, month - 1, day).toLocaleDateString('en-US', {
+    month: 'short',
+    day: 'numeric',
+    year: 'numeric'
+  })
+}
+
 const VersionEntry = ({ version, date, items }: VersionEntryProps) => (
-  <div className="border-t border-gray-700 pt-2">
-    <div className="text-slate-200 flex gap-2 items-baseline">
-      <span className="text-sm">{version}</span>
-      <span className="text-xs text-gray-400">- {date}</span>
+  <li className="relative pl-5">
+    <span className="absolute left-0 top-[0.45rem] h-2 w-2 rounded-full border-2 border-primary bg-card" />
+    <div className="flex items-baseline justify-between gap-3">
+      <span className="text-sm font-semibold">v{version}</span>
+      <time className="text-xs tabular-nums text-muted-foreground">{formatDate(date)}</time>
     </div>
-    <div className="mt-2 ml-3 space-y-2">
+    <ul className="mt-1.5 list-disc space-y-1 pl-4 text-sm text-muted-foreground marker:text-border">
       {items.map((item, index) => (
-        <div key={index} className="flex items-start gap-2 text-gray-300 ml-[0.5em]">
-          <span className="mt-[0.35em] h-1.5 w-1.5 rounded-full bg-gray-500 flex-shrink-0" />
-          <span className="text-xs">{item}</span>
-        </div>
+        <li key={index}>{item}</li>
       ))}
-    </div>
-  </div>
+    </ul>
+  </li>
 )
 
 export function VersionModal({ open, onOpenChange }: VersionModalProps) {
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-lg">
-        <DialogHeader className="h-4">
-          <div className="absolute inset-0" />
-          <h2 className="text-base font-semibold text-center !-mt-1">change log</h2>
+      <DialogContent className="sm:max-w-md" aria-describedby={undefined}>
+        <DialogHeader>
+          <DialogTitle>Changelog</DialogTitle>
         </DialogHeader>
-        
-        <div className="space-y-6 overflow-y-auto pr-2 max-h-[60vh] z-30">
-          <div className="space-y-4 mr-2">
+
+        <div className="-mr-3 max-h-[60vh] overflow-y-auto pr-3">
+          <ol className="relative space-y-5 before:absolute before:bottom-2 before:left-[3px] before:top-2 before:w-px before:bg-border">
             {versionHistory.map((entry, index) => (
               <VersionEntry
                 key={index}
@@ -206,7 +223,7 @@ export function VersionModal({ open, onOpenChange }: VersionModalProps) {
                 items={entry.items}
               />
             ))}
-          </div>
+          </ol>
         </div>
       </DialogContent>
     </Dialog>
