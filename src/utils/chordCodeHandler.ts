@@ -10,12 +10,27 @@ import {
 import { AppState } from "../components/context/AppContext"
 import { UX_FORMAT_OPTIONS } from "../components/Layout/ConfigModal"
 import { DEFAULT_EQ, EQSettings, hasFlatEq } from "./synthPlayer"
+import { isGuitar } from "./guitarUtil"
 
 interface SynthSettings {
   volume: number;
   type: string;
   format: string;
+  // only set when the code names a fretted instrument
+  fretView?: string;
   eq: EQSettings;
+}
+
+/**
+ * a section break after a chord. in the url it's a code of its own,
+ * (1C)(1G)(-)(1Am), so versions that don't know it skip it as an invalid
+ * chord. in the text editor a lone / or | marks one
+ */
+const SECTION_BREAK_CODE = "-"
+const SECTION_BREAK_TEXT = "/"
+
+function isSectionBreakText(token: string): boolean {
+  return /^[/|]+$/.test(token)
 }
 
 /***
@@ -190,6 +205,10 @@ export function getProgressionString(chordPianoSet: ChordPiano[]): string {
     const positionSuffix = selectedChord.position !== undefined ? `.${selectedChord.position + 1}` : ''
     
     code += `${octave ?? ''}${chordCode}${positionSuffix} `
+
+    if (chordPiano.breakAfter !== undefined) {
+      code += `${SECTION_BREAK_TEXT} `
+    }
   }
 
   return code;
@@ -247,10 +266,22 @@ export function getChordPianoSetFromProgCode(progCode: string | null): ChordPian
 
   var progKeySet = false
 
+  // breaks attach to the chord before them, so leading and repeated ones
+  // collapse away
+  let breakId = 0
+
   for (let i = 0; i < chordArray.length; i++) {
     var chordCode = chordArray[i]
 
     if (chordCode === "") continue
+
+    if (chordCode.trim() === `(${SECTION_BREAK_CODE}`) {
+      const lastChordPiano = chordPianoSet[chordPianoSet.length - 1]
+      if (lastChordPiano && lastChordPiano.breakAfter === undefined) {
+        lastChordPiano.breakAfter = breakId++
+      }
+      continue
+    }
 
     var chordPiano = createChordPiano(i, chordCode)
 
@@ -300,6 +331,7 @@ export function buildProgFromCode(state: AppState, code: string): AppState {
 
     // update state with new values
     state.format = synthSettings.format
+    if (synthSettings.fretView) state.fretView = synthSettings.fretView
     state.synth = synthSettings.type
     state.volume = synthSettings.volume
     state.eq = synthSettings.eq
@@ -321,7 +353,9 @@ export function buildProgFromCode(state: AppState, code: string): AppState {
 
 /**
  * parses synth settings from url parameter
- * expected format: "type:volume:format:eq" (e.g. "p:90:p:0-10-0")
+ * expected format: "type:volume:format:eq" (e.g. "p:90:p:0-10-0"). a fretted
+ * format may carry a "t" suffix for the tab view (e.g. "gt"); without it the
+ * full view is used
  */
 export function parseSynthCode(synthCode: string | null): SynthSettings {
   
@@ -337,7 +371,9 @@ export function parseSynthCode(synthCode: string | null): SynthSettings {
     return defaultSettings
   }
 
-  const [type, volumeStr, format, eq] = synthCode.split(":")
+  const [type, volumeStr, formatCode, eq] = synthCode.split(":")
+  const tabView = formatCode?.length > 1 && formatCode.endsWith("t")
+  const format = tabView ? formatCode.slice(0, -1) : formatCode
   const volume = parseInt(volumeStr)
   
   let eqSettings: EQSettings = DEFAULT_EQ;
@@ -354,6 +390,7 @@ export function parseSynthCode(synthCode: string | null): SynthSettings {
     type: isValidType(type) ? type : defaultSettings.type,
     volume: isValidVol(volume) ? volume : defaultSettings.volume,
     format: isValidFormat(format) ? format : defaultSettings.format,
+    fretView: isGuitar(format) ? (tabView ? "t" : "f") : undefined,
     eq: eqSettings
   }
 }
@@ -416,7 +453,9 @@ function getProgressionCode(state: AppState) {
           chordCode += `.${chord.position + 1}`
         }
 
-        return `(${chordCode})`
+        const breakCode = piano.breakAfter !== undefined ? `(${SECTION_BREAK_CODE})` : ""
+
+        return `(${chordCode})${breakCode}`
       })
       .join("")
   }
@@ -429,8 +468,9 @@ function getProgressionCode(state: AppState) {
  * @param state 
  * @returns 
  */
-function getSynthCode(state: AppState) {
-  let synthCode = `${state.synth}:${state.volume}:${state.format}`
+export function getSynthCode(state: AppState) {
+  const tabSuffix = isGuitar(state.format) && state.fretView === "t" ? "t" : ""
+  let synthCode = `${state.synth}:${state.volume}:${state.format}${tabSuffix}`
 
   // if the eq is not the default, add it to the synth code
   if (!hasFlatEq(state.eq)) {
@@ -485,6 +525,11 @@ export function convertProgressionStrToCode(submittedProgressionStr: string): st
     .replace(/\s\s+/g, ' ') // convert multiple spaces to one
 
   for (let chordStr of submittedProgressionStr.split(' ')) {
+    if (isSectionBreakText(chordStr)) {
+      newProgressionString += `(${SECTION_BREAK_CODE})`
+      continue
+    }
+
     let chordCode = convertChordStrToCode(chordStr)
     newProgressionString += `(${chordCode})`
   }

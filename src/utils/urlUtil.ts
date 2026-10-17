@@ -1,4 +1,5 @@
 import { AppState } from "../components/context/AppContext";
+import { getSynthCode } from "./chordCodeHandler";
 
 /**
  * From the provided state, generate the base URL params. Currently that's just the synth 
@@ -8,5 +9,5 @@ import { AppState } from "../components/context/AppContext";
  * @returns 
  */
 export function generateBaseUrlParams(state: AppState): string | null {
-    return `?s=${state.synth ?? "p"}:${state.volume ?? 80}:${state.format ?? "p"}&p=`
+    return `?s=${getSynthCode(state)}&p=`
 }

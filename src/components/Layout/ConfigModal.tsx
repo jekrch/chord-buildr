@@ -20,7 +20,8 @@ import { Slider } from '../../components/ui/slider'
 import { useAppContext } from '../context/AppContext'
 import { DEFAULT_EQ, EQSettings, notEqual, playChord } from '../../utils/synthPlayer'
 import { SYNTH_TYPES as SYNTH_TYPES } from '../../utils/synthLibrary'
-import { FormatToggle } from '../InlineConfig'
+import { FormatToggle, FretViewToggle } from '../InlineConfig'
+import { isGuitar } from '../../utils/guitarUtil'
 
 interface ConfigModalProps {
   open: boolean
@@ -83,6 +84,13 @@ export function ConfigModal({ open, onOpenChange }: ConfigModalProps): JSX.Eleme
     dispatch({
       type: 'UPDATE_UX_FORMAT',
       format: value
+    })
+  }
+
+  const handleFretViewChange = (value: string): void => {
+    dispatch({
+      type: 'UPDATE_FRET_VIEW',
+      fretView: value
     })
   }
 
@@ -228,6 +236,18 @@ export function ConfigModal({ open, onOpenChange }: ConfigModalProps): JSX.Eleme
             <p className="text-xs text-muted-foreground">
               Choose the instrument chords are shown on.
             </p>
+            {isGuitar(format) && (
+              <>
+                <FretViewToggle
+                  value={state.fretView}
+                  onChange={handleFretViewChange}
+                  className="flex w-full [&>button]:flex-1 [&>button]:justify-center"
+                />
+                <p className="text-xs text-muted-foreground">
+                  Full shows each chord's controls; Tab shows a compact chart of names and tabs.
+                </p>
+              </>
+            )}
           </section>
         </div>
       </DialogContent>

@@ -14,6 +14,12 @@ import {
 } from "../../utils/chordCodeHandler"
 import React, { useReducer, createContext, useEffect, ReactNode } from "react";
 import { DEFAULT_EQ, EQSettings } from "../../utils/synthPlayer";
+import {
+  ProgressionItem,
+  arrangeProgression,
+  removeChord,
+  toggleBreakAfter
+} from "../../utils/sectionBreaks";
 
 
 export interface AppState {
@@ -24,6 +30,8 @@ export interface AppState {
   chordPianoSet?: ChordPiano[];
   synth: string;
   format: string;
+  // how guitar/ukulele chords are shown: "f" full cards, "t" a compact tab chart
+  fretView: string;
   volume: number;
   changed?: number;
   refreshBoard?: number; 
@@ -40,8 +48,12 @@ type PianoAction =
   | { type: "UPDATE_SLASH_CHORD"; id?: number; isSlashChord: boolean; slashNote: string }
   | { type: "UPDATE_SHOW_FLATS"; id?: number; showFlats: boolean }
   | { type: "UPDATE_UX_FORMAT"; format: string }
+  | { type: "UPDATE_FRET_VIEW"; fretView: string }
   | { type: "ADD_CHORD_PIANO"; payload: any }
   | { type: "REMOVE_PIANO"; id: number }
+  | { type: "ARRANGE_PROGRESSION"; items: ProgressionItem[] }
+  | { type: "TOGGLE_SECTION_BREAK"; id: number }
+  | { type: "ADD_SECTION_BREAK" }
   | { type: "REFRESH_BOARD"; }
   | { type: "REFRESH_PIANO"; id: number, payload: ChordPiano }
   | { type: "SET_PROG_KEY"; id: number; keyChecked: boolean }
@@ -64,6 +76,7 @@ const initialState: AppState = {
   chordPianoSet: undefined,
   synth: "p",  // plumber
   format: "p", // piano
+  fretView: "f", // full
   volume: 80,
   eq: DEFAULT_EQ
 };
@@ -196,6 +209,12 @@ const pianoReducer = (state: AppState, action: PianoAction): AppState => {
         format: action.format
       };
 
+    case "UPDATE_FRET_VIEW":
+      return {
+        ...state,
+        fretView: action.fretView
+      };
+
     case "REFRESH_PIANO":
       return {
         ...state,
@@ -279,13 +298,46 @@ const pianoReducer = (state: AppState, action: PianoAction): AppState => {
     }
 
     case "REMOVE_PIANO": {
-      const updatedSet = state.chordPianoSet?.filter((item) => item.id !== action.id);
+      const updatedSet = removeChord(state.chordPianoSet ?? [], action.id);
       updateUrlProgressionCode(state);
       
       return {
         ...state,
         chordPianoSet: updatedSet
       };
+    }
+
+    /**
+     * lays the chords and section breaks out in a new order, e.g. after
+     * one is dragged to a new spot
+     */
+    case "ARRANGE_PROGRESSION": {
+      const chordPianoSet = arrangeProgression(state.chordPianoSet ?? [], action.items);
+
+      const newState = { ...state, chordPianoSet };
+      updateUrlProgressionCode(newState);
+      return newState;
+    }
+
+    // adds or removes the section break right after a chord
+    case "TOGGLE_SECTION_BREAK": {
+      const chordPianoSet = toggleBreakAfter(state.chordPianoSet ?? [], action.id);
+
+      const newState = { ...state, chordPianoSet };
+      updateUrlProgressionCode(newState);
+      return newState;
+    }
+
+    // ends the current section, so the next chord added starts a new one
+    case "ADD_SECTION_BREAK": {
+      const lastChordPiano = state.chordPianoSet?.[state.chordPianoSet.length - 1];
+      if (!lastChordPiano || lastChordPiano.breakAfter !== undefined) return state;
+
+      const chordPianoSet = toggleBreakAfter(state.chordPianoSet ?? [], lastChordPiano.id);
+
+      const newState = { ...state, chordPianoSet };
+      updateUrlProgressionCode(newState);
+      return newState;
     }
 
     case "SET_PROG_KEY": {

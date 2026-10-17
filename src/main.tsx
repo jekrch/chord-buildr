@@ -3,6 +3,7 @@ import App from './App'
 import './index.css'
 import './styles/Layout.css'
 import './styles/Piano.css'
+import './styles/Export.css'
 
 const rootElement = document.getElementById('root')!
 const root = createRoot(rootElement)

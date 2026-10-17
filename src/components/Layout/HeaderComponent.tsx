@@ -2,16 +2,19 @@ import React, { useEffect, useLayoutEffect, useRef, useState } from "react"
 import { Link, scroller } from "react-scroll"
 import { Eraser, Play, Plus, SquarePen, Undo2 } from "lucide-react"
 import { AppState, useAppContext } from "../context/AppContext"
+import { ChordPiano } from "../../utils/chordPianoHandler"
 import { playChordById } from "../../utils/synthPlayer"
 import { Button } from '../../components/ui/button'
 import { 
   getChordDisplay, 
   getProgressionString, 
-  convertProgressionStrToCode 
+  convertProgressionStrToCode,
+  getSynthCode
 } from "../../utils/chordCodeHandler"
 import { generateBaseUrlParams } from "../../utils/urlUtil"
 import { isGuitar } from "../../utils/guitarUtil"
 import { cn } from "../../lib/utils"
+import { withFlipTransition } from "../../utils/chordTransitions"
 // NEW: Import the modal component from its own file
 import { ProgressionEditorModal } from "./ProgressionEditorModal" 
 
@@ -175,8 +178,14 @@ export const HeaderComponent: React.FC = () => {
     playChordById(dispatch, state, id)
   }
 
+  const handleToggleSectionBreak = (id: number): void => {
+    withFlipTransition(() => dispatch({ type: "TOGGLE_SECTION_BREAK", id }))
+  }
+
   const getCurrentSynthVolCode = (state: AppState): string => {
-    return state?.currentProgCode?.split('p=')?.[0] ?? "?s=p:90&p="
+    // built from the live state, since instrument and chord view changes
+    // don't update currentProgCode
+    return `?s=${getSynthCode(state)}&`
   }
 
   // UPDATED: This function now simply opens the modal.
@@ -204,6 +213,31 @@ export const HeaderComponent: React.FC = () => {
     }
   }
 
+  /**
+   * each hairline between two chords toggles a section break after the
+   * first one, tilting into a slash while the break is in. the last chord
+   * only gets one when the progression ends with a break
+   */
+  const renderSeam = (piano: ChordPiano, isLast: boolean): React.ReactNode => {
+    const isBreak = piano.breakAfter !== undefined
+    if (isLast && !isBreak) return null
+
+    const label = `${isBreak ? "Remove section break after" : "Add section break after"} ${getChordDisplay(piano.selectedChord)}`
+
+    return (
+      <button
+        type="button"
+        className="chord-seam"
+        aria-pressed={isBreak}
+        aria-label={label}
+        title={isBreak ? "Remove section break" : "Add section break"}
+        onClick={() => handleToggleSectionBreak(piano.id)}
+      >
+        <span className="section-slash" aria-hidden="true" />
+      </button>
+    )
+  }
+
   const renderProgression = (): React.JSX.Element[] | undefined => {
     return state.chordPianoSet?.map((piano, i) => (
       <div
@@ -225,9 +259,7 @@ export const HeaderComponent: React.FC = () => {
         >
           {getChordDisplay(piano.selectedChord)}
         </Link>
-        {i !== (state.chordPianoSet?.length ?? 0) - 1 && (
-          <span className="mx-2 h-3.5 w-px bg-border" aria-hidden="true" />
-        )}
+        {renderSeam(piano, i === (state.chordPianoSet?.length ?? 0) - 1)}
       </div>
     ))
   }

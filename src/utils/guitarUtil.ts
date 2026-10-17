@@ -1,4 +1,4 @@
-import { SelectedChord } from "./chordPianoHandler";
+import { ChordPiano, SelectedChord } from "./chordPianoHandler";
 import { chordMap } from "./chordManager";
 import { getNoteNumber } from "./noteManager";
 import guitar from '@tombatossals/chords-db/lib/guitar.json';
@@ -231,4 +231,22 @@ const normalizeKey = (keyNoteNumber: number, format: string): string => {
     }
   };
   
-  export { getInstrumentByFormat, findChordPositions, getNonChordIntervals, isGuitar, parseChordName, normalizeKey, normalizeSuffix };
+  /**
+   * the instrument and tab positions for a chord in a format, with the
+   * position that's showing
+   */
+  const getChordChart = (chordPiano: ChordPiano, format: string) => {
+    const instrument = getInstrumentByFormat(format)
+    const tabPositions = findChordPositions(
+      chordPiano.selectedChord,
+      instrument.chords,
+      format
+    )
+    // the stored position can outlive the chord it was picked for (e.g. after
+    // changing the root or type), so fall back to the first position
+    const storedPosition = chordPiano.selectedChord.position ?? 0
+    const position = storedPosition < tabPositions.length ? storedPosition : 0
+    return { instrument, tabPositions, position }
+  }
+
+  export { getChordChart, getInstrumentByFormat, findChordPositions, getNonChordIntervals, isGuitar, parseChordName, normalizeKey, normalizeSuffix };

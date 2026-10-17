@@ -66,7 +66,8 @@ export const ProgressionEditorModal: React.FC<ProgressionEditorModalProps> = ({
                 <DialogHeader>
                     <DialogTitle>Edit progression</DialogTitle>
                     <DialogDescription>
-                        Type or paste chords. Separate them with spaces or commas.
+                        Type or paste chords. Separate them with spaces or commas,
+                        and start a new section with a <code className="text-foreground">/</code>.
                     </DialogDescription>
                 </DialogHeader>
                 <div className="space-y-2">
@@ -82,7 +83,7 @@ export const ProgressionEditorModal: React.FC<ProgressionEditorModalProps> = ({
                         autoCorrect="off"
                     />
                     <p className="text-xs text-muted-foreground">
-                        Example: <code className="rounded bg-secondary px-1.5 py-0.5 text-foreground">C, G, Am F</code>
+                        Example: <code className="rounded bg-secondary px-1.5 py-0.5 text-foreground">C, G, Am F / Dm G C</code>
                     </p>
                 </div>
                 <DialogFooter className="gap-2 sm:gap-0">

@@ -2,6 +2,7 @@ import React from "react"
 import "../styles/Piano.css"
 import { PianoComponent } from "./PianoComponent"
 import { ChordInput } from "./ChordInput"
+import { SortableChordCard } from "./SortableChordCard"
 import { cn } from "../lib/utils"
 
 interface ChordPianoComponentProps {
@@ -11,10 +12,9 @@ interface ChordPianoComponentProps {
 
 export const ChordPianoComponent: React.FC<ChordPianoComponentProps> = ({ pianoComponentId, className }) => {
   return (
-    <article
-      className={cn("chord-card chord-card--piano", className)}
-      id={`piano-${pianoComponentId}`}
-      data-flip
+    <SortableChordCard
+      pianoId={pianoComponentId}
+      className={cn("chord-card--piano", className)}
     >
       <ChordInput
         key={`c-${pianoComponentId}`}
@@ -25,6 +25,6 @@ export const ChordPianoComponent: React.FC<ChordPianoComponentProps> = ({ pianoC
         key={Number(pianoComponentId)}
         pianoComponentId={Number(pianoComponentId)}
       />
-    </article>
+    </SortableChordCard>
   )
 }

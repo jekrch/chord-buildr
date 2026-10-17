@@ -10,6 +10,7 @@ import { getStateParamsCode } from "../utils/chordCodeHandler"
 import { NoteKey } from '../utils/chordPianoHandler'
 import { ChordPianoComponent } from "../components/ChordPianoComponent"
 import { removeChordWithTransition } from "../utils/chordTransitions"
+import { DragHandle } from "./SortableChordCard"
 
 interface PianoComponentProps {
   pianoComponentId: number
@@ -113,15 +114,18 @@ export const PianoComponent: React.FC<PianoComponentProps> = ({
       <div className="chord-card__keys keyboard-well">
         <ul className="keyboard">{renderPiano()}</ul>
       </div>
-      <button
-        type="button"
-        className="chord-card__remove rail-button rail-remove"
-        aria-label="Remove chord"
-        title="Remove chord"
-        onClick={handleClickRemovePiano}
-      >
-        <X className="h-4 w-4" />
-      </button>
+      <div className="chord-card__side">
+        <button
+          type="button"
+          className="rail-button rail-remove"
+          aria-label="Remove chord"
+          title="Remove chord"
+          onClick={handleClickRemovePiano}
+        >
+          <X className="h-4 w-4" />
+        </button>
+        <DragHandle />
+      </div>
     </>
   )
 }

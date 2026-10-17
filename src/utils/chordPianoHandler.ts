@@ -56,6 +56,9 @@ export interface ChordPiano {
   selectedChord: SelectedChord
   rendered?: boolean
   isPlaying?: boolean;
+  // id of the section break right after this chord, if there is one. ids
+  // only keep a break's identity while it's dragged; they aren't saved
+  breakAfter?: number
 }
 
 export function selectChordKeys(chordPiano: ChordPiano): void {

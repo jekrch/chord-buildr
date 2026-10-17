@@ -46,6 +46,22 @@ export function removeChordWithTransition(pianoId: number, remove: () => void): 
   }, () => {})
 }
 
+/**
+ * commits an update that opens or closes space in the middle of the board
+ * (a section break), sliding everything marked `data-flip` from where it
+ * was into its new spot instead of jumping there
+ */
+export function withFlipTransition(update: () => void): void {
+  if (prefersReducedMotion()) {
+    update()
+    return
+  }
+
+  const before = measureFlipTargets()
+  flushSync(update)
+  settleFlipTargets(before)
+}
+
 function measureFlipTargets(): Map<Element, DOMRect> {
   const rects = new Map<Element, DOMRect>()
   document.querySelectorAll("[data-flip]").forEach((el) => {
