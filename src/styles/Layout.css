@@ -439,6 +439,32 @@
 	header progression strip
 --------------------------------------------------------------- */
 
+/*
+	the header strip scrolls sideways on one line with its scrollbar
+	hidden. once it overflows, both edges fade slightly, and an edge with
+	chords scrolled past it fades further, so the strip reads as
+	continuing rather than cut off
+*/
+.chord-strip {
+	--fade-start: 0px;
+	--fade-end: 0px;
+	scrollbar-width: none;
+	-webkit-mask-image: linear-gradient(to right, transparent, #000 var(--fade-start), #000 calc(100% - var(--fade-end)), transparent);
+	mask-image: linear-gradient(to right, transparent, #000 var(--fade-start), #000 calc(100% - var(--fade-end)), transparent);
+}
+
+.chord-strip::-webkit-scrollbar {
+	display: none;
+}
+
+.chord-strip[data-overflow] {
+	--fade-start: 0.75rem;
+	--fade-end: 0.75rem;
+}
+
+.chord-strip[data-fade-start] { --fade-start: 1.75rem; }
+.chord-strip[data-fade-end]   { --fade-end: 1.75rem; }
+
 .chord-link {
 	position: relative;
 	padding: 0.125rem 0.25rem;
@@ -510,42 +536,16 @@
 	place-items: center;
 	width: 17px;
 	height: 1.5rem;
-	border-radius: 0.25rem;
 }
 
-.chord-seam[aria-pressed="true"] {
+.chord-seam[data-break] {
 	width: 1.375rem;
 }
 
-.chord-seam[aria-pressed="true"] .section-slash {
+.chord-seam[data-break] .section-slash {
 	height: 1rem;
 	transform: rotate(22deg);
 	background: hsl(var(--muted-foreground));
-}
-
-.chord-seam:focus-visible {
-	outline: 2px solid hsl(var(--ring));
-	outline-offset: 1px;
-}
-
-/* hover previews the slash before it's added */
-@media (hover: hover) and (pointer: fine) {
-	.chord-seam:hover .section-slash {
-		height: 1rem;
-		transform: rotate(22deg);
-		background: hsl(var(--primary));
-	}
-}
-
-@media (pointer: coarse) {
-	.chord-seam {
-		width: 1.25rem;
-		height: 1.75rem;
-	}
-
-	.chord-seam[aria-pressed="true"] {
-		width: 1.5rem;
-	}
 }
 
 /* the slash as an icon, in the add break button */

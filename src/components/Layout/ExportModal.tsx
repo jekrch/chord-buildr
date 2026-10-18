@@ -151,6 +151,20 @@ export const ExportModal: React.FC<ExportModalProps> = ({ open, onOpenChange }) 
 
   useEffect(() => saveSettings(settings), [settings])
 
+  /**
+   * the print styles hide everything but the off-screen copy while the
+   * root carries data-exporting. it's held for as long as a printable
+   * sheet is open rather than set around window.print(), since mobile
+   * browsers return from print() (and fire afterprint) before the page is
+   * laid out for printing, which would print the whole screen instead
+   */
+  useEffect(() => {
+    if (!open || !canPrint) return
+    const root = document.documentElement
+    root.setAttribute("data-exporting", "")
+    return () => root.removeAttribute("data-exporting")
+  }, [open, canPrint])
+
   const update = (changes: Partial<ExportSettings>) => setSettings((prev) => ({ ...prev, ...changes }))
 
   const handleDownload = async () => {
@@ -176,21 +190,8 @@ export const ExportModal: React.FC<ExportModalProps> = ({ open, onOpenChange }) 
     }
   }
 
-  /**
-   * the print styles hide everything but the off-screen copy while the
-   * root carries data-exporting
-   */
   const handlePrint = () => {
-    if (!canPrint) return
-    const root = document.documentElement
-    root.setAttribute("data-exporting", "")
-
-    const cleanup = () => {
-      root.removeAttribute("data-exporting")
-      window.removeEventListener("afterprint", cleanup)
-    }
-    window.addEventListener("afterprint", cleanup)
-    window.print()
+    if (canPrint) window.print()
   }
 
   const sheetProps = { chordPianoSet, format: state.format, mode, theme, text, size }

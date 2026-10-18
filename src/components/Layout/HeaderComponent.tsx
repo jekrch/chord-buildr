@@ -1,6 +1,6 @@
 import React, { useEffect, useLayoutEffect, useRef, useState } from "react"
 import { Link, scroller } from "react-scroll"
-import { Eraser, Play, Plus, SquarePen, Undo2 } from "lucide-react"
+import { ChevronDown, Eraser, Play, Plus, SquarePen, Undo2 } from "lucide-react"
 import { AppState, useAppContext } from "../context/AppContext"
 import { ChordPiano } from "../../utils/chordPianoHandler"
 import { playChordById } from "../../utils/synthPlayer"
@@ -14,9 +14,18 @@ import {
 import { generateBaseUrlParams } from "../../utils/urlUtil"
 import { isGuitar } from "../../utils/guitarUtil"
 import { cn } from "../../lib/utils"
-import { withFlipTransition } from "../../utils/chordTransitions"
+import { prefersReducedMotion } from "../../utils/chordTransitions"
 // NEW: Import the modal component from its own file
 import { ProgressionEditorModal } from "./ProgressionEditorModal" 
+
+interface PianoRange {
+  first: number
+  last: number
+}
+
+// how far a chord the strip scrolls to is kept from its edges, clear of
+// their fade
+const STRIP_INSET = 32
 
 interface ScrollOptions {
   duration: number
@@ -38,6 +47,16 @@ export const HeaderComponent: React.FC = () => {
   const progressionRef = useRef<HTMLDivElement>(null);
   const [activePianoId, setActivePianoId] = useState<number | undefined>(undefined);
   const [indicator, setIndicator] = useState({ x: 0, y: 0, width: 0, visible: false, snap: true });
+  const stripRef = useRef<HTMLDivElement>(null);
+  const [stripExpanded, setStripExpanded] = useState(false);
+  const [stripOverflow, setStripOverflow] = useState({ canToggle: false, start: false, end: false });
+  const [visibleRange, setVisibleRange] = useState<PianoRange | null>(null);
+  const [followPaused, setFollowPaused] = useState(false);
+  // how far the strip sits from where following would put it, and the
+  // page position that was last measured from (see the follow effect)
+  const followOffsetRef = useRef(0);
+  const followPageYRef = useRef(0);
+  const resumingRef = useRef(false);
   
     /**
    * When a chord is played we want it to be scrolled to. Where we 
@@ -104,6 +123,229 @@ export const HeaderComponent: React.FC = () => {
     resizeObserver.observe(container);
     return () => resizeObserver.disconnect();
   }, [indicatorPianoId, state.chordPianoSet]);
+
+  /**
+   * the strip keeps to one line and scrolls sideways, unless expanded to
+   * wrap onto as many lines as it needs. the toggle only shows when there
+   * is more than one line's worth: collapsed, when the chords run past the
+   * strip; expanded, when they've wrapped. the edges fade on whichever
+   * side has chords scrolled out of view
+   */
+  useLayoutEffect(() => {
+    const strip = stripRef.current;
+    const row = progressionRef.current;
+    if (!strip || !row) return;
+
+    const measure = () => {
+      let canToggle: boolean;
+      if (stripExpanded) {
+        const links = row.querySelectorAll<HTMLElement>("[data-piano-id]");
+        canToggle = links.length > 1 && links[links.length - 1].offsetTop !== links[0].offsetTop;
+      } else {
+        canToggle = strip.scrollWidth > strip.clientWidth + 1;
+      }
+      const start = !stripExpanded && strip.scrollLeft > 1;
+      const end = !stripExpanded && strip.scrollLeft + strip.clientWidth < strip.scrollWidth - 1;
+
+      setStripOverflow(prev =>
+        prev.canToggle === canToggle && prev.start === start && prev.end === end
+          ? prev
+          : { canToggle, start, end }
+      );
+    };
+
+    // the scrollbar is hidden, so a mouse wheel scrolls the strip sideways
+    const handleWheel = (e: WheelEvent) => {
+      if (stripExpanded || Math.abs(e.deltaY) <= Math.abs(e.deltaX)) return;
+      if (strip.scrollWidth <= strip.clientWidth) return;
+      e.preventDefault();
+      strip.scrollLeft += e.deltaY;
+    };
+
+    measure();
+    const resizeObserver = new ResizeObserver(measure);
+    resizeObserver.observe(strip);
+    resizeObserver.observe(row);
+    strip.addEventListener("scroll", measure, { passive: true });
+    strip.addEventListener("wheel", handleWheel, { passive: false });
+    return () => {
+      resizeObserver.disconnect();
+      strip.removeEventListener("scroll", measure);
+      strip.removeEventListener("wheel", handleWheel);
+    };
+  }, [stripExpanded, state.chordPianoSet]);
+
+  /**
+   * track which chords are on screen between the header and footer, as
+   * the first and last of them in board order, so the strip can follow
+   * the page. this covers every layout, including the guitar grid where
+   * several chords share a row
+   */
+  useEffect(() => {
+    let frame = 0;
+
+    const measure = () => {
+      frame = 0;
+      const top = headerRef.current?.getBoundingClientRect().bottom ?? 0;
+      const bottom = document.querySelector("footer")?.getBoundingClientRect().top ?? window.innerHeight;
+      let first: number | undefined;
+      let last: number | undefined;
+
+      document.querySelectorAll<HTMLElement>('[id^="piano-"]').forEach(card => {
+        const rect = card.getBoundingClientRect();
+        if (rect.bottom > top + 8 && rect.top < bottom - 8) {
+          const id = Number(card.id.slice("piano-".length));
+          first ??= id;
+          last = id;
+        }
+      });
+
+      setVisibleRange(prev => {
+        if (first === undefined || last === undefined) return null;
+        return prev?.first === first && prev.last === last ? prev : { first, last };
+      });
+    };
+
+    const schedule = () => {
+      if (!frame) frame = requestAnimationFrame(measure);
+    };
+
+    schedule();
+    window.addEventListener("scroll", schedule, { passive: true });
+    window.addEventListener("resize", schedule);
+    return () => {
+      cancelAnimationFrame(frame);
+      window.removeEventListener("scroll", schedule);
+      window.removeEventListener("resize", schedule);
+    };
+  }, [state.chordPianoSet, state.format, state.fretView]);
+
+  /**
+   * playing a chord leaves the strip where it is, even though playing from
+   * the strip or the play button scrolls the page to the chord, so what was
+   * just clicked doesn't slide away from under the pointer. it only moves
+   * as far as it must to keep every chord on screen in view. the strip
+   * picks up following again once the user scrolls the page themselves (a
+   * scroll of the strip itself doesn't count)
+   */
+  useEffect(() => {
+    if (currentlyPlayingPianoId !== undefined) setFollowPaused(true);
+  }, [currentlyPlayingPianoId]);
+
+  useEffect(() => {
+    if (!followPaused) return;
+
+    const SCROLL_KEYS = ["ArrowUp", "ArrowDown", "PageUp", "PageDown", "Home", "End", " "];
+    const resume = (e: Event) => {
+      if (e.target instanceof Node && stripRef.current?.contains(e.target)) return;
+      if (e instanceof KeyboardEvent && !SCROLL_KEYS.includes(e.key)) return;
+      // a press on the page's own scrollbar lands on the root element
+      if (e.type === "pointerdown" && e.target !== document.documentElement) return;
+      resumingRef.current = true;
+      setFollowPaused(false);
+    };
+
+    const events = ["wheel", "touchmove", "keydown", "pointerdown"];
+    events.forEach(type => window.addEventListener(type, resume, { passive: true }));
+    return () => events.forEach(type => window.removeEventListener(type, resume));
+  }, [followPaused]);
+
+  /**
+   * scroll the strip to the chords on screen: centered when they fit, or
+   * from the first one when they don't. an expanded strip that's capped
+   * in height scrolls up and down instead. it only reacts to the chords
+   * being added, removed or moved, not to one starting to play.
+   *
+   * when following resumes after a pause, the strip doesn't jump to its
+   * spot. it keeps its distance from it as an offset and moves on from
+   * where it is, by the same steps it would have taken anyway, while the
+   * offset shrinks with every bit the page is scrolled (to about a third
+   * per screen height), so it eases back into place. paused or not, the
+   * chords on screen all stay in view whenever they fit
+   */
+  const followFirst = visibleRange?.first;
+  const followLast = visibleRange?.last;
+  const chordOrder = state.chordPianoSet?.map(piano => piano.id).join(",");
+
+  // adding, removing or moving chords shows the change, paused or not
+  useEffect(() => {
+    followOffsetRef.current = 0;
+    setFollowPaused(false);
+  }, [chordOrder]);
+
+  useEffect(() => {
+    const strip = stripRef.current;
+    if (!strip || followFirst === undefined || followLast === undefined) return;
+
+    const first = strip.querySelector(`[data-piano-id="${followFirst}"]`);
+    const last = strip.querySelector(`[data-piano-id="${followLast}"]`);
+    if (!first || !last) return;
+
+    const view = strip.getBoundingClientRect();
+    const a = first.getBoundingClientRect();
+    const b = last.getBoundingClientRect();
+    const behavior = prefersReducedMotion() ? "auto" : "smooth";
+
+    if (stripExpanded) {
+      // up and down only as far as it takes to bring the chords into view
+      let top = 0;
+      if (a.top < view.top) top = a.top - view.top - 8;
+      else if (b.bottom > view.bottom) top = Math.min(b.bottom - view.bottom + 8, a.top - view.top - 8);
+      if (Math.abs(top) >= 1) strip.scrollBy({ top, behavior });
+      return;
+    }
+
+    const clamp = (value: number, min: number, max: number) => Math.min(max, Math.max(min, value));
+
+    // the chords on screen, in the strip's scroll coordinates
+    const start = a.left - view.left + strip.scrollLeft;
+    const end = b.right - view.left + strip.scrollLeft;
+    const maxLeft = strip.scrollWidth - strip.clientWidth;
+    const fits = end - start <= view.width - STRIP_INSET * 2;
+
+    const target = clamp(fits ? (start + end) / 2 - view.width / 2 : start - STRIP_INSET, 0, maxLeft);
+
+    // every position that keeps all of them in view, or the one that
+    // starts from the first when they're too many to fit
+    const low = fits ? end + STRIP_INSET - view.width : start - STRIP_INSET;
+    const high = start - STRIP_INSET;
+
+    // the playing chord, with its underline, has to be in view above all,
+    // e.g. one played from a card further down than the strip can reach
+    // while it shows the chords on screen from the first
+    const playing = currentlyPlayingPianoId === undefined
+      ? null
+      : strip.querySelector(`[data-piano-id="${currentlyPlayingPianoId}"]`)?.getBoundingClientRect();
+    const playingLow = playing ? playing.right - view.left + strip.scrollLeft + STRIP_INSET - view.width : -Infinity;
+    const playingHigh = playing ? playing.left - view.left + strip.scrollLeft - STRIP_INSET : Infinity;
+
+    const keepInView = (left: number) =>
+      clamp(clamp(clamp(left, low, high), playingLow, playingHigh), 0, maxLeft);
+
+    let next: number;
+    // a chord starting to play pauses following too, but that's only set
+    // after this runs, so playing counts as paused here already
+    if (followPaused || playing) {
+      // stay put, short of letting a chord on screen fall out of view
+      next = keepInView(strip.scrollLeft);
+    } else if (resumingRef.current) {
+      resumingRef.current = false;
+      followPageYRef.current = window.scrollY;
+      next = keepInView(strip.scrollLeft);
+      followOffsetRef.current = next - target;
+    } else {
+      const scrolled = Math.abs(window.scrollY - followPageYRef.current);
+      followPageYRef.current = window.scrollY;
+      let offset = followOffsetRef.current * Math.exp(-scrolled / window.innerHeight);
+      if (Math.abs(offset) < 4) offset = 0;
+      next = keepInView(target + offset);
+      // whatever keeping the chords in view took off the offset stays off
+      followOffsetRef.current = next - target;
+    }
+
+    const left = next - strip.scrollLeft;
+    if (Math.abs(left) >= 1) strip.scrollBy({ left, behavior });
+  }, [followFirst, followLast, stripExpanded, chordOrder, followPaused, currentlyPlayingPianoId]);
 
   const navigateToPianoById = (pianoId: number): void => {
     const targetKey = `piano-${pianoId}`
@@ -175,11 +417,10 @@ export const HeaderComponent: React.FC = () => {
   }
 
   const handleItemClick = (id: number): void => {
+    // paused before the page starts scrolling to the chord, which can be
+    // before the chord is marked as playing
+    setFollowPaused(true)
     playChordById(dispatch, state, id)
-  }
-
-  const handleToggleSectionBreak = (id: number): void => {
-    withFlipTransition(() => dispatch({ type: "TOGGLE_SECTION_BREAK", id }))
   }
 
   const getCurrentSynthVolCode = (state: AppState): string => {
@@ -214,27 +455,20 @@ export const HeaderComponent: React.FC = () => {
   }
 
   /**
-   * each hairline between two chords toggles a section break after the
-   * first one, tilting into a slash while the break is in. the last chord
-   * only gets one when the progression ends with a break
+   * a hairline between two chords, tilted into a slash where a section
+   * break follows the first one. display only: breaks are added from the
+   * board, since a clickable seam this close to the chords was too easy
+   * to hit by mistake. the last chord only gets one when the progression
+   * ends with a break
    */
   const renderSeam = (piano: ChordPiano, isLast: boolean): React.ReactNode => {
     const isBreak = piano.breakAfter !== undefined
     if (isLast && !isBreak) return null
 
-    const label = `${isBreak ? "Remove section break after" : "Add section break after"} ${getChordDisplay(piano.selectedChord)}`
-
     return (
-      <button
-        type="button"
-        className="chord-seam"
-        aria-pressed={isBreak}
-        aria-label={label}
-        title={isBreak ? "Remove section break" : "Add section break"}
-        onClick={() => handleToggleSectionBreak(piano.id)}
-      >
-        <span className="section-slash" aria-hidden="true" />
-      </button>
+      <span className="chord-seam" data-break={isBreak || undefined} aria-hidden="true">
+        <span className="section-slash" />
+      </span>
     )
   }
 
@@ -318,31 +552,67 @@ export const HeaderComponent: React.FC = () => {
         </div>
 
         <div className="border-t border-border/70 bg-card/60">
-          <div className="mx-auto flex min-h-11 max-w-[62rem] items-center justify-center gap-2 px-4 py-2">
+          <div className="mx-auto flex min-h-11 max-w-[62rem] items-center gap-1 px-2 py-1 sm:px-4">
             <div
-              ref={progressionRef}
-              className="relative flex flex-wrap items-center justify-center gap-y-2"
-            >
-              {state.chordPianoSet?.length ? (
-                renderProgression()
-              ) : (
-                <span className="text-sm text-muted-foreground">No chords yet</span>
+              ref={stripRef}
+              className={cn(
+                "chord-strip min-w-0 flex-1 py-1.5",
+                stripExpanded ? "max-h-[40vh] overflow-y-auto" : "overflow-x-auto"
               )}
-              <span
-                className="chord-indicator"
-                aria-hidden="true"
-                data-snap={indicator.snap.toString()}
-                style={{
-                  width: indicator.width,
-                  transform: `translate(${indicator.x}px, ${indicator.y}px)`,
-                  opacity: indicator.visible ? 1 : 0
-                }}
-              />
+              data-overflow={(!stripExpanded && stripOverflow.canToggle) || undefined}
+              data-fade-start={stripOverflow.start || undefined}
+              data-fade-end={stripOverflow.end || undefined}
+            >
+              <div
+                ref={progressionRef}
+                className={cn(
+                  "relative flex items-center gap-y-2",
+                  // w-max + mx-auto centers a short strip and starts a long
+                  // one at its left edge, where justify-center would cut it
+                  // off. the padding keeps the first and last chords clear
+                  // of the strip's edges and their fade
+                  stripExpanded ? "flex-wrap justify-center px-2" : "mx-auto w-max px-4"
+                )}
+              >
+                {state.chordPianoSet?.length ? (
+                  renderProgression()
+                ) : (
+                  <span className="text-sm text-muted-foreground">No chords yet</span>
+                )}
+                <span
+                  className="chord-indicator"
+                  aria-hidden="true"
+                  data-snap={indicator.snap.toString()}
+                  style={{
+                    width: indicator.width,
+                    transform: `translate(${indicator.x}px, ${indicator.y}px)`,
+                    opacity: indicator.visible ? 1 : 0
+                  }}
+                />
+              </div>
             </div>
+            {stripOverflow.canToggle && (
+              <Button
+                variant="ghost"
+                size="icon-sm"
+                className="shrink-0"
+                aria-expanded={stripExpanded}
+                aria-label={stripExpanded ? "Show chords on one line" : "Show all chords"}
+                title={stripExpanded ? "Collapse" : "Show all chords"}
+                onClick={() => {
+                  followOffsetRef.current = 0;
+                  setStripExpanded(expanded => !expanded);
+                }}
+              >
+                <ChevronDown
+                  className={cn("transition-transform duration-300 motion-reduce:transition-none", stripExpanded && "rotate-180")}
+                />
+              </Button>
+            )}
             <Button
               variant="ghost"
               size="icon-sm"
-              className="ml-1 shrink-0"
+              className="shrink-0"
               aria-label="Edit progression as text"
               title="Edit progression as text"
               onClick={openProgressionEditor}
