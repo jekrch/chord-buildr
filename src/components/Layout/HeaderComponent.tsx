@@ -1,9 +1,10 @@
-import React, { useEffect, useLayoutEffect, useRef, useState } from "react"
+import React, { useCallback, useEffect, useLayoutEffect, useRef, useState } from "react"
 import { Link, scroller } from "react-scroll"
 import { ChevronDown, Eraser, Play, Plus, SquarePen, Undo2 } from "lucide-react"
 import { AppState, useAppContext } from "../context/AppContext"
 import { ChordPiano } from "../../utils/chordPianoHandler"
-import { playChordById } from "../../utils/synthPlayer"
+import { playChordById, subscribeToMobilePlayingChord } from "../../utils/synthPlayer"
+import { isMobile } from "react-device-detect"
 import { Button } from '../../components/ui/button'
 import { 
   getChordDisplay, 
@@ -27,6 +28,115 @@ interface PianoRange {
 // their fade
 const STRIP_INSET = 32
 
+// how briskly the strip glides to where it's headed (a critically damped
+// spring's natural frequency, per second): most of the way in about a
+// quarter second, settling over half a second without overshooting
+const STRIP_SPRING = 11
+
+type StripAxis = "left" | "top"
+
+/**
+ * glides the strip to a scroll position. a new destination mid-glide
+ * bends the strip's path from its current speed rather than starting over
+ * from a standstill, as a smooth scrollBy would, so following the page
+ * through a run of quick changes stays one continuous motion. it lets go
+ * as soon as the user takes hold of the strip
+ */
+const useStripGlide = (stripRef: React.RefObject<HTMLDivElement | null>) => {
+  const glideRef = useRef({ axis: "left" as StripAxis, target: 0, position: 0, velocity: 0, time: 0, frame: 0 });
+
+  const read = (strip: HTMLElement, axis: StripAxis) =>
+    axis === "left" ? strip.scrollLeft : strip.scrollTop;
+
+  const write = (strip: HTMLElement, axis: StripAxis, value: number) => {
+    if (axis === "left") strip.scrollLeft = value;
+    else strip.scrollTop = value;
+  };
+
+  const stop = useCallback(() => {
+    const glide = glideRef.current;
+    cancelAnimationFrame(glide.frame);
+    glide.frame = 0;
+    glide.velocity = 0;
+  }, []);
+
+  const step = useCallback((now: number) => {
+    const strip = stripRef.current;
+    const glide = glideRef.current;
+    if (!strip) {
+      glide.frame = 0;
+      return;
+    }
+
+    // something else moved the strip, e.g. the user scrolling it
+    if (Math.abs(read(strip, glide.axis) - glide.position) > 2) {
+      stop();
+      return;
+    }
+
+    // a stalled frame (a background tab) carries on rather than leaping
+    const dt = Math.min((now - glide.time) / 1000, 0.05);
+    glide.time = now;
+
+    const max = glide.axis === "left"
+      ? strip.scrollWidth - strip.clientWidth
+      : strip.scrollHeight - strip.clientHeight;
+    const target = Math.min(max, Math.max(0, glide.target));
+
+    // the spring's exact step, which holds steady at any frame rate
+    const offset = glide.position - target;
+    const decay = Math.exp(-STRIP_SPRING * dt);
+    const pull = (glide.velocity + STRIP_SPRING * offset) * dt;
+    glide.position = target + (offset + pull) * decay;
+    glide.velocity = (glide.velocity - STRIP_SPRING * pull) * decay;
+
+    if (Math.abs(glide.position - target) < 0.5 && Math.abs(glide.velocity) < 5) {
+      glide.position = target;
+      write(strip, glide.axis, target);
+      glide.frame = 0;
+      glide.velocity = 0;
+      return;
+    }
+
+    write(strip, glide.axis, glide.position);
+    glide.frame = requestAnimationFrame(step);
+  }, [stripRef, stop]);
+
+  const glideTo = useCallback((axis: StripAxis, target: number) => {
+    const strip = stripRef.current;
+    if (!strip) return;
+    const glide = glideRef.current;
+
+    if (prefersReducedMotion()) {
+      stop();
+      write(strip, axis, target);
+      return;
+    }
+
+    if (!glide.frame || glide.axis !== axis) {
+      stop();
+      if (Math.abs(target - read(strip, axis)) < 1) return;
+      glide.axis = axis;
+      glide.position = read(strip, axis);
+      glide.time = performance.now();
+      glide.frame = requestAnimationFrame(step);
+    }
+    glide.target = target;
+  }, [stripRef, step, stop]);
+
+  // where the strip is headed, or where it is when it's not moving
+  const destination = useCallback((axis: StripAxis) => {
+    const strip = stripRef.current;
+    const glide = glideRef.current;
+    if (!strip) return 0;
+    return glide.frame && glide.axis === axis ? glide.target : read(strip, axis);
+  }, [stripRef]);
+
+  useEffect(() => stop, [stop]);
+
+  return { glideTo, destination, stop };
+};
+
 interface ScrollOptions {
   duration: number
   smooth: boolean
@@ -48,6 +158,7 @@ export const HeaderComponent: React.FC = () => {
   const [activePianoId, setActivePianoId] = useState<number | undefined>(undefined);
   const [indicator, setIndicator] = useState({ x: 0, y: 0, width: 0, visible: false, snap: true });
   const stripRef = useRef<HTMLDivElement>(null);
+  const { glideTo: glideStrip, destination: stripDestination, stop: stopStripGlide } = useStripGlide(stripRef);
   const [stripExpanded, setStripExpanded] = useState(false);
   const [stripOverflow, setStripOverflow] = useState({ canToggle: false, start: false, end: false });
   const [visibleRange, setVisibleRange] = useState<PianoRange | null>(null);
@@ -65,8 +176,11 @@ export const HeaderComponent: React.FC = () => {
    * height expands due to large progressions
    */
   useEffect(() => {
-    const playingPianoId = state.chordPianoSet?.filter(piano => piano.isPlaying)[0]?.id;
-    setCurrentlyPlayingPianoId(playingPianoId);
+    // mobile doesn't mark chords as playing in state; see below
+    if (!isMobile) {
+      const playingPianoId = state.chordPianoSet?.filter(piano => piano.isPlaying)[0]?.id;
+      setCurrentlyPlayingPianoId(playingPianoId);
+    }
 
     const updateOffset = () => {
       if (headerRef.current) {
@@ -83,6 +197,13 @@ export const HeaderComponent: React.FC = () => {
       resizeObserver.disconnect();
     };
   }, [state.chordPianoSet]); // recalculate when chord set changes
+
+  // on mobile the player reports the playing chord to the header directly,
+  // since it doesn't dispatch it (see playChord)
+  useEffect(() => {
+    if (!isMobile) return;
+    return subscribeToMobilePlayingChord(setCurrentlyPlayingPianoId);
+  }, []);
 
   /**
    * Slide the strip's underline to the playing chord, or to the one the
@@ -159,8 +280,12 @@ export const HeaderComponent: React.FC = () => {
       if (stripExpanded || Math.abs(e.deltaY) <= Math.abs(e.deltaX)) return;
       if (strip.scrollWidth <= strip.clientWidth) return;
       e.preventDefault();
+      stopStripGlide();
       strip.scrollLeft += e.deltaY;
     };
+
+    // a glide toward the chords on screen lets go when the strip is touched
+    const handleTouch = () => stopStripGlide();
 
     measure();
     const resizeObserver = new ResizeObserver(measure);
@@ -168,12 +293,17 @@ export const HeaderComponent: React.FC = () => {
     resizeObserver.observe(row);
     strip.addEventListener("scroll", measure, { passive: true });
     strip.addEventListener("wheel", handleWheel, { passive: false });
+    strip.addEventListener("touchstart", handleTouch, { passive: true });
     return () => {
       resizeObserver.disconnect();
       strip.removeEventListener("scroll", measure);
       strip.removeEventListener("wheel", handleWheel);
+      strip.removeEventListener("touchstart", handleTouch);
     };
-  }, [stripExpanded, state.chordPianoSet]);
+  }, [stripExpanded, state.chordPianoSet, stopStripGlide]);
+
+  // expanding or collapsing the strip switches which way it scrolls
+  useEffect(() => stopStripGlide(), [stripExpanded, stopStripGlide]);
 
   /**
    * track which chords are on screen between the header and footer, as
@@ -284,14 +414,17 @@ export const HeaderComponent: React.FC = () => {
     const view = strip.getBoundingClientRect();
     const a = first.getBoundingClientRect();
     const b = last.getBoundingClientRect();
-    const behavior = prefersReducedMotion() ? "auto" : "smooth";
 
     if (stripExpanded) {
-      // up and down only as far as it takes to bring the chords into view
+      // up and down only as far as it takes to bring the chords into view,
+      // measured from where the strip is headed if it's already moving
+      const headedBy = stripDestination("top") - strip.scrollTop;
+      const aTop = a.top - view.top - headedBy;
+      const bBottom = b.bottom - view.bottom - headedBy;
       let top = 0;
-      if (a.top < view.top) top = a.top - view.top - 8;
-      else if (b.bottom > view.bottom) top = Math.min(b.bottom - view.bottom + 8, a.top - view.top - 8);
-      if (Math.abs(top) >= 1) strip.scrollBy({ top, behavior });
+      if (aTop < 0) top = aTop - 8;
+      else if (bBottom > 0) top = Math.min(bBottom + 8, aTop - 8);
+      if (Math.abs(top) >= 1) glideStrip("top", strip.scrollTop + headedBy + top);
       return;
     }
 
@@ -322,16 +455,20 @@ export const HeaderComponent: React.FC = () => {
     const keepInView = (left: number) =>
       clamp(clamp(clamp(left, low, high), playingLow, playingHigh), 0, maxLeft);
 
+    // where the strip is already gliding to, so a glide under way isn't
+    // pulled up short
+    const current = stripDestination("left");
+
     let next: number;
     // a chord starting to play pauses following too, but that's only set
     // after this runs, so playing counts as paused here already
     if (followPaused || playing) {
       // stay put, short of letting a chord on screen fall out of view
-      next = keepInView(strip.scrollLeft);
+      next = keepInView(current);
     } else if (resumingRef.current) {
       resumingRef.current = false;
       followPageYRef.current = window.scrollY;
-      next = keepInView(strip.scrollLeft);
+      next = keepInView(current);
       followOffsetRef.current = next - target;
     } else {
       const scrolled = Math.abs(window.scrollY - followPageYRef.current);
@@ -343,9 +480,8 @@ export const HeaderComponent: React.FC = () => {
       followOffsetRef.current = next - target;
     }
 
-    const left = next - strip.scrollLeft;
-    if (Math.abs(left) >= 1) strip.scrollBy({ left, behavior });
-  }, [followFirst, followLast, stripExpanded, chordOrder, followPaused, currentlyPlayingPianoId]);
+    if (Math.abs(next - current) >= 1) glideStrip("left", next);
+  }, [followFirst, followLast, stripExpanded, chordOrder, followPaused, currentlyPlayingPianoId, glideStrip, stripDestination]);
 
   const navigateToPianoById = (pianoId: number): void => {
     const targetKey = `piano-${pianoId}`
@@ -553,42 +689,49 @@ export const HeaderComponent: React.FC = () => {
 
         <div className="border-t border-border/70 bg-card/60">
           <div className="mx-auto flex min-h-11 max-w-[62rem] items-center gap-1 px-2 py-1 sm:px-4">
+            {/* the edge fade masks this wrapper rather than the scroller
+                itself, which mobile browsers can leave unpainted after a
+                view transition (an instrument switch) */}
             <div
-              ref={stripRef}
-              className={cn(
-                "chord-strip min-w-0 flex-1 py-1.5",
-                stripExpanded ? "max-h-[40vh] overflow-y-auto" : "overflow-x-auto"
-              )}
+              className="chord-strip-fade min-w-0 flex-1"
               data-overflow={(!stripExpanded && stripOverflow.canToggle) || undefined}
               data-fade-start={stripOverflow.start || undefined}
               data-fade-end={stripOverflow.end || undefined}
             >
               <div
-                ref={progressionRef}
+                ref={stripRef}
                 className={cn(
-                  "relative flex items-center gap-y-2",
-                  // w-max + mx-auto centers a short strip and starts a long
-                  // one at its left edge, where justify-center would cut it
-                  // off. the padding keeps the first and last chords clear
-                  // of the strip's edges and their fade
-                  stripExpanded ? "flex-wrap justify-center px-2" : "mx-auto w-max px-4"
+                  "chord-strip py-1.5",
+                  stripExpanded ? "max-h-[40vh] overflow-y-auto" : "overflow-x-auto"
                 )}
               >
-                {state.chordPianoSet?.length ? (
-                  renderProgression()
-                ) : (
-                  <span className="text-sm text-muted-foreground">No chords yet</span>
-                )}
-                <span
-                  className="chord-indicator"
-                  aria-hidden="true"
-                  data-snap={indicator.snap.toString()}
-                  style={{
-                    width: indicator.width,
-                    transform: `translate(${indicator.x}px, ${indicator.y}px)`,
-                    opacity: indicator.visible ? 1 : 0
-                  }}
-                />
+                <div
+                  ref={progressionRef}
+                  className={cn(
+                    "relative flex items-center gap-y-2",
+                    // w-max + mx-auto centers a short strip and starts a long
+                    // one at its left edge, where justify-center would cut it
+                    // off. the padding keeps the first and last chords clear
+                    // of the strip's edges and their fade
+                    stripExpanded ? "flex-wrap justify-center px-2" : "mx-auto w-max px-4"
+                  )}
+                >
+                  {state.chordPianoSet?.length ? (
+                    renderProgression()
+                  ) : (
+                    <span className="text-sm text-muted-foreground">No chords yet</span>
+                  )}
+                  <span
+                    className="chord-indicator"
+                    aria-hidden="true"
+                    data-snap={indicator.snap.toString()}
+                    style={{
+                      width: indicator.width,
+                      transform: `translate(${indicator.x}px, ${indicator.y}px)`,
+                      opacity: indicator.visible ? 1 : 0
+                    }}
+                  />
+                </div>
               </div>
             </div>
             {stripOverflow.canToggle && (

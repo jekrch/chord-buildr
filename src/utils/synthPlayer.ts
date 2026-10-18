@@ -575,8 +575,8 @@ export async function playChordById(
  * @param overrideOptions 
  */
 export async function playChord(
-  dispatch: React.Dispatch<any>, 
-  state: AppState, 
+  dispatch: React.Dispatch<any>,
+  state: AppState,
   chordPiano: ChordPiano,
   tabPositions?:  ChordPosition[]
 ): Promise<void> {
@@ -587,6 +587,8 @@ export async function playChord(
       id: chordPiano.id,
       payload: { ...chordPiano, isPlaying: true }
     })
+  } else {
+    setMobilePlayingChord(chordPiano.id)
   }
 
   try {
@@ -656,7 +658,34 @@ export async function playChord(
         payload: { ...chordPiano, isPlaying: false }
       })
     }, 1000)
+  } else {
+    setTimeout(() => {
+      // a chord played since has taken over
+      if (mobilePlayingChordId === chordPiano.id) setMobilePlayingChord(undefined)
+    }, 1000)
   }
+}
+
+/**
+ * on mobile the playing state isn't dispatched (see playChord), which
+ * leaves the header no way to tell which chord to mark in its strip. it
+ * subscribes here instead, which only re-renders the header
+ */
+type PlayingChordListener = (pianoId: number | undefined) => void
+
+const mobilePlayingListeners = new Set<PlayingChordListener>()
+let mobilePlayingChordId: number | undefined
+
+export function subscribeToMobilePlayingChord(listener: PlayingChordListener): () => void {
+  mobilePlayingListeners.add(listener)
+  return () => {
+    mobilePlayingListeners.delete(listener)
+  }
+}
+
+function setMobilePlayingChord(pianoId: number | undefined): void {
+  mobilePlayingChordId = pianoId
+  mobilePlayingListeners.forEach(listener => listener(pianoId))
 }
 
 /**

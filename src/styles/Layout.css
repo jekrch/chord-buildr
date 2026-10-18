@@ -443,27 +443,27 @@
 	the header strip scrolls sideways on one line with its scrollbar
 	hidden. once it overflows, both edges fade slightly, and an edge with
 	chords scrolled past it fades further, so the strip reads as
-	continuing rather than cut off
+	continuing rather than cut off. the mask sits on a wrapper, not the
+	scroller: a masked scroller can go unpainted on mobile after a view
+	transition, and it's only applied while there's something to fade
 */
 .chord-strip {
-	--fade-start: 0px;
-	--fade-end: 0px;
 	scrollbar-width: none;
-	-webkit-mask-image: linear-gradient(to right, transparent, #000 var(--fade-start), #000 calc(100% - var(--fade-end)), transparent);
-	mask-image: linear-gradient(to right, transparent, #000 var(--fade-start), #000 calc(100% - var(--fade-end)), transparent);
 }
 
 .chord-strip::-webkit-scrollbar {
 	display: none;
 }
 
-.chord-strip[data-overflow] {
+.chord-strip-fade[data-overflow] {
 	--fade-start: 0.75rem;
 	--fade-end: 0.75rem;
+	-webkit-mask-image: linear-gradient(to right, transparent, #000 var(--fade-start), #000 calc(100% - var(--fade-end)), transparent);
+	mask-image: linear-gradient(to right, transparent, #000 var(--fade-start), #000 calc(100% - var(--fade-end)), transparent);
 }
 
-.chord-strip[data-fade-start] { --fade-start: 1.75rem; }
-.chord-strip[data-fade-end]   { --fade-end: 1.75rem; }
+.chord-strip-fade[data-fade-start] { --fade-start: 1.75rem; }
+.chord-strip-fade[data-fade-end]   { --fade-end: 1.75rem; }
 
 .chord-link {
 	position: relative;
