@@ -12,12 +12,19 @@ Chord Buildr is implemented in React and uses Tone.js for audio playback.
 
 
 <p float="left">
-  <img height="300" src="https://github.com/user-attachments/assets/dab4d48f-c686-4a53-b9a3-45180aef4ffd" alt="Chord Buildr Desktop View"/>
+  <img height="300" src="docs/screenshots/desktop-piano.png" alt="Chord Buildr desktop view with piano keyboards"/>
   &nbsp;&nbsp;&nbsp;
-  <img height="300" src="https://github.com/user-attachments/assets/8dd0f3ac-b4bb-4e74-a3f7-688627b22608" alt="Chord Buildr Mobile View"/>
+  <img height="300" src="docs/screenshots/mobile-piano.png" alt="Chord Buildr mobile view"/>
 </p>
-  <img height="260" src="https://github.com/user-attachments/assets/5089b2c4-d26a-4f8c-be41-23c0ae9dbff8" alt="Chord Buildr Guitar Chords"/>
-  
+<p float="left">
+  <img width="49%" src="docs/screenshots/desktop-guitar.png" alt="Guitar chord diagrams"/>
+  <img width="49%" src="docs/screenshots/desktop-tabs.png" alt="Guitar tab view with progression sections"/>
+</p>
+<p float="left">
+  <img width="49%" src="docs/screenshots/export-tabs.png" alt="Export dialog with section labels and notes"/>
+  <img width="49%" src="docs/screenshots/desktop-settings.png" alt="Synth, equalizer, and display settings"/>
+</p>
+
 ## Features
 
 ### Core Functionality
