@@ -1,8 +1,8 @@
 import { flushSync } from "react-dom"
 
 // same curve as the enter keyframes in Layout.css
-const EASE_OUT = "cubic-bezier(0.22, 1, 0.36, 1)"
-const EXIT_MS = 180
+export const EASE_OUT = "cubic-bezier(0.22, 1, 0.36, 1)"
+export const EXIT_MS = 180
 const SETTLE_MS = 300
 
 export const prefersReducedMotion = (): boolean =>

@@ -41,6 +41,7 @@ export interface AppState {
 type PianoAction =
   | { type: "UPDATE_PIANO"; id?: number; payload: ChordPiano }
   | { type: "UPDATE_KEY"; id?: number; payload: SelectedKey }
+  | { type: "SET_PIANO_PLAYING"; id: number; isPlaying: boolean; releaseKeys?: boolean }
   | { type: "UPDATE_SYNTH"; synth: string }
   | { type: "UPDATE_SYNTH_VOLUME"; volume: number }
   | { type: "UPDATE_EQ"; eq: EQSettings }
@@ -151,6 +152,36 @@ const pianoReducer = (state: AppState, action: PianoAction): AppState => {
       return {
         ...state,
         chordPianoSet: updatedSet as any
+      };
+    }
+
+    /**
+     * playback only flips its flags on the piano as it is now. a chord can
+     * be changed while it plays, so playback must never write back the
+     * piano it started with
+     */
+    case "SET_PIANO_PLAYING": {
+      const chordPiano = getPianoById(state, action.id);
+
+      // removed while playing
+      if (!chordPiano) return state;
+
+      if (action.releaseKeys) {
+        chordPiano.piano?.forEach((pianoOctave) => {
+          pianoOctave.forEach((key) => {
+            if (key.isPlaying) {
+              key.isPlaying = false;
+              key.isStopping = true;
+            }
+          });
+        });
+      }
+
+      return {
+        ...state,
+        chordPianoSet: state.chordPianoSet?.map((piano) =>
+          piano.id === action.id ? { ...piano, isPlaying: action.isPlaying } : piano
+        )
       };
     }
 

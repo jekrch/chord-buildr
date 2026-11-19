@@ -218,22 +218,17 @@ describe('playChord', () => {
     )
 
     expect(mockDispatch).toHaveBeenCalledWith({
-      type: 'UPDATE_PIANO',
+      type: 'SET_PIANO_PLAYING',
       id: 1,
-      payload: {
-        ...mockChordPiano,
-        isPlaying: true
-      }
+      isPlaying: true
     })
 
     vi.advanceTimersByTime(1500)
     expect(mockDispatch).toHaveBeenLastCalledWith({
-      type: 'UPDATE_PIANO',
+      type: 'SET_PIANO_PLAYING',
       id: 1,
-      payload: expect.objectContaining({
-        id: 1,
-        isPlaying: false
-      })
+      isPlaying: false,
+      releaseKeys: true
     })
   })
 

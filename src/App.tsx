@@ -4,6 +4,7 @@ import { AppProvider } from './components/context/AppContext'
 import { HeaderComponent } from './components/Layout/HeaderComponent'
 import { PianoBoardComponent } from './components/PianoBoardComponent'
 import { FooterComponent } from './components/Layout/FooterComponent'
+import PageScrollbar from './components/Layout/PageScrollbar'
 import { ThemeProvider } from './components/theme-provider'
 
 
@@ -66,6 +67,7 @@ const App: React.FC = () => {
           </main>
 
           <FooterComponent />
+          <PageScrollbar />
         </AppProvider>
       </div>
     </ThemeProvider>

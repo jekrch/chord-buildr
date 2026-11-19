@@ -451,6 +451,25 @@
 	scrollbar-width: none;
 }
 
+/*
+	dragging across the cards or the strip (reordering, scrolling, a
+	near-miss on a handle) shouldn't paint a text selection over the
+	controls. inputs opt back in, since iOS won't let you type into a
+	field that inherits user-select: none
+*/
+.chord-card,
+.chord-strip {
+	-webkit-user-select: none;
+	user-select: none;
+	-webkit-touch-callout: none;
+}
+
+.chord-card :is(input, textarea, [contenteditable]),
+.chord-strip :is(input, textarea, [contenteditable]) {
+	-webkit-user-select: text;
+	user-select: text;
+}
+
 .chord-strip::-webkit-scrollbar {
 	display: none;
 }

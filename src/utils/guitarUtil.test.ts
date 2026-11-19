@@ -86,6 +86,57 @@ describe.each(instruments)("$instrument.name chord diagrams", ({ format, instrum
     expect(wrongNotes).toMatchSnapshot()
   })
 
+  // findChordPositions makes some shapes by moving a note of a chords-db
+  // shape. The snapshot lists them as tab, frets counted from the nut, to
+  // review for playability when it changes.
+  it("move notes into shapes a hand can play", () => {
+    const dbPositions = new Set<ChordPosition>(
+      Object.values(instrument.chords as Record<string, ChordEntry[]>)
+        .flatMap(group => group.flatMap(chord => chord.positions))
+    )
+    const problems: string[] = []
+    const shapes: string[] = []
+
+    for (const type of Object.keys(chordMap)) {
+      for (const noteLetter of ROOTS) {
+        findChordPositions({ noteLetter, type }, instrument.chords, format).forEach((position, i) => {
+          if (dbPositions.has(position)) return
+
+          const name = `${noteLetter}${type} #${i + 1}`
+          const fingerFrets = new Map<number, Set<number>>()
+
+          if (positionMidi(position, openStrings).join() !== position.midi.join()) {
+            problems.push(`${name}: midi ${position.midi} doesn't match the frets`)
+          }
+          position.frets.forEach((fret, string) => {
+            const finger = position.fingers[string]
+            if (fret > instrument.fretsOnChord) problems.push(`${name}: fret ${fret} is off the diagram`)
+            if (fret > 0 && !finger) problems.push(`${name}: string ${string + 1} has no finger`)
+            if (fret <= 0 && finger) problems.push(`${name}: string ${string + 1} isn't fretted but has a finger`)
+            if (fret > 0) fingerFrets.set(finger, (fingerFrets.get(finger) ?? new Set()).add(fret))
+          })
+          fingerFrets.forEach((frets, finger) => {
+            if (frets.size > 1) problems.push(`${name}: finger ${finger} is on more than one fret`)
+          })
+          position.barres.forEach(barre => {
+            if (position.frets.filter(fret => fret === barre).length < 2) {
+              problems.push(`${name}: barre at ${barre} holds fewer than two notes`)
+            }
+          })
+
+          const tab = position.frets
+            .map(fret => (fret < 0 ? "x" : fret === 0 ? 0 : fret + position.baseFret - 1))
+            .join(" ")
+          const fingers = position.fingers.map(finger => finger || "-").join(" ")
+          shapes.push(`${name}: ${tab}  (fingers ${fingers})`)
+        })
+      }
+    }
+
+    expect(problems).toEqual([])
+    expect(shapes).toMatchSnapshot()
+  })
+
   it("exist for every chord type not in UNSUPPORTED_GUITAR_CHORDS", () => {
     const missing = Object.keys(chordMap).flatMap(type =>
       ROOTS
@@ -96,7 +147,7 @@ describe.each(instruments)("$instrument.name chord diagrams", ({ format, instrum
       missing.filter(m => m.type === type).length === ROOTS.length
 
     const unsupportedTypes = new Set(missing.map(m => m.type).filter(isMissingEverywhere))
-    expect([...unsupportedTypes].sort()).toEqual([...UNSUPPORTED_GUITAR_CHORDS].sort())
+    expect([...unsupportedTypes].sort()).toEqual([...UNSUPPORTED_GUITAR_CHORDS[format]].sort())
 
     // supported types that have no diagram for some roots
     const gaps = missing

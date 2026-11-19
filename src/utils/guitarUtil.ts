@@ -61,21 +61,30 @@ function isGuitar(format: string): boolean {
   return ["g", "u"].includes(format)
 }
 
-export const UNSUPPORTED_GUITAR_CHORDS = [
-  'add2', 
-  'm13', 
-  '7#11', 
-  'm7#9', 
-  'm7b9', 
-  'm7#5', 
-  'm7#11', 
-  '9sus4',
-  '5',
-  '7sus2',
-  // chords-db's "alt" voicings are 1 3 b5, not the altered dominant in chordMap
-  'alt',
-  'x'
-]
+/**
+ * Chord types with no diagram in any key, by format. Types are only listed
+ * once nothing fits, borrowed and moved-note voicings included (see
+ * findFallbackPositions).
+ */
+export const UNSUPPORTED_GUITAR_CHORDS: Record<string, string[]> = {
+  g: [
+    'm7#11',
+    '5',
+    'x'
+  ],
+  u: [
+    'm13',
+    '7#11',
+    'm7b9',
+    'm7#11',
+    '9sus4',
+    '5',
+    // chords-db's "alt" voicings are 1 3 b5, not the altered dominant in
+    // chordMap, and no other ukulele voicing has the right notes
+    'alt',
+    'x'
+  ]
+}
 
 const guitarKeyMap: Record<number, string> = {
   1: 'C',
@@ -165,6 +174,242 @@ const normalizeKey = (keyNoteNumber: number, format: string): string => {
       .sort((a, b) => a - b);
   };
 
+  /**
+   * Returns the intervals (0-11) a voicing has to sound to count as the chord
+   * type. The perfect 5th may be left out of chords with four or more notes,
+   * as is usual on guitar, unless the chord also has a b5/#11 or #5: without
+   * the natural 5th those read as an altered fifth (a m7#11 with no 5th is a
+   * m7b5). 13th chords may also leave out the 11th, as they usually do.
+   */
+  const getRequiredIntervals = (type: string): number[] => {
+    const chordIntervals = chordMap[type] ?? [];
+    const intervals = [...new Set(chordIntervals.map(interval => interval % 12))];
+    const optional = new Set<number>();
+    if (intervals.length >= 4 && !intervals.includes(6) && !intervals.includes(8)) {
+      optional.add(7);
+    }
+    if (chordIntervals.includes(21) && chordIntervals.includes(17)) {
+      optional.add(17 % 12);
+    }
+    return intervals.filter(interval => !optional.has(interval));
+  };
+
+  /**
+   * Whether the position sounds every required tone of the chord type and
+   * nothing outside it
+   */
+  const isVoicingOf = (position: ChordPosition, rootNoteNumber: number, type: string): boolean => {
+    if (getNonChordIntervals(position, rootNoteNumber, type).length) {
+      return false;
+    }
+    const rootPitchClass = (rootNoteNumber - 1) % 12;
+    const sounded = new Set(position.midi.map(midi => (midi - rootPitchClass + 12) % 12));
+    return getRequiredIntervals(type).every(interval => sounded.has(interval));
+  };
+
+  // both instruments' diagrams show four frets
+  const DIAGRAM_FRETS = 4;
+
+  /**
+   * The position's frets counted from the nut rather than from its base
+   * fret: 0 is an open string and -1 a muted one
+   */
+  const getAbsoluteFrets = (position: ChordPosition): number[] =>
+    position.frets.map(fret => (fret > 0 ? fret + position.baseFret - 1 : fret));
+
+  /**
+   * The midi note each string sounds, or null for muted strings
+   */
+  const getStringMidi = (position: ChordPosition): (number | null)[] => {
+    let next = 0;
+    return position.frets.map(fret => (fret < 0 ? null : position.midi[next++]));
+  };
+
+  /**
+   * Returns the finger on each string (0 for open and muted strings) for
+   * frets counted from the nut, or null when one hand can't hold them. A
+   * barre is one finger on every note at its fret; every other note gets a
+   * finger of its own, numbered from the lowest fret up (low strings first
+   * at the same fret). A barre can't pass over an open string or a lower
+   * note, and two fingers stretch at most one fret further apart than one
+   * finger per fret.
+   */
+  const getFingering = (frets: number[], barres: number[], capo: boolean): number[] | null => {
+    const slots: { fret: number, strings: number[] }[] = [];
+
+    for (const [i, barre] of barres.entries()) {
+      const strings = frets.flatMap((fret, string) => (fret === barre ? [string] : []));
+      // a capo barre is drawn across every string
+      const [first, last] = capo && i === 0
+        ? [0, frets.length - 1]
+        : [strings[0], strings[strings.length - 1]];
+      if (frets.slice(first, last + 1).some(fret => fret === 0 || (fret > 0 && fret < barre))) {
+        return null;
+      }
+      slots.push({ fret: barre, strings });
+    }
+
+    frets.forEach((fret, string) => {
+      if (fret > 0 && !barres.includes(fret)) slots.push({ fret, strings: [string] });
+    });
+
+    if (slots.length > 4) return null;
+
+    slots.sort((a, b) => a.fret - b.fret || a.strings[0] - b.strings[0]);
+    for (let a = 0; a < slots.length; a++) {
+      for (let b = a + 1; b < slots.length; b++) {
+        if (slots[b].fret - slots[a].fret > b - a + 1) return null;
+      }
+    }
+
+    const fingers = frets.map(() => 0);
+    slots.forEach((slot, i) => slot.strings.forEach(string => { fingers[string] = i + 1; }));
+    return fingers;
+  };
+
+  /**
+   * Returns the position with the notes on the strings moved by the number
+   * of frets, keeping its barres that still hold two notes, or null when the
+   * result doesn't fit the diagram or a hand (see getFingering).
+   */
+  const moveNotes = (position: ChordPosition, strings: number[], by: number): ChordPosition | null => {
+    const frets = getAbsoluteFrets(position);
+    const stringMidi = getStringMidi(position);
+
+    for (const string of strings) {
+      if (frets[string] < 0 || frets[string] + by < 0) return null;
+      frets[string] += by;
+      stringMidi[string] = stringMidi[string]! + by;
+    }
+
+    const fretted = frets.filter(fret => fret > 0);
+    const low = Math.min(...fretted);
+    const high = Math.max(...fretted);
+    let baseFret: number;
+    if (!fretted.length || high <= DIAGRAM_FRETS) {
+      baseFret = 1;
+    } else if (low >= position.baseFret && high < position.baseFret + DIAGRAM_FRETS) {
+      baseFret = position.baseFret;
+    } else if (high - low < DIAGRAM_FRETS) {
+      baseFret = low;
+    } else {
+      return null;
+    }
+
+    const originalBarres = position.barres.map(barre => barre + position.baseFret - 1);
+    const barres = originalBarres.filter(barre => frets.filter(fret => fret === barre).length >= 2);
+    const capo = Boolean(position.capo) && barres.length > 0 && barres[0] === originalBarres[0];
+    const fingers = getFingering(frets, barres, capo);
+    if (!fingers) return null;
+
+    return {
+      baseFret,
+      frets: frets.map(fret => (fret > 0 ? fret - baseFret + 1 : fret)),
+      fingers,
+      barres: barres.map(barre => barre - baseFret + 1),
+      capo,
+      midi: stringMidi.filter((midi): midi is number => midi !== null),
+    };
+  };
+
+  /**
+   * A way to make a chord type chords-db doesn't have from shapes for a
+   * related chord, by moving one chord tone along its string, the way
+   * guitarists learn these chords: a m7#5 is a m7 shape with the 5th raised
+   * a fret.
+   */
+  interface NoteMove {
+    // chords-db suffixes of the shapes to start from
+    from: string[];
+    // the chord tone to move, in semitones above the root
+    interval: number;
+    // how many frets to move it, up (+) or down (-)
+    by: number;
+    // 'all' moves every string sounding the tone, leaving none of it behind;
+    // 'one' moves one of them, making a voicing for each choice. Neither
+    // moves the bass note.
+    strings: 'all' | 'one';
+  }
+
+  const NOTE_MOVES: Record<string, NoteMove[]> = {
+    'm7#5': [{ from: ['m7'], interval: 7, by: 1, strings: 'all' }],
+    'm7b9': [{ from: ['m9'], interval: 2, by: -1, strings: 'all' }],
+    '9sus4': [{ from: ['9'], interval: 4, by: 1, strings: 'all' }],
+    // a doubled root down a whole step to the b7
+    '7sus2': [{ from: ['sus2'], interval: 0, by: -2, strings: 'one' }],
+    // a 5th up a whole step to the 13th
+    'm13': [{ from: ['m9', 'm11'], interval: 7, by: 2, strings: 'one' }],
+  };
+
+  /**
+   * Returns the voicings NOTE_MOVES makes for the chord type from the root's
+   * chords-db shapes. They still need checking for the chord's notes.
+   */
+  const findMovedPositions = (
+    chordGroup: ChordInfo[],
+    rootNoteNumber: number,
+    type: string
+  ): ChordPosition[] => {
+    const rootPitchClass = (rootNoteNumber - 1) % 12;
+
+    return (NOTE_MOVES[type] ?? []).flatMap(move =>
+      chordGroup
+        .filter(chord => move.from.includes(chord.suffix))
+        .flatMap(chord => chord.positions)
+        .flatMap(position => {
+          const stringMidi = getStringMidi(position);
+          const strings = stringMidi.flatMap((midi, s) =>
+            midi !== null && (midi - rootPitchClass + 120) % 12 === move.interval ? [s] : []);
+
+          // the bass note stays put: moving it would make a different chord
+          // (a m7 shape with its 5th in the bass and raised is an add9 chord)
+          const bass = Math.min(...stringMidi.filter((midi): midi is number => midi !== null));
+          const movable = strings.filter(s => stringMidi[s] !== bass);
+
+          if (move.strings === 'all') {
+            return movable.length && movable.length === strings.length
+              ? [moveNotes(position, strings, move.by)]
+              : [];
+          }
+          return movable.map(s => moveNotes(position, [s], move.by));
+        })
+        .filter((position): position is ChordPosition => position !== null)
+    );
+  };
+
+  /**
+   * Returns voicings for a chord type chords-db has no correct voicing for
+   * under its own name, lowest on the neck first:
+   * - shapes filed under the root's other chord names that sound the right
+   *   notes: an add9 shape is also an add2, and a 9#11 shape without the 9th
+   *   is a 7#11
+   * - shapes made by moving one note of a related chord's shape (NOTE_MOVES)
+   */
+  const findFallbackPositions = (
+    chordGroup: ChordInfo[],
+    rootNoteNumber: number,
+    type: string
+  ): ChordPosition[] => {
+    const borrowed = chordGroup
+      // slash chords put a note other than the root in the bass
+      .filter(chord => !chord.suffix.includes('/'))
+      .flatMap(chord => chord.positions);
+    const moved = findMovedPositions(chordGroup, rootNoteNumber, type);
+    const shapes = new Set<string>();
+
+    // borrowed shapes come first so a chords-db fingering wins over a moved
+    // shape that ends up the same
+    return [...borrowed, ...moved]
+      .filter(position => isVoicingOf(position, rootNoteNumber, type))
+      .filter(position => {
+        const shape = getAbsoluteFrets(position).join();
+        if (shapes.has(shape)) return false;
+        shapes.add(shape);
+        return true;
+      })
+      .sort((a, b) => a.baseFret - b.baseFret);
+  };
+
   const parseChordName =(chordName: string): { root: string; suffix: string; bass?: string } => {
     // match pattern: root + suffix + optional bass note
     const pattern = /^([A-G][b#]?)([^/]*)(?:\/([A-G][b#]?))?$/;
@@ -213,17 +458,22 @@ const normalizeKey = (keyNoteNumber: number, format: string): string => {
   
       // find the specific chord type
       const chord = chordGroup.find(c => c.suffix === normalizedSuffix);
-      
-      if (!chord) {
-        console.warn(`No chord positions found for: ${root}${suffix}`);
-        return [];
-      }
-    
+
       // chords-db has some voicings with wrong notes; hide them rather than
       // show a diagram for a different chord
-      return chord.positions.filter(
+      const positions = (chord?.positions ?? []).filter(
         position => getNonChordIntervals(position, noteNumber!, suffix).length === 0
       );
+
+      if (positions.length) {
+        return positions;
+      }
+
+      const fallback = findFallbackPositions(chordGroup, noteNumber!, suffix);
+      if (!fallback.length) {
+        console.warn(`No chord positions found for: ${root}${suffix}`);
+      }
+      return fallback;
 
     } catch (error: any) {
       console.error(`Error finding chord positions: ${error.message}`);

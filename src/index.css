@@ -2,10 +2,59 @@
 @tailwind components;
 @tailwind utilities;
 
-/* radix scroll-lock would otherwise shift the page when a dialog opens */
-html body[data-scroll-locked] {
-	overflow: visible !important;
-	margin-right: 0 !important;
+/*
+	the page scrollbar on mouse devices: the native one runs the full window
+	height beside the fixed header and footer and takes width when it shows
+	up, so it's hidden and components/Layout/PageScrollbar draws one between
+	the bars instead. touch devices keep their native overlay scrollbar
+*/
+.page-scrollbar {
+	display: none;
+}
+
+@media (hover: hover) and (pointer: fine) {
+	html {
+		scrollbar-width: none;
+	}
+
+	html::-webkit-scrollbar {
+		display: none;
+	}
+
+	.page-scrollbar {
+		display: block;
+		position: fixed;
+		right: 0;
+		/* under the header, footer and dialog overlay (z-50) */
+		z-index: 40;
+		width: 10px;
+	}
+}
+
+.page-scrollbar[data-hidden] {
+	display: none;
+}
+
+.page-scrollbar-thumb {
+	position: absolute;
+	inset: 0 0 auto 0;
+	border: 2px solid transparent;
+	border-radius: 9999px;
+	background-clip: content-box;
+	background-color: hsl(var(--scrollbar-thumb));
+	touch-action: none;
+	transition: background-color 120ms ease-out;
+}
+
+.page-scrollbar-thumb:hover,
+.page-scrollbar[data-dragging] .page-scrollbar-thumb {
+	background-color: hsl(var(--scrollbar-thumb-hover));
+}
+
+@media print {
+	.page-scrollbar {
+		display: none !important;
+	}
 }
 
 @layer base {

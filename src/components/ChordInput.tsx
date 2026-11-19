@@ -343,7 +343,7 @@ export const ChordInput: React.FC<ChordInputProps> = ({ pianoComponentId, classN
     
     if (
       isGuitar(state.format) && 
-      UNSUPPORTED_GUITAR_CHORDS.includes(option)
+      UNSUPPORTED_GUITAR_CHORDS[state.format]?.includes(option)
     ) {
       return (
         <span className="text-muted-foreground/60">

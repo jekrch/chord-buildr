@@ -83,29 +83,13 @@ function getSelectedNotes(piano: NoteKey[][]): string[] {
   return selectedNotes
 }
 
-function clearPianoKeyPlaying(dispatch: React.Dispatch<any>, pianoComponent: ChordPiano): void {
+function clearPianoKeyPlaying(dispatch: React.Dispatch<any>, pianoId: number): void {
   setTimeout(() => {
-    const piano = pianoComponent.piano
-    if (!piano) return
-
-    for (let i = 0; i < piano.length; i++) {
-      const pianoOctave = piano[i]
-
-      for (let z = 0; z < pianoOctave.length; z++) {
-        const key = pianoOctave[z]
-        if (key.isPlaying) {
-          key.isPlaying = false
-          key.isStopping = true
-        }
-      }
-    }
-
-    pianoComponent.isPlaying = false
-    
     dispatch({
-      type: "UPDATE_PIANO",
-      id: pianoComponent.id,
-      payload: pianoComponent
+      type: "SET_PIANO_PLAYING",
+      id: pianoId,
+      isPlaying: false,
+      releaseKeys: true
     })
   }, 1500)
 }
@@ -583,9 +567,9 @@ export async function playChord(
 
   if (!isMobile) {
     dispatch({
-      type: "UPDATE_PIANO",
+      type: "SET_PIANO_PLAYING",
       id: chordPiano.id,
-      payload: { ...chordPiano, isPlaying: true }
+      isPlaying: true
     })
   } else {
     setMobilePlayingChord(chordPiano.id)
@@ -649,13 +633,13 @@ export async function playChord(
   }
 
   if (!isMobile) {
-    clearPianoKeyPlaying(dispatch, chordPiano)
+    clearPianoKeyPlaying(dispatch, chordPiano.id)
 
     setTimeout(() => {
       dispatch({
-        type: "UPDATE_PIANO",
+        type: "SET_PIANO_PLAYING",
         id: chordPiano.id,
-        payload: { ...chordPiano, isPlaying: false }
+        isPlaying: false
       })
     }, 1000)
   } else {

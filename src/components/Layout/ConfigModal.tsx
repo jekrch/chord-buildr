@@ -22,6 +22,7 @@ import { DEFAULT_EQ, EQSettings, notEqual, playChord } from '../../utils/synthPl
 import { SYNTH_TYPES as SYNTH_TYPES } from '../../utils/synthLibrary'
 import { FormatToggle, FretViewToggle } from '../InlineConfig'
 import { isGuitar } from '../../utils/guitarUtil'
+import { cn } from '../../lib/utils'
 
 interface ConfigModalProps {
   open: boolean
@@ -236,18 +237,33 @@ export function ConfigModal({ open, onOpenChange }: ConfigModalProps): JSX.Eleme
             <p className="text-xs text-muted-foreground">
               Choose the instrument chords are shown on.
             </p>
-            {isGuitar(format) && (
-              <>
-                <FretViewToggle
-                  value={state.fretView}
-                  onChange={handleFretViewChange}
-                  className="flex w-full [&>button]:flex-1 [&>button]:justify-center"
-                />
-                <p className="text-xs text-muted-foreground">
-                  Full shows each chord's controls; Tab shows a compact chart of names and tabs.
-                </p>
-              </>
-            )}
+            {/*
+              always mounted and collapsed by height rather than added and
+              removed, so switching instrument grows or shrinks the dialog
+              (which is centered, so it re-centers along with it) instead of
+              snapping it to the new size in one frame
+            */}
+            <div
+              className={cn(
+                "!mt-0 grid transition-[grid-template-rows,opacity] duration-[220ms] ease-[cubic-bezier(0.22,1,0.36,1)] motion-reduce:transition-none",
+                isGuitar(format) ? "grid-rows-[1fr] opacity-100" : "grid-rows-[0fr] opacity-0"
+              )}
+              inert={!isGuitar(format)}
+            >
+              {/* -mx-1 px-1 leaves room for the toggle's focus ring */}
+              <div className="-mx-1 min-h-0 overflow-hidden px-1">
+                <div className="space-y-3 pt-3">
+                  <FretViewToggle
+                    value={state.fretView}
+                    onChange={handleFretViewChange}
+                    className="flex w-full [&>button]:flex-1 [&>button]:justify-center"
+                  />
+                  <p className="text-xs text-muted-foreground">
+                    Full shows each chord's controls; Tab shows a compact chart of names and tabs.
+                  </p>
+                </div>
+              </div>
+            </div>
           </section>
         </div>
       </DialogContent>
