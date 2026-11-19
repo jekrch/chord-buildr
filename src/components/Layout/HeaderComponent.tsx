@@ -689,6 +689,17 @@ export const HeaderComponent: React.FC = () => {
 
         <div className="border-t border-border/70 bg-card/60">
           <div className="mx-auto flex min-h-11 max-w-[62rem] items-center gap-1 px-2 py-1 sm:px-4">
+            {/* mirrors the trailing buttons so the strip stays centered on
+                the page. dropped while a collapsed strip overflows: it then
+                scrolls from its left edge, so the room matters more than
+                symmetry (and the strip keeps the same width either way, as
+                the chevron appears exactly when the spacer goes) */}
+            {(!stripOverflow.canToggle || stripExpanded) && (
+              <div className="flex shrink-0 gap-1" aria-hidden="true">
+                {stripOverflow.canToggle && <span className="size-8" />}
+                <span className="size-8" />
+              </div>
+            )}
             {/* the edge fade masks this wrapper rather than the scroller
                 itself, which mobile browsers can leave unpainted after a
                 view transition (an instrument switch) */}

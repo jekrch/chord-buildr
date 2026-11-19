@@ -121,7 +121,6 @@ const PageScrollbar: React.FC = () => {
       className="page-scrollbar"
       style={{ top: navHeight, bottom: FOOTER_HEIGHT }}
       aria-hidden="true"
-      data-hidden=""
     >
       <div ref={thumbRef} className="page-scrollbar-thumb" />
     </div>

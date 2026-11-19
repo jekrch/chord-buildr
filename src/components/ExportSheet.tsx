@@ -133,8 +133,12 @@ const PianoDiagram: React.FC<{ chordPiano: ChordPiano }> = ({ chordPiano }) => {
 
 const DiagramCell: React.FC<{ chordPiano: ChordPiano; format: string }> = ({ chordPiano, format }) => {
   let art: React.ReactNode
+  let chord = chordPiano.selectedChord
   if (isGuitar(format)) {
-    const { instrument, tabPositions, position } = getChordChart(chordPiano, format)
+    const { instrument, tabPositions, position, chartChord } = getChordChart(chordPiano, format)
+    // named after what the tab shows, which leaves out a slash note no
+    // voicing has under it
+    chord = chartChord
     art = tabPositions.length
       ? <Chord chord={tabPositions[position]} instrument={instrument} />
       : <span className="sheet-diagram__missing">No tab</span>
@@ -144,7 +148,7 @@ const DiagramCell: React.FC<{ chordPiano: ChordPiano; format: string }> = ({ cho
 
   return (
     <div className="sheet-diagram">
-      <ChordName chord={chordPiano.selectedChord} className="sheet-diagram__name" />
+      <ChordName chord={chord} className="sheet-diagram__name" />
       <div className="sheet-diagram__art">{art}</div>
     </div>
   )

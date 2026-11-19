@@ -24,10 +24,12 @@ export const ChordChartCard: React.FC<ChordChartCardProps> = ({ pianoComponentId
 
   if (!chordPiano) return null
 
-  const { instrument, tabPositions, position } = getChordChart(chordPiano, state.format)
+  const { instrument, tabPositions, position, chartChord } = getChordChart(chordPiano, state.format)
   const leaving = leavingFormat ? getChordChart(chordPiano, leavingFormat) : null
   const entering = Boolean(leavingFormat)
-  const name = getChordDisplay(chordPiano.selectedChord)
+  // named after what the tab shows, which leaves out a slash note no
+  // voicing has under it
+  const name = getChordDisplay(chartChord)
   const isPlaying = Boolean(chordPiano.isPlaying)
 
   const handlePlayClick = (): void => {

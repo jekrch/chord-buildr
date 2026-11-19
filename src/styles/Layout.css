@@ -212,6 +212,17 @@
 	flex: 0 0 3.875rem;
 }
 
+/* guitar cards' controls column can be too narrow for type and bass side
+   by side; the bass note then drops to a line of its own under the type */
+.chord-card--guitar .chord-form__type-row {
+	flex-wrap: wrap;
+	row-gap: 0.5rem;
+}
+
+.chord-card--guitar .chord-form__type {
+	flex-basis: 5.5rem;
+}
+
 @media (max-width: 859.98px) {
 	.chord-card--piano .chord-form {
 		column-gap: 0.75rem;

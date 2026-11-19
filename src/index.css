@@ -31,8 +31,10 @@
 	}
 }
 
+/* not display: none, the track has to keep its height to be measured */
 .page-scrollbar[data-hidden] {
-	display: none;
+	visibility: hidden;
+	pointer-events: none;
 }
 
 .page-scrollbar-thumb {

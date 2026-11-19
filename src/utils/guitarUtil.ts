@@ -9,7 +9,7 @@ export interface Instrument {
   fretsOnChord: number,
   name: string,
   tunings: { standard: string[] }
-  chords: any
+  chords: Record<string, ChordInfo[]>
 }
 
 export const guitarInstrument: Instrument = {
@@ -282,6 +282,21 @@ const normalizeKey = (keyNoteNumber: number, format: string): string => {
       stringMidi[string] = stringMidi[string]! + by;
     }
 
+    return buildPosition(position, frets, stringMidi);
+  };
+
+  /**
+   * Returns the position for new frets counted from the nut (-1 muted) and
+   * the midi note each string sounds, made from the position they came from:
+   * it keeps the old barres that still hold two notes and works out the
+   * fingers again. Null when the frets don't fit the diagram or a hand (see
+   * getFingering).
+   */
+  const buildPosition = (
+    position: ChordPosition,
+    frets: number[],
+    stringMidi: (number | null)[]
+  ): ChordPosition | null => {
     const fretted = frets.filter(fret => fret > 0);
     const low = Math.min(...fretted);
     const high = Math.max(...fretted);
@@ -410,6 +425,125 @@ const normalizeKey = (keyNoteNumber: number, format: string): string => {
       .sort((a, b) => a.baseFret - b.baseFret);
   };
 
+  // midi notes of the open strings, low string first, in standard tuning
+  const OPEN_STRING_MIDI: Record<string, number[]> = {
+    g: [40, 45, 50, 55, 59, 64],
+    // re-entrant tuning: the G string is above middle C
+    u: [67, 60, 64, 69],
+  };
+
+  // the fewest strings a slash chord voicing made here (see
+  // findBassNotePositions) may sound
+  const MIN_SLASH_STRINGS: Record<string, number> = { g: 4, u: 3 };
+
+  // the highest fret a bass note is put on
+  const MAX_BASS_FRET = 15;
+
+  const getBassPitchClass = (position: ChordPosition): number =>
+    Math.min(...position.midi) % 12;
+
+  /**
+   * Whether the position sounds the chord type over the bass note: the bass
+   * note is the lowest note, every other note belongs to the chord, and
+   * every required tone sounds (see getRequiredIntervals)
+   */
+  const isSlashVoicingOf = (
+    position: ChordPosition,
+    rootNoteNumber: number,
+    type: string,
+    bassPitchClass: number
+  ): boolean => {
+    if (getBassPitchClass(position) !== bassPitchClass) return false;
+    const rootPitchClass = (rootNoteNumber - 1) % 12;
+    const bassInterval = (bassPitchClass - rootPitchClass + 12) % 12;
+    if (getNonChordIntervals(position, rootNoteNumber, type).some(interval => interval !== bassInterval)) {
+      return false;
+    }
+    const sounded = new Set(position.midi.map(midi => (midi - rootPitchClass + 12) % 12));
+    return getRequiredIntervals(type).every(interval => sounded.has(interval));
+  };
+
+  /**
+   * Returns voicings of a slash chord made from voicings of the chord
+   * without its bass note, the way guitarists make them: one string is moved
+   * to (or put on) the bass note and the strings that would sound below it
+   * are muted. G 320003 with its low string muted is a G/B; C x32010 with
+   * the low string on the 3rd fret is a C/G. Only strings lower than the
+   * bass note's string are muted, and the result still has to sound the
+   * whole chord. Unchecked strings count as playable; see buildPosition.
+   */
+  const findBassNotePositions = (
+    sources: ChordPosition[],
+    rootNoteNumber: number,
+    type: string,
+    bassPitchClass: number,
+    format: string
+  ): ChordPosition[] => {
+    const openMidi = OPEN_STRING_MIDI[format];
+
+    return sources.flatMap(position => {
+      const frets = getAbsoluteFrets(position);
+      const stringMidi = getStringMidi(position);
+
+      return openMidi.flatMap((open, string) => {
+        const voicings: ChordPosition[] = [];
+
+        for (let fret = (bassPitchClass - (open % 12) + 12) % 12; fret <= MAX_BASS_FRET; fret += 12) {
+          const bass = open + fret;
+          const below = stringMidi.flatMap((midi, s) =>
+            s !== string && midi !== null && midi < bass ? [s] : []);
+          if (below.some(s => s > string)) continue;
+
+          const newFrets = frets.map((f, s) => (s === string ? fret : below.includes(s) ? -1 : f));
+          const newMidi = stringMidi.map((midi, s) => (s === string ? bass : below.includes(s) ? null : midi));
+          if (newMidi.filter(midi => midi !== null).length < MIN_SLASH_STRINGS[format]) continue;
+
+          const voicing = buildPosition(position, newFrets, newMidi);
+          if (voicing && isSlashVoicingOf(voicing, rootNoteNumber, type, bassPitchClass)) {
+            voicings.push(voicing);
+          }
+        }
+        return voicings;
+      });
+    });
+  };
+
+  /**
+   * Returns voicings of the chord type over a bass note other than its
+   * root, lowest on the neck first, from:
+   * - the chord's own voicings that already have the bass note lowest
+   * - chords-db shapes filed under the root's other names, its slash chords
+   *   included (C "/E" is a C/E), that sound the slash chord
+   * - voicings made by moving or adding a bass note (findBassNotePositions)
+   */
+  const findSlashPositions = (
+    chordGroup: ChordInfo[],
+    positions: ChordPosition[],
+    rootNoteNumber: number,
+    type: string,
+    bassPitchClass: number,
+    format: string
+  ): ChordPosition[] => {
+    const inverted = positions.filter(position => getBassPitchClass(position) === bassPitchClass);
+    const borrowed = chordGroup
+      .flatMap(chord => chord.positions)
+      .filter(position => isSlashVoicingOf(position, rootNoteNumber, type, bassPitchClass));
+    const sources = [...positions, ...findFallbackPositions(chordGroup, rootNoteNumber, type)];
+    const made = findBassNotePositions(sources, rootNoteNumber, type, bassPitchClass, format);
+
+    const shapes = new Set<string>();
+    // chords-db fingerings win over made shapes that end up the same, and
+    // the sort keeps them first among voicings at the same fret
+    return [...inverted, ...borrowed, ...made]
+      .filter(position => {
+        const shape = getAbsoluteFrets(position).join();
+        if (shapes.has(shape)) return false;
+        shapes.add(shape);
+        return true;
+      })
+      .sort((a, b) => a.baseFret - b.baseFret);
+  };
+
   const parseChordName =(chordName: string): { root: string; suffix: string; bass?: string } => {
     // match pattern: root + suffix + optional bass note
     const pattern = /^([A-G][b#]?)([^/]*)(?:\/([A-G][b#]?))?$/;
@@ -426,18 +560,30 @@ const normalizeKey = (keyNoteNumber: number, format: string): string => {
     };
   };
   
-  const findChordPositions = (
-    selectedChord: SelectedChord, 
+  /**
+   * The voicings to show for a chord. bassMissing is set when it's a slash
+   * chord that no voicing has the bass note under, so the voicings are the
+   * chord's without it.
+   */
+  export interface ChordVoicings {
+    positions: ChordPosition[];
+    bassMissing: boolean;
+  }
+
+  const findChordVoicings = (
+    selectedChord: SelectedChord,
     guitarChords: Record<string, ChordInfo[]>,
     format: string
-  ): ChordPosition[] => {
+  ): ChordVoicings => {
+    const voicings = (positions: ChordPosition[], bassMissing = false): ChordVoicings =>
+      ({ positions, bassMissing });
+
     try {
 
-      let noteNumber = getNoteNumber(selectedChord.noteLetter);
+      const noteNumber = getNoteNumber(selectedChord.noteLetter);
       const root = selectedChord.noteLetter!;
       const suffix = selectedChord.type ?? '';
-      // slash chords not yet supported
-      //const bass = selectedChord.slashNote;
+      const bassNoteNumber = selectedChord.slash ? getNoteNumber(selectedChord.slashNote) : undefined;
 
       // normalize the root note and suffix to match database format
       const normalizedRoot = normalizeKey(noteNumber!, format);
@@ -453,7 +599,7 @@ const normalizeKey = (keyNoteNumber: number, format: string): string => {
 
       if (!chordGroup) {
         console.error(`No chord positions found for root note: ${root}`);
-        return [];
+        return voicings([]);
       }
   
       // find the specific chord type
@@ -465,20 +611,60 @@ const normalizeKey = (keyNoteNumber: number, format: string): string => {
         position => getNonChordIntervals(position, noteNumber!, suffix).length === 0
       );
 
-      if (positions.length) {
-        return positions;
-      }
-
-      const fallback = findFallbackPositions(chordGroup, noteNumber!, suffix);
-      if (!fallback.length) {
+      const chordPositions = positions.length
+        ? positions
+        : findFallbackPositions(chordGroup, noteNumber!, suffix);
+      if (!chordPositions.length) {
         console.warn(`No chord positions found for: ${root}${suffix}`);
+        return voicings(chordPositions);
       }
-      return fallback;
 
-    } catch (error: any) {
-      console.error(`Error finding chord positions: ${error.message}`);
-      return [];
+      // note numbers start at C = 1
+      const bassPitchClass = bassNoteNumber ? (bassNoteNumber - 1) % 12 : undefined;
+      if (bassPitchClass === undefined || bassPitchClass === (noteNumber! - 1) % 12) {
+        return voicings(chordPositions);
+      }
+
+      const slashPositions = findSlashPositions(
+        chordGroup, chordPositions, noteNumber!, suffix, bassPitchClass, format
+      );
+      // with no voicing over the bass note, show the chord without it
+      // rather than no diagram
+      return slashPositions.length ? voicings(slashPositions) : voicings(chordPositions, true);
+
+    } catch (error) {
+      console.error(`Error finding chord positions: ${error instanceof Error ? error.message : error}`);
+      return voicings([]);
     }
+  };
+
+  const findChordPositions = (
+    selectedChord: SelectedChord,
+    guitarChords: Record<string, ChordInfo[]>,
+    format: string
+  ): ChordPosition[] => findChordVoicings(selectedChord, guitarChords, format).positions;
+
+  // bassMissing for each format, chord and slash note asked about; the bass
+  // note menus ask for every note on every render
+  const slashNoteMissing = new Map<string, boolean>();
+
+  /**
+   * Whether no voicing of the chord in the format has the slash note in the
+   * bass (see findChordVoicings). False for chords with no voicing at all,
+   * which have nothing to show either way.
+   */
+  const isSlashNoteMissing = (selectedChord: SelectedChord, slashNote: string, format: string): boolean => {
+    const key = [format, selectedChord.noteLetter, selectedChord.type, slashNote].join();
+    let missing = slashNoteMissing.get(key);
+    if (missing === undefined) {
+      missing = findChordVoicings(
+        { noteLetter: selectedChord.noteLetter, type: selectedChord.type, slash: true, slashNote },
+        getInstrumentByFormat(format).chords,
+        format
+      ).bassMissing;
+      slashNoteMissing.set(key, missing);
+    }
+    return missing;
   };
   
   /**
@@ -487,7 +673,7 @@ const normalizeKey = (keyNoteNumber: number, format: string): string => {
    */
   const getChordChart = (chordPiano: ChordPiano, format: string) => {
     const instrument = getInstrumentByFormat(format)
-    const tabPositions = findChordPositions(
+    const { positions: tabPositions, bassMissing } = findChordVoicings(
       chordPiano.selectedChord,
       instrument.chords,
       format
@@ -496,7 +682,13 @@ const normalizeKey = (keyNoteNumber: number, format: string): string => {
     // changing the root or type), so fall back to the first position
     const storedPosition = chordPiano.selectedChord.position ?? 0
     const position = storedPosition < tabPositions.length ? storedPosition : 0
-    return { instrument, tabPositions, position }
+    // the chord the chart shows: without its slash note when the voicings
+    // leave it out, so a name printed with the chart doesn't promise a bass
+    // note the shape doesn't have
+    const chartChord: SelectedChord = bassMissing
+      ? { ...chordPiano.selectedChord, slash: false, slashNote: null }
+      : chordPiano.selectedChord
+    return { instrument, tabPositions, position, bassMissing, chartChord }
   }
 
-  export { getChordChart, getInstrumentByFormat, findChordPositions, getNonChordIntervals, isGuitar, parseChordName, normalizeKey, normalizeSuffix };
+  export { getChordChart, getInstrumentByFormat, findChordPositions, findChordVoicings, isSlashNoteMissing, getNonChordIntervals, isGuitar, parseChordName, normalizeKey, normalizeSuffix };
