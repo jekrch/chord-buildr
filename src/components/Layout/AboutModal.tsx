@@ -5,7 +5,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from "../../components/ui/dialog"
-import { Compass, Link2, Music } from "lucide-react"
+import { Compass, ExternalLink, Link2, Music } from "lucide-react"
 
 interface AboutModalProps {
   open: boolean
@@ -60,8 +60,15 @@ export function AboutModal({ open, onOpenChange }: AboutModalProps) {
             </div>
             <div>
               <h3 className="text-sm font-medium">
-                <a className={linkClass} href="https://modal.chordbuildr.com">
-                  modal.chordbuildr.com
+                <a
+                  className="group inline-flex items-center gap-1.5"
+                  href="https://modal.chordbuildr.com"
+                >
+                  <span className={`${linkClass} group-hover:decoration-primary`}>modal.chordbuildr.com</span>
+                  <ExternalLink
+                    aria-hidden="true"
+                    className="h-3.5 w-3.5 text-muted-foreground transition-colors group-hover:text-primary"
+                  />
                 </a>
               </h3>
               <p className="mt-0.5 text-sm text-muted-foreground">

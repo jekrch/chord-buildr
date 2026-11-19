@@ -4,7 +4,7 @@ import { AboutModal } from "./AboutModal"
 import { VersionModal } from "./VersionModal"
 import { ConfigModal } from "./ConfigModal"
 
-const APP_VERSION = "v5.0"
+const APP_VERSION = "v5.1"
 const GITHUB_URL = "https://github.com/jekrch/chord-buildr"
 
 export const FooterComponent: React.FC = () => {
@@ -37,7 +37,7 @@ export const FooterComponent: React.FC = () => {
     "hover:bg-accent hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
 
   return (
-    <footer className="fixed inset-x-0 bottom-0 z-50 flex h-12 items-center gap-1 border-t border-border bg-background/95 px-2 backdrop-blur-sm sm:px-3">
+    <footer className="fixed inset-x-0 bottom-0 z-50 flex overflow-x-clip h-12 items-center gap-1 border-t border-border bg-background/95 px-2 backdrop-blur-sm sm:px-3">
       <a
         href={GITHUB_URL}
         className={iconClass}
@@ -72,7 +72,12 @@ export const FooterComponent: React.FC = () => {
         <Settings className="h-[18px] w-[18px] transition-transform duration-500 group-hover:rotate-45" />
       </button>
 
-      <span className="wordmark ml-auto pr-1">chord buildr</span>
+      <button
+        className="wordmark ml-auto focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+        onClick={() => handleModalShow("about")}
+      >
+        chord buildr
+      </button>
 
       {/* Modals */}
       <AboutModal
