@@ -1,9 +1,9 @@
 import React from "react"
 import Chord from "@techies23/react-chords"
 import { useChord, useFormat } from "../store/progressionStore"
-import { useIsChordPlaying } from "../store/playbackStore"
+import { useIsChordLooping, useIsChordPlaying } from "../store/playbackStore"
 import { getChordDisplay } from "../codec"
-import { playChordById } from "../audio/player"
+import { playOrStopChordById } from "../audio/player"
 import { cn } from "../lib/utils"
 import { getChordChart } from "../utils/guitarUtil"
 import useFormatCrossfade from "../utils/hooks/useFormatCrossfade"
@@ -22,6 +22,7 @@ export const ChordChartCard: React.FC<ChordChartCardProps> = ({ pianoComponentId
   const chordPiano = useChord(pianoComponentId)
   const format = useFormat()
   const isPlaying = useIsChordPlaying(pianoComponentId)
+  const isLooping = useIsChordLooping(pianoComponentId)
   const { chartFormat, instrument, leavingFormat, leavingInstrument, handleEnterEnd } = useFormatCrossfade(format)
 
   if (!chordPiano) return null
@@ -36,10 +37,12 @@ export const ChordChartCard: React.FC<ChordChartCardProps> = ({ pianoComponentId
   // voicing has under it
   const name = getChordDisplay(chart?.chartChord ?? chordPiano.selectedChord)
 
+  // stops the chord while it loops
   const handlePlayClick = (): void => {
     // the chart can still be the old instrument's while the new one loads
-    playChordById(chordPiano.id, chart && chartFormat === format ? chart.tabPositions : undefined)
+    playOrStopChordById(chordPiano.id, chart && chartFormat === format ? chart.tabPositions : undefined)
   }
+  const playLabel = `${isLooping ? "Stop" : "Play"} ${name}`
 
   return (
     <button
@@ -47,8 +50,8 @@ export const ChordChartCard: React.FC<ChordChartCardProps> = ({ pianoComponentId
       id={`piano-${pianoComponentId}`}
       className={cn("diagram-frame chart-card", className)}
       data-playing={isPlaying.toString()}
-      aria-label={`Play ${name}`}
-      title={`Play ${name}`}
+      aria-label={playLabel}
+      title={playLabel}
       onClick={handlePlayClick}
       data-flip
     >

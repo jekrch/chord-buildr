@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest'
-import { playChord, playChordById } from './player'
+import { playChord, playChordById, playOrStopChordById, refreshLoop, stopPlayback } from './player'
 import { DEFAULT_SETTINGS, DEFAULT_SOUND, Settings, isGuitar } from '../utils/settings'
 import { ChordPiano } from '../utils/chordPianoHandler'
 import { usePlaybackStore } from '../store/playbackStore'
@@ -9,27 +9,44 @@ import { writePlayPrefs } from '../utils/playPrefs'
 import type { VoiceDef } from './voices'
 
 // the engine keeps one voice per instrument, so every test gets this one
-const { voice, bus } = vi.hoisted(() => ({
+const { voice, bus, clock } = vi.hoisted(() => ({
+  // the audio clock, in seconds, which the loop tests move forward
+  clock: { now: 0 },
   voice: {
     output: { connect: vi.fn() },
     volume: { rampTo: vi.fn() },
     setEnvelope: vi.fn(),
     play: vi.fn(),
+    attack: vi.fn(),
+    release: vi.fn(),
     releaseAll: vi.fn(),
     dispose: vi.fn()
   },
   bus: {
     input: {},
     apply: vi.fn(),
+    open: vi.fn(),
+    silence: vi.fn(),
     watchLevels: vi.fn()
   }
 }))
 
-vi.mock('tone', () => ({
-  getContext: vi.fn(() => ({ state: 'running' })),
-  start: vi.fn(() => Promise.resolve()),
-  now: vi.fn(() => 0)
-}))
+// Tone's clock runs off the fake timers, as the audio clock
+vi.mock('tone', () => {
+  const context = {
+    state: 'running',
+    get currentTime() {
+      return clock.now
+    },
+    setInterval: (callback: () => void, seconds: number) => setInterval(callback, seconds * 1000),
+    clearInterval: (id: ReturnType<typeof setInterval>) => clearInterval(id)
+  }
+  return {
+    getContext: vi.fn(() => context),
+    start: vi.fn(() => Promise.resolve()),
+    now: vi.fn(() => clock.now)
+  }
+})
 
 vi.mock('./bus', () => ({ getBus: () => bus }))
 
@@ -77,11 +94,13 @@ describe('playChord', () => {
     vi.useFakeTimers()
     vi.clearAllMocks()
     vi.mocked(isGuitar).mockReturnValue(false)
-    usePlaybackStore.setState({ playingChordId: undefined, keys: {} })
+    usePlaybackStore.setState({ playingChordId: undefined, loopingChordId: undefined, keys: {} })
     localStorage.clear()
+    clock.now = 0
   })
 
   afterEach(() => {
+    stopPlayback()
     vi.useRealTimers()
   })
 
@@ -302,5 +321,173 @@ describe('playChord', () => {
 
     expect(played()).toEqual(['C4', 'E4', 'G4'])
     expect(sides()).toEqual([0, -1, 1])
+  })
+})
+
+describe('looping arpeggios', () => {
+  const loopSettings: Settings = { ...pianoSettings, sound: { ...DEFAULT_SOUND, play: 'r' } }
+  const cMajor = { noteLetter: 'C', type: '', octave: 0 }
+  const step = 0.14
+
+  // a loop strikes and releases its notes itself
+  const struck = () => voice.attack.mock.calls.map(([note]) => note as string)
+  const strikeTimes = () => voice.attack.mock.calls.map(([, time]) => time as number)
+  const releases = () => voice.release.mock.calls.map(([note, time]) => ({ note: note as string, time: time as number }))
+
+  // moves the audio clock and the timers on together
+  const advance = async (seconds: number) => {
+    for (let tick = 0; tick < Math.round(seconds / 0.025); tick++) {
+      clock.now += 0.025
+      await vi.advanceTimersByTimeAsync(25)
+    }
+  }
+
+  beforeEach(() => {
+    vi.useFakeTimers()
+    vi.clearAllMocks()
+    vi.mocked(isGuitar).mockReturnValue(false)
+    usePlaybackStore.setState({ playingChordId: undefined, loopingChordId: undefined, keys: {} })
+    localStorage.clear()
+    clock.now = 0
+    writePlayPrefs({ arpeggio: { loop: true } })
+    useAppStore.setState({
+      chords: [{ id: 1, selectedChord: cMajor }, { id: 2, selectedChord: { ...cMajor, noteLetter: 'F' } }],
+      settings: loopSettings
+    })
+  })
+
+  afterEach(() => {
+    stopPlayback()
+    vi.useRealTimers()
+  })
+
+  it('keeps playing the pattern, and stays marked, until stopped', async () => {
+    await playChordById(1)
+    expect(usePlaybackStore.getState().loopingChordId).toBe(1)
+
+    await advance(2)
+    // C E G, round and round
+    const notes = struck()
+    expect(notes.length).toBeGreaterThan(9)
+    expect(notes.slice(0, 6)).toEqual(['C3', 'E3', 'G3', 'C3', 'E3', 'G3'])
+    expect(usePlaybackStore.getState().playingChordId).toBe(1)
+
+    stopPlayback()
+    await vi.advanceTimersByTimeAsync(0)
+    expect(bus.silence).toHaveBeenCalled()
+    expect(usePlaybackStore.getState().loopingChordId).toBeUndefined()
+    expect(usePlaybackStore.getState().playingChordId).toBeUndefined()
+
+    // every note struck is released
+    expect(releases().length).toBe(struck().length)
+
+    voice.attack.mockClear()
+    await advance(1)
+    expect(voice.attack).not.toHaveBeenCalled()
+  })
+
+  it('releases a ringing note before striking it again', async () => {
+    await playChordById(1)
+    await advance(1)
+    const strikes = voice.attack.mock.invocationCallOrder
+    const secondC = voice.attack.mock.calls.findIndex(([note], index) => note === 'C3' && index > 0)
+    const releaseOfFirstC = voice.release.mock.calls.findIndex(([note]) => note === 'C3')
+    expect(voice.release.mock.invocationCallOrder[releaseOfFirstC]).toBeLessThan(strikes[secondC]!)
+    expect(voice.release.mock.calls[releaseOfFirstC]![1]).toBeCloseTo(strikeTimes()[secondC]!)
+  })
+
+  it("stops when the looping chord's play button is pressed again, and moves to another chord's", async () => {
+    await playChordById(1)
+    playOrStopChordById(2)
+    await vi.advanceTimersByTimeAsync(0)
+    expect(usePlaybackStore.getState().loopingChordId).toBe(2)
+
+    playOrStopChordById(2)
+    await vi.advanceTimersByTimeAsync(0)
+    expect(usePlaybackStore.getState().loopingChordId).toBeUndefined()
+  })
+
+  it('ends the loop when a chord is played once', async () => {
+    await playChordById(1)
+    writePlayPrefs({ arpeggio: { loop: false } })
+    await playChordById(2)
+    expect(usePlaybackStore.getState().loopingChordId).toBeUndefined()
+    expect(releases().length).toBe(struck().length)
+
+    voice.attack.mockClear()
+    await advance(2)
+    expect(voice.attack).not.toHaveBeenCalled()
+  })
+
+  it('takes up a change at the start of the next cycle', async () => {
+    await playChordById(1)
+    await advance(0.2)
+    writePlayPrefs({ arpeggio: { pattern: 'down' } })
+    refreshLoop()
+    await vi.advanceTimersByTimeAsync(0)
+
+    voice.attack.mockClear()
+    await advance(1)
+    // the rest of the cycle that was playing, then the new pattern
+    const notes = struck()
+    expect(notes[0]).toBe('G3')
+    expect(notes.slice(1, 4)).toEqual(['G3', 'E3', 'C3'])
+  })
+
+  describe('changing chords', () => {
+    // plays C, then switches to F partway into the second bar
+    const switchMidBar = async () => {
+      await playChordById(1)
+      await advance(0.55)
+      const barStart = strikeTimes()[0]!
+      await playChordById(2)
+      await advance(1)
+      const firstF = voice.attack.mock.calls.findIndex(([note]) => ['F3', 'A3', 'C4'].includes(note as string))
+      return { barStart, firstF }
+    }
+
+    it('comes in on the beat, at the same place in the bar', async () => {
+      const { barStart, firstF } = await switchMidBar()
+      const times = strikeTimes()
+      const notes = struck()
+
+      // every strike, before and after the change, is on the same grid
+      for (const time of times) {
+        const beats = (time - barStart) / step
+        expect(beats).toBeCloseTo(Math.round(beats), 5)
+      }
+
+      // the F chord picks up the bar where it had got to: on its second
+      // beat, its second note, and its next bar starts on its bass
+      const beatInBar = Math.round((times[firstF]! - barStart) / step) % 3
+      expect(beatInBar).not.toBe(0)
+      expect(notes[firstF]).toBe(['F3', 'A3', 'C4'][beatInBar])
+      const nextBar = notes.findIndex((note, index) => index > firstF && note === 'F3')
+      expect(Math.round((times[nextBar]! - barStart) / step) % 3).toBe(0)
+    })
+
+    it("lets go of the last chord's notes as the new one comes in", async () => {
+      const { firstF } = await switchMidBar()
+      const changeAt = strikeTimes()[firstF]!
+
+      const cNotes = ['C3', 'E3', 'G3']
+      const cStrikes = struck().filter((note) => cNotes.includes(note)).length
+      const cReleases = releases().filter(({ note }) => cNotes.includes(note))
+      expect(cReleases.length).toBe(cStrikes)
+      for (const { time } of cReleases) expect(time).toBeLessThanOrEqual(changeAt + 1e-9)
+    })
+  })
+
+  it('follows an edit to the looping chord, and stops when it is removed', async () => {
+    await playChordById(1)
+    useAppStore.setState({ chords: [{ id: 1, selectedChord: { ...cMajor, type: 'm' } }] })
+    await vi.advanceTimersByTimeAsync(0)
+    voice.attack.mockClear()
+    await advance(1)
+    expect(struck()).toContain('D#3')
+
+    useAppStore.setState({ chords: [] })
+    await vi.advanceTimersByTimeAsync(0)
+    expect(usePlaybackStore.getState().loopingChordId).toBeUndefined()
   })
 })

@@ -27,7 +27,15 @@ export interface Voice {
   setEnvelope(envelope: Envelope): void
   // side is where the note sits in the stereo field (see noteSides)
   play(note: string, duration: number, time: number, velocity: number, side: StereoSide): void
-  releaseAll(): void
+  /**
+   * starts a note that sounds until release is called for it, for a
+   * loop, which decides when its notes end as it goes. a note is
+   * released before it's struck again, so only one of each sounds
+   */
+  attack(note: string, time: number, velocity: number, side: StereoSide): void
+  release(note: string, time: number, side: StereoSide): void
+  // releases every sounding note, now or at the given context time
+  releaseAll(time?: number): void
   dispose(): void
 }
 
@@ -87,8 +95,14 @@ function polyVoice<V extends Tone.Synth | Tone.FMSynth | Tone.MonoSynth>(
       // SIDES runs -1, 0, 1, so a side's lane is at side + 1
       lanes[side + 1]?.synth.triggerAttackRelease(note, duration, time, velocity)
     },
-    releaseAll: () => {
-      lanes.forEach(({ synth }) => synth.releaseAll())
+    attack: (note, time, velocity, side) => {
+      lanes[side + 1]?.synth.triggerAttack(note, time, velocity)
+    },
+    release: (note, time, side) => {
+      lanes[side + 1]?.synth.triggerRelease(note, time)
+    },
+    releaseAll: (time) => {
+      lanes.forEach(({ synth }) => synth.releaseAll(time))
     },
     dispose: () => {
       lanes.forEach(({ synth, effects, panner }) => {
@@ -231,8 +245,16 @@ async function sampler(key: SynthKey): Promise<Voice> {
     play: (note, duration, time, velocity) => {
       sampler.triggerAttackRelease(note, duration, time, velocity)
     },
-    releaseAll: () => {
-      sampler.releaseAll()
+    // the sampler releases every sounding copy of a note at once, which is
+    // why a loop releases a note before striking it again
+    attack: (note, time, velocity) => {
+      sampler.triggerAttack(note, time, velocity)
+    },
+    release: (note, time) => {
+      sampler.triggerRelease(note, time)
+    },
+    releaseAll: (time) => {
+      sampler.releaseAll(time)
     },
     dispose: () => {
       sampler.dispose()

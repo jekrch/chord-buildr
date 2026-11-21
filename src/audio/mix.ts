@@ -396,6 +396,63 @@ function arpeggioTimings(
   }))
 }
 
+/**
+ * the steps one cycle of a looping arpeggio plays. the patterns that turn
+ * around leave off their last note, which the next cycle starts on, so
+ * the bass (or top) isn't played twice in a row. a custom pattern keeps
+ * its rests, so its rhythm holds from cycle to cycle, but starts on its
+ * first note: rests before that go round to the end
+ */
+export function loopSteps(
+  count: number,
+  { pattern, custom }: Pick<ArpeggioOptions, "pattern" | "custom">,
+  random: () => number = Math.random
+): number[][] {
+  if (pattern === "custom" && isPlayable(custom)) {
+    const steps = custom.map((rows) => rows.filter((row) => row < count))
+    const first = steps.findIndex((rows) => rows.length > 0)
+    return first === -1 ? [] : [...steps.slice(first), ...steps.slice(0, first)]
+  }
+
+  const steps = arpeggioSteps(count, { pattern, custom }, random)
+  return (pattern === "updown" || pattern === "downup") && count > 1 ? steps.slice(0, -1) : steps
+}
+
+export interface LoopCycle {
+  timings: NoteTiming[]
+  // seconds from the cycle's start to the next one's
+  length: number
+}
+
+/**
+ * one cycle of a looping arpeggio. rung, each note holds until it's
+ * played again, in this cycle or the next, so the chord keeps sounding
+ * the way it would with the pedal down; separate, each lasts a step.
+ * empty when there's nothing to play
+ */
+export function loopCycle(
+  count: number,
+  hold: number,
+  arpeggio: ArpeggioOptions,
+  random: () => number = Math.random
+): LoopCycle {
+  const step = ARPEGGIO_STEPS[arpeggio.speed]
+  const steps = loopSteps(count, arpeggio, random)
+  const total = steps.length
+
+  const timings = steps.flatMap((indexes, position) => indexes.map((index) => {
+    const offset = position * step
+    if (arpeggio.sustain === "separate") return { index, offset, duration: Math.min(step, hold) }
+
+    // the next step that plays this note, going round into the next cycle
+    let gap = 1
+    while (gap < total && !steps[(position + gap) % total]?.includes(index)) gap++
+    return { index, offset, duration: gap * step }
+  }))
+
+  return { timings, length: total * step }
+}
+
 // seconds from a chord's first note to its last
 export function playSpanSeconds(
   count: number,

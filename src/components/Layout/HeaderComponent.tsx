@@ -2,7 +2,7 @@ import React, { useCallback, useRef, useState } from "react"
 import { flushSync } from "react-dom"
 import { useActions, useAppStore, useChords, useSettings } from "../../store/progressionStore"
 import { usePlayingChordId } from "../../store/playbackStore"
-import { playChordById } from "../../audio/player"
+import { playOrStopChordById, stopPlayback } from "../../audio/player"
 import { getProgressionString, convertProgressionStrToCode } from "../../codec"
 import { isGuitar } from "../../utils/settings"
 import { scrollToChord } from "../../utils/scrollToChord"
@@ -47,11 +47,12 @@ export const HeaderComponent: React.FC = () => {
     chordOrder: chords.map(piano => piano.id).join(",")
   })
 
-  // a chord played from the strip or the play button is scrolled to
+  // a chord played from the strip or the play button is scrolled to. a
+  // looping chord's link in the strip stops it
   const playChord = useCallback((id: number) => {
     scrollToChord(id)
     pauseFollow()
-    playChordById(id)
+    playOrStopChordById(id)
   }, [pauseFollow])
 
   const playNext = useProgressionPlayback(chords, playChord)
@@ -78,7 +79,7 @@ export const HeaderComponent: React.FC = () => {
         ref={headerRef}
         className="fixed inset-x-0 top-0 z-50 border-b border-border bg-background/95 backdrop-blur-sm"
       >
-        <HeaderActions onPlay={playNext} onAdd={handleAddChord} />
+        <HeaderActions onPlay={playNext} onStop={stopPlayback} onAdd={handleAddChord} />
         <ChordStrip
           stripRef={stripRef}
           chords={chords}

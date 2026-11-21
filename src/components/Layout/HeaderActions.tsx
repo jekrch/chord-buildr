@@ -1,12 +1,15 @@
 import React from "react"
-import { Eraser, Play, Plus, Undo2 } from "lucide-react"
+import { Eraser, Play, Plus, Square, Undo2 } from "lucide-react"
 import { useActions, useCanUndo, useChords } from "../../store/progressionStore"
+import { useIsLooping } from "../../store/playbackStore"
 import { Button } from "../ui/button"
 import { cn } from "../../lib/utils"
 
 interface HeaderActionsProps {
   /** plays the next chord in the progression */
   onPlay: () => void
+  /** stops a looping chord; the play button turns into stop while one loops */
+  onStop: () => void
   /** adds a chord at the end */
   onAdd: () => void
 }
@@ -18,8 +21,9 @@ const actionButtonClass = "pl-2 pr-2.5 sm:h-9 sm:pl-3.5 sm:pr-4"
 /**
  * the header's top row: play and add, then undo and clear
  */
-export const HeaderActions: React.FC<HeaderActionsProps> = ({ onPlay, onAdd }) => {
+export const HeaderActions: React.FC<HeaderActionsProps> = ({ onPlay, onStop, onAdd }) => {
   const hasChords = useChords().length > 0
+  const looping = useIsLooping()
   const canUndo = useCanUndo()
   const { clear, undo } = useActions()
 
@@ -29,11 +33,11 @@ export const HeaderActions: React.FC<HeaderActionsProps> = ({ onPlay, onAdd }) =
         size="sm"
         // the filled triangle reads larger than the outline icons beside it
         className={cn(actionButtonClass, "[&_svg]:size-3.5")}
-        onClick={onPlay}
-        disabled={!hasChords}
+        onClick={looping ? onStop : onPlay}
+        disabled={!hasChords && !looping}
       >
-        <Play className="fill-current" />
-        Play
+        {looping ? <Square className="fill-current" /> : <Play className="fill-current" />}
+        {looping ? "Stop" : "Play"}
       </Button>
       <Button
         size="sm"

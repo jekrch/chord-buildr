@@ -1,11 +1,11 @@
 import React, { useMemo } from 'react'
-import { Play, X } from 'lucide-react'
+import { Play, Square, X } from 'lucide-react'
 import '../styles/Piano.css'
 import { Key } from './Key'
 import { useActions, useChord } from '../store/progressionStore'
-import { useIsChordPlaying, usePlayingKeys } from '../store/playbackStore'
+import { useIsChordLooping, useIsChordPlaying, usePlayingKeys } from '../store/playbackStore'
 import { getNoteLetter } from '../utils/noteManager'
-import { playChordById } from '../audio/player'
+import { playOrStopChordById } from '../audio/player'
 import { getChordKeys } from '../utils/chordPianoHandler'
 import { getPianoKeys } from '../utils/pianoHelper'
 import { removeChordWithTransition } from "../utils/chordTransitions"
@@ -22,6 +22,7 @@ export const PianoComponent: React.FC<PianoComponentProps> = ({
   const { setChordRoot, removeChord } = useActions()
   const selectedChord = useChord(pianoId)?.selectedChord
   const isPlaying = useIsChordPlaying(pianoId)
+  const isLooping = useIsChordLooping(pianoId)
   const playingKeys = usePlayingKeys(pianoId)
 
   // the keys the chord has down, worked out from the chord itself
@@ -38,8 +39,9 @@ export const PianoComponent: React.FC<PianoComponentProps> = ({
     removeChordWithTransition(pianoId, () => removeChord(pianoId))
   }
 
+  // stops the chord while it loops
   const handlePlayClick = (): void => {
-    playChordById(pianoId)
+    playOrStopChordById(pianoId)
   }
 
   const renderPiano = () =>
@@ -65,11 +67,13 @@ export const PianoComponent: React.FC<PianoComponentProps> = ({
           type="button"
           className="rail-button rail-play"
           data-playing={isPlaying.toString()}
-          aria-label="Play chord"
-          title="Play chord"
+          aria-label={isLooping ? "Stop chord" : "Play chord"}
+          title={isLooping ? "Stop chord" : "Play chord"}
           onClick={handlePlayClick}
         >
-          <Play className="ml-0.5 h-3.5 w-3.5 fill-current" />
+          {isLooping
+            ? <Square className="h-3 w-3 fill-current" />
+            : <Play className="ml-0.5 h-3.5 w-3.5 fill-current" />}
         </button>
       </div>
       <div className="chord-card__keys keyboard-well">

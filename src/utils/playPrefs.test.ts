@@ -38,8 +38,8 @@ describe("play preferences", () => {
       octaves: 2
     })
 
-    writePlayPrefs({ arpeggio: { sustain: "separate" } })
-    expect(readPlayPrefs().arpeggio.sustain).toBe("separate")
+    writePlayPrefs({ arpeggio: { sustain: "separate", loop: true } })
+    expect(readPlayPrefs().arpeggio).toMatchObject({ sustain: "separate", loop: true })
   })
 
   it("save a custom arpeggio pattern", () => {

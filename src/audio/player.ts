@@ -12,7 +12,9 @@ import {
   endChordPlayback,
   playChordKeys,
   releaseChordKeys,
+  setLoopingChord,
   startChordPlayback,
+  usePlaybackStore,
   type PlayingKeys
 } from "../store/playbackStore"
 
@@ -85,6 +87,91 @@ export async function playChordById(pianoId: number, tabPositions?: ChordPositio
 }
 
 /**
+ * what a chord's play button does: stops the chord if it's looping, and
+ * plays it otherwise (taking over from any other chord's loop)
+ */
+export function playOrStopChordById(pianoId: number, tabPositions?: ChordPosition[]): void {
+  if (usePlaybackStore.getState().loopingChordId === pianoId) {
+    stopPlayback()
+    return
+  }
+  void playChordById(pianoId, tabPositions)
+}
+
+// the looping chord, and the piano keys it lit
+let loopState: { id: number; keys?: PlayingKeys } | undefined
+// counts plays and stops, so a play that's overtaken while it loads
+// doesn't take over the loop state
+let playCount = 0
+
+/**
+ * notes that a chord's loop has ended. stopped, its card and keys go
+ * dark; replaced by another play, that play has already marked itself
+ */
+function endLoopState(stopped: boolean): void {
+  const state = loopState
+  loopState = undefined
+  setLoopingChord(undefined)
+  if (!state) return
+  if (stopped) endChordPlayback(state.id)
+  if (state.keys) releaseChordKeys(state.id, state.keys)
+}
+
+/**
+ * stops what's playing, ending a loop. the notes fade out quickly
+ */
+export function stopPlayback(): void {
+  playCount++
+  endLoopState(true)
+  engine
+    ?.then((loaded) => loaded.stopNotes())
+    .catch((error: unknown) => console.error('failed to stop playback:', error))
+}
+
+/**
+ * plays the looping chord again with the current settings and play
+ * preferences, taking over at the start of its next cycle so the rhythm
+ * carries on. call it after a play preference changes; changes to the
+ * chord or the settings are followed on their own
+ */
+export function refreshLoop(): void {
+  const id = usePlaybackStore.getState().loopingChordId
+  if (id === undefined) return
+  const { chords, settings } = useAppStore.getState()
+  const chordPiano = chords.find((chord) => chord.id === id)
+  if (!chordPiano) {
+    stopPlayback()
+    return
+  }
+  void playChord(chordPiano, settings, undefined, true)
+}
+
+let followingStore = false
+
+/**
+ * keeps a loop in step with the progression: a settings change is
+ * picked up at the loop's next cycle, an edit to the looping chord on
+ * its next beat, and a looping chord that's removed stops
+ */
+function followLoopingChord(): void {
+  if (followingStore) return
+  followingStore = true
+  useAppStore.subscribe((state, previous) => {
+    const id = usePlaybackStore.getState().loopingChordId
+    if (id === undefined) return
+    if (state.chords === previous.chords && state.settings === previous.settings) return
+
+    const chord = state.chords.find((chordPiano) => chordPiano.id === id)
+    const before = previous.chords.find((chordPiano) => chordPiano.id === id)
+    if (!chord) stopPlayback()
+    // a new sound comes in at the next cycle; an edited chord on the next
+    // beat, the way changing to another chord does
+    else if (state.settings !== previous.settings) refreshLoop()
+    else if (chord.selectedChord !== before?.selectedChord) void playChord(chord, state.settings)
+  })
+}
+
+/**
  * the chord's guitar or ukulele voicings, loading the instrument's chord
  * shapes if they haven't loaded. none if they can't be loaded, so the
  * chord plays its piano voicing instead
@@ -111,9 +198,13 @@ async function findTabPositions(chordPiano: ChordPiano, format: string): Promise
 export async function playChord(
   chordPiano: ChordPiano,
   settings: Settings,
-  tabPositions?: ChordPosition[]
+  tabPositions?: ChordPosition[],
+  // a looping chord played again by refreshLoop
+  handover = false
 ): Promise<void> {
   const { id, selectedChord } = chordPiano
+  const count = ++playCount
+  let loops = false
 
   startChordPlayback(id)
   let playingKeys: PlayingKeys | undefined
@@ -153,8 +244,9 @@ export async function playChord(
     if (style === "r") notes = fitArpeggioNotes(arpeggioNotes(notes, prefs.arpeggio.octaves), prefs.arpeggio)
 
     spreadMs = playSpanSeconds(notes.length, style, prefs.arpeggio) * 1000
+    loops = style === "r" && prefs.arpeggio.loop
 
-    const { playNotes } = await loadEngine()
+    const { playNotes, isLooping } = await loadEngine()
 
     await playNotes({
       instrument: settings.synth as SynthKey,
@@ -163,11 +255,25 @@ export async function playChord(
       style,
       notes,
       arpeggio: prefs.arpeggio,
+      handover,
       humanize: prefs.humanize,
       volume: settings.volume,
       // ahead of any note humanize starts early
       delay: isTouchDevice() ? 0.15 : 0.03
     })
+
+    // a play or stop since has the last word
+    if (count === playCount) {
+      if (loops && isLooping()) {
+        // the chord stays marked, and its keys lit, until it's stopped
+        endLoopState(false)
+        loopState = { id, keys: playingKeys }
+        setLoopingChord(id)
+        followLoopingChord()
+        return
+      }
+      endLoopState(false)
+    }
   } catch (error) {
     console.error('failed to play chord:', error)
   }

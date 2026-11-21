@@ -10,6 +10,7 @@ import {
   Monitor,
   Music,
   Play,
+  Square,
   SlidersHorizontal,
   Sparkles,
   TrendingUp,
@@ -33,7 +34,8 @@ import {
 } from '../../components/ui/select'
 import { Slider } from '../../components/ui/slider'
 import { useActions, useAppStore, useSettings } from '../../store/progressionStore'
-import { playChordById } from '../../audio/player'
+import { playChordById, refreshLoop, stopPlayback } from '../../audio/player'
+import { useIsLooping, usePlaybackStore } from '../../store/playbackStore'
 import {
   DEFAULT_EQ,
   DEFAULT_SOUND,
@@ -174,7 +176,14 @@ export function ConfigModal({ open, onOpenChange }: ConfigModalProps): JSX.Eleme
   }
 
   // after a change, plays the first chord with it, if that's switched on
+  // while a chord loops it picks the change up instead, at its next cycle
+  // (changes to the settings it follows on its own; the play preferences
+  // aren't in the store, so it's told)
   const preview = useCallback(() => {
+    if (usePlaybackStore.getState().loopingChordId !== undefined) {
+      refreshLoop()
+      return
+    }
     if (!previewChanges) return
     const now = Date.now()
     if (now - lastPreview.current < PREVIEW_GAP_MS) return
@@ -230,7 +239,13 @@ export function ConfigModal({ open, onOpenChange }: ConfigModalProps): JSX.Eleme
     preview()
   }
 
+  const looping = useIsLooping()
+
   const onPlayClick = (): void => {
+    if (looping) {
+      stopPlayback()
+      return
+    }
     if (!playFirstChord()) addChord()
   }
 
@@ -503,8 +518,10 @@ export function ConfigModal({ open, onOpenChange }: ConfigModalProps): JSX.Eleme
             onClick={onPlayClick}
             className="inline-flex h-9 items-center gap-2 rounded-full bg-primary pl-3 pr-4 text-sm font-medium text-primary-foreground shadow-sm transition-colors hover:bg-primary/90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-card"
           >
-            <Play className="h-3.5 w-3.5 fill-current" aria-hidden="true" />
-            Preview
+            {looping
+              ? <Square className="h-3 w-3 fill-current" aria-hidden="true" />
+              : <Play className="h-3.5 w-3.5 fill-current" aria-hidden="true" />}
+            {looping ? 'Stop' : 'Preview'}
           </button>
           <label className="flex cursor-pointer items-center gap-2 text-xs text-muted-foreground">
             <Checkbox

@@ -1,10 +1,10 @@
 import React from "react"
 import Chord from "@techies23/react-chords"
 import { useActions, useChord, useFormat } from "../store/progressionStore"
-import { useIsChordPlaying } from "../store/playbackStore"
+import { useIsChordLooping, useIsChordPlaying } from "../store/playbackStore"
 import { getChordChart } from "../utils/guitarUtil"
-import { Play, X } from "lucide-react"
-import { playChordById } from "../audio/player"
+import { Play, Square, X } from "lucide-react"
+import { playOrStopChordById } from "../audio/player"
 import { removeChordWithTransition } from "../utils/chordTransitions"
 import useFormatCrossfade from "../utils/hooks/useFormatCrossfade"
 import { cn } from "../lib/utils"
@@ -18,6 +18,7 @@ export const GuitarChord: React.FC<GuitarChordProps> = ({ pianoComponentId }) =>
   const chordPiano = useChord(pianoComponentId)
   const format = useFormat()
   const isPlaying = useIsChordPlaying(pianoComponentId)
+  const isLooping = useIsChordLooping(pianoComponentId)
   const { setPosition, removeChord } = useActions()
   const { chartFormat, instrument, leavingFormat, leavingInstrument, handleEnterEnd } = useFormatCrossfade(format)
 
@@ -40,10 +41,12 @@ export const GuitarChord: React.FC<GuitarChordProps> = ({ pianoComponentId }) =>
     setPosition(chordPiano.id, position)
   }
 
+  // stops the chord while it loops
   const handlePlayClick = (): void => {
     // the chart can still be the old instrument's while the new one loads
-    playChordById(chordPiano.id, chart && chartFormat === format ? tabPositions : undefined)
+    playOrStopChordById(chordPiano.id, chart && chartFormat === format ? tabPositions : undefined)
   }
+  const playLabel = isLooping ? "Stop chord" : "Play chord"
 
   const handleClickRemovePiano = (): void => {
     removeChordWithTransition(pianoComponentId, () => removeChord(pianoComponentId))
@@ -56,11 +59,13 @@ export const GuitarChord: React.FC<GuitarChordProps> = ({ pianoComponentId }) =>
           type="button"
           className="rail-button rail-play"
           data-playing={isPlaying.toString()}
-          aria-label="Play chord"
-          title="Play chord"
+          aria-label={playLabel}
+          title={playLabel}
           onClick={handlePlayClick}
         >
-          <Play className="h-3.5 w-3.5 fill-current" />
+          {isLooping
+            ? <Square className="h-3 w-3 fill-current" />
+            : <Play className="h-3.5 w-3.5 fill-current" />}
         </button>
       </div>
 
@@ -73,7 +78,7 @@ export const GuitarChord: React.FC<GuitarChordProps> = ({ pianoComponentId }) =>
             type="button"
             className="diagram-frame"
             data-playing={isPlaying.toString()}
-            aria-label="Play chord"
+            aria-label={playLabel}
             onClick={handlePlayClick}
           >
             <span className="diagram-stack">

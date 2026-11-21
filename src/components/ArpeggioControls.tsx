@@ -1,5 +1,5 @@
 import { useRef, useState, type JSX, type KeyboardEvent, type PointerEvent, type ReactNode } from "react"
-import { Minus, Plus, Shuffle } from "lucide-react"
+import { Minus, Plus, Repeat, Repeat1, Shuffle } from "lucide-react"
 import { arpeggioSteps } from "../audio/mix"
 import {
   ARP_PATTERNS,
@@ -46,6 +46,10 @@ const SUSTAIN_OPTIONS: ToggleOption[] = toOptions(ARP_SUSTAINS)
 const OCTAVE_OPTIONS: ToggleOption[] = [
   { value: "1", label: "1 octave" },
   { value: "2", label: "2 octaves" },
+]
+const REPEAT_OPTIONS: ToggleOption[] = [
+  { value: "once", label: "Once", icon: <Repeat1 className="h-3.5 w-3.5" /> },
+  { value: "loop", label: "Loop", icon: <Repeat className="h-3.5 w-3.5" /> },
 ]
 
 function toOptions(labels: Record<string, string>): ToggleOption[] {
@@ -123,6 +127,23 @@ export function ArpeggioControls({ value, onChange }: ArpeggioControlsProps): JS
             if (next !== value.octaves) onChange({ octaves: next })
           }}
           className={ROW_TOGGLE}
+        />
+      </OptionRow>
+      <OptionRow
+        label="Repeat"
+        hint={value.loop
+          ? "Plays until stopped. While a chord loops, its play button and the header's Play become Stop."
+          : undefined}
+      >
+        <SegmentedToggle
+          options={REPEAT_OPTIONS}
+          label="Arpeggio repeat"
+          value={value.loop ? "loop" : "once"}
+          onChange={(repeat) => {
+            const loop = repeat === "loop"
+            if (loop !== value.loop) onChange({ loop })
+          }}
+          className={cn(ROW_TOGGLE, "[&>button]:gap-1.5")}
         />
       </OptionRow>
     </div>

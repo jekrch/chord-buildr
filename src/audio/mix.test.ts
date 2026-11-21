@@ -10,6 +10,8 @@ import {
   arpeggioOrder,
   arpeggioSteps,
   fitArpeggioNotes,
+  loopCycle,
+  loopSteps,
   eqCompensationDb,
   humanize,
   macro,
@@ -384,5 +386,32 @@ describe("toMidi", () => {
     expect(toMidi("C4")).toBe(60)
     expect(toMidi("C#3")).toBe(49)
     expect(toMidi("E2")).toBe(40)
+  })
+})
+
+describe("looping arpeggios", () => {
+  const custom = (pattern: number[][]) => ({ pattern: "custom" as const, custom: pattern })
+  const step = ARPEGGIO_STEPS.medium
+
+  it("leave off the note a turning pattern would play twice in a row", () => {
+    expect(loopSteps(3, { pattern: "updown", custom: [] })).toEqual([[0], [1], [2], [1]])
+    expect(loopSteps(3, { pattern: "downup", custom: [] })).toEqual([[2], [1], [0], [1]])
+    expect(loopSteps(3, { pattern: "up", custom: [] })).toEqual([[0], [1], [2]])
+  })
+
+  it("keep a custom pattern's rests, starting on its first note", () => {
+    expect(loopSteps(3, custom([[], [0], [], [2], []]))).toEqual([[0], [], [2], [], []])
+  })
+
+  it("ring each note until it comes round again, into the next cycle", () => {
+    const { timings, length } = loopCycle(3, 1, { ...DEFAULT_ARPEGGIO, pattern: "updown" })
+    expect(length).toBeCloseTo(4 * step)
+    // 0 1 2 1: the bass and top once a cycle, the middle twice
+    expect(timings.map((timing) => timing.duration / step)).toEqual([4, 2, 4, 2].map((gaps) => expect.closeTo(gaps)))
+  })
+
+  it("hold each separate note for a step", () => {
+    const { timings } = loopCycle(3, 1, { ...DEFAULT_ARPEGGIO, sustain: "separate" })
+    expect(timings.map((timing) => timing.duration)).toEqual([step, step, step])
   })
 })

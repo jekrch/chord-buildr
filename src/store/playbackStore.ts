@@ -18,12 +18,15 @@ export interface PlayingKeys {
 interface PlaybackStore {
   // the chord most recently started, until it's done
   playingChordId?: number
+  // the chord whose arpeggio is looping, until it's stopped
+  loopingChordId?: number
   // the piano keys each chord last played
   keys: Record<number, PlayingKeys>
 }
 
 export const usePlaybackStore = create<PlaybackStore>()(() => ({
   playingChordId: undefined,
+  loopingChordId: undefined,
   keys: {}
 }))
 
@@ -31,11 +34,17 @@ export function startChordPlayback(id: number): void {
   usePlaybackStore.setState({ playingChordId: id })
 }
 
-// a chord played since has taken over, so only this chord's own end counts
+// a chord played since has taken over, so only this chord's own end
+// counts, and a chord that's looping plays on until it's stopped
 export function endChordPlayback(id: number): void {
-  if (usePlaybackStore.getState().playingChordId === id) {
+  const { playingChordId, loopingChordId } = usePlaybackStore.getState()
+  if (playingChordId === id && loopingChordId !== id) {
     usePlaybackStore.setState({ playingChordId: undefined })
   }
+}
+
+export function setLoopingChord(id: number | undefined): void {
+  usePlaybackStore.setState({ loopingChordId: id })
 }
 
 /**
@@ -58,6 +67,13 @@ export function releaseChordKeys(id: number, entry: PlayingKeys): void {
 
 export const useIsChordPlaying = (id: number): boolean =>
   usePlaybackStore((state) => state.playingChordId === id)
+
+export const useIsChordLooping = (id: number): boolean =>
+  usePlaybackStore((state) => state.loopingChordId === id)
+
+// whether any chord is looping
+export const useIsLooping = (): boolean =>
+  usePlaybackStore((state) => state.loopingChordId !== undefined)
 
 export const usePlayingChordId = (): number | undefined =>
   usePlaybackStore((state) => state.playingChordId)

@@ -68,6 +68,8 @@ export interface ArpeggioOptions {
   octaves: ArpOctaves
   // played when the pattern is custom
   custom: CustomPattern
+  // repeat the pattern until it's stopped
+  loop: boolean
 }
 
 export interface PlayPrefs {
@@ -114,7 +116,8 @@ export const DEFAULT_ARPEGGIO: Readonly<ArpeggioOptions> = Object.freeze({
   speed: "medium",
   sustain: "ring",
   octaves: 1,
-  custom: DEFAULT_CUSTOM_PATTERN
+  custom: DEFAULT_CUSTOM_PATTERN,
+  loop: false
 })
 
 export const DEFAULT_PLAY_PREFS: Readonly<PlayPrefs> = Object.freeze({
@@ -132,6 +135,7 @@ const KEYS = {
   arpSustain: "chord-buildr:arp-sustain",
   arpOctaves: "chord-buildr:arp-octaves",
   arpCustom: "chord-buildr:arp-custom",
+  arpLoop: "chord-buildr:arp-loop",
   // the key this flag was first saved under, so it carries over
   previewChanges: "chord-buildr:preview-changes"
 } as const
@@ -157,7 +161,8 @@ function readArpeggio(): ArpeggioOptions {
     speed: readChoice(KEYS.arpSpeed, ARP_SPEEDS, DEFAULT_ARPEGGIO.speed),
     sustain: readChoice(KEYS.arpSustain, ARP_SUSTAINS, DEFAULT_ARPEGGIO.sustain),
     octaves: read(KEYS.arpOctaves) === "2" ? 2 : DEFAULT_ARPEGGIO.octaves,
-    custom: (custom === null ? null : parseCustomPattern(custom)) ?? DEFAULT_ARPEGGIO.custom
+    custom: (custom === null ? null : parseCustomPattern(custom)) ?? DEFAULT_ARPEGGIO.custom,
+    loop: read(KEYS.arpLoop) === "on"
   }
 }
 
@@ -192,6 +197,7 @@ export function writePlayPrefs(prefs: Partial<Omit<PlayPrefs, "arpeggio">> & { a
     if (arpeggio.sustain !== undefined) localStorage.setItem(KEYS.arpSustain, arpeggio.sustain)
     if (arpeggio.octaves !== undefined) localStorage.setItem(KEYS.arpOctaves, String(arpeggio.octaves))
     if (arpeggio.custom !== undefined) localStorage.setItem(KEYS.arpCustom, formatCustomPattern(arpeggio.custom))
+    if (arpeggio.loop !== undefined) localStorage.setItem(KEYS.arpLoop, arpeggio.loop ? "on" : "off")
   } catch {
     // not saved: they're only conveniences
   }

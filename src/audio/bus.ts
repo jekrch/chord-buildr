@@ -28,6 +28,10 @@ export interface BusSettings {
 
 // how long parameter changes glide, so a change doesn't click
 const RAMP_SECONDS = 0.04
+// how long a stop takes to fade what's playing out
+const STOP_FADE_SECONDS = 0.12
+// how long the input takes to open again after a stop
+const OPEN_SECONDS = 0.01
 
 // log the levels each play reaches, in the dev server only
 const METER = import.meta.env.DEV && import.meta.env.MODE !== "test"
@@ -56,6 +60,23 @@ class Bus {
     this.filter.fan(this.dry, this.send)
     this.dry.connect(this.master)
     this.master.chain(this.glue, this.limiter, Tone.getDestination())
+  }
+
+  /**
+   * fades out everything coming in, at the given context time, to stop
+   * what's playing without a click. the reverb's tail rings on, as a
+   * room would. open lets sound back in
+   */
+  silence(time: number): void {
+    const { gain } = this.input
+    gain.cancelAndHoldAtTime(time)
+    gain.linearRampToValueAtTime(0, time + STOP_FADE_SECONDS)
+  }
+
+  open(time: number): void {
+    const { gain } = this.input
+    gain.cancelAndHoldAtTime(time)
+    gain.linearRampToValueAtTime(1, time + OPEN_SECONDS)
   }
 
   apply({ eq, cutoff, space, volumeDb }: BusSettings): void {
