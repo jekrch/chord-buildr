@@ -6,14 +6,11 @@ import {
   SelectedChord,
   SelectedKey
 } from "../../utils/chordPianoHandler"
-  // @ts-ignore
 import { pianoGenerator } from "../../utils/pianoHelper"
-import {
-  updateFlatOrSharpLetter,
-  updateUrlProgressionCode, buildProgFromCode
-} from "../../utils/chordCodeHandler"
+import { updateFlatOrSharpLetter } from "../../utils/noteManager"
+import { updateUrlProgressionCode, buildProgFromCode } from "../../utils/chordCodeHandler"
 import React, { useReducer, createContext, useEffect, ReactNode } from "react";
-import { DEFAULT_EQ, EQSettings } from "../../utils/synthPlayer";
+import { DEFAULT_EQ, EQSettings } from "../../utils/settings";
 import {
   ProgressionItem,
   arrangeProgression,
@@ -23,7 +20,6 @@ import {
 
 
 export interface AppState {
-  history: any | null;
   previousProgCodes: string[];
   currentProgCode: string | null;
   building: boolean;
@@ -33,12 +29,11 @@ export interface AppState {
   // how guitar/ukulele chords are shown: "f" full cards, "t" a compact tab chart
   fretView: string;
   volume: number;
-  changed?: number;
   refreshBoard?: number; 
   eq: EQSettings;
 }
 
-type PianoAction =
+export type AppAction =
   | { type: "UPDATE_PIANO"; id?: number; payload: ChordPiano }
   | { type: "UPDATE_KEY"; id?: number; payload: SelectedKey }
   | { type: "SET_PIANO_PLAYING"; id: number; isPlaying: boolean; releaseKeys?: boolean }
@@ -50,7 +45,7 @@ type PianoAction =
   | { type: "UPDATE_SHOW_FLATS"; id?: number; showFlats: boolean }
   | { type: "UPDATE_UX_FORMAT"; format: string }
   | { type: "UPDATE_FRET_VIEW"; fretView: string }
-  | { type: "ADD_CHORD_PIANO"; payload: any }
+  | { type: "ADD_CHORD_PIANO" }
   | { type: "REMOVE_PIANO"; id: number }
   | { type: "ARRANGE_PROGRESSION"; items: ProgressionItem[] }
   | { type: "TOGGLE_SECTION_BREAK"; id: number }
@@ -63,14 +58,13 @@ type PianoAction =
 
 interface PianoContextType {
   state: AppState;
-  dispatch: React.Dispatch<PianoAction>;
+  dispatch: React.Dispatch<AppAction>;
 }
 
 // Constants
 export const STATE_NAME = "PIANO_STATE";
 
 const initialState: AppState = {
-  history: null,
   previousProgCodes: [],
   currentProgCode: null,
   building: false,
@@ -130,7 +124,7 @@ function getKeyRelativeLetter(state: AppState, letter: string): string {
 }
 
 // Reducer
-const pianoReducer = (state: AppState, action: PianoAction): AppState => {
+const pianoReducer = (state: AppState, action: AppAction): AppState => {
   const pianoId = 'id' in action ? action.id : 0;
 
   switch (action.type) {
@@ -151,7 +145,7 @@ const pianoReducer = (state: AppState, action: PianoAction): AppState => {
       
       return {
         ...state,
-        chordPianoSet: updatedSet as any
+        chordPianoSet: updatedSet
       };
     }
 
@@ -315,17 +309,11 @@ const pianoReducer = (state: AppState, action: PianoAction): AppState => {
     }
 
     case "ADD_CHORD_PIANO": {
-      if (action.payload !== null) {
-        const nextChordPianoId = getNextId(state);
-        state.chordPianoSet = [...state.chordPianoSet ?? [], getChordPiano(nextChordPianoId)];
-        
-        updateUrlProgressionCode(state);
-        
-        return {
-          ...state          
-        };
-      }
-      return state;
+      const chordPianoSet = [...state.chordPianoSet ?? [], getChordPiano(getNextId(state))];
+
+      const newState = { ...state, chordPianoSet };
+      updateUrlProgressionCode(newState);
+      return newState;
     }
 
     case "REMOVE_PIANO": {
@@ -401,18 +389,17 @@ const pianoReducer = (state: AppState, action: PianoAction): AppState => {
       if (state.previousProgCodes.length > 0) {
         // Get the last code
         const lastProgIndex = state.previousProgCodes.length - 1;
-        let previousProgCode = state.previousProgCodes[lastProgIndex];
-        let stepsBack = 1;
+        const previousProgCode = state.previousProgCodes[lastProgIndex];
+        const stepsBack = 1;
 
         // create a new state with the previous code
-        let newState = {
+        const newState = {
           ...state,
           building: false,
           previousProgCodes: state.previousProgCodes.slice(0, -stepsBack) // Remove the last entry
         };
 
-        //console.log(previousProgCode)
-        let builtState = buildProgFromCode(newState, previousProgCode);
+        const builtState = buildProgFromCode(newState, previousProgCode);
         builtState.previousProgCodes = state.previousProgCodes.slice(0, -1)
 
         return {

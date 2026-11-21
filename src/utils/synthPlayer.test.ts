@@ -1,11 +1,11 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest'
-import { DEFAULT_EQ, playChord, playChordById } from './synthPlayer'
-// @ts-ignore
-import GuitarElectricMp3 from 'tonejs-instrument-guitar-electric-mp3'
+import { playChord, playChordById } from './synthPlayer'
+import { DEFAULT_EQ } from './settings'
 import { ChordPiano } from './chordPianoHandler'
 import { AppState } from '../components/context/AppContext'
 import { isGuitar } from './guitarUtil'
 import { SamplerOptions } from 'tone'
+import type { SynthReturn } from './synthLibrary'
 //import guitar from '@tombatossals/chords-db/lib/guitar.json';
 //import * as guitarUtil from './guitarUtil' 
 
@@ -61,7 +61,7 @@ vi.mock('../components/context/AppContext', () => ({
 }))
 
 // Setup the mock sampler before defining the synthLibrary mock
-const mockSampler: any = {
+const mockSampler: Record<string, unknown> = {
   toDestination: vi.fn(() => mockSampler),
   releaseAll: vi.fn(),
   triggerAttackRelease: vi.fn(),
@@ -200,7 +200,7 @@ describe('playChord', () => {
     }
 
     const synthLibrary = vi.mocked(await import('./synthLibrary'))
-    synthLibrary.getSynth.mockReturnValue(mockSynth as any)
+    synthLibrary.getSynth.mockReturnValue(mockSynth as unknown as SynthReturn)
 
     await playChord(mockDispatch, mockState as AppState, mockChordPiano)
     
@@ -267,7 +267,7 @@ describe('playChord', () => {
     }
 
     const synthLibrary = vi.mocked(await import('./synthLibrary'))
-    synthLibrary.getSynth.mockReturnValue(mockSynth as any)
+    synthLibrary.getSynth.mockReturnValue(mockSynth as unknown as SynthReturn)
 
     //console.log('start')
     await playChordById(mockDispatch, mockState as AppState, 1)

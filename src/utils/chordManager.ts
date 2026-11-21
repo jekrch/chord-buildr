@@ -2,7 +2,7 @@ import { getNoteLetter } from "./noteManager"
 import * as Note from "@tonaljs/note";
 import * as Scale from "tonal-scale"
 import { getTransposedNote } from "./transposer"
-import { SelectedChord, SelectedKey } from "./chordPianoHandler";
+import type { SelectedChord, SelectedKey } from "./chordPianoHandler";
 
 // mapping of chord types to their interval patterns
 export const chordMap: Record<string, number[]> = {

@@ -18,7 +18,8 @@ import {
 import { Slider } from '../../components/ui/slider'
 //import { Badge } from '../../components/ui/badge'
 import { useAppContext } from '../context/AppContext'
-import { DEFAULT_EQ, EQSettings, notEqual, playChord } from '../../utils/synthPlayer'
+import { playChord } from '../../utils/synthPlayer'
+import { DEFAULT_EQ, EQSettings, eqDiffers } from '../../utils/settings'
 import { SYNTH_TYPES as SYNTH_TYPES } from '../../utils/synthLibrary'
 import { FormatToggle, FretViewToggle } from '../InlineConfig'
 import { isGuitar } from '../../utils/guitarUtil'
@@ -28,12 +29,6 @@ interface ConfigModalProps {
   open: boolean
   onOpenChange: (open: boolean) => void
 }
-
-export const UX_FORMAT_OPTIONS: Record<string, string> = {
-  "p": "piano",
-  "g": "guitar",
-  "u": "ukulele",
-};
 
 export function ConfigModal({ open, onOpenChange }: ConfigModalProps): JSX.Element {
   const { state, dispatch } = useAppContext()
@@ -45,7 +40,7 @@ export function ConfigModal({ open, onOpenChange }: ConfigModalProps): JSX.Eleme
   useEffect(() => {
 
     if (
-      notEqual(state.eq, eqSettings)
+      eqDiffers(state.eq, eqSettings)
     ) {
       dispatch({
         type: 'UPDATE_EQ',
@@ -126,10 +121,7 @@ export function ConfigModal({ open, onOpenChange }: ConfigModalProps): JSX.Eleme
   }
 
   const addChord = (): void => {
-    dispatch({
-      type: 'ADD_CHORD_PIANO',
-      payload: 'selectedKey'
-    })
+    dispatch({ type: 'ADD_CHORD_PIANO' })
   }
 
   return (
@@ -207,21 +199,21 @@ export function ConfigModal({ open, onOpenChange }: ConfigModalProps): JSX.Eleme
                 value={eqSettings.low}
                 min={-10}
                 max={10}
-                onChange={(value: any) => setEqSettings((prev: any) => ({ ...prev, low: value }))}
+                onChange={(value) => setEqSettings((prev) => ({ ...prev, low: value }))}
                 label="Low"
               />
               <Knob
                 value={eqSettings.mid}
                 min={-10}
                 max={10}
-                onChange={(value: any) => setEqSettings((prev: any) => ({ ...prev, mid: value }))}
+                onChange={(value) => setEqSettings((prev) => ({ ...prev, mid: value }))}
                 label="Mid"
               />
               <Knob
                 value={eqSettings.high}
                 min={-10}
                 max={10}
-                onChange={(value: any) => setEqSettings((prev: any) => ({ ...prev, high: value }))}
+                onChange={(value) => setEqSettings((prev) => ({ ...prev, high: value }))}
                 label="High"
               />
             </div>

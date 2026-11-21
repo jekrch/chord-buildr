@@ -1,6 +1,5 @@
-import { updateFlatOrSharpLetter } from "./chordCodeHandler"
-import { ChordPiano, SelectedKey } from "./chordPianoHandler"
-import { getNoteNumber, getNoteLetter, normalizeNote } from "./noteManager"
+import type { ChordPiano, SelectedKey } from "./chordPianoHandler"
+import { getNoteNumber, getNoteLetter, normalizeNote, updateFlatOrSharpLetter } from "./noteManager"
 
 
 // returns the note numbers for the specified chord with the indicated

@@ -1,6 +1,7 @@
 import { ChordPiano, SelectedChord } from "./chordPianoHandler";
 import { chordMap } from "./chordManager";
 import { getNoteNumber } from "./noteManager";
+import { isGuitar } from "./settings";
 import guitar from '@tombatossals/chords-db/lib/guitar.json';
 import ukulele from '@tombatossals/chords-db/lib/ukulele.json';
 
@@ -57,9 +58,6 @@ function getInstrumentByFormat(format: string): Instrument {
  * @param format 
  * @returns 
  */
-function isGuitar(format: string): boolean {
-  return ["g", "u"].includes(format)
-}
 
 /**
  * Chord types with no diagram in any key, by format. Types are only listed

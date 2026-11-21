@@ -22,7 +22,8 @@ import {
   verticalListSortingStrategy
 } from "@dnd-kit/sortable"
 import { useAppContext } from "../components/context/AppContext"
-import { getChordDisplay, getStateParamsCode } from "../utils/chordCodeHandler"
+import { getChordDisplay } from "../codec"
+import { getStateParamsCode } from "../utils/chordCodeHandler"
 import { ChordPianoComponent } from "../components/ChordPianoComponent"
 import { ChordInput } from "./ChordInput"
 import { GuitarChord } from "./GuitarChord"
@@ -111,7 +112,7 @@ const AddButtons: React.FC<{ className?: string }> = ({ className }) => {
   }
 
   const handleAddChord = () => {
-    flushSync(() => dispatch({ type: "ADD_CHORD_PIANO", payload: "selectedKey" }))
+    flushSync(() => dispatch({ type: "ADD_CHORD_PIANO" }))
     keepInView()
   }
 

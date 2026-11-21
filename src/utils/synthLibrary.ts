@@ -1,36 +1,12 @@
 import * as Tone from "tone";
-import { isMobile } from "react-device-detect";
 
 export interface SynthReturn {
   synth: Tone.PolySynth;
   decibelModifier: number;
 }
 
-interface InstrumentSettings {
-  oscillator?: {
-    type: string;
-    partials?: number[];
-    spread?: number;
-    count?: number;
-  };
-  envelope?: {
-    attack: number;
-    decay: number;
-    sustain: number;
-    release: number;
-  };
-  harmonicity?: number;
-  modulationIndex?: number;
-  modulation?: {
-    type: string;
-  };
-  modulationEnvelope?: {
-    attack: number;
-    decay: number;
-    sustain: number;
-    release: number;
-  };
-}
+// the options a PolySynth accepts, so presets are checked against Tone's types
+type InstrumentSettings = Parameters<Tone.PolySynth["set"]>[0];
 
 let synth: Tone.PolySynth | null = null;
 let decibelModifier = 2;
@@ -71,15 +47,16 @@ function getOrganSynth(): Tone.PolySynth {
       release: 1.6
     }
   };
-  synth.set(instr as any);
+  synth.set(instr);
   return synth;
 }
 
 function getPluckSynth(): Tone.PolySynth {
   const synth = new Tone.PolySynth().toDestination();
+  // the voice is a plain Synth, so only the oscillator and envelope apply.
+  // FM settings (harmonicity, modulation, ...) would need
+  // new Tone.PolySynth(Tone.FMSynth), which would change the sound
   const instr: InstrumentSettings = {
-    harmonicity: 8,
-    modulationIndex: 6,
     oscillator: {
       type: "sine2"
     },
@@ -88,18 +65,9 @@ function getPluckSynth(): Tone.PolySynth {
       decay: 2,
       sustain: 0.1,
       release: 2
-    },
-    modulation: {
-      type: "square2"
-    },
-    modulationEnvelope: {
-      attack: 0.002,
-      decay: 0.2,
-      sustain: 0,
-      release: 0.2
     }
   };
-  synth.set(instr as any);
+  synth.set(instr);
   return synth;
 }
 
@@ -162,49 +130,9 @@ export function getSynth(synthType: string): SynthReturn {
       break;
   }
 
-  if (isMobile) {
-    //Tone.context.latencyHint = "balanced";
-    // @ts-ignore
-    synth.set({ latencyHint: "balanced" });
-  }
-
   return { synth, decibelModifier: decibelModifier };
 }
 
-export interface SynthType {
-  name: string;
-  type: string;
-  getSampler?: () => Promise<any>;
-  decibelModifier?: number;
-}
-
-export const SYNTH_TYPES: Record<string, SynthType> = {
-  "p": { name: "plumber", type: "synth" },
-  "w": { name: "wave", type: "synth" },
-  //"s": { name: "swell", type: "synth" },
-  "o": { name: "organ", type: "synth" },
-  "pl": { name: "pluck", type: "synth" },
-  "el": { 
-    name: "electric guitar",
-    // @ts-ignore
-    getSampler: () => import('tonejs-instrument-guitar-electric-mp3'),
-    decibelModifier: 3, 
-    type: "sampler"
-  },
-  "ac": { 
-    name: "acoustic guitar",
-    // @ts-ignore
-    getSampler: () => import('tonejs-instrument-guitar-nylon-mp3'),
-    decibelModifier: -2, 
-    type: "sampler"
-  },
-  "h": { 
-    name: "harp",
-    // @ts-ignore
-    getSampler: () => import('tonejs-instrument-harp-mp3'),
-    decibelModifier: -2, 
-    type: "sampler"
-  }
-} as const
-
-export type SynthKey = keyof typeof SYNTH_TYPES
+// the table lives apart from Tone so the url codec can read it
+export { SYNTH_TYPES } from "./synthTypes";
+export type { SamplerModule, SynthKey, SynthType } from "./synthTypes";

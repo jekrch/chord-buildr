@@ -1,6 +1,7 @@
 import { expect, it } from "vitest"
 import { arrayMove } from "@dnd-kit/sortable"
-import { getChordPianoSetFromProgCode, getProgressionString } from "./chordCodeHandler"
+import { getChordPianoSetFromProgCode } from "./chordCodeHandler"
+import { getProgressionString } from "../codec"
 import {
   arrangeProgression,
   getProgressionItems,

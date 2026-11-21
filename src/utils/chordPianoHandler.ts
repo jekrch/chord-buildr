@@ -1,8 +1,7 @@
 import { getNoteNumberChord, getScaleAdjustedNoteLetter } from "./chordManager"
-// @ts-ignore
 import { clearPianoSelections, pianoGenerator } from "./pianoHelper"
 import { getNoteNumber, normalizeNote } from "./noteManager"
-import { getChordFromCode } from "./chordCodeHandler"
+import type { CodedChord } from "../codec"
 import {
   getStepsChanged,
   getAbsoluteStepsChanged,
@@ -335,26 +334,14 @@ export function getLowestSelectedAbsoluteNote(pianoControl: NoteKey[][]): number
   return lowestNote.noteNumber + lowestNote.octave * 12
 }
 
-export function createChordPiano(i: number, chordCode: string): ChordPiano | undefined {
-  const chord = getChordFromCode(chordCode)
-
-  if (chord !== undefined) {
-    return {
-      id: i,
-      piano: pianoGenerator(),
-      selectedKey: { noteLetter: chord.noteLetter!, octave: chord.octave ?? 0 },
-      showFlats:
-        chord.noteLetter?.includes("b") ||
-        (chord.slashNote != null && chord.slashNote.includes("b")),
-      isProgKey: chord.isKey,
-      selectedChord: {
-        noteLetter: chord.noteLetter,
-        type: chord.type,
-        octave: chord.octave,
-        slash: chord.slash,
-        slashNote: chord.slashNote,
-        position: chord.position
-      }
+// a chord piano for a chord read from a progression code
+export function createChordPiano(chord: CodedChord): ChordPiano {
+  return {
+    ...chord,
+    piano: pianoGenerator(),
+    selectedKey: {
+      noteLetter: chord.selectedChord.noteLetter!,
+      octave: chord.selectedChord.octave ?? 0
     }
   }
 }
@@ -380,7 +367,7 @@ export function transposePianoBoard(
         false
       )
 
-      let slashLetter = getTransposedNote(
+      const slashLetter = getTransposedNote(
         chordPiano.selectedChord.slashNote,
         stepsChanged
       )
@@ -392,7 +379,7 @@ export function transposePianoBoard(
         continue
       }
 
-      let chordNote = getTransposedSelectedNote(
+      const chordNote = getTransposedSelectedNote(
         chordPiano,
         stepsChanged
       )

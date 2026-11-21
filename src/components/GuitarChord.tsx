@@ -19,10 +19,6 @@ export const GuitarChord: React.FC<GuitarChordProps> = ({ pianoComponentId }) =>
   const chordPiano: ChordPiano | null = getPianoById(state, pianoComponentId);
   const { leavingFormat, handleEnterEnd } = useFormatCrossfade(state.format)
 
-  // useEffect(() => {
-  //   console.log(chordPiano?.isPlaying)
-  // }, [chordPiano?.isPlaying, state.chordPianoSet])
-
   if (!chordPiano) {
     return;
   }
@@ -36,7 +32,6 @@ export const GuitarChord: React.FC<GuitarChordProps> = ({ pianoComponentId }) =>
 
   const handleNewPosition = (position: number): void => {
     chordPiano.selectedChord.position = position;
-    //let newChordPiano = {...chordPiano, selectedChord: false} as ChordPiano;
 
     dispatch({
       type: "UPDATE_PIANO",

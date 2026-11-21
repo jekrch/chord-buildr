@@ -1,7 +1,7 @@
 import React from "react"
 import Chord from "@techies23/react-chords"
 import { getPianoById, useAppContext } from "./context/AppContext"
-import { getChordDisplay } from "../utils/chordCodeHandler"
+import { getChordDisplay } from "../codec"
 import { playChord } from "../utils/synthPlayer"
 import { cn } from "../lib/utils"
 import { getChordChart } from "../utils/guitarUtil"

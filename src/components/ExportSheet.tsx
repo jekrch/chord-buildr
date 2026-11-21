@@ -1,7 +1,7 @@
 import React, { useLayoutEffect, useRef } from "react"
 import Chord from "@techies23/react-chords"
 import { ChordPiano, SelectedChord, getChordNotes } from "../utils/chordPianoHandler"
-import { getChordDisplay, isSlashChord } from "../utils/chordCodeHandler"
+import { getChordDisplay, isSlashChord } from "../codec"
 import { getChordChart, isGuitar } from "../utils/guitarUtil"
 import { getSections } from "../utils/sectionBreaks"
 import { cn } from "../lib/utils"

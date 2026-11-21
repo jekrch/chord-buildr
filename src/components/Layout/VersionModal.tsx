@@ -11,7 +11,7 @@ interface VersionEntry {
   items: string[]
 }
 
-interface VersionEntryProps extends VersionEntry {}
+type VersionEntryProps = VersionEntry
 
 interface VersionModalProps {
   open: boolean

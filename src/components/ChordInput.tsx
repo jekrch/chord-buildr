@@ -4,7 +4,8 @@ import {
   noteLetterMapWithSharps,
   noteLetterMapWithFlats,
   getSharpEquivalent,
-  getFlatEquivalent
+  getFlatEquivalent,
+  updateFlatOrSharpLetter
 } from '../utils/noteManager'
 import {
   chordMap,
@@ -14,12 +15,10 @@ import {
 } from '../utils/chordManager'
 import { selectChordKeys, hasSelectedNotes, ChordPiano, SelectedChord } from '../utils/chordPianoHandler'
 import { useAppContext, getPianoById, getProgKeyChord } from './context/AppContext'
-import { updateFlatOrSharpLetter } from '../utils/chordCodeHandler'
 import { cn } from '../lib/utils'
 import { Checkbox } from '../components/ui/checkbox';
 import { getChordNumeral } from '../utils/numeralHelper'
 import { isGuitar, isSlashNoteMissing, UNSUPPORTED_GUITAR_CHORDS } from '../utils/guitarUtil'
-//import { Combobox, ComboboxItem } from './Combobox';
 
 interface ChordInputProps {
   pianoComponentId: number,
@@ -138,7 +137,6 @@ export const ChordInput: React.FC<ChordInputProps> = ({ pianoComponentId, classN
   }
 
   const handleTypeSelectChange = (value: string): void => {
-    //console.log(value)
     chordRef.current.type = value
 
     dispatch({
@@ -221,7 +219,6 @@ export const ChordInput: React.FC<ChordInputProps> = ({ pianoComponentId, classN
       octave: chordPiano.selectedKey.octave ?? 0
     }
 
-    //console.log(newLetter)
 
     dispatch({
       type: 'UPDATE_KEY',

@@ -207,3 +207,21 @@ export function normalizeNote(noteNumber: number, octave: number): NormalizedNot
 
   return { noteNumber: noteNumber as NoteNumber, octave };
 }
+/***
+ * If the chordPiano is set to show flats and the provided letter is sharp,
+ * find the corresponding flat letter. Likewise, if the chordPiano is
+ * set to show sharps
+ */
+export function updateFlatOrSharpLetter(showFlats: boolean | undefined, noteLetter: string): string {
+  const noteNumber = getNoteNumber(noteLetter)
+
+  if (showFlats) {
+    if (noteLetter?.includes("#")) {
+      return noteLetterMapWithFlats[noteNumber!] ?? noteLetter
+    }
+  } else if (noteLetter?.includes("b")) {
+    return noteLetterMapWithSharps[noteNumber!] ?? noteLetter
+  }
+
+  return noteLetter
+}

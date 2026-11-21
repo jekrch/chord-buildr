@@ -9,9 +9,9 @@ import { Button } from '../../components/ui/button'
 import { 
   getChordDisplay, 
   getProgressionString, 
-  convertProgressionStrToCode,
-  getSynthCode
-} from "../../utils/chordCodeHandler"
+  convertProgressionStrToCode
+} from "../../codec"
+import { getSynthCode } from "../../utils/chordCodeHandler"
 import { generateBaseUrlParams } from "../../utils/urlUtil"
 import { isGuitar } from "../../utils/guitarUtil"
 import { cn } from "../../lib/utils"
@@ -518,10 +518,7 @@ export const HeaderComponent: React.FC = () => {
   }
 
   const handleClickAddChord = (): void => {
-    dispatch({
-      type: "ADD_CHORD_PIANO",
-      payload: "selectedKey"
-    })
+    dispatch({ type: "ADD_CHORD_PIANO" })
     setNewChordAdded(true)
   }
 

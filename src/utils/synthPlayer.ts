@@ -1,15 +1,16 @@
 import * as Tone from "tone"
 import { getSynth, SYNTH_TYPES, SynthKey, SynthReturn } from './synthLibrary'
-import { AppState, getPianoById } from "../components/context/AppContext"
+import { AppAction, AppState, getPianoById } from "../components/context/AppContext"
 import { isMobile } from "react-device-detect"
 import { ChordPiano, NoteKey } from "./chordPianoHandler"
+import { DEFAULT_EQ, EQSettings, hasFlatEq } from "./settings"
 import { ChordPosition, findChordPositions, getInstrumentByFormat, Instrument, isGuitar } from "./guitarUtil"
 
 // maximum allowed volume in decibels to prevent audio clipping
 const MAX_SYNTH_VOLUME = 5
 const MAX_SAMPLER_VOLUME = 4;
 
-let decibelModifier = 2
+const decibelModifier = 2
 
 // cache for loaded samplers and their configurations
 const samplers: {
@@ -20,11 +21,6 @@ const synths: {
   [key: string]: ToneSynth
 } = {}
 
-export interface EQSettings {
-  low: number    // frequency range: 20-250 Hz
-  mid: number    // frequency range: 250-2000 Hz
-  high: number   // frequency range: 2000-20000 Hz
-}
 
 interface ToneSampler {
   sampler: Tone.Sampler
@@ -40,12 +36,6 @@ interface ToneSynth {
   decibelModifier?: number
 }
 
-// default eq settings in decibels
-export const DEFAULT_EQ: EQSettings = {
-  low: 0,
-  mid: 0,
-  high: 0
-}
 
 interface AudioOptions {
   toneSynth?: ToneSynth
@@ -83,7 +73,7 @@ function getSelectedNotes(piano: NoteKey[][]): string[] {
   return selectedNotes
 }
 
-function clearPianoKeyPlaying(dispatch: React.Dispatch<any>, pianoId: number): void {
+function clearPianoKeyPlaying(dispatch: React.Dispatch<AppAction>, pianoId: number): void {
   setTimeout(() => {
     dispatch({
       type: "SET_PIANO_PLAYING",
@@ -154,8 +144,8 @@ async function getInstrumentSampler(
 
     const SamplerModule = await instrument.getSampler()
     
-    let sampler = await new Promise<Tone.Sampler>(resolve => {
-      let sampler = new SamplerModule.default({
+    const sampler = await new Promise<Tone.Sampler>(resolve => {
+      const sampler = new SamplerModule.default({
         onload: () => resolve(sampler)
       }) as Tone.Sampler
     })
@@ -230,9 +220,10 @@ function getNoteNumber(note: string): number {
  * @param options 
  */
 async function playNotes(options: AudioOptions) {
-  let { toneSynth, toneSampler, notes, volume, delay, duration, velocity, useStrum } = options
+  const { toneSynth, toneSampler, notes, delay, duration, velocity, useStrum } = options
+  let { volume } = options
 
-  let decibelModifier = toneSampler?.decibelModifier ?? toneSynth?.decibelModifier;
+  const decibelModifier = toneSampler?.decibelModifier ?? toneSynth?.decibelModifier;
 
   const baseDelay = delay ? Number(delay.replace('+', '')) : 0
 
@@ -324,31 +315,6 @@ function initSynth(toneSynth: ToneSynth, volume: number | undefined) {
 }
 
 /**
- * Determine if the eq settings are all zero
- * 
- * @param toneSynth 
- * @returns 
- */
-export function hasFlatEq(eqSettings: EQSettings) {
-  return eqSettings.low === 0 && 
-         eqSettings.mid === 0 && 
-         eqSettings.high === 0
-}
-
-/**
- * Determine if the EQ settings are not equal
- * 
- * @param eq 
- * @param eqSettings 
- * @returns 
- */
-export function notEqual(eq: EQSettings, eqSettings: EQSettings): boolean {
-  return eq.low !== eqSettings.low || 
-         eq.mid !== eqSettings.mid || 
-         eq.high !== eqSettings.high;
-}
-
-/**
  * Initialize the sampler with the provided volume and eq settings
  * 
  * @param toneSampler 
@@ -360,9 +326,9 @@ function initSampler(
   volume: number | undefined,
   decibelModifier: number | undefined
 ) {
-  let sampler = toneSampler.sampler;
-  let eq = toneSampler.eq;
-  let eqSettings = toneSampler.eqSettings;
+  const sampler = toneSampler.sampler;
+  const eq = toneSampler.eq;
+  const eqSettings = toneSampler.eqSettings;
 
   sampler.disconnect();
 
@@ -382,7 +348,7 @@ function initSampler(
   sampler.releaseAll()
 
   if (volume !== undefined && decibelModifier !== undefined) {
-    let calculatedVolume = decibelModifier + getUserVolumeModifier(volume)
+    const calculatedVolume = decibelModifier + getUserVolumeModifier(volume)
     sampler.volume.value = Math.min(calculatedVolume, MAX_SAMPLER_VOLUME)
   }
 }
@@ -533,12 +499,12 @@ function playSynthNotes(
  * @returns 
  */
 export async function playChordById(
-  dispatch: React.Dispatch<any>, 
+  dispatch: React.Dispatch<AppAction>, 
   state: AppState, 
   pianoId?: number,
   tabPositions?:  ChordPosition[]
 ) {
-  let chordPiano: ChordPiano | null = getPianoById(state, pianoId!);
+  const chordPiano: ChordPiano | null = getPianoById(state, pianoId!);
 
   if (!chordPiano) return;
 
@@ -559,7 +525,7 @@ export async function playChordById(
  * @param overrideOptions 
  */
 export async function playChord(
-  dispatch: React.Dispatch<any>,
+  dispatch: React.Dispatch<AppAction>,
   state: AppState,
   chordPiano: ChordPiano,
   tabPositions?:  ChordPosition[]
@@ -616,7 +582,7 @@ export async function playChord(
     
     const toneSampler = await getInstrumentSampler(instrumentType, state.eq)
 
-    let toneSynth = !toneSampler ? getToneSynth(instrumentType, state.eq) : undefined;
+    const toneSynth = !toneSampler ? getToneSynth(instrumentType, state.eq) : undefined;
     
     await playNotes({
       toneSampler: toneSampler,
@@ -696,7 +662,7 @@ function getToneSynth(
   }
 
   // Only create a new synth if we don't have one or if it was disposed
-  let synthReturn: SynthReturn = getSynth(instrumentType as any);
+  const synthReturn: SynthReturn = getSynth(instrumentType);
   
   synths[instrumentType] = {
     synth: synthReturn.synth,
