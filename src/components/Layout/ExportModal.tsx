@@ -2,12 +2,12 @@ import React, { useEffect, useRef, useState } from "react"
 import { createPortal } from "react-dom"
 import { toPng } from "html-to-image"
 import { Download, LayoutGrid, Loader2, Minus, Moon, Piano, Plus, Printer, Sun, TriangleAlert, Type } from "lucide-react"
-import { useAppContext } from "../context/AppContext"
+import { useChords, useFormat } from "../../store/progressionStore"
 import { Button } from "../ui/button"
 import { Dialog, DialogContent, DialogDescription, DialogTitle } from "../ui/dialog"
 import { SegmentedToggle, ToggleOption } from "../SegmentedToggle"
 import { ExportSheet, SheetMode, SheetText, SheetTheme } from "../ExportSheet"
-import { isGuitar } from "../../utils/guitarUtil"
+import { isGuitar } from "../../utils/settings"
 import { cn } from "../../lib/utils"
 
 interface ExportSettings {
@@ -140,14 +140,14 @@ interface ExportModalProps {
  * on how wide the preview happens to be. printing shows only that copy
  */
 export const ExportModal: React.FC<ExportModalProps> = ({ open, onOpenChange }) => {
-  const { state } = useAppContext()
+  const chordPianoSet = useChords()
+  const format = useFormat()
   const [settings, setSettings] = useState(loadSettings)
   const [saving, setSaving] = useState(false)
   const captureRef = useRef<HTMLDivElement>(null)
   const { mode, theme, text, size } = settings
   // a dark page wastes ink and prints muddy, so only light sheets print
   const canPrint = theme === "light"
-  const chordPianoSet = state.chordPianoSet ?? []
 
   useEffect(() => saveSettings(settings), [settings])
 
@@ -194,7 +194,7 @@ export const ExportModal: React.FC<ExportModalProps> = ({ open, onOpenChange }) 
     if (canPrint) window.print()
   }
 
-  const sheetProps = { chordPianoSet, format: state.format, mode, theme, text, size }
+  const sheetProps = { chordPianoSet, format, mode, theme, text, size }
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -216,7 +216,7 @@ export const ExportModal: React.FC<ExportModalProps> = ({ open, onOpenChange }) 
           </div>
           <div className="flex flex-wrap items-center gap-2">
             <SegmentedToggle
-              options={getModeOptions(state.format)}
+              options={getModeOptions(format)}
               label="Show"
               value={mode}
               onChange={(value) => update({ mode: value as SheetMode })}

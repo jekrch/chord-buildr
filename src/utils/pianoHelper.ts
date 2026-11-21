@@ -1,4 +1,4 @@
-import { NoteKey } from "./chordPianoHandler";
+import { NoteKey, PIANO_OCTAVES } from "./chordPianoHandler";
 
 interface PianoKey {
   note: string
@@ -20,33 +20,29 @@ const pianoKeys: readonly PianoKey[] = [
   { note: 'B', color: 'white' },
 ] as const;
 
-export const pianoGenerator = (): NoteKey[][] => {
-  const piano: NoteKey[][] = [];
-  const octaves = 3;
+/**
+ * the keys of a chord card's piano, three octaves of 12, with the given
+ * keys (see getChordKeys) down
+ */
+export function getPianoKeys(selectedKeys: readonly number[]): NoteKey[][] {
+  const selected = new Set(selectedKeys)
 
-  for (let i = 0; i < octaves; i++) {
-    // i is each octave
-    const pianoKeysOctave: NoteKey[] = pianoKeys.map((key, index) => ({
+  return Array.from({ length: PIANO_OCTAVES }, (_, octave) =>
+    pianoKeys.map((key, index) => ({
       note: key.note,
       color: key.color,
-      selected: false,
+      selected: selected.has(octave * 12 + index),
       noteNumber: index + 1,
-      octave: i,
-      isPlaying: false,
-      isStopping: false
-    } as NoteKey));
+      octave
+    }))
+  )
+}
 
-    piano.push(pianoKeysOctave);
-  }
-
-  return piano;
-};
-
-// deselect all keys in the provided piano
-export function clearPianoSelections(piano: NoteKey[][]): void {
-  piano.forEach(pianoOctave => {
-    pianoOctave.forEach(key => {
-      key.selected = false;
-    });
-  });
+/**
+ * the note a piano key plays, e.g. key 4 (the first octave's E) is "E3".
+ * the card's lowest C is C3
+ */
+export function getKeyNoteName(keyIndex: number): string {
+  const octave = Math.floor(keyIndex / 12)
+  return `${pianoKeys[keyIndex % 12].note}${octave + 3}`
 }

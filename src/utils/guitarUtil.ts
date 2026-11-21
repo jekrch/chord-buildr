@@ -1,10 +1,11 @@
 import { ChordPiano, SelectedChord } from "./chordPianoHandler";
 import { chordMap } from "./chordManager";
 import { getNoteNumber } from "./noteManager";
-import { isGuitar } from "./settings";
-import guitar from '@tombatossals/chords-db/lib/guitar.json';
-import ukulele from '@tombatossals/chords-db/lib/ukulele.json';
 
+/**
+ * A fretted instrument and its chords-db chord shapes by root. The shapes
+ * are loaded on demand: see loadInstrument in ./instruments
+ */
 export interface Instrument {
   strings: number,
   fretsOnChord: number,
@@ -12,52 +13,6 @@ export interface Instrument {
   tunings: { standard: string[] }
   chords: Record<string, ChordInfo[]>
 }
-
-export const guitarInstrument: Instrument = {
-  strings: 6,
-  fretsOnChord: 4,
-  name: "Guitar",
-  tunings: {
-    standard: ["E", "A", "D", "G", "B", "E"],
-  },
-  chords: guitar.chords
-}
-
-export const ukuleleInstrument: Instrument = {
-  strings: 4,
-  fretsOnChord: 4,
-  name: 'Ukulele',
-  tunings: {
-      standard:["G","C","E","A"]
-  },
-  chords: ukulele.chords
-}
-
-/**
- * Returns the guitar instrument (standard or ukulele) corresponding to 
- * the provided format code.
- * 
- * @param format 
- * @returns 
- */
-function getInstrumentByFormat(format: string): Instrument {
-  switch(format) {
-    case "g": 
-      return guitarInstrument;
-    case "u":
-      return ukuleleInstrument;
-    default:
-      throw Error("Invalid guitar format")
-  } 
-}
-
-/**
- * Returns whether the provided format is a "guitar" format. This 
- * covers either standard 6 string or ukulele 
- * 
- * @param format 
- * @returns 
- */
 
 /**
  * Chord types with no diagram in any key, by format. Types are only listed
@@ -146,7 +101,7 @@ const normalizeKey = (keyNoteNumber: number, format: string): string => {
     midi: number[];
   }
   
-  interface ChordInfo {
+  export interface ChordInfo {
     key: string;
     suffix: string;
     positions: ChordPosition[];
@@ -651,13 +606,18 @@ const normalizeKey = (keyNoteNumber: number, format: string): string => {
    * bass (see findChordVoicings). False for chords with no voicing at all,
    * which have nothing to show either way.
    */
-  const isSlashNoteMissing = (selectedChord: SelectedChord, slashNote: string, format: string): boolean => {
+  const isSlashNoteMissing = (
+    selectedChord: SelectedChord,
+    slashNote: string,
+    format: string,
+    instrument: Instrument
+  ): boolean => {
     const key = [format, selectedChord.noteLetter, selectedChord.type, slashNote].join();
     let missing = slashNoteMissing.get(key);
     if (missing === undefined) {
       missing = findChordVoicings(
         { noteLetter: selectedChord.noteLetter, type: selectedChord.type, slash: true, slashNote },
-        getInstrumentByFormat(format).chords,
+        instrument.chords,
         format
       ).bassMissing;
       slashNoteMissing.set(key, missing);
@@ -666,11 +626,10 @@ const normalizeKey = (keyNoteNumber: number, format: string): string => {
   };
   
   /**
-   * the instrument and tab positions for a chord in a format, with the
-   * position that's showing
+   * the tab positions for a chord on an instrument (in the format it's
+   * loaded for), with the position that's showing
    */
-  const getChordChart = (chordPiano: ChordPiano, format: string) => {
-    const instrument = getInstrumentByFormat(format)
+  const getChordChart = (chordPiano: ChordPiano, format: string, instrument: Instrument) => {
     const { positions: tabPositions, bassMissing } = findChordVoicings(
       chordPiano.selectedChord,
       instrument.chords,
@@ -689,4 +648,4 @@ const normalizeKey = (keyNoteNumber: number, format: string): string => {
     return { instrument, tabPositions, position, bassMissing, chartChord }
   }
 
-  export { getChordChart, getInstrumentByFormat, findChordPositions, findChordVoicings, isSlashNoteMissing, getNonChordIntervals, isGuitar, parseChordName, normalizeKey, normalizeSuffix };
+  export { getChordChart, findChordPositions, findChordVoicings, isSlashNoteMissing, getNonChordIntervals, parseChordName, normalizeKey, normalizeSuffix };

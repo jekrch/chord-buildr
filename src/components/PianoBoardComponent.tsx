@@ -1,6 +1,5 @@
 import React, { useCallback, useEffect, useState, useLayoutEffect, useMemo, useRef, memo } from "react"
 import { flushSync } from "react-dom"
-import { useLocation, useNavigate } from "react-router"
 import { Plus } from "lucide-react"
 import {
   Active,
@@ -21,15 +20,14 @@ import {
   sortableKeyboardCoordinates,
   verticalListSortingStrategy
 } from "@dnd-kit/sortable"
-import { useAppContext } from "../components/context/AppContext"
+import { useActions, useAppStore, useChords, useSettings } from "../store/progressionStore"
 import { getChordDisplay } from "../codec"
-import { getStateParamsCode } from "../utils/chordCodeHandler"
 import { ChordPianoComponent } from "../components/ChordPianoComponent"
 import { ChordInput } from "./ChordInput"
 import { GuitarChord } from "./GuitarChord"
 import { ChordChartCard } from "./ChordChartCard"
 import useNavHeight from "../utils/hooks/useNavHeight"
-import { isGuitar } from '../utils/guitarUtil'
+import { isGuitar } from '../utils/settings'
 import InlineConfig from './InlineConfig'
 import MusicalAnimation from "./MusicalAnimation"
 import { cn } from "../lib/utils"
@@ -40,10 +38,9 @@ import { ChordPiano } from "../utils/chordPianoHandler"
 import { getProgressionItems, isStrayBreak } from "../utils/sectionBreaks"
 import { GridLayout, createSectionGridStrategy, measureGridLayout } from "../utils/sectionGridStrategy"
 
-// existing memoized components remain the same
-const MemoizedChordPiano = memo(({ id, refresh, entering }: { id: number, refresh: number, entering: boolean }) => (
+// cards only re-render for their own chord, which they read from the store
+const MemoizedChordPiano = memo(({ id, entering }: { id: number, entering: boolean }) => (
   <ChordPianoComponent
-    key={`piano-${id}-${refresh}`}
     pianoComponentId={Number(id)}
     className={cn(entering && "chord-enter")}
   />
@@ -98,9 +95,10 @@ const addButtonClass = cn(
  * break button rests while the progression already ends with one
  */
 const AddButtons: React.FC<{ className?: string }> = ({ className }) => {
-  const { state, dispatch } = useAppContext()
+  const chords = useChords()
+  const { addChord, addSectionBreak } = useActions()
   const rowRef = useRef<HTMLDivElement>(null)
-  const lastChordPiano = state.chordPianoSet?.[state.chordPianoSet.length - 1]
+  const lastChordPiano = chords[chords.length - 1]
   const canAddBreak = lastChordPiano !== undefined && lastChordPiano.breakAfter === undefined
 
   // commit now so the new card or break is laid out before scrolling
@@ -112,12 +110,12 @@ const AddButtons: React.FC<{ className?: string }> = ({ className }) => {
   }
 
   const handleAddChord = () => {
-    flushSync(() => dispatch({ type: "ADD_CHORD_PIANO" }))
+    flushSync(addChord)
     keepInView()
   }
 
   const handleAddBreak = () => {
-    flushSync(() => dispatch({ type: "ADD_SECTION_BREAK" }))
+    flushSync(addSectionBreak)
     keepInView()
   }
 
@@ -142,16 +140,15 @@ const AddButtons: React.FC<{ className?: string }> = ({ className }) => {
 }
 
 export const PianoBoardComponent: React.FC = () => {
-  const { state, dispatch } = useAppContext()
-  const location = useLocation()
-  const navigate = useNavigate()
-  const [isInitialized, setIsInitialized] = useState<boolean>(false)
-  const [refresh, setRefresh] = useState<number>(0)
+  const chords = useChords()
+  const { format, fretView } = useSettings()
+  const generation = useAppStore((state) => state.generation)
+  const { arrangeProgression } = useActions()
   const navHeight = useNavHeight('nav')
   const boardRef = useRef<HTMLDivElement>(null)
   const contentRef = useRef<HTMLDivElement>(null)
   const spacerRef = useRef<HTMLDivElement>(null)
-  const hasChords = !!state.chordPianoSet?.length
+  const hasChords = chords.length > 0
 
   /**
    * a view is the welcome screen or a board in one format. chords already
@@ -162,13 +159,16 @@ export const PianoBoardComponent: React.FC = () => {
    * and only swaps the chord list, which then runs the view transition
    * itself. guitar and ukulele share a layout, so switching between them
    * keeps the cards too and only their charts change. the tab view is a
-   * layout of its own, so full <-> tab swaps the list as well
+   * layout of its own, so full <-> tab swaps the list as well.
+   *
+   * loading a new progression from the editor bumps the store's
+   * generation, which remounts the board so it enters like a new view
    */
-  const boardKey = `${refresh}-${hasChords}`
-  const layout = !isGuitar(state.format) ? 'piano' : state.fretView === 't' ? 'chart' : 'fretted'
+  const boardKey = `${generation}-${hasChords}`
+  const layout = !isGuitar(format) ? 'piano' : fretView === 't' ? 'chart' : 'fretted'
   const viewKey = `${boardKey}-${layout}`
-  const chordIds = state.chordPianoSet?.map((chordPiano) => chordPiano.id) ?? []
-  const breakIds = getBreakIds(state.chordPianoSet)
+  const chordIds = chords.map((chordPiano) => chordPiano.id)
+  const breakIds = getBreakIds(chords)
   const [view, setView] = useState({ viewKey, boardKey, ids: chordIds, breakIds, formatSwitched: false })
   if (view.viewKey !== viewKey) {
     setView({ viewKey, boardKey, ids: chordIds, breakIds, formatSwitched: view.boardKey === boardKey })
@@ -177,41 +177,8 @@ export const PianoBoardComponent: React.FC = () => {
   const initialBreakIds = view.breakIds
 
   useEffect(() => {
-    document.documentElement.setAttribute('data-format', isGuitar(state.format) ? 'g' : 'p')
-  }, [state.format])
-
-  useLayoutEffect(() => {
-    if (!isInitialized && (location.search || location.hash)) {
-      dispatch({
-        type: "BUILD_PROG_FROM_CODE",
-        payload: location.search + location.hash
-      })
-      setIsInitialized(true)
-      setRefresh(prev => prev + 1)
-    }
-  }, [location.search, location.hash, isInitialized, dispatch])
-
-  useLayoutEffect(() => {
-    if (state.refreshBoard && state.refreshBoard !== refresh) {
-      setRefresh(state.refreshBoard)
-    }
-  }, [state.refreshBoard, refresh])
-
-  useEffect(() => {
-    if (!state.chordPianoSet) return
-
-    const currentCode = "?" + getStateParamsCode(state)
-    const newParams = location.search + location.hash
-
-    if (currentCode !== newParams) {
-      // chord names can contain '#', so pass a string and let the router
-      // split it into search and hash (matching how the code is read back)
-      navigate(currentCode)
-    }
-    // only sync when state changes; re-running on location changes would
-    // push the old state back over back/forward navigation
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [state, navigate])
+    document.documentElement.setAttribute('data-format', isGuitar(format) ? 'g' : 'p')
+  }, [format])
 
   /**
    * size the bottom spacer so the page can scroll just far enough for the
@@ -265,7 +232,7 @@ export const PianoBoardComponent: React.FC = () => {
   )
 
   // chords and section breaks sort together, each break after its chord
-  const items = useMemo(() => getProgressionItems(state.chordPianoSet), [state.chordPianoSet])
+  const items = useMemo(() => getProgressionItems(chords), [chords])
   const sortableIds = useMemo(
     () => items.map((item) => item.type === "chord" ? getSortableId(item.id) : getSortableBreakId(item.id)),
     [items]
@@ -297,7 +264,7 @@ export const PianoBoardComponent: React.FC = () => {
     const arranged = arrayMove(items, from, to)
     if (isStrayBreak(arranged, to)) return
 
-    dispatch({ type: "ARRANGE_PROGRESSION", items: arranged })
+    arrangeProgression(arranged)
   }
 
   const handleDragCancel = () => {
@@ -308,7 +275,7 @@ export const PianoBoardComponent: React.FC = () => {
   // where it will land
   const describeItem = (item: Active | Over | null) => {
     if (item?.data.current?.breakId !== undefined) return "Section break"
-    const chordPiano = state.chordPianoSet?.find((p) => p.id === getPianoId(item))
+    const chordPiano = chords.find((p) => p.id === getPianoId(item))
     return chordPiano ? getChordDisplay(chordPiano.selectedChord) : "Chord"
   }
   const describePosition = (item: Active | Over | null) => {
@@ -337,31 +304,24 @@ export const PianoBoardComponent: React.FC = () => {
     />
   ), [initialBreakIds])
 
-  const renderPianoSet = useMemo(() => {
-    if (!state.chordPianoSet) return null
-    
-    return renderWithBreaks(
-      state.chordPianoSet,
-      (chordPiano) => (
-        <MemoizedChordPiano
-          key={`wrapper-${chordPiano.id}-${refresh}`}
-          id={chordPiano.id}
-          refresh={refresh}
-          entering={!initialIds.includes(chordPiano.id)}
-        />
-      ),
-      (chordPiano, breakId) => renderBreak(chordPiano, breakId)
-    )
-  }, [state.chordPianoSet, refresh, initialIds, renderBreak])
+  const renderPianoSet = useMemo(() => renderWithBreaks(
+    chords,
+    (chordPiano) => (
+      <MemoizedChordPiano
+        key={`wrapper-${chordPiano.id}`}
+        id={chordPiano.id}
+        entering={!initialIds.includes(chordPiano.id)}
+      />
+    ),
+    (chordPiano, breakId) => renderBreak(chordPiano, breakId)
+  ), [chords, initialIds, renderBreak])
 
   const renderGuitarSet = useMemo(() => {
-    if (!state.chordPianoSet) return null
-
     return (
       <div className="guitar-board">
         <div ref={gridRef} className="guitar-grid">
           {renderWithBreaks(
-            state.chordPianoSet,
+            chords,
             (chordPiano) => (
               <MemoizedGuitarChordSet
                 key={chordPiano.id}
@@ -375,16 +335,14 @@ export const PianoBoardComponent: React.FC = () => {
         </div>
       </div>
     )
-  }, [state.chordPianoSet, initialIds, renderBreak])
+  }, [chords, initialIds, renderBreak])
 
   // the tab view is read-only, so its cells aren't sortable
   const renderChartSet = useMemo(() => {
-    if (!state.chordPianoSet) return null
-
     return (
       <div className="chord-chart">
         {renderWithBreaks(
-          state.chordPianoSet,
+          chords,
           (chordPiano) => (
             <ChordChartCard
               key={chordPiano.id}
@@ -403,9 +361,9 @@ export const PianoBoardComponent: React.FC = () => {
         )}
       </div>
     )
-  }, [state.chordPianoSet, initialIds, initialBreakIds])
+  }, [chords, initialIds, initialBreakIds])
 
-  if (!state.chordPianoSet?.length) {
+  if (!hasChords) {
     return (
       <div
         key="welcome"
@@ -450,7 +408,7 @@ export const PianoBoardComponent: React.FC = () => {
                 items={sortableIds}
                 strategy={layout === 'piano' ? verticalListSortingStrategy : sectionGridStrategy}
               >
-                {!isGuitar(state.format) ? (
+                {!isGuitar(format) ? (
                   <div className="flex flex-col gap-3 sm:gap-4">
                     {renderPianoSet}
                     <AddButtons />

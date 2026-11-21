@@ -1,11 +1,10 @@
 import React, { useEffect, useRef } from 'react'
-import { BrowserRouter as Router, Route, Routes } from 'react-router'
-import { AppProvider } from './components/context/AppContext'
 import { HeaderComponent } from './components/Layout/HeaderComponent'
 import { PianoBoardComponent } from './components/PianoBoardComponent'
 import { FooterComponent } from './components/Layout/FooterComponent'
 import PageScrollbar from './components/Layout/PageScrollbar'
 import { ThemeProvider } from './components/theme-provider'
+import { prepareAudio } from './audio/player'
 
 
 const App: React.FC = () => {
@@ -19,9 +18,13 @@ const App: React.FC = () => {
   const initializeAudio = async () => {
     if (!audioInitializedRef.current) {
       try {
+        // load Tone and start the audio context while we have a gesture,
+        // so the first chord played doesn't wait on either
+        prepareAudio()
+
         // for ios, we need to play silent audio first
         await silentAudioRef.current?.play()
-        
+
         audioInitializedRef.current = true
         
         // cleanup listeners after successful initialization
@@ -51,24 +54,17 @@ const App: React.FC = () => {
   return (
     <ThemeProvider defaultTheme="dark" storageKey="vite-ui-theme">
       <div className="min-h-screen bg-background text-foreground">
-        <AppProvider>
-          <HeaderComponent />
+        <HeaderComponent />
 
-          <main className="pb-16">
-            <Router>
-              <Routes>
-                <Route path="/" element={<PianoBoardComponent />} />
-                <Route path="/chord-buildr/" element={<PianoBoardComponent />} />
-              </Routes>
-            </Router>
-            <audio ref={silentAudioRef} preload="auto">
-              <source src="/silence.mp3" type="audio/mp3" />
-            </audio>
-          </main>
+        <main className="pb-16">
+          <PianoBoardComponent />
+          <audio ref={silentAudioRef} preload="auto">
+            <source src="/silence.mp3" type="audio/mp3" />
+          </audio>
+        </main>
 
-          <FooterComponent />
-          <PageScrollbar />
-        </AppProvider>
+        <FooterComponent />
+        <PageScrollbar />
       </div>
     </ThemeProvider>
   )

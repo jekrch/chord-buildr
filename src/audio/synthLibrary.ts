@@ -132,7 +132,3 @@ export function getSynth(synthType: string): SynthReturn {
 
   return { synth, decibelModifier: decibelModifier };
 }
-
-// the table lives apart from Tone so the url codec can read it
-export { SYNTH_TYPES } from "./synthTypes";
-export type { SamplerModule, SynthKey, SynthType } from "./synthTypes";

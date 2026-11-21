@@ -2,8 +2,8 @@ import type * as Tone from "tone"
 
 /**
  * the instruments a progression can be played with, keyed by the code
- * saved in the url. kept apart from synthLibrary so reading that code
- * doesn't load Tone. the samplers' dynamic imports only run when played
+ * saved in the url. kept apart from the audio engine so reading that
+ * code doesn't load Tone. the samplers' dynamic imports only run when played
  */
 
 // what a tonejs-instrument-*-mp3 package's dynamic import resolves to

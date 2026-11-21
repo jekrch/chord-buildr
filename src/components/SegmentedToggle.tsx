@@ -13,6 +13,10 @@ interface SegmentedToggleProps {
   value: string
   onChange: (value: string) => void
   className?: string
+  // called when a mouse moves over the group or keyboard focus moves into
+  // it, before an option is picked, to start loading what one might need.
+  // not on touch, where the tap that would set it off is also the pick
+  onIntent?: () => void
 }
 
 /**
@@ -20,7 +24,7 @@ interface SegmentedToggleProps {
  * highlight is one element that slides to whichever option is checked,
  * rather than each option switching its own background
  */
-export const SegmentedToggle: React.FC<SegmentedToggleProps> = ({ options, label, value, onChange, className }) => {
+export const SegmentedToggle: React.FC<SegmentedToggleProps> = ({ options, label, value, onChange, className, onIntent }) => {
   const groupRef = useRef<HTMLDivElement>(null)
   const indicatorRef = useRef<HTMLSpanElement>(null)
 
@@ -55,6 +59,8 @@ export const SegmentedToggle: React.FC<SegmentedToggleProps> = ({ options, label
       ref={groupRef}
       role="radiogroup"
       aria-label={label}
+      onPointerEnter={(event) => event.pointerType === "mouse" && onIntent?.()}
+      onFocus={(event) => event.target.matches(":focus-visible") && onIntent?.()}
       className={cn("relative inline-flex rounded-lg border border-border bg-card p-1", className)}
     >
       <span

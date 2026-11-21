@@ -1,8 +1,10 @@
 import React, { useLayoutEffect, useRef } from "react"
 import Chord from "@techies23/react-chords"
-import { ChordPiano, SelectedChord, getChordNotes } from "../utils/chordPianoHandler"
+import { ChordPiano, SelectedChord, getChordKeys } from "../utils/chordPianoHandler"
 import { getChordDisplay, isSlashChord } from "../codec"
-import { getChordChart, isGuitar } from "../utils/guitarUtil"
+import { getChordChart } from "../utils/guitarUtil"
+import { isGuitar } from "../utils/settings"
+import { useInstrument } from "../utils/instruments"
 import { getSections } from "../utils/sectionBreaks"
 import { cn } from "../lib/utils"
 
@@ -46,20 +48,9 @@ const ChordName: React.FC<{ chord: SelectedChord; className?: string }> = ({ cho
   </span>
 )
 
-/**
- * the keys the chord's piano has down, as semitones above its lowest C.
- * a piano that hasn't drawn its chord yet (e.g. one only ever shown as a
- * guitar card) gets the voicing worked out the same way the piano would
- */
+// the keys the chord's piano has down, as semitones above its lowest C
 function getPianoNotes(chordPiano: ChordPiano): number[] {
-  if (chordPiano.rendered && chordPiano.piano) {
-    const selected = chordPiano.piano.flatMap((octave, i) =>
-      octave.filter((key) => key.selected).map((key) => i * 12 + key.noteNumber - 1)
-    )
-    if (selected.length) return selected
-  }
-  const { notes, octave } = getChordNotes(chordPiano.selectedChord, true)
-  return notes.map((note) => octave * 12 + note - 1)
+  return getChordKeys(chordPiano.selectedChord)
 }
 
 const WHITE_SEMITONES = [0, 2, 4, 5, 7, 9, 11]
@@ -132,10 +123,15 @@ const PianoDiagram: React.FC<{ chordPiano: ChordPiano }> = ({ chordPiano }) => {
 }
 
 const DiagramCell: React.FC<{ chordPiano: ChordPiano; format: string }> = ({ chordPiano, format }) => {
+  // undefined for piano. the board has drawn guitar and ukulele charts by
+  // the time the export opens, so their shapes have normally loaded
+  const loadedInstrument = useInstrument(format)
   let art: React.ReactNode
   let chord = chordPiano.selectedChord
-  if (isGuitar(format)) {
-    const { instrument, tabPositions, position, chartChord } = getChordChart(chordPiano, format)
+  if (isGuitar(format) && !loadedInstrument) {
+    art = null
+  } else if (loadedInstrument) {
+    const { instrument, tabPositions, position, chartChord } = getChordChart(chordPiano, format, loadedInstrument)
     // named after what the tab shows, which leaves out a slash note no
     // voicing has under it
     chord = chartChord

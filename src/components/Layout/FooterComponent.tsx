@@ -1,8 +1,10 @@
 import React, { useState } from "react"
 import { Github, Settings } from "lucide-react"
-import { AboutModal } from "./AboutModal"
-import { VersionModal } from "./VersionModal"
-import { ConfigModal } from "./ConfigModal"
+import { lazyModal } from "./lazyModal"
+
+const AboutModal = lazyModal(() => import("./AboutModal"))
+const VersionModal = lazyModal(() => import("./VersionModal"))
+const ConfigModal = lazyModal(() => import("./ConfigModal").then((m) => ({ default: m.ConfigModal })))
 
 const APP_VERSION = "v5.1"
 const GITHUB_URL = "https://github.com/jekrch/chord-buildr"

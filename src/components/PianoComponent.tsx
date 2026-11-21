@@ -1,11 +1,13 @@
-import React, { useEffect, useRef } from 'react'
+import React, { useMemo } from 'react'
 import { Play, X } from 'lucide-react'
 import '../styles/Piano.css'
 import { Key } from './Key'
-import { useAppContext, getPianoById } from './context/AppContext'
+import { useActions, useChord } from '../store/progressionStore'
+import { useIsChordPlaying, usePlayingKeys } from '../store/playbackStore'
 import { getNoteLetter } from '../utils/noteManager'
-import { playChordById } from '../utils/synthPlayer'
-import { NoteKey } from '../utils/chordPianoHandler'
+import { playChordById } from '../audio/player'
+import { getChordKeys } from '../utils/chordPianoHandler'
+import { getPianoKeys } from '../utils/pianoHelper'
 import { removeChordWithTransition } from "../utils/chordTransitions"
 import { DragHandle } from "./SortableChordCard"
 
@@ -16,68 +18,45 @@ interface PianoComponentProps {
 export const PianoComponent: React.FC<PianoComponentProps> = ({
   pianoComponentId
 }) => {
-  const { state, dispatch } = useAppContext()
   const pianoId = pianoComponentId
-  const mountedRef = useRef(false)
+  const { setChordRoot, removeChord } = useActions()
+  const selectedChord = useChord(pianoId)?.selectedChord
+  const isPlaying = useIsChordPlaying(pianoId)
+  const playingKeys = usePlayingKeys(pianoId)
 
-  useEffect(() => {
-    if (!mountedRef.current) {
-      mountedRef.current = true
-      // force a re-render of the piano keys on mount
-      const piano = getPianoById(state, pianoId)
-      if (piano) {
-        dispatch({
-          type: 'REFRESH_PIANO',
-          id: pianoId,
-          payload: piano
-        })
-      }
-    }
-  }, [pianoId, state, dispatch])
+  // the keys the chord has down, worked out from the chord itself
+  const piano = useMemo(
+    () => getPianoKeys(selectedChord ? getChordKeys(selectedChord) : []),
+    [selectedChord]
+  )
 
   const handleClick = (noteNumber: number, octave: number): void => {
-    const noteLetter = getNoteLetter('C', noteNumber)
-    const selectedKey = {
-      noteLetter,
-      octave
-    }
-    dispatch({
-      type: 'UPDATE_KEY',
-      id: pianoId,
-      payload: selectedKey
-    })
+    setChordRoot(pianoId, getNoteLetter('C', noteNumber), octave)
   }
 
   const handleClickRemovePiano = (): void => {
-    removeChordWithTransition(pianoId, () => dispatch({
-      type: 'REMOVE_PIANO',
-      id: pianoId
-    }))
+    removeChordWithTransition(pianoId, () => removeChord(pianoId))
   }
 
   const handlePlayClick = (): void => {
-    playChordById(dispatch, state, pianoId)
+    playChordById(pianoId)
   }
 
-  const renderPiano = () => {
-    const piano = getPianoById(state, pianoId)?.piano || []
-    return piano.map((octave, i) =>
-      octave.map((pianoKey: NoteKey) => ({
-        ...pianoKey,
-        octave: i,
-        key: `${pianoKey.note}-${i}`,
-        handleClick: () => handleClick(pianoKey.noteNumber, i)
-      }))
-    ).flat().map(pianoKey => (
-      <Key
-        key={pianoKey.key}
-        pianoKey={pianoKey}
-        handleClick={pianoKey.handleClick}
-      />
-    ))
-  }
+  const renderPiano = () =>
+    piano.flat().map((pianoKey) => {
+      const index = pianoKey.octave * 12 + pianoKey.noteNumber - 1
+      const played = playingKeys?.notes.includes(index) ?? false
 
-  const isPlaying = Boolean(getPianoById(state, pianoId)?.isPlaying)
+      return (
+        <Key
+          key={`${pianoKey.note}-${pianoKey.octave}`}
+          pianoKey={pianoKey}
+          isPlaying={played && playingKeys?.phase === 'playing'}
+          isStopping={played && playingKeys?.phase === 'stopping'}
+          handleClick={() => handleClick(pianoKey.noteNumber, pianoKey.octave)}
+        />
+      )
+    })
 
   return (
     <>

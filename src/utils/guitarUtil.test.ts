@@ -8,13 +8,15 @@ import {
   getChordChart,
   isSlashNoteMissing,
   getNonChordIntervals,
-  guitarInstrument,
   Instrument,
   normalizeKey,
   normalizeSuffix,
-  ukuleleInstrument,
   UNSUPPORTED_GUITAR_CHORDS
 } from "./guitarUtil"
+import { getLoadedInstrument, loadInstrument } from "./instruments"
+
+const guitarInstrument = await loadInstrument("g")
+const ukuleleInstrument = await loadInstrument("u")
 
 interface ChordEntry {
   key: string;
@@ -263,15 +265,19 @@ describe("slash chord diagrams", () => {
     expect(voicings("g", guitarInstrument, "G", "").bassMissing).toBe(false)
     expect(voicings("g", guitarInstrument, "C", "", "C").bassMissing).toBe(false)
 
-    expect(isSlashNoteMissing({ noteLetter: "G", type: "" }, "B", "u")).toBe(true)
-    expect(isSlashNoteMissing({ noteLetter: "G", type: "" }, "B", "g")).toBe(false)
+    expect(isSlashNoteMissing({ noteLetter: "G", type: "" }, "B", "u", ukuleleInstrument)).toBe(true)
+    expect(isSlashNoteMissing({ noteLetter: "G", type: "" }, "B", "g", guitarInstrument)).toBe(false)
     // a chord with no voicing at all has nothing to leave the bass out of
-    expect(isSlashNoteMissing({ noteLetter: "C", type: "x" }, "E", "g")).toBe(false)
+    expect(isSlashNoteMissing({ noteLetter: "C", type: "x" }, "E", "g", guitarInstrument)).toBe(false)
   })
 
   it("name the chart without a bass note it leaves out", () => {
     const chart = (noteLetter: string, slashNote: string, format: string) =>
-      getChordChart({ selectedChord: { noteLetter, type: "", slash: true, slashNote } } as ChordPiano, format)
+      getChordChart(
+        { selectedChord: { noteLetter, type: "", slash: true, slashNote } } as ChordPiano,
+        format,
+        format === "g" ? guitarInstrument : ukuleleInstrument
+      )
 
     const ukulele = chart("G", "B", "u")
     expect(ukulele.bassMissing).toBe(true)
@@ -288,5 +294,20 @@ describe("slash chord diagrams", () => {
     expect(
       findChordPositions({ noteLetter: "C", type: "", slash: false, slashNote: "E" }, guitarInstrument.chords, "g")
     ).toEqual(plain)
+  })
+})
+
+describe("instrument loading", () => {
+  it("loads each instrument's chord shapes once", async () => {
+    expect(getLoadedInstrument("g")).toBe(guitarInstrument)
+    expect(await loadInstrument("g")).toBe(guitarInstrument)
+    expect(guitarInstrument).toMatchObject({ name: "Guitar", strings: 6 })
+    expect(ukuleleInstrument).toMatchObject({ name: "Ukulele", strings: 4 })
+    expect(guitarInstrument.chords.C.length).toBeGreaterThan(0)
+  })
+
+  it("has no shapes for piano", async () => {
+    expect(getLoadedInstrument("p")).toBeUndefined()
+    await expect(loadInstrument("p")).rejects.toThrow()
   })
 })

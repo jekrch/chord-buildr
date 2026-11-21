@@ -16,13 +16,12 @@ import {
   SelectValue,
 } from '../../components/ui/select'
 import { Slider } from '../../components/ui/slider'
-//import { Badge } from '../../components/ui/badge'
-import { useAppContext } from '../context/AppContext'
-import { playChord } from '../../utils/synthPlayer'
+import { useActions, useAppStore, useSettings } from '../../store/progressionStore'
+import { playChordById } from '../../audio/player'
 import { DEFAULT_EQ, EQSettings, eqDiffers } from '../../utils/settings'
-import { SYNTH_TYPES as SYNTH_TYPES } from '../../utils/synthLibrary'
+import { SYNTH_TYPES } from '../../utils/synthTypes'
 import { FormatToggle, FretViewToggle } from '../InlineConfig'
-import { isGuitar } from '../../utils/guitarUtil'
+import { isGuitar } from '../../utils/settings'
 import { cn } from '../../lib/utils'
 
 interface ConfigModalProps {
@@ -31,63 +30,47 @@ interface ConfigModalProps {
 }
 
 export function ConfigModal({ open, onOpenChange }: ConfigModalProps): JSX.Element {
-  const { state, dispatch } = useAppContext()
-  const [synthType, setSynthType] = useState<string>(state.synth)
-  const [format, setFormat] = useState<string>(state.format)
-  const [volume, setVolume] = useState<number>(state.volume)
-  const [eqSettings, setEqSettings] = useState<EQSettings>(state.eq ?? DEFAULT_EQ);
+  const settings = useSettings()
+  const { setSynth, setVolume: setStoreVolume, setEq, setFormat: setStoreFormat, setFretView, addChord } = useActions()
+  const [synthType, setSynthType] = useState<string>(settings.synth)
+  const [format, setFormat] = useState<string>(settings.format)
+  const [volume, setVolume] = useState<number>(settings.volume)
+  const [eqSettings, setEqSettings] = useState<EQSettings>(settings.eq ?? DEFAULT_EQ);
 
   useEffect(() => {
 
     if (
-      eqDiffers(state.eq, eqSettings)
+      eqDiffers(settings.eq, eqSettings)
     ) {
-      dispatch({
-        type: 'UPDATE_EQ',
-        eq: eqSettings
-      })
+      setEq(eqSettings)
     }
   }, [eqSettings]);
 
-  // useEffect(() => {
-  //   return;
-  //   setEqSettings(state.eq!);
-  // }, [state.eq]);
+  useEffect(() => {
+    setSynthType(settings.synth);
+  }, [settings.synth]);
 
   useEffect(() => {
-    setSynthType(state.synth);
-  }, [state.synth]);
+    setVolume(settings.volume)
+  }, [settings.volume]);
 
   useEffect(() => {
-    setVolume(state.volume)
-  }, [state.volume]);
-
-  useEffect(() => {
-    setFormat(state.format)
-  }, [state.format]);
+    setFormat(settings.format)
+  }, [settings.format]);
 
   // temporary state for the volume while dragging
-  const [localVolume, setLocalVolume] = useState<number>(state.volume)
+  const [localVolume, setLocalVolume] = useState<number>(settings.volume)
 
   const handleSynthSelectChange = (value: string): void => {
-    dispatch({
-      type: 'UPDATE_SYNTH',
-      synth: value
-    })
+    setSynth(value)
   }
 
   const handleUxFormatSelectChange = (value: string): void => {
-    dispatch({
-      type: 'UPDATE_UX_FORMAT',
-      format: value
-    })
+    setStoreFormat(value)
   }
 
   const handleFretViewChange = (value: string): void => {
-    dispatch({
-      type: 'UPDATE_FRET_VIEW',
-      fretView: value
-    })
+    setFretView(value)
   }
 
   // handle the volume slider being dragged
@@ -101,27 +84,16 @@ export function ConfigModal({ open, onOpenChange }: ConfigModalProps): JSX.Eleme
       return
     }
 
-    state.building = true
-
-    dispatch({
-      type: 'UPDATE_SYNTH_VOLUME',
-      volume: value[0]
-    })
-
-    state.building = false
+    setStoreVolume(value[0])
   }
 
   const onPlayClick = (): void => {
-    const pianoSet = state.chordPianoSet
-    if (!pianoSet?.length) {
+    const [firstChord] = useAppStore.getState().chords
+    if (!firstChord) {
       addChord()
       return
     }
-    playChord(dispatch, state, pianoSet[0])
-  }
-
-  const addChord = (): void => {
-    dispatch({ type: 'ADD_CHORD_PIANO' })
+    playChordById(firstChord.id)
   }
 
   return (
@@ -246,7 +218,7 @@ export function ConfigModal({ open, onOpenChange }: ConfigModalProps): JSX.Eleme
               <div className="-mx-1 min-h-0 overflow-hidden px-1">
                 <div className="space-y-3 pt-3">
                   <FretViewToggle
-                    value={state.fretView}
+                    value={settings.fretView}
                     onChange={handleFretViewChange}
                     className="flex w-full [&>button]:flex-1 [&>button]:justify-center"
                   />

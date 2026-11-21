@@ -1,6 +1,6 @@
 import { expect, it } from "vitest"
 import { arrayMove } from "@dnd-kit/sortable"
-import { getChordPianoSetFromProgCode } from "./chordCodeHandler"
+import { parseProgressionCode } from "../codec"
 import { getProgressionString } from "../codec"
 import {
   arrangeProgression,
@@ -12,8 +12,8 @@ import {
 } from "./sectionBreaks"
 import { createSectionGridStrategy } from "./sectionGridStrategy"
 
-const text = (code: string) => getProgressionString(getChordPianoSetFromProgCode(code)).trim()
-const progression = (code: string) => getChordPianoSetFromProgCode(code)
+const text = (code: string) => getProgressionString(parseProgressionCode(code)).trim()
+const progression = (code: string) => parseProgressionCode(code)
 
 it("dragging a chord past a break moves it into the next section", () => {
   const set = progression("(1C)(1G)(-)(1Am)(1F)")

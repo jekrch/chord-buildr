@@ -1,8 +1,21 @@
 import { getNoteLetter } from "./noteManager"
 import * as Note from "@tonaljs/note";
-import * as Scale from "tonal-scale"
 import { getTransposedNote } from "./transposer"
 import type { SelectedChord, SelectedKey } from "./chordPianoHandler";
+
+// the major and natural minor scales, as intervals above the tonic
+const SCALE_INTERVALS = {
+  major: ["1P", "2M", "3M", "4P", "5P", "6M", "7M"],
+  minor: ["1P", "2M", "3m", "4P", "5P", "6m", "7m"]
+}
+
+/**
+ * the notes of the major or natural minor scale on the tonic, spelled for
+ * that key (F major has Bb, not A#)
+ */
+function getScaleNotes(tonic: string, scale: keyof typeof SCALE_INTERVALS): string[] {
+  return SCALE_INTERVALS[scale].map((interval) => Note.transpose(tonic, interval))
+}
 
 // mapping of chord types to their interval patterns
 export const chordMap: Record<string, number[]> = {
@@ -132,7 +145,7 @@ export function getScaleAdjustedNoteLetter(chord: SelectedChord | null | undefin
   }
 
   const scale = isMinorType(chord.type) ? 'minor' : 'major'
-  const notes = Scale.notes(chord.noteLetter!, scale)
+  const notes = getScaleNotes(chord.noteLetter!, scale)
 
   for (const note of notes) {
     if (equalChroma(note, noteLetter)) {
@@ -155,7 +168,7 @@ export function noteIsInScale(key: SelectedChord | null, noteLetter: string): bo
   }
 
   const scale = isMinorType(key.type) ? 'minor' : 'major'
-  const notes = Scale.notes(key.noteLetter!, scale)
+  const notes = getScaleNotes(key.noteLetter!, scale)
 
   for (const note of notes) {
     if (equalChroma(note, noteLetter)) {

@@ -2,7 +2,7 @@ import React, { useMemo } from "react"
 import { useSortable } from "@dnd-kit/sortable"
 import { CSS } from "@dnd-kit/utilities"
 import { X } from "lucide-react"
-import { useAppContext } from "./context/AppContext"
+import { useActions } from "../store/progressionStore"
 import { withFlipTransition, prefersReducedMotion } from "../utils/chordTransitions"
 import { cn } from "../lib/utils"
 import { DragHandle, DragHandleContext } from "./SortableChordCard"
@@ -41,7 +41,7 @@ interface SortableSectionBreakProps extends SectionBreakProps {
  * into an x on hover so that reads before the click
  */
 export const SortableSectionBreak: React.FC<SortableSectionBreakProps> = ({ pianoId, breakId, entering, className }) => {
-  const { dispatch } = useAppContext()
+  const { toggleSectionBreak } = useActions()
   const {
     attributes,
     listeners,
@@ -62,7 +62,7 @@ export const SortableSectionBreak: React.FC<SortableSectionBreakProps> = ({ pian
   )
 
   const handleRemove = (): void => {
-    withFlipTransition(() => dispatch({ type: "TOGGLE_SECTION_BREAK", id: pianoId }))
+    withFlipTransition(() => toggleSectionBreak(pianoId))
   }
 
   return (

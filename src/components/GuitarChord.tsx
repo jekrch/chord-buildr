@@ -1,10 +1,10 @@
 import React from "react"
 import Chord from "@techies23/react-chords"
-import { getPianoById, useAppContext } from "./context/AppContext"
-import { ChordPiano } from "../utils/chordPianoHandler"
+import { useActions, useChord, useFormat } from "../store/progressionStore"
+import { useIsChordPlaying } from "../store/playbackStore"
 import { getChordChart } from "../utils/guitarUtil"
 import { Play, X } from "lucide-react"
-import { playChord } from "../utils/synthPlayer"
+import { playChordById } from "../audio/player"
 import { removeChordWithTransition } from "../utils/chordTransitions"
 import useFormatCrossfade from "../utils/hooks/useFormatCrossfade"
 import { cn } from "../lib/utils"
@@ -15,48 +15,39 @@ interface GuitarChordProps {
 }
 
 export const GuitarChord: React.FC<GuitarChordProps> = ({ pianoComponentId }) => {
-  const { state, dispatch } = useAppContext()
-  const chordPiano: ChordPiano | null = getPianoById(state, pianoComponentId);
-  const { leavingFormat, handleEnterEnd } = useFormatCrossfade(state.format)
+  const chordPiano = useChord(pianoComponentId)
+  const format = useFormat()
+  const isPlaying = useIsChordPlaying(pianoComponentId)
+  const { setPosition, removeChord } = useActions()
+  const { chartFormat, instrument, leavingFormat, leavingInstrument, handleEnterEnd } = useFormatCrossfade(format)
 
   if (!chordPiano) {
     return;
   }
 
-  const { instrument, tabPositions, position } = getChordChart(chordPiano, state.format)
-  const leaving = leavingFormat ? getChordChart(chordPiano, leavingFormat) : null
+  // null while the instrument's chord shapes load
+  const chart = instrument ? getChordChart(chordPiano, chartFormat, instrument) : null
+  const { tabPositions, position } = chart ?? { tabPositions: [], position: 0 }
+  const leaving = leavingFormat && leavingInstrument
+    ? getChordChart(chordPiano, leavingFormat, leavingInstrument)
+    : null
   const entering = Boolean(leavingFormat)
   // the position tabs stay mounted across the switch; only tabs the old
   // instrument didn't have (or the whole group, if it had none) fade in
   const leavingTabCount = leaving ? leaving.tabPositions.length : tabPositions.length
 
   const handleNewPosition = (position: number): void => {
-    chordPiano.selectedChord.position = position;
-
-    dispatch({
-      type: "UPDATE_PIANO",
-      id: chordPiano.id,
-      payload: chordPiano
-    })
+    setPosition(chordPiano.id, position)
   }
 
   const handlePlayClick = (): void => {
-    playChord(
-      dispatch,
-      state,
-      chordPiano,
-      tabPositions
-    );
+    // the chart can still be the old instrument's while the new one loads
+    playChordById(chordPiano.id, chart && chartFormat === format ? tabPositions : undefined)
   }
 
   const handleClickRemovePiano = (): void => {
-    removeChordWithTransition(pianoComponentId, () => dispatch({
-      type: 'REMOVE_PIANO',
-      id: pianoComponentId
-    }))
+    removeChordWithTransition(pianoComponentId, () => removeChord(pianoComponentId))
   }
-
-  const isPlaying = Boolean(chordPiano.isPlaying)
 
   return (
     <>
@@ -74,7 +65,10 @@ export const GuitarChord: React.FC<GuitarChordProps> = ({ pianoComponentId }) =>
       </div>
 
       <div className="chord-card__diagram">
-        {tabPositions?.length ? (
+        {!chart ? (
+          // keeps the card's size while the chord shapes load
+          <div className="aspect-[8/7] w-full" aria-busy="true" />
+        ) : tabPositions.length ? (
           <button
             type="button"
             className="diagram-frame"
@@ -96,20 +90,20 @@ export const GuitarChord: React.FC<GuitarChordProps> = ({ pianoComponentId }) =>
                 </span>
               ) : null}
               <span
-                key={state.format}
+                key={chartFormat}
                 className={cn("diagram-art", entering && "instrument-enter")}
                 onAnimationEnd={handleEnterEnd}
               >
                 <Chord
                   chord={tabPositions[position]}
-                  instrument={instrument}
+                  instrument={chart.instrument}
                 />
               </span>
             </span>
           </button>
         ) : (
           <div
-            key={state.format}
+            key={chartFormat}
             onAnimationEnd={handleEnterEnd}
             className={cn(
               "grid aspect-[8/7] w-full place-items-center rounded-[0.625rem] border border-dashed border-border px-4 text-center text-sm text-muted-foreground",

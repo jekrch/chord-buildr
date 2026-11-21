@@ -1,23 +1,24 @@
 import React, { useCallback, useEffect, useLayoutEffect, useRef, useState } from "react"
 import { Link, scroller } from "react-scroll"
 import { ChevronDown, Eraser, Play, Plus, SquarePen, Undo2 } from "lucide-react"
-import { AppState, useAppContext } from "../context/AppContext"
+import { useActions, useCanUndo, useChords, useSettings } from "../../store/progressionStore"
+import { usePlayingChordId } from "../../store/playbackStore"
 import { ChordPiano } from "../../utils/chordPianoHandler"
-import { playChordById, subscribeToMobilePlayingChord } from "../../utils/synthPlayer"
-import { isMobile } from "react-device-detect"
+import { playChordById } from "../../audio/player"
 import { Button } from '../../components/ui/button'
 import { 
   getChordDisplay, 
   getProgressionString, 
   convertProgressionStrToCode
 } from "../../codec"
-import { getSynthCode } from "../../utils/chordCodeHandler"
-import { generateBaseUrlParams } from "../../utils/urlUtil"
-import { isGuitar } from "../../utils/guitarUtil"
+import { isGuitar } from "../../utils/settings"
 import { cn } from "../../lib/utils"
 import { prefersReducedMotion } from "../../utils/chordTransitions"
-// NEW: Import the modal component from its own file
-import { ProgressionEditorModal } from "./ProgressionEditorModal" 
+import { lazyModal } from "./lazyModal"
+
+const ProgressionEditorModal = lazyModal(() =>
+  import("./ProgressionEditorModal").then((m) => ({ default: m.ProgressionEditorModal }))
+)
 
 interface PianoRange {
   first: number
@@ -147,11 +148,15 @@ interface ScrollOptions {
 }
 
 export const HeaderComponent: React.FC = () => {
-  const { state, dispatch } = useAppContext();
+  const chords = useChords();
+  const { format, fretView } = useSettings();
+  const canUndo = useCanUndo();
+  const { addChord, clear, undo, loadProgression } = useActions();
+  // the chord playing now, on desktop and mobile alike
+  const currentlyPlayingPianoId = usePlayingChordId();
   const [newChordAdded, setNewChordAdded] = useState(false);
   const [currPlayChordIndex, setCurrPlayChordIndex] = useState(-1);
   const [headerOffset, setHeaderOffset] = useState(-130);
-  const [currentlyPlayingPianoId, setCurrentlyPlayingPianoId] = useState<number | undefined>(undefined);
   const [isProgressionEditorOpen, setIsProgressionEditorOpen] = useState(false);
   const headerRef = useRef<HTMLElement>(null);
   const progressionRef = useRef<HTMLDivElement>(null);
@@ -176,12 +181,6 @@ export const HeaderComponent: React.FC = () => {
    * height expands due to large progressions
    */
   useEffect(() => {
-    // mobile doesn't mark chords as playing in state; see below
-    if (!isMobile) {
-      const playingPianoId = state.chordPianoSet?.filter(piano => piano.isPlaying)[0]?.id;
-      setCurrentlyPlayingPianoId(playingPianoId);
-    }
-
     const updateOffset = () => {
       if (headerRef.current) {
         const headerHeight = headerRef.current.getBoundingClientRect().height;
@@ -196,14 +195,7 @@ export const HeaderComponent: React.FC = () => {
     return () => {
       resizeObserver.disconnect();
     };
-  }, [state.chordPianoSet]); // recalculate when chord set changes
-
-  // on mobile the player reports the playing chord to the header directly,
-  // since it doesn't dispatch it (see playChord)
-  useEffect(() => {
-    if (!isMobile) return;
-    return subscribeToMobilePlayingChord(setCurrentlyPlayingPianoId);
-  }, []);
+  }, [chords]); // recalculate when chord set changes
 
   /**
    * Slide the strip's underline to the playing chord, or to the one the
@@ -243,7 +235,7 @@ export const HeaderComponent: React.FC = () => {
     const resizeObserver = new ResizeObserver(place);
     resizeObserver.observe(container);
     return () => resizeObserver.disconnect();
-  }, [indicatorPianoId, state.chordPianoSet]);
+  }, [indicatorPianoId, chords]);
 
   /**
    * the strip keeps to one line and scrolls sideways, unless expanded to
@@ -300,7 +292,7 @@ export const HeaderComponent: React.FC = () => {
       strip.removeEventListener("wheel", handleWheel);
       strip.removeEventListener("touchstart", handleTouch);
     };
-  }, [stripExpanded, state.chordPianoSet, stopStripGlide]);
+  }, [stripExpanded, chords, stopStripGlide]);
 
   // expanding or collapsing the strip switches which way it scrolls
   useEffect(() => stopStripGlide(), [stripExpanded, stopStripGlide]);
@@ -348,7 +340,7 @@ export const HeaderComponent: React.FC = () => {
       window.removeEventListener("scroll", schedule);
       window.removeEventListener("resize", schedule);
     };
-  }, [state.chordPianoSet, state.format, state.fretView]);
+  }, [chords, format, fretView]);
 
   /**
    * playing a chord leaves the strip where it is, even though playing from
@@ -395,7 +387,7 @@ export const HeaderComponent: React.FC = () => {
    */
   const followFirst = visibleRange?.first;
   const followLast = visibleRange?.last;
-  const chordOrder = state.chordPianoSet?.map(piano => piano.id).join(",");
+  const chordOrder = chords.map(piano => piano.id).join(",");
 
   // adding, removing or moving chords shows the change, paused or not
   useEffect(() => {
@@ -497,7 +489,7 @@ export const HeaderComponent: React.FC = () => {
   }
 
   const handleClickPlay = (): void => {
-    if (!state.chordPianoSet?.length) return;
+    if (!chords.length) return;
     const nextPianoId = getNextPlayPianoId();
     navigateToPianoById(nextPianoId);
     handleItemClick(nextPianoId);
@@ -506,63 +498,51 @@ export const HeaderComponent: React.FC = () => {
   const getNextPlayPianoId = (): number => {
     const nextPianoIndex = getNextPlayChordIndex();
     setCurrPlayChordIndex(nextPianoIndex);
-    return state.chordPianoSet?.[nextPianoIndex]!.id ?? 0
+    return chords[nextPianoIndex]?.id ?? 0
   }
 
   const getNextPlayChordIndex = (): number => {
     let nextPianoIndex = currPlayChordIndex + 1
-    if (nextPianoIndex >= (state.chordPianoSet?.length ?? 0)) {
+    if (nextPianoIndex >= chords.length) {
       nextPianoIndex = 0
     }
     return nextPianoIndex
   }
 
   const handleClickAddChord = (): void => {
-    dispatch({ type: "ADD_CHORD_PIANO" })
+    addChord()
     setNewChordAdded(true)
   }
 
   useEffect(() => {
-    if (!state.chordPianoSet?.length) return
+    if (!chords.length) return
 
     if (newChordAdded) {
       // the first chord mounts the board itself, mid view-enter lift, and
       // there is nothing above it to scroll past
-      if (state.chordPianoSet.length > 1) {
-        const lastPianoId = state.chordPianoSet[state.chordPianoSet.length - 1].id ?? 0;
+      if (chords.length > 1) {
+        const lastPianoId = chords[chords.length - 1].id ?? 0;
         navigateToPianoById(lastPianoId)
       }
       setNewChordAdded(false)
     }
-  }, [state.chordPianoSet, newChordAdded])
+  }, [chords, newChordAdded])
 
   const handleClickClear = (): void => {
-    dispatch({
-      type: "BUILD_PROG_FROM_CODE",
-      payload: generateBaseUrlParams(state)
-    })
+    clear()
   }
 
   const handleUndoClick = (): void => {
-    dispatch({
-      type: "LOAD_PREVIOUS_PROG_CODE"
-    })
+    undo()
   }
 
   const handleItemClick = (id: number): void => {
     // paused before the page starts scrolling to the chord, which can be
     // before the chord is marked as playing
     setFollowPaused(true)
-    playChordById(dispatch, state, id)
+    playChordById(id)
   }
 
-  const getCurrentSynthVolCode = (state: AppState): string => {
-    // built from the live state, since instrument and chord view changes
-    // don't update currentProgCode
-    return `?s=${getSynthCode(state)}&`
-  }
-
-  // UPDATED: This function now simply opens the modal.
   const openProgressionEditor = (): void => {
     setIsProgressionEditorOpen(true);
   }
@@ -573,17 +553,10 @@ export const HeaderComponent: React.FC = () => {
       return
     }
     
-    const synthVolCode = getCurrentSynthVolCode(state);
     const newProgressionString = convertProgressionStrToCode(submittedProgressionStr);
 
     if (newProgressionString) {
-      dispatch({
-        type: "BUILD_PROG_FROM_CODE",
-        payload: `${synthVolCode}p=${newProgressionString}`
-      })
-      dispatch({
-        type: "REFRESH_BOARD"
-      })
+      loadProgression(newProgressionString)
     }
   }
 
@@ -606,7 +579,7 @@ export const HeaderComponent: React.FC = () => {
   }
 
   const renderProgression = (): React.JSX.Element[] | undefined => {
-    return state.chordPianoSet?.map((piano, i) => (
+    return chords.map((piano, i) => (
       <div
         key={`ci-${piano.id}`}
         className="flex items-center"
@@ -615,7 +588,7 @@ export const HeaderComponent: React.FC = () => {
           className={cn("chord-link", piano.id === currentlyPlayingPianoId && "is-playing")}
           data-piano-id={piano.id}
           to={`piano-${piano.id}`}
-          spy={!isGuitar(state.format)}
+          spy={!isGuitar(format)}
           offset={headerOffset}
           isDynamic={true}
           duration={500}
@@ -626,7 +599,7 @@ export const HeaderComponent: React.FC = () => {
         >
           {getChordDisplay(piano.selectedChord)}
         </Link>
-        {renderSeam(piano, i === (state.chordPianoSet?.length ?? 0) - 1)}
+        {renderSeam(piano, i === chords.length - 1)}
       </div>
     ))
   }
@@ -648,7 +621,7 @@ export const HeaderComponent: React.FC = () => {
             // the filled triangle reads larger than the outline icons beside it
             className={cn(actionButtonClass, "[&_svg]:size-3.5")}
             onClick={handleClickPlay}
-            disabled={!state.chordPianoSet?.length}
+            disabled={!chords.length}
           >
             <Play className="fill-current" />
             Play
@@ -666,7 +639,7 @@ export const HeaderComponent: React.FC = () => {
             variant="secondary"
             size="sm"
             className={actionButtonClass}
-            disabled={!state.previousProgCodes?.length}
+            disabled={!canUndo}
             onClick={handleUndoClick}
           >
             <Undo2 />
@@ -676,7 +649,7 @@ export const HeaderComponent: React.FC = () => {
             variant="secondary"
             size="sm"
             className={actionButtonClass}
-            disabled={!state.chordPianoSet?.length}
+            disabled={!chords.length}
             onClick={handleClickClear}
           >
             <Eraser />
@@ -724,7 +697,7 @@ export const HeaderComponent: React.FC = () => {
                     stripExpanded ? "flex-wrap justify-center px-2" : "mx-auto w-max px-4"
                   )}
                 >
-                  {state.chordPianoSet?.length ? (
+                  {chords.length ? (
                     renderProgression()
                   ) : (
                     <span className="text-sm text-muted-foreground">No chords yet</span>
@@ -778,7 +751,7 @@ export const HeaderComponent: React.FC = () => {
       <ProgressionEditorModal
         open={isProgressionEditorOpen}
         onOpenChange={setIsProgressionEditorOpen}
-        initialProgression={getProgressionString(state.chordPianoSet ?? [])}
+        initialProgression={getProgressionString(chords)}
         onSave={handleSaveProgression}
       />
     </>
