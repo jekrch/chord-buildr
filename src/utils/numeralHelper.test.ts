@@ -1,5 +1,6 @@
 import { expect, it } from 'vitest';
 import {getChordNumeral} from './numeralHelper';
+import type { SelectedChord } from './chordPianoHandler';
 
 it('getChordNumeral: returns a numeral for the provided chord in the provided key', () => {
 
@@ -43,9 +44,10 @@ it('getChordNumeral: returns a numeral for the provided chord in the provided ke
 
 });
 
-function getChord(letter: string, type?: string) {
+function getChord(letter: string, type = ""): SelectedChord {
   return {
     noteLetter: letter,
-    type: type
+    type,
+    octave: 1
   }
 }

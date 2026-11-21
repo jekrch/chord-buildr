@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest"
 import { chordMap } from "../utils/chordManager"
 import { noteLetterMapWithFlats, noteLetterMapWithSharps } from "../utils/noteManager"
-import { FORMAT_OPTIONS, Settings, isGuitar } from "../utils/settings"
+import { DEFAULT_SOUND, FORMAT_OPTIONS, Settings, SoundSettings, isGuitar } from "../utils/settings"
 import { SYNTH_TYPES } from "../utils/synthTypes"
 import { CodableChord, parseProgressionCode, serializeProgressionCode } from "./progression"
 import { parseSettingsCode, serializeSettingsCode } from "./settings"
@@ -26,7 +26,7 @@ function random(seed: number): () => number {
   }
 }
 
-const pick = <T,>(rand: () => number, items: readonly T[]): T => items[Math.floor(rand() * items.length)]
+const pick = <T,>(rand: () => number, items: readonly T[]): T => items[Math.floor(rand() * items.length)]!
 
 const SHARP_LETTERS = Object.values(noteLetterMapWithSharps)
 const ALL_LETTERS = [...new Set([...SHARP_LETTERS, ...Object.values(noteLetterMapWithFlats)])]
@@ -107,6 +107,12 @@ describe("progression code round trip", () => {
 
 describe("settings code round trip", () => {
   const eqs = [{ low: 0, mid: 0, high: 0 }, { low: -10, mid: 3, high: 10 }, { low: 0, mid: -1, high: 0 }]
+  const sounds: SoundSettings[] = [
+    { ...DEFAULT_SOUND },
+    { tone: -2, attack: 0, length: 3, space: 5, balance: -1, play: "r" },
+    { tone: 5, attack: -5, length: -5, space: 10, balance: 5, play: "a" },
+    { ...DEFAULT_SOUND, play: "c" }
+  ]
 
   it("every valid setting reads back exactly", () => {
     for (const synth of Object.keys(SYNTH_TYPES)) {
@@ -114,14 +120,16 @@ describe("settings code round trip", () => {
         for (const fretView of ["f", "t"]) {
           for (const volume of [0, 37, 80, 100]) {
             for (const eq of eqs) {
-              const settings: Settings = { synth, volume, format, fretView, eq }
-              const parsed = parseSettingsCode(serializeSettingsCode(settings))
+              for (const sound of sounds) {
+                const settings: Settings = { synth, volume, format, fretView, eq, sound }
+                const parsed = parseSettingsCode(serializeSettingsCode(settings))
 
-              expect(parsed).toEqual({
-                ...settings,
-                // the tab view is only kept for fretted formats
-                fretView: isGuitar(format) ? fretView : undefined
-              })
+                expect(parsed).toEqual({
+                  ...settings,
+                  // the tab view is only kept for fretted formats
+                  fretView: isGuitar(format) ? fretView : undefined
+                })
+              }
             }
           }
         }
@@ -140,7 +148,8 @@ describe("share code round trip", () => {
         volume: Math.floor(rand() * 101),
         format: "g",
         fretView: pick(rand, ["f", "t"]),
-        eq: { low: 1, mid: 0, high: -2 }
+        eq: { low: 1, mid: 0, high: -2 },
+        sound: { tone: -1, attack: 2, length: 0, space: 4, balance: -2, play: pick(rand, ["a", "c", "s", "r"] as const) }
       }
       const code = serializeShareCode(settings, chords)
 
@@ -153,7 +162,14 @@ describe("share code round trip", () => {
   })
 
   it("an empty progression", () => {
-    const settings: Settings = { synth: "p", volume: 80, format: "p", fretView: "f", eq: { low: 0, mid: 0, high: 0 } }
+    const settings: Settings = {
+      synth: "p",
+      volume: 80,
+      format: "p",
+      fretView: "f",
+      eq: { low: 0, mid: 0, high: 0 },
+      sound: { ...DEFAULT_SOUND }
+    }
 
     expect(serializeShareCode(settings, [])).toBe("s=p:80:p&")
     expect(parseShareCode("?s=p:80:p&").chords).toEqual([])

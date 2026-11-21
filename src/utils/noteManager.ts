@@ -95,14 +95,15 @@ export const isValidLetter = (letter: NoteLetter): boolean => {
   return Object.keys(extendedNoteNumberMap).includes(letter);
 };
 
-export function getSharpEquivalent(letter: NoteLetter): NoteLetter {
+// undefined for a letter that isn't a note
+export function getSharpEquivalent(letter: NoteLetter): NoteLetter | undefined {
   const noteNumber = extendedNoteNumberMap[letter];
-  return noteLetterMapWithSharps[noteNumber];
+  return noteNumber === undefined ? undefined : noteLetterMapWithSharps[noteNumber];
 }
 
-export function getFlatEquivalent(letter: NoteLetter): NoteLetter {
+export function getFlatEquivalent(letter: NoteLetter): NoteLetter | undefined {
   const noteNumber = extendedNoteNumberMap[letter];
-  return noteLetterMapWithFlats[noteNumber];
+  return noteNumber === undefined ? undefined : noteLetterMapWithFlats[noteNumber];
 }
 
 // sharps - c / g / d / a / e / b / f# / c#
@@ -162,8 +163,9 @@ export function getNoteNumber(letter?: string | null): number | undefined {
 export function getNoteLetter(key: NoteLetter, number: number): NoteLetter {
   const noteIndex = normalizeNoteNumber(number);
   const noteLetterMap = getNoteLetterMapByKey(key);
-  const letter = noteLetterMap[noteIndex];
-  
+  // every normalized note number has a letter
+  const letter = noteLetterMap[noteIndex] ?? "";
+
   return formatNoteName(letter);
 }
 
@@ -215,12 +217,14 @@ export function normalizeNote(noteNumber: number, octave: number): NormalizedNot
 export function updateFlatOrSharpLetter(showFlats: boolean | undefined, noteLetter: string): string {
   const noteNumber = getNoteNumber(noteLetter)
 
+  if (noteNumber === undefined) return noteLetter
+
   if (showFlats) {
-    if (noteLetter?.includes("#")) {
-      return noteLetterMapWithFlats[noteNumber!] ?? noteLetter
+    if (noteLetter.includes("#")) {
+      return noteLetterMapWithFlats[noteNumber] ?? noteLetter
     }
-  } else if (noteLetter?.includes("b")) {
-    return noteLetterMapWithSharps[noteNumber!] ?? noteLetter
+  } else if (noteLetter.includes("b")) {
+    return noteLetterMapWithSharps[noteNumber] ?? noteLetter
   }
 
   return noteLetter

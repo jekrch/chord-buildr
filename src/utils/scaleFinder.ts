@@ -63,7 +63,7 @@ export function findScale(chords: number[][]): string[] {
     let closestScales: string[] = [];
     let closestDistance = Infinity;
     
-    for (let i = 0; i < notes.length; i++) {
+    for (const [i, note] of notes.entries()) {
         for (const [scale, intervals] of scales) {
             // calculate the notes in the current scale based on the 
             // current key
@@ -76,12 +76,12 @@ export function findScale(chords: number[][]): string[] {
 
             if (chordScaleDistance < closestDistance) {
                 closestDistance = chordScaleDistance;
-                closestKeys = [notes[i]];
+                closestKeys = [note];
                 closestScales = [scale];
             } else if (chordScaleDistance === closestDistance) {
                 // if the current scale is equally close to the previous closest one(s),
                 // add the current key/scale combination to the closest keys/scales arrays
-                closestKeys.push(notes[i]);
+                closestKeys.push(note);
                 closestScales.push(scale);
             }
         }

@@ -19,18 +19,18 @@ interface LoadBoundaryProps {
  * its chunk), which would otherwise take down the whole app
  */
 class LoadBoundary extends Component<LoadBoundaryProps, { failed: boolean }> {
-  state = { failed: false }
+  override state = { failed: false }
 
   static getDerivedStateFromError() {
     return { failed: true }
   }
 
-  componentDidCatch(error: unknown) {
+  override componentDidCatch(error: unknown) {
     console.error("failed to load modal:", error)
     this.props.onError()
   }
 
-  render() {
+  override render() {
     return this.state.failed ? null : this.props.children
   }
 }

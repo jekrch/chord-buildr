@@ -20,8 +20,8 @@ export function shiftChord(
 
   const newChordNoteNumbers: number[] = []
 
-  for (let i = 0; i < chordNoteNumbers.length; i++) {
-    let noteNumber = chordNoteNumbers[i] - negativeTransposeModifier
+  for (const chordNoteNumber of chordNoteNumbers) {
+    let noteNumber = chordNoteNumber - negativeTransposeModifier
 
     // if the chord needed to be shifted up or down and octave
     // apply that here
@@ -56,8 +56,8 @@ function getRequiredOctaveModifier(
   let tooLow = false
   let tooHigh = false
 
-  for (let i = 0; i < chordNoteNumbers.length; i++) {
-    const noteNumber = chordNoteNumbers[i] - negativeTransposeModifier
+  for (const chordNoteNumber of chordNoteNumbers) {
+    const noteNumber = chordNoteNumber - negativeTransposeModifier
 
     if (noteNumber < 0) tooLow = true
 
@@ -82,7 +82,9 @@ export function getStepsChanged(
   const originalNoteNumber = getNoteNumber(originalNoteLetter)
   const newNoteNumber = getNoteNumber(newNoteLetter)
 
-  return newNoteNumber! - originalNoteNumber!
+  // a letter that isn't a note doesn't move anything
+  if (newNoteNumber === undefined || originalNoteNumber === undefined) return 0
+  return newNoteNumber - originalNoteNumber
 }
 
 export function getAbsoluteStepsChanged(
@@ -90,7 +92,7 @@ export function getAbsoluteStepsChanged(
   newSelectedKey: SelectedKey
 ): number {
   const relativeStepsChanged = getStepsChanged(chordPiano, newSelectedKey)
-  const octaveChange = newSelectedKey.octave - chordPiano.selectedChord.octave!
+  const octaveChange = newSelectedKey.octave - chordPiano.selectedChord.octave
 
   return relativeStepsChanged + 12 * octaveChange
 }
@@ -103,7 +105,8 @@ export function getTransposedSelectedNote(
   const originalOctave = chordPiano.selectedChord.octave ?? 0
 
   const originalNoteNumber = getNoteNumber(originalNoteLetter)
-  const newNoteNumber = originalNoteNumber! + stepsChanged
+  if (originalNoteNumber === undefined) return { noteLetter: originalNoteLetter, octave: originalOctave }
+  const newNoteNumber = originalNoteNumber + stepsChanged
 
   const newNote = normalizeNote(newNoteNumber, originalOctave)
 
@@ -123,7 +126,10 @@ export function getTransposedNote(
   if (originalNoteLetter === undefined || originalNoteLetter === "")
     return originalNoteLetter || ""
 
-  let newNoteNumber = getNoteNumber(originalNoteLetter)! + stepsChanged
+  const originalNoteNumber = getNoteNumber(originalNoteLetter)
+  if (originalNoteNumber === undefined) return originalNoteLetter ?? ""
+
+  let newNoteNumber = originalNoteNumber + stepsChanged
 
   if (newNoteNumber === 0) newNoteNumber = 12
 

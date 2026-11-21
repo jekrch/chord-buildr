@@ -33,9 +33,7 @@ export function parseProgressionCode(progCode: string | null): CodedChord[] {
   let progKeySet = false
   let breakId = 0
 
-  for (let i = 0; i < chordArray.length; i++) {
-    const chordCode = chordArray[i]
-
+  for (const [i, chordCode] of chordArray.entries()) {
     if (chordCode === "") continue
 
     if (chordCode.trim() === `(${SECTION_BREAK_CODE}`) {
@@ -86,7 +84,7 @@ export function serializeProgressionCode(chords: CodableChord[]): string {
       const chord = chordPiano.selectedChord
       if (!chord) return ""
 
-      const chordLetter = getScaleAdjustedNoteLetter(keyChord, chord.noteLetter!)
+      const chordLetter = getScaleAdjustedNoteLetter(keyChord, chord.noteLetter)
 
       let chordCode = `${chord.octave}${chordLetter}${chord.type}`
 

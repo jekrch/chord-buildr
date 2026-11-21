@@ -1,7 +1,7 @@
 import { beforeEach, describe, expect, it } from "vitest"
 import { parseProgressionCode, serializeShareCode } from "../codec"
-import { getChordKeys } from "../utils/chordPianoHandler"
-import { DEFAULT_SETTINGS } from "../utils/settings"
+import { ChordPiano, getChordKeys } from "../utils/chordPianoHandler"
+import { DEFAULT_SETTINGS, DEFAULT_SOUND } from "../utils/settings"
 import { useAppStore } from "./progressionStore"
 
 const actions = () => useAppStore.getState().actions
@@ -24,18 +24,18 @@ describe("progression store: editing", () => {
     actions().addChord()
 
     expect(chords().map((chord) => chord.id)).toEqual([1, 2])
-    expect(chords()[0].selectedChord).toEqual({ noteLetter: "C", type: "", octave: 1 })
+    expect(chords()[0]!.selectedChord).toEqual({ noteLetter: "C", type: "", octave: 1 })
   })
 
   it("leaves chords it doesn't edit as they were", () => {
     load("(1C)(1G)")
-    const [c, g] = chords()
+    const [c, g] = chords() as [ChordPiano, ChordPiano]
 
     actions().setChordType(g.id, "m")
 
     expect(chords()[0]).toBe(c)
     expect(chords()[1]).not.toBe(g)
-    expect(chords()[1].selectedChord.type).toBe("m")
+    expect(chords()[1]!.selectedChord.type).toBe("m")
   })
 
   it("spells a new root for the key", () => {
@@ -44,7 +44,7 @@ describe("progression store: editing", () => {
     actions().setChordRoot(1, "A#")
 
     expect(letters()).toEqual(["F", "Bb"])
-    expect(chords()[1].selectedChord.octave).toBe(1)
+    expect(chords()[1]!.selectedChord.octave).toBe(1)
   })
 
   it("moving the key chord transposes the rest of the progression", () => {
@@ -53,7 +53,7 @@ describe("progression store: editing", () => {
     actions().setChordRoot(0, "D", 1)
 
     expect(letters()).toEqual(["D", "G", "A"])
-    expect(chords()[2].selectedChord.slashNote).toBe("C#")
+    expect(chords()[2]!.selectedChord.slashNote).toBe("C#")
     expect(chords().map((chord) => chord.selectedChord.octave)).toEqual([1, 1, 1])
   })
 
@@ -62,7 +62,7 @@ describe("progression store: editing", () => {
 
     actions().setChordRoot(0, "C", 1)
 
-    expect(chords()[1].selectedChord).toMatchObject({ noteLetter: "D#", octave: 1 })
+    expect(chords()[1]!.selectedChord).toMatchObject({ noteLetter: "D#", octave: 1 })
   })
 
   it("marking a key respells the other chords for its scale", () => {
@@ -72,7 +72,7 @@ describe("progression store: editing", () => {
 
     expect(chords().map((chord) => chord.isProgKey)).toEqual([true, false, false])
     expect(letters()).toEqual(["F", "Bb", "C"])
-    expect(chords()[2].selectedChord.slashNote).toBe("Bb")
+    expect(chords()[2]!.selectedChord.slashNote).toBe("Bb")
   })
 
   it("only one chord is the key", () => {
@@ -90,7 +90,7 @@ describe("progression store: editing", () => {
 
     actions().setShowFlats(0, true)
 
-    expect(chords()[0].showFlats).toBe(true)
+    expect(chords()[0]!.showFlats).toBe(true)
     expect(letters()).toEqual(["Bb", "Eb", "E"])
   })
 
@@ -109,14 +109,14 @@ describe("progression store: editing", () => {
 
     actions().setSlashChord(0, false)
 
-    expect(chords()[0].selectedChord).toMatchObject({ slash: false, slashNote: "" })
+    expect(chords()[0]!.selectedChord).toMatchObject({ slash: false, slashNote: "" })
   })
 
   it("stored chords are frozen, so they can't be changed in place", () => {
     load("(1C)")
     actions().addChord()
 
-    expect(() => { chords()[0].selectedChord.noteLetter = "D" }).toThrow()
+    expect(() => { chords()[0]!.selectedChord.noteLetter = "D" }).toThrow()
   })
 })
 
@@ -127,10 +127,10 @@ describe("progression store: undo", () => {
     actions().addSectionBreak()
 
     actions().undo()
-    expect(chords()[0].breakAfter).toBeUndefined()
+    expect(chords()[0]!.breakAfter).toBeUndefined()
 
     actions().undo()
-    expect(chords()[0].selectedChord.type).toBe("")
+    expect(chords()[0]!.selectedChord.type).toBe("")
 
     actions().undo()
     expect(chords()).toEqual([])
@@ -183,7 +183,14 @@ describe("progression store: loading", () => {
     expect(actions().loadShareCode("?s=h:60:gt:2.0.-3&p=(1C)(1G:B)")).toBe(true)
 
     const state = useAppStore.getState()
-    expect(state.settings).toEqual({ synth: "h", volume: 60, format: "g", fretView: "t", eq: { low: 2, mid: 0, high: -3 } })
+    expect(state.settings).toEqual({
+      synth: "h",
+      volume: 60,
+      format: "g",
+      fretView: "t",
+      eq: { low: 2, mid: 0, high: -3 },
+      sound: DEFAULT_SOUND
+    })
     expect(letters()).toEqual(["C", "G"])
     expect(state.past).toEqual([])
   })
@@ -211,7 +218,7 @@ describe("progression store: loading", () => {
     actions().loadProgression("(1Am)(-)(1F)")
 
     expect(letters()).toEqual(["A", "F"])
-    expect(chords()[0].breakAfter).toBe(0)
+    expect(chords()[0]!.breakAfter).toBe(0)
     expect(useAppStore.getState().generation).toBe(1)
 
     actions().undo()
@@ -235,7 +242,7 @@ describe("getChordKeys", () => {
   it("puts a slash chord's bass note at the bottom", () => {
     const keys = getChordKeys({ noteLetter: "C", type: "", octave: 1, slash: true, slashNote: "E" })
 
-    expect(keys[0] % 12).toBe(4)
+    expect(keys[0]! % 12).toBe(4)
     expect(keys.map((key) => key % 12).sort()).toEqual([0, 4, 7])
   })
 

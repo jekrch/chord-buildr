@@ -4,7 +4,7 @@ import { cn } from "../lib/utils"
 export interface ToggleOption {
   value: string
   label: string
-  icon: React.ReactNode
+  icon?: React.ReactNode
 }
 
 interface SegmentedToggleProps {
@@ -87,14 +87,16 @@ export const SegmentedToggle: React.FC<SegmentedToggleProps> = ({ options, label
               selected ? "text-foreground" : "text-muted-foreground hover:text-foreground"
             )}
           >
-            <span
-              className={cn(
-                "grid w-4 place-items-center transition-colors duration-300",
-                selected && "text-primary"
-              )}
-            >
-              {option.icon}
-            </span>
+            {option.icon && (
+              <span
+                className={cn(
+                  "grid w-4 place-items-center transition-colors duration-300",
+                  selected && "text-primary"
+                )}
+              >
+                {option.icon}
+              </span>
+            )}
             {option.label}
           </button>
         )

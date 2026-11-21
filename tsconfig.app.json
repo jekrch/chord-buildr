@@ -20,10 +20,11 @@
     "noUnusedLocals": true,
     "noUnusedParameters": true,
     "noFallthroughCasesInSwitch": true,
+    "noImplicitOverride": true,
+    "noUncheckedIndexedAccess": true,
     "noUncheckedSideEffectImports": true,
 
     /* matches the "@" alias in vite.config.ts */
-    "baseUrl": ".",
     "paths": {
       "@/*": ["./src/*"]
     }

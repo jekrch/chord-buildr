@@ -20,7 +20,8 @@ const preloadFormat = () => preloadInstrument(useAppStore.getState().settings.fo
 preloadFormat()
 useAppStore.subscribe(preloadFormat)
 
-const rootElement = document.getElementById('root')!
+const rootElement = document.getElementById('root')
+if (!rootElement) throw new Error('index.html has no #root element')
 const root = createRoot(rootElement)
 
 root.render(

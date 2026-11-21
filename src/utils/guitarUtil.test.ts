@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest"
 import { chordMap } from "./chordManager"
-import { ChordPiano } from "./chordPianoHandler"
+import { ChordPiano, SelectedChord } from "./chordPianoHandler"
 import {
   ChordPosition,
   findChordPositions,
@@ -14,6 +14,9 @@ import {
   UNSUPPORTED_GUITAR_CHORDS
 } from "./guitarUtil"
 import { getLoadedInstrument, loadInstrument } from "./instruments"
+
+// the guitar and ukulele lookups don't use the octave
+const chord = (selectedChord: Omit<SelectedChord, "octave">): SelectedChord => ({ octave: 1, ...selectedChord })
 
 const guitarInstrument = await loadInstrument("g")
 const ukuleleInstrument = await loadInstrument("u")
@@ -39,7 +42,7 @@ const positionMidi = (position: ChordPosition, openStrings: number[]): number[] 
   position.frets.flatMap((fret, string) => {
     if (fret < 0) return []
     const absoluteFret = fret === 0 ? 0 : fret + position.baseFret - 1
-    return [openStrings[string] + absoluteFret]
+    return [openStrings[string]! + absoluteFret]
   })
 
 // frets counted from the nut, low string first, x for muted strings
@@ -70,7 +73,7 @@ const getShapeProblems = (
     if (fret > instrument.fretsOnChord) problems.push(`${name}: fret ${fret} is off the diagram`)
     if (fret > 0 && !finger) problems.push(`${name}: string ${string + 1} has no finger`)
     if (fret <= 0 && finger) problems.push(`${name}: string ${string + 1} isn't fretted but has a finger`)
-    if (fret > 0) fingerFrets.set(finger, (fingerFrets.get(finger) ?? new Set()).add(fret))
+    if (fret > 0 && finger) fingerFrets.set(finger, (fingerFrets.get(finger) ?? new Set()).add(fret))
   })
   fingerFrets.forEach((frets, finger) => {
     if (frets.size > 1) problems.push(`${name}: finger ${finger} is on more than one fret`)
@@ -92,7 +95,7 @@ const lookups = (format: string, instrument: Instrument) =>
     Array.from({ length: 12 }, (_, i) => {
       const rootNoteNumber = i + 1
       const key = normalizeKey(rootNoteNumber, format)
-      const chord: ChordEntry | undefined = instrument.chords[key]
+      const chord: ChordEntry | undefined = key === undefined ? undefined : instrument.chords[key]
         ?.find((c: ChordEntry) => c.suffix === normalizeSuffix(type))
       return { type, rootNoteNumber, key, chord }
     })
@@ -146,7 +149,7 @@ describe.each(instruments)("$instrument.name chord diagrams", ({ format, instrum
 
     for (const type of Object.keys(chordMap)) {
       for (const noteLetter of ROOTS) {
-        findChordPositions({ noteLetter, type }, instrument.chords, format).forEach((position, i) => {
+        findChordPositions(chord({ noteLetter, type }), instrument.chords, format).forEach((position, i) => {
           if (dbPositions.has(position)) return
 
           const name = `${noteLetter}${type} #${i + 1}`
@@ -165,14 +168,14 @@ describe.each(instruments)("$instrument.name chord diagrams", ({ format, instrum
   it("exist for every chord type not in UNSUPPORTED_GUITAR_CHORDS", () => {
     const missing = Object.keys(chordMap).flatMap(type =>
       ROOTS
-        .filter(noteLetter => !findChordPositions({ noteLetter, type }, instrument.chords, format).length)
+        .filter(noteLetter => !findChordPositions(chord({ noteLetter, type }), instrument.chords, format).length)
         .map(noteLetter => ({ noteLetter, type }))
     )
     const isMissingEverywhere = (type: string) =>
       missing.filter(m => m.type === type).length === ROOTS.length
 
     const unsupportedTypes = new Set(missing.map(m => m.type).filter(isMissingEverywhere))
-    expect([...unsupportedTypes].sort()).toEqual([...UNSUPPORTED_GUITAR_CHORDS[format]].sort())
+    expect([...unsupportedTypes].sort()).toEqual([...UNSUPPORTED_GUITAR_CHORDS[format] ?? []].sort())
 
     // supported types that have no diagram for some roots
     const gaps = missing
@@ -193,14 +196,14 @@ describe.each(instruments)("$instrument.name chord diagrams", ({ format, instrum
 
     for (const type of Object.keys(chordMap)) {
       ROOTS.forEach((noteLetter, root) => {
-        const plain = findChordPositions({ noteLetter, type }, instrument.chords, format)
-        const chordIntervals = new Set(chordMap[type].map(interval => interval % 12))
+        const plain = findChordPositions(chord({ noteLetter, type }), instrument.chords, format)
+        const chordIntervals = new Set(chordMap[type]!.map(interval => interval % 12))
 
         for (let bassInterval = 1; bassInterval < 12; bassInterval++) {
           const slashNote = ROOTS[(root + bassInterval) % 12]
           const name = `${noteLetter}${type}/${slashNote}`
           const positions = findChordPositions(
-            { noteLetter, type, slash: true, slashNote }, instrument.chords, format
+            chord({ noteLetter, type, slash: true, slashNote }), instrument.chords, format
           )
           // no voicing has the bass note, so the chord shows without it
           if (positions.map(toTab).join() === plain.map(toTab).join()) continue
@@ -228,7 +231,7 @@ describe.each(instruments)("$instrument.name chord diagrams", ({ format, instrum
 
 describe("slash chord diagrams", () => {
   const tabs = (format: string, instrument: Instrument, noteLetter: string, type: string, slashNote: string) =>
-    findChordPositions({ noteLetter, type, slash: true, slashNote }, instrument.chords, format).map(toTab)
+    findChordPositions(chord({ noteLetter, type, slash: true, slashNote }), instrument.chords, format).map(toTab)
 
   it.each([
     ["G", "", "B", "x 2 0 0 0 3"],
@@ -252,23 +255,23 @@ describe("slash chord diagrams", () => {
 
   it("show the chord without its bass note when nothing fits", () => {
     // B can't be the lowest note near the nut on a re-entrant ukulele
-    const plain = findChordPositions({ noteLetter: "G", type: "" }, ukuleleInstrument.chords, "u")
+    const plain = findChordPositions(chord({ noteLetter: "G", type: "" }), ukuleleInstrument.chords, "u")
     expect(tabs("u", ukuleleInstrument, "G", "", "B")).toEqual(plain.map(toTab))
   })
 
   it("say when the bass note is left out", () => {
     const voicings = (format: string, instrument: Instrument, noteLetter: string, type: string, slashNote?: string) =>
-      findChordVoicings({ noteLetter, type, slash: Boolean(slashNote), slashNote }, instrument.chords, format)
+      findChordVoicings(chord({ noteLetter, type, slash: Boolean(slashNote), slashNote }), instrument.chords, format)
 
     expect(voicings("u", ukuleleInstrument, "G", "", "B").bassMissing).toBe(true)
     expect(voicings("g", guitarInstrument, "G", "", "B").bassMissing).toBe(false)
     expect(voicings("g", guitarInstrument, "G", "").bassMissing).toBe(false)
     expect(voicings("g", guitarInstrument, "C", "", "C").bassMissing).toBe(false)
 
-    expect(isSlashNoteMissing({ noteLetter: "G", type: "" }, "B", "u", ukuleleInstrument)).toBe(true)
-    expect(isSlashNoteMissing({ noteLetter: "G", type: "" }, "B", "g", guitarInstrument)).toBe(false)
+    expect(isSlashNoteMissing(chord({ noteLetter: "G", type: "" }), "B", "u", ukuleleInstrument)).toBe(true)
+    expect(isSlashNoteMissing(chord({ noteLetter: "G", type: "" }), "B", "g", guitarInstrument)).toBe(false)
     // a chord with no voicing at all has nothing to leave the bass out of
-    expect(isSlashNoteMissing({ noteLetter: "C", type: "x" }, "E", "g", guitarInstrument)).toBe(false)
+    expect(isSlashNoteMissing(chord({ noteLetter: "C", type: "x" }), "E", "g", guitarInstrument)).toBe(false)
   })
 
   it("name the chart without a bass note it leaves out", () => {
@@ -289,10 +292,10 @@ describe("slash chord diagrams", () => {
   })
 
   it("ignore a slash note that is the root or switched off", () => {
-    const plain = findChordPositions({ noteLetter: "C", type: "" }, guitarInstrument.chords, "g")
+    const plain = findChordPositions(chord({ noteLetter: "C", type: "" }), guitarInstrument.chords, "g")
     expect(tabs("g", guitarInstrument, "C", "", "C")).toEqual(plain.map(toTab))
     expect(
-      findChordPositions({ noteLetter: "C", type: "", slash: false, slashNote: "E" }, guitarInstrument.chords, "g")
+      findChordPositions(chord({ noteLetter: "C", type: "", slash: false, slashNote: "E" }), guitarInstrument.chords, "g")
     ).toEqual(plain)
   })
 })
@@ -303,7 +306,7 @@ describe("instrument loading", () => {
     expect(await loadInstrument("g")).toBe(guitarInstrument)
     expect(guitarInstrument).toMatchObject({ name: "Guitar", strings: 6 })
     expect(ukuleleInstrument).toMatchObject({ name: "Ukulele", strings: 4 })
-    expect(guitarInstrument.chords.C.length).toBeGreaterThan(0)
+    expect(guitarInstrument.chords.C!.length).toBeGreaterThan(0)
   })
 
   it("has no shapes for piano", async () => {

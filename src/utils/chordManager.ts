@@ -75,15 +75,8 @@ export const isValidChordType = (type: string): boolean => {
 
 // returns the note numbers for the specified chord (1, 5, 8)
 export function getNoteNumberChord(rootNoteNumber: number, chordType: string): number[] {
-  const intervalList = chordMap[chordType]
-  const chordNoteNumbers: number[] = []
-
-  for (let i = 0; i < intervalList.length; i++) {
-    const noteNumber = rootNoteNumber + intervalList[i]
-    chordNoteNumbers.push(noteNumber)
-  }
-
-  return chordNoteNumbers
+  // an unknown type has no notes
+  return (chordMap[chordType] ?? []).map((interval) => rootNoteNumber + interval)
 }
 
 // returns the note letters for the specified chord (e.g. C, E, G)
@@ -96,14 +89,10 @@ export function getNoteLettersChordByKey(
   rootNoteNumber: number, 
   chordType: string
 ): string[] {
-  const intervalList = chordMap[chordType]
   const chordNoteLetters: string[] = []
 
-  for (let i = 0; i < intervalList.length; i++) {
-    const noteNumber = rootNoteNumber + intervalList[i]
-    const noteLetter = getNoteLetter(keyLetter, noteNumber)
-
-    chordNoteLetters.push(noteLetter)
+  for (const interval of chordMap[chordType] ?? []) {
+    chordNoteLetters.push(getNoteLetter(keyLetter, rootNoteNumber + interval))
   }
 
   return chordNoteLetters
@@ -127,9 +116,15 @@ export function getMajorKeyLetter(chord: SelectedChord): string {
   if (isMinorType(chord.type)) {
     return getTransposedNote(chord.noteLetter, 3)
   } else {
-    return chord.noteLetter!
+    return chord.noteLetter
   }
 }
+
+/**
+ * a key to spell notes for: its root, and its chord type when known. a key
+ * without a type (a new root while transposing) is taken as major
+ */
+export type ScaleKey = Pick<SelectedChord, "noteLetter"> & { type?: string }
 
 /**
  * Returns the proper notation for the noteLetter in the provided chord.
@@ -139,13 +134,13 @@ export function getMajorKeyLetter(chord: SelectedChord): string {
  * @param chord - The key object containing type and note letter
  * @param noteLetter - The note letter to adjust
  */
-export function getScaleAdjustedNoteLetter(chord: SelectedChord | null | undefined, noteLetter: string): string {
+export function getScaleAdjustedNoteLetter(chord: ScaleKey | null | undefined, noteLetter: string): string {
   if (!chord) {
     return noteLetter
   }
 
   const scale = isMinorType(chord.type) ? 'minor' : 'major'
-  const notes = getScaleNotes(chord.noteLetter!, scale)
+  const notes = getScaleNotes(chord.noteLetter, scale)
 
   for (const note of notes) {
     if (equalChroma(note, noteLetter)) {
@@ -162,13 +157,13 @@ export function getScaleAdjustedNoteLetter(chord: SelectedChord | null | undefin
  * @param key - The key object containing type and note letter
  * @param noteLetter - The note letter to check
  */
-export function noteIsInScale(key: SelectedChord | null, noteLetter: string): boolean {
+export function noteIsInScale(key: ScaleKey | null, noteLetter: string): boolean {
   if (!key) {
     return false
   }
 
   const scale = isMinorType(key.type) ? 'minor' : 'major'
-  const notes = getScaleNotes(key.noteLetter!, scale)
+  const notes = getScaleNotes(key.noteLetter, scale)
 
   for (const note of notes) {
     if (equalChroma(note, noteLetter)) {

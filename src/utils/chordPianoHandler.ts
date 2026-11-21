@@ -29,9 +29,9 @@ export interface SelectedKey {
 }
 
 export interface SelectedChord {
-  noteLetter?: string
-  type?: string
-  octave?: number
+  noteLetter: string
+  type: string
+  octave: number
   slash?: boolean
   isKey?:boolean
   slashNote?: string | null
@@ -89,11 +89,16 @@ export function getChordNotes(selectedChord: SelectedChord, userSelection: boole
   const chordRootNoteNumber = getNoteNumber(noteLetter)
   const slashNoteNumber = getNoteNumber(slashNote)
 
-  const chordNoteNumbers = getNoteNumberChord(chordRootNoteNumber!, type!)
+  // a root that isn't a note plays nothing
+  if (chordRootNoteNumber === undefined) {
+    return { rooteNoteNumber: 0, notes: [], octave: finalOctave, octaveAllowance: 0 }
+  }
+
+  const chordNoteNumbers = getNoteNumberChord(chordRootNoteNumber, type)
 
   return getOctaveAdjustedChordNumbersWithFirstNote(
     finalOctave,
-    chordRootNoteNumber!,
+    chordRootNoteNumber,
     chordNoteNumbers,
     slashNoteNumber,
     userSelection
@@ -267,8 +272,7 @@ export function transposePianoBoard(
   )
 
   if (absoluteStepsChanged !== 0 && chordPianoSet?.length) {
-    for (let i = 0; i < chordPianoSet?.length; i++) {
-      const chordPiano = chordPianoSet[i]
+    for (const chordPiano of chordPianoSet) {
 
       const originalLowestAbsoluteNote = getLowestAbsoluteNoteFromSelectedChord(
         chordPiano.selectedChord,
@@ -353,5 +357,5 @@ function moveChordTowardTonicIfNeeded(
 
 function getLowestAbsoluteNoteFromSelectedChord(selectedChord: SelectedChord, transposing: boolean): number {
   const originalChordNotes = getChordNotes(selectedChord, !transposing)
-  return originalChordNotes.notes[0] + originalChordNotes.octave * 12
+  return (originalChordNotes.notes[0] ?? 0) + originalChordNotes.octave * 12
 }

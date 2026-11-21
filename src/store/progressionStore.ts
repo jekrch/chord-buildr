@@ -3,7 +3,7 @@ import { createJSONStorage, persist } from "zustand/middleware"
 import { immer } from "zustand/middleware/immer"
 import { parseProgressionCode, parseShareCode, serializeProgressionCode } from "../codec"
 import type { ChordPiano } from "../utils/chordPianoHandler"
-import { DEFAULT_SETTINGS, EQSettings, Settings } from "../utils/settings"
+import { DEFAULT_SETTINGS, DEFAULT_SOUND, EQSettings, Settings, SoundSettings } from "../utils/settings"
 import {
   ProgressionItem,
   arrangeProgression,
@@ -60,6 +60,9 @@ export interface ProgressionActions {
   setSynth: (synth: string) => void
   setVolume: (volume: number) => void
   setEq: (eq: EQSettings) => void
+  setSound: (sound: SoundSettings) => void
+  // a preset: a voice and a sound, in one step
+  setVoiceAndSound: (synth: string, sound: SoundSettings) => void
   setFormat: (format: string) => void
   setFretView: (fretView: string) => void
 }
@@ -205,6 +208,11 @@ export const useAppStore = create<AppStore>()(
           setSynth: (synth) => set((state) => { state.settings.synth = synth }),
           setVolume: (volume) => set((state) => { state.settings.volume = volume }),
           setEq: (eq) => set((state) => { state.settings.eq = { ...eq } }),
+          setSound: (sound) => set((state) => { state.settings.sound = { ...sound } }),
+          setVoiceAndSound: (synth, sound) => set((state) => {
+            state.settings.synth = synth
+            state.settings.sound = { ...sound }
+          }),
           setFormat: (format) => set((state) => { state.settings.format = format }),
           setFretView: (fretView) => set((state) => { state.settings.fretView = fretView })
         }
@@ -214,8 +222,16 @@ export const useAppStore = create<AppStore>()(
       // kept for the tab, so a reload without a code in the url (or a
       // trip away and back) picks up where it left off, undo steps too
       name: "chord-buildr",
-      version: 1,
+      version: 2,
       storage: createJSONStorage(() => sessionStorage),
+      // version 1 had no sound settings
+      migrate: (persisted, version) => {
+        const state = persisted as PersistedStore
+        if (version < 2 && state?.settings) {
+          state.settings = { ...state.settings, sound: { ...DEFAULT_SOUND } }
+        }
+        return state
+      },
       partialize: (state): PersistedStore => ({
         chords: state.chords,
         settings: state.settings,

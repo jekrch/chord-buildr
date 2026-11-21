@@ -1,53 +1,53 @@
 import * as Tone from "tone"
-import { getSynth, SynthReturn } from "./synthLibrary"
+import { getBus } from "./bus"
+import { Voice, getVoiceDef } from "./voices"
+import {
+  eqCompensationDb,
+  humanize,
+  macro,
+  noteLevelsDb,
+  noteSides,
+  noteTimings,
+  noteVelocity,
+  toMidi,
+  volumeToDb
+} from "./mix"
 import { SYNTH_TYPES, SynthKey } from "../utils/synthTypes"
-import { DEFAULT_EQ, EQSettings, hasFlatEq } from "../utils/settings"
+import type { EQSettings, ResolvedPlayStyle, SoundSettings } from "../utils/settings"
+import type { ArpeggioOptions } from "../utils/playPrefs"
 
 /**
- * the only module that imports Tone. the player loads it with import() on
- * the first user gesture or the first play, so Tone stays out of the main
- * bundle and no AudioContext is created before the page is interacted with
+ * the only module (with the bus and voices it loads) that imports Tone.
+ * the player loads it with import() on the first user gesture or the
+ * first play, so Tone stays out of the main bundle and no AudioContext is
+ * created before the page is interacted with
  */
-
-// maximum allowed volume in decibels to prevent audio clipping
-const MAX_SYNTH_VOLUME = 5
-const MAX_SAMPLER_VOLUME = 4
-
-const DECIBEL_MODIFIER = 2
 
 export interface PlayRequest {
   // a SYNTH_TYPES key
   instrument: SynthKey
   eq: EQSettings
-  // note names, such as "C#4"
+  sound: SoundSettings
+  // how the notes are played, with auto already resolved
+  style: ResolvedPlayStyle
+  // note names, such as "C#4", in the order they're strummed. an
+  // arpeggio's run low to high, and the pattern picks the order
   notes: string[]
+  // the pattern, speed and sustain of an arpeggio
+  arpeggio: ArpeggioOptions
+  // loosen each note's timing and level a little
+  humanize: boolean
   // 0-100
   volume: number
-  // seconds from now
+  // seconds from now. at least HUMANIZE_SECONDS when humanized
   delay: number
-  duration: string
-  velocity: number
-  // play the notes one after another, as a guitar strum
-  strum: boolean
 }
 
-interface ToneSampler {
-  sampler: Tone.Sampler
-  decibelModifier?: number
-  eq?: Tone.EQ3
-  eqSettings?: EQSettings
-}
+// the voice played when another can't be loaded
+const FALLBACK: SynthKey = "p"
 
-interface ToneSynth {
-  synth: Tone.PolySynth
-  eq: Tone.EQ3
-  eqSettings: EQSettings
-  decibelModifier?: number
-}
-
-// loaded samplers and synths, by instrument
-const samplers: Record<string, ToneSampler> = {}
-const synths: Record<string, ToneSynth> = {}
+// voices that are loaded or loading, by instrument
+const voices: Partial<Record<SynthKey, Promise<Voice>>> = {}
 
 /**
  * starts the audio context. browsers only allow that after a user
@@ -59,326 +59,96 @@ export function resumeAudio(): Promise<void> {
 }
 
 /**
- * plays the notes on the instrument, either strummed or together. the
- * volume depends on the instrument, whether it's a synth or a sampler,
- * the pitch (for synths), and the user's volume and eq
+ * plays the notes on the instrument, shaped by the sound settings. each
+ * note's level and place in the stereo field come from mix.ts, so chords
+ * stay clean and low notes aren't buried under high ones
  */
 export async function playNotes(request: PlayRequest): Promise<void> {
-  const { instrument, eq, notes, volume, delay, duration, velocity, strum } = request
+  const { eq, sound, style, notes, arpeggio, volume, delay } = request
+  if (!notes.length) return
 
-  const toneSampler = await getInstrumentSampler(instrument, eq)
-  const toneSynth = toneSampler ? undefined : getToneSynth(instrument, eq)
+  const { key, voice } = await getVoice(request.instrument)
+  const def = getVoiceDef(key)
 
-  resumeAudio().catch((error) => console.warn('failed to resume audio:', error))
+  resumeAudio().catch((error: unknown) => console.warn('failed to resume audio:', error))
 
-  if (toneSampler) {
-    initSampler(toneSampler, volume, toneSampler.decibelModifier)
+  voice.setEnvelope({
+    attack: macro(sound.attack, def.attack),
+    decay: macro(sound.length, def.decay),
+    release: macro(sound.length, def.release)
+  })
+  voice.volume.rampTo(def.trimDb + eqCompensationDb(eq), 0.02)
 
-    if (strum) {
-      playSamplerNotesStrum(notes, velocity, delay, toneSampler.sampler, duration)
-    } else {
-      playSamplerNotes(notes, toneSampler.sampler, duration, delay, velocity)
-    }
-  } else if (toneSynth) {
-    const synthVolume = initSynth(toneSynth, volume)
+  const bus = getBus()
+  bus.apply({
+    eq,
+    cutoff: macro(sound.tone, def.tone),
+    space: sound.space,
+    volumeDb: volumeToDb(volume)
+  })
 
-    if (strum) {
-      playSynthNotesStrum(notes, velocity, synthVolume, toneSynth.synth, duration, delay)
-    } else {
-      playSynthNotes(notes, synthVolume, toneSynth.synth, duration, delay, velocity)
-    }
+  const midis = notes.map(toMidi)
+  const shaped = {
+    levels: noteLevelsDb(midis, sound.balance, def.tiltScale),
+    timings: noteTimings(notes.length, style, macro(sound.length, def.hold), arpeggio)
   }
-}
+  const { levels, timings } = request.humanize ? humanize(shaped.timings, shaped.levels) : shaped
+  const sides = noteSides(midis)
+  const start = Tone.now() + delay
 
-// get decibel value based on note numbers and user volume
-function getDecibel(userVolume: number, selectedNoteNumbers: number[]): number {
-  const userVolumeModifier = getUserVolumeModifier(userVolume)
-  const highestNoteNumber = Math.max(...selectedNoteNumbers)
-  const calculatedVolume = DECIBEL_MODIFIER - highestNoteNumber / 2.5 + userVolumeModifier
+  // a new chord takes over from the last
+  voice.releaseAll()
 
-  return Math.min(calculatedVolume, MAX_SYNTH_VOLUME)
-}
+  // an arpeggio can play a note more than once; each time keeps the
+  // note's own level and side
+  timings.forEach(({ index, offset, duration }) => {
+    const note = notes[index]
+    if (note === undefined) return
+    voice.play(note, duration, start + offset, noteVelocity(levels[index] ?? 0), sides[index] ?? 0)
+  })
 
-/**
- * convert user volume (0-100) to a modifier ranging between -20 to MAX_VOLUME
- * with 90 as the 0 point
- */
-function getUserVolumeModifier(userVolume: number | null): number {
-  if (userVolume == null) {
-    userVolume = 0
-  }
-
-  if (userVolume >= 90) {
-    const volIncrease = userVolume - 90
-    // limit the maximum volume increase
-    return Math.min(volIncrease * 0.4, MAX_SYNTH_VOLUME)
-  }
-
-  const volDecrease = 90 - userVolume
-  return 0 - 20 * (volDecrease / 90)
+  bus.watchLevels()
 }
 
 /**
- * get or create the sampler for an instrument, or undefined if the
- * instrument is a synth
+ * the voice for an instrument, loading it (and connecting it to the bus)
+ * if it isn't loaded. other synths are disposed of when one is picked,
+ * as they're quick to rebuild; samplers are kept, as their samples
+ * aren't. a sampler that fails to load falls back to plumber
  */
-async function getInstrumentSampler(
-  type: SynthKey,
-  eqSettings: EQSettings = DEFAULT_EQ
-): Promise<ToneSampler | undefined> {
-
-  if (samplers[type]) {
-    samplers[type].eqSettings = eqSettings
-    return samplers[type]
-  }
-
-  const instrument = SYNTH_TYPES[type]
-  if (!instrument?.getSampler) {
-    return undefined
-  }
+async function getVoice(key: SynthKey): Promise<{ key: SynthKey; voice: Voice }> {
+  const known = SYNTH_TYPES[key] ? key : FALLBACK
 
   try {
-    const SamplerModule = await instrument.getSampler()
-
-    const sampler = await new Promise<Tone.Sampler>(resolve => {
-      const sampler = new SamplerModule.default({
-        onload: () => resolve(sampler)
-      })
-    })
-
-    samplers[type] = {
-      sampler,
-      eq: createEQ(),
-      eqSettings,
-      decibelModifier: Math.min(
-        (instrument.decibelModifier || 0) + getVolumeCompensation(eqSettings),
-        MAX_SAMPLER_VOLUME
-      )
-    }
-
-    return samplers[type]
+    return { key: known, voice: await loadVoice(known) }
   } catch (error) {
-    console.error('failed to load instrument sampler:', error)
-    return undefined
+    console.error('failed to load instrument:', error)
+    delete voices[known]
+    return { key: FALLBACK, voice: await loadVoice(FALLBACK) }
   }
 }
 
-/**
- * get the volume compensation for the eq settings
- */
-function getVolumeCompensation(eqSettings?: Partial<EQSettings>): number {
-  if (!eqSettings) return 0
+function loadVoice(key: SynthKey): Promise<Voice> {
+  const existing = voices[key]
+  if (existing) return existing
 
-  // negative to compensate for the boost
-  return -calculateEQVolumeBoost(eqSettings)
-}
+  if (SYNTH_TYPES[key]?.type === "synth") disposeSynths()
 
-/**
- * calculate the volume boost from the eq settings
- */
-function calculateEQVolumeBoost(eqSettings: Partial<EQSettings>): number {
-  // each band contributes to overall volume, but with different weights
-  const lowWeight = 2.8
-  const midWeight = 3.0
-  const highWeight = 2.9
-
-  // only consider positive values as boosting volume
-  const lowBoost = Math.max(0, (eqSettings.low ?? 0)) * lowWeight
-  const midBoost = Math.max(0, (eqSettings.mid ?? 0)) * midWeight
-  const highBoost = Math.max(0, (eqSettings.high ?? 0)) * highWeight
-
-  // sum the weighted boosts and apply a scaling factor
-  // 0.3 factor determined through testing to provide natural sound
-  return (lowBoost + midBoost + highBoost) * 0.3
-}
-
-// convert note name to midi number
-function getNoteNumber(note: string): number {
-  return Tone.Frequency(note).toMidi() - 72
-}
-
-/**
- * route the synth through its eq (if any) and return the volume to play at
- */
-function initSynth(toneSynth: ToneSynth, volume: number): number {
-
-  if (!hasFlatEq(toneSynth.eqSettings)) {
-    applyEQSettings(toneSynth.eq, toneSynth.eqSettings)
-    toneSynth.synth.chain(toneSynth.eq, Tone.Destination)
-  }
-  toneSynth.synth.toDestination()
-
-  if (toneSynth.decibelModifier) {
-    // synths sound louder than samplers, so take 10 off
-    volume = volume + toneSynth.decibelModifier - 10
-  }
-
-  toneSynth.synth.releaseAll()
-
-  return volume
-}
-
-/**
- * route the sampler through its eq (if any) and set its volume
- */
-function initSampler(
-  toneSampler: ToneSampler,
-  volume: number,
-  decibelModifier: number | undefined
-) {
-  const { sampler, eq, eqSettings } = toneSampler
-
-  sampler.disconnect()
-
-  if (eq && eqSettings && !hasFlatEq(eqSettings)) {
-    applyEQSettings(eq, eqSettings)
-    sampler.chain(eq, Tone.Destination)
-  } else {
-    // bypass the eq completely when it's flat
-    sampler.toDestination()
-  }
-
-  sampler.releaseAll()
-
-  if (decibelModifier !== undefined) {
-    const calculatedVolume = decibelModifier + getUserVolumeModifier(volume)
-    sampler.volume.value = Math.min(calculatedVolume, MAX_SAMPLER_VOLUME)
-  }
-}
-
-function playSamplerNotes(
-  notes: string[],
-  sampler: Tone.Sampler,
-  duration: string,
-  baseDelay: number,
-  velocity: number
-) {
-  const now = Tone.now()
-  notes.forEach(note => {
-    sampler.triggerAttackRelease(note, duration, now + baseDelay, velocity)
+  const loading = Promise.resolve(getVoiceDef(key).create()).then((voice) => {
+    voice.output.connect(getBus().input)
+    return voice
   })
+  voices[key] = loading
+  return loading
 }
 
-function playSamplerNotesStrum(
-  notes: string[],
-  velocity: number,
-  baseDelay: number,
-  sampler: Tone.Sampler,
-  duration: string
-) {
-  const strumDuration = 0.20
-  const delayPerNote = strumDuration / notes.length
-
-  notes.forEach((note, index) => {
-    const startTime = Tone.now() + baseDelay + (index * delayPerNote)
-    sampler.triggerAttackRelease(note, duration, startTime, velocity)
-  })
-}
-
-function playSynthNotesStrum(
-  notes: string[],
-  velocity: number,
-  volume: number,
-  synth: Tone.PolySynth,
-  duration: string,
-  baseDelay: number
-) {
-  const strumDuration = 0.20
-  const delayPerNote = strumDuration / notes.length
-
-  // release any existing voices before starting a new strum
-  synth.releaseAll()
-
-  notes.forEach((note, index) => {
-    synth.volume.value = getDecibel(volume, [getNoteNumber(note)])
-
-    synth.triggerAttackRelease(
-      note,
-      duration,
-      Tone.now() + baseDelay + (index * delayPerNote),
-      velocity
-    )
-  })
-}
-
-function playSynthNotes(
-  notes: string[],
-  volume: number,
-  synth: Tone.PolySynth,
-  duration: string,
-  baseDelay: number,
-  velocity: number
-) {
-  synth.volume.value = getDecibel(volume, notes.map(getNoteNumber))
-
-  // release all voices before playing new ones
-  synth.releaseAll()
-
-  synth.triggerAttackRelease(notes, duration, Tone.now() + baseDelay, velocity)
-}
-
-/**
- * get the synth for an instrument, creating it (and disposing of the
- * others) if it doesn't exist yet
- */
-function getToneSynth(
-  instrumentType: string,
-  eqSettings: EQSettings = DEFAULT_EQ
-): ToneSynth {
-
-  const existing = synths[instrumentType]
-  if (existing && !existing.synth.disposed) {
-    existing.synth.releaseAll()
-    existing.eqSettings = eqSettings
-    return existing
+// dispose of the loaded synths, so switching voices doesn't leak audio nodes
+function disposeSynths() {
+  for (const [key, loading] of Object.entries(voices)) {
+    if (!loading || SYNTH_TYPES[key]?.type !== "synth") continue
+    delete voices[key]
+    loading
+      .then((voice) => voice.dispose())
+      .catch((error: unknown) => console.warn(`error cleaning up synth ${key}:`, error))
   }
-
-  cleanupSynths()
-
-  const synthReturn: SynthReturn = getSynth(instrumentType)
-
-  const toneSynth: ToneSynth = {
-    synth: synthReturn.synth,
-    eq: createEQ(),
-    eqSettings,
-    decibelModifier: Math.min(
-      (synthReturn.decibelModifier || 0) + getVolumeCompensation(eqSettings),
-      MAX_SAMPLER_VOLUME
-    )
-  }
-  synths[instrumentType] = toneSynth
-
-  toneSynth.synth.releaseAll()
-
-  return toneSynth
-}
-
-/**
- * dispose of all synths and eqs, so switching instruments doesn't leak
- * audio nodes
- */
-function cleanupSynths() {
-  Object.keys(synths).forEach(key => {
-    try {
-      synths[key].eq.dispose()
-      synths[key].synth.dispose()
-      delete synths[key]
-    } catch (error) {
-      console.warn(`Error cleaning up synth ${key}:`, error)
-    }
-  })
-}
-
-function createEQ(): Tone.EQ3 {
-  const eq = new Tone.EQ3()
-  eq.low.value = DEFAULT_EQ.low
-  eq.mid.value = DEFAULT_EQ.mid
-  eq.high.value = DEFAULT_EQ.high
-  return eq
-}
-
-function applyEQSettings(eq: Tone.EQ3, settings: Partial<EQSettings>) {
-  if (settings.low !== undefined) eq.low.value = settings.low
-  if (settings.mid !== undefined) eq.mid.value = settings.mid
-  if (settings.high !== undefined) eq.high.value = settings.high
 }

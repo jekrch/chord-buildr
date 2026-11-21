@@ -246,8 +246,8 @@ export const ExportSheet: React.FC<ExportSheetProps> = ({
   const update = (changes: Partial<SheetText>) => onTextChange?.({ ...text, ...changes })
   const updateSection = (index: number, changes: Partial<SheetSectionText>) => {
     const next = [...text.sections]
-    for (let i = 0; i <= index; i++) next[i] ??= { label: "", note: "" }
-    next[index] = { ...next[index], ...changes }
+    for (let i = 0; i < index; i++) next[i] ??= { label: "", note: "" }
+    next[index] = { label: "", note: "", ...next[index], ...changes }
     update({ sections: next })
   }
   const handler = (fn: (value: string) => void) => (editable ? fn : undefined)

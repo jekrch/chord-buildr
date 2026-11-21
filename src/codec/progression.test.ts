@@ -1,5 +1,5 @@
 import { expect, it } from "vitest"
-import { parseProgressionCode, serializeProgressionCode } from "./progression"
+import { CodedChord, parseProgressionCode, serializeProgressionCode } from "./progression"
 
 const getBreaks = (progCode: string) =>
   parseProgressionCode(progCode).map((chord) => chord.breakAfter !== undefined)
@@ -14,7 +14,7 @@ it("section breaks: leading and repeated breaks collapse, a trailing one stays",
 
 it("section breaks: each one gets its own id", () => {
   const chords = parseProgressionCode("(1C)(-)(1G)(-)(1Am)")
-  expect(chords[0].breakAfter).not.toBe(chords[1].breakAfter)
+  expect(chords[0]!.breakAfter).not.toBe(chords[1]!.breakAfter)
 })
 
 it("section breaks: written back into the progression code", () => {
@@ -34,7 +34,7 @@ it("progression code: a chord's id is its code's place in the progression code",
 })
 
 it("progression code: octave, slash note, and position", () => {
-  const [chord] = parseProgressionCode("(2Abm7:Gb.3)")
+  const [chord] = parseProgressionCode("(2Abm7:Gb.3)") as [CodedChord]
 
   expect(chord.selectedChord).toMatchObject({
     noteLetter: "Ab",

@@ -70,7 +70,7 @@ const ukuleleKeyMap: Record<number, string> = {
 }
 
 // normalize key names to match the database format
-const normalizeKey = (keyNoteNumber: number, format: string): string => {
+const normalizeKey = (keyNoteNumber: number, format: string): string | undefined => {
     const keyMap: Record<number, string> = format === "g" ? guitarKeyMap : ukuleleKeyMap;
     return keyMap[keyNoteNumber];
   };
@@ -175,7 +175,7 @@ const normalizeKey = (keyNoteNumber: number, format: string): string => {
    */
   const getStringMidi = (position: ChordPosition): (number | null)[] => {
     let next = 0;
-    return position.frets.map(fret => (fret < 0 ? null : position.midi[next++]));
+    return position.frets.map(fret => (fret < 0 ? null : position.midi[next++] ?? null));
   };
 
   /**
@@ -195,7 +195,7 @@ const normalizeKey = (keyNoteNumber: number, format: string): string => {
       // a capo barre is drawn across every string
       const [first, last] = capo && i === 0
         ? [0, frets.length - 1]
-        : [strings[0], strings[strings.length - 1]];
+        : [strings[0] ?? 0, strings[strings.length - 1] ?? -1];
       if (frets.slice(first, last + 1).some(fret => fret === 0 || (fret > 0 && fret < barre))) {
         return null;
       }
@@ -208,10 +208,10 @@ const normalizeKey = (keyNoteNumber: number, format: string): string => {
 
     if (slots.length > 4) return null;
 
-    slots.sort((a, b) => a.fret - b.fret || a.strings[0] - b.strings[0]);
-    for (let a = 0; a < slots.length; a++) {
-      for (let b = a + 1; b < slots.length; b++) {
-        if (slots[b].fret - slots[a].fret > b - a + 1) return null;
+    slots.sort((a, b) => a.fret - b.fret || (a.strings[0] ?? 0) - (b.strings[0] ?? 0));
+    for (const [a, low] of slots.entries()) {
+      for (const [b, high] of slots.entries()) {
+        if (b > a && high.fret - low.fret > b - a + 1) return null;
       }
     }
 
@@ -230,9 +230,12 @@ const normalizeKey = (keyNoteNumber: number, format: string): string => {
     const stringMidi = getStringMidi(position);
 
     for (const string of strings) {
-      if (frets[string] < 0 || frets[string] + by < 0) return null;
-      frets[string] += by;
-      stringMidi[string] = stringMidi[string]! + by;
+      const fret = frets[string];
+      const midi = stringMidi[string];
+      // a muted string has no note to move
+      if (fret === undefined || midi == null || fret < 0 || fret + by < 0) return null;
+      frets[string] = fret + by;
+      stringMidi[string] = midi + by;
     }
 
     return buildPosition(position, frets, stringMidi);
@@ -433,6 +436,7 @@ const normalizeKey = (keyNoteNumber: number, format: string): string => {
     format: string
   ): ChordPosition[] => {
     const openMidi = OPEN_STRING_MIDI[format];
+    if (!openMidi) return [];
 
     return sources.flatMap(position => {
       const frets = getAbsoluteFrets(position);
@@ -449,7 +453,7 @@ const normalizeKey = (keyNoteNumber: number, format: string): string => {
 
           const newFrets = frets.map((f, s) => (s === string ? fret : below.includes(s) ? -1 : f));
           const newMidi = stringMidi.map((midi, s) => (s === string ? bass : below.includes(s) ? null : midi));
-          if (newMidi.filter(midi => midi !== null).length < MIN_SLASH_STRINGS[format]) continue;
+          if (newMidi.filter(midi => midi !== null).length < (MIN_SLASH_STRINGS[format] ?? 0)) continue;
 
           const voicing = buildPosition(position, newFrets, newMidi);
           if (voicing && isSlashVoicingOf(voicing, rootNoteNumber, type, bassPitchClass)) {
@@ -506,9 +510,10 @@ const normalizeKey = (keyNoteNumber: number, format: string): string => {
       throw new Error(`Invalid chord name: ${chordName}`);
     }
   
+    // the first two groups always match, if only an empty suffix
     return {
-      root: match[1],
-      suffix: match[2],
+      root: match[1] ?? "",
+      suffix: match[2] ?? "",
       bass: match[3]
     };
   };
@@ -534,21 +539,22 @@ const normalizeKey = (keyNoteNumber: number, format: string): string => {
     try {
 
       const noteNumber = getNoteNumber(selectedChord.noteLetter);
-      const root = selectedChord.noteLetter!;
+      const root = selectedChord.noteLetter;
+      if (noteNumber === undefined) {
+        console.error(`No chord positions found for root note: ${root}`);
+        return voicings([]);
+      }
       const suffix = selectedChord.type ?? '';
       const bassNoteNumber = selectedChord.slash ? getNoteNumber(selectedChord.slashNote) : undefined;
 
       // normalize the root note and suffix to match database format
-      const normalizedRoot = normalizeKey(noteNumber!, format);
+      const normalizedRoot = normalizeKey(noteNumber, format);
 
       // Not supported: see UNSUPPORTED_GUITAR_CHORDS
       const normalizedSuffix = normalizeSuffix(suffix);
       
-      //console.log(normalizedRoot)
-      //console.log(normalizedSuffix);
-
       // find the chord in the database
-      const chordGroup = guitarChords[normalizedRoot];
+      const chordGroup = normalizedRoot === undefined ? undefined : guitarChords[normalizedRoot];
 
       if (!chordGroup) {
         console.error(`No chord positions found for root note: ${root}`);
@@ -561,12 +567,12 @@ const normalizeKey = (keyNoteNumber: number, format: string): string => {
       // chords-db has some voicings with wrong notes; hide them rather than
       // show a diagram for a different chord
       const positions = (chord?.positions ?? []).filter(
-        position => getNonChordIntervals(position, noteNumber!, suffix).length === 0
+        position => getNonChordIntervals(position, noteNumber, suffix).length === 0
       );
 
       const chordPositions = positions.length
         ? positions
-        : findFallbackPositions(chordGroup, noteNumber!, suffix);
+        : findFallbackPositions(chordGroup, noteNumber, suffix);
       if (!chordPositions.length) {
         console.warn(`No chord positions found for: ${root}${suffix}`);
         return voicings(chordPositions);
@@ -574,12 +580,12 @@ const normalizeKey = (keyNoteNumber: number, format: string): string => {
 
       // note numbers start at C = 1
       const bassPitchClass = bassNoteNumber ? (bassNoteNumber - 1) % 12 : undefined;
-      if (bassPitchClass === undefined || bassPitchClass === (noteNumber! - 1) % 12) {
+      if (bassPitchClass === undefined || bassPitchClass === (noteNumber - 1) % 12) {
         return voicings(chordPositions);
       }
 
       const slashPositions = findSlashPositions(
-        chordGroup, chordPositions, noteNumber!, suffix, bassPitchClass, format
+        chordGroup, chordPositions, noteNumber, suffix, bassPitchClass, format
       );
       // with no voicing over the bass note, show the chord without it
       // rather than no diagram
@@ -616,7 +622,7 @@ const normalizeKey = (keyNoteNumber: number, format: string): string => {
     let missing = slashNoteMissing.get(key);
     if (missing === undefined) {
       missing = findChordVoicings(
-        { noteLetter: selectedChord.noteLetter, type: selectedChord.type, slash: true, slashNote },
+        { noteLetter: selectedChord.noteLetter, type: selectedChord.type, octave: selectedChord.octave, slash: true, slashNote },
         instrument.chords,
         format
       ).bassMissing;

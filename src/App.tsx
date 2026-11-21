@@ -12,11 +12,14 @@ const App: React.FC = () => {
   // this silent audio reference is used to prevent the mute function 
   // on iOS devices from blocking tonejs audio
   const silentAudioRef = useRef<HTMLAudioElement>(null)
-  const audioInitializedRef = useRef(false)
 
-  // audio initialization
-  const initializeAudio = async () => {
-    if (!audioInitializedRef.current) {
+  // audio starts on the first user gesture, which browsers require
+  useEffect(() => {
+    const gestures = ['touchstart', 'mousedown', 'click'] as const
+    let initialized = false
+
+    const initializeAudio = async () => {
+      if (initialized) return
       try {
         // load Tone and start the audio context while we have a gesture,
         // so the first chord played doesn't wait on either
@@ -25,30 +28,15 @@ const App: React.FC = () => {
         // for ios, we need to play silent audio first
         await silentAudioRef.current?.play()
 
-        audioInitializedRef.current = true
-        
-        // cleanup listeners after successful initialization
-        document.removeEventListener('touchstart', initializeAudio)
-        document.removeEventListener('mousedown', initializeAudio)
-        document.removeEventListener('click', initializeAudio)
+        initialized = true
+        gestures.forEach((type) => document.removeEventListener(type, initializeAudio))
       } catch (error) {
         console.error('failed to initialize audio:', error)
       }
     }
-  }
 
-  useEffect(() => {
-    // event listeners for user interaction
-    document.addEventListener('touchstart', initializeAudio)
-    document.addEventListener('mousedown', initializeAudio)
-    document.addEventListener('click', initializeAudio)
-
-    // cleanup event listeners on unmount
-    return () => {
-      document.removeEventListener('touchstart', initializeAudio)
-      document.removeEventListener('mousedown', initializeAudio)
-      document.removeEventListener('click', initializeAudio)
-    }
+    gestures.forEach((type) => document.addEventListener(type, initializeAudio))
+    return () => gestures.forEach((type) => document.removeEventListener(type, initializeAudio))
   }, [])
 
   return (

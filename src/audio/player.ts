@@ -1,10 +1,12 @@
 import { fromMidiSharps } from "@tonaljs/note"
 import { ChordPiano, getChordKeys } from "../utils/chordPianoHandler"
 import { getKeyNoteName } from "../utils/pianoHelper"
-import { Settings, isGuitar } from "../utils/settings"
+import { DEFAULT_SOUND, Settings, isGuitar, resolvePlayStyle } from "../utils/settings"
 import { SynthKey } from "../utils/synthTypes"
 import { ChordPosition, findChordPositions } from "../utils/guitarUtil"
 import { loadInstrument } from "../utils/instruments"
+import { StrumDirection, readPlayPrefs } from "../utils/playPrefs"
+import { arpeggioNotes, fitArpeggioNotes, playSpanSeconds } from "./mix"
 import { useAppStore } from "../store/progressionStore"
 import {
   endChordPlayback,
@@ -31,6 +33,20 @@ const isTouchDevice = (): boolean =>
 const KEYS_RELEASE_MS = 1500
 
 type Engine = typeof import("./engine")
+
+// whether the next strum goes up, when strums alternate. each strum flips it
+let alternateUp = false
+
+/**
+ * whether a strum goes high to low. alternating strums take turns,
+ * starting down, the way a strumming hand moves
+ */
+function strumsUp(direction: StrumDirection): boolean {
+  if (direction !== "alternate") return direction === "up"
+  const up = alternateUp
+  alternateUp = !alternateUp
+  return up
+}
 
 let engine: Promise<Engine> | undefined
 
@@ -84,10 +100,13 @@ async function findTabPositions(chordPiano: ChordPiano, format: string): Promise
 }
 
 /**
- * plays a chord: strummed from its guitar/ukulele voicing when the format
- * is fretted and it has one, otherwise the keys its piano has down. while
- * it plays it's marked in the playback store, which its card and the
- * header strip read
+ * plays a chord: its guitar/ukulele voicing when the format is fretted
+ * and it has one, otherwise the keys its piano has down. it's played
+ * together, strummed or as an arpeggio, as the sound settings say (auto
+ * strums fretted formats), and strummed down or up, arpeggiated in a
+ * pattern and humanized as this browser's play preferences say. while it
+ * plays it's marked in the playback store, which its card and the header
+ * strip read, for longer when its notes are spread out
  */
 export async function playChord(
   chordPiano: ChordPiano,
@@ -98,14 +117,17 @@ export async function playChord(
 
   startChordPlayback(id)
   let playingKeys: PlayingKeys | undefined
+  // how long after the first note the last one starts, in ms
+  let spreadMs = 0
 
   try {
-    const strum = isGuitar(settings.format)
+    const sound = settings.sound ?? DEFAULT_SOUND
+    const style = resolvePlayStyle(sound.play, settings.format)
 
     let notes: string[]
     let position: ChordPosition | undefined
 
-    if (strum) {
+    if (isGuitar(settings.format)) {
       // if the tabPositions weren't provided, find them now
       tabPositions ??= await findTabPositions(chordPiano, settings.format)
 
@@ -123,24 +145,35 @@ export async function playChord(
       playingKeys = playChordKeys(id, keys)
     }
 
+    const prefs = readPlayPrefs()
+    // an upstroke sweeps the same strings from the top
+    if (style === "s" && strumsUp(prefs.strum)) notes = [...notes].reverse()
+    // an arpeggio runs low to high, over one octave or two, and a custom
+    // one over as many notes as its pattern has rows
+    if (style === "r") notes = fitArpeggioNotes(arpeggioNotes(notes, prefs.arpeggio.octaves), prefs.arpeggio)
+
+    spreadMs = playSpanSeconds(notes.length, style, prefs.arpeggio) * 1000
+
     const { playNotes } = await loadEngine()
 
     await playNotes({
       instrument: settings.synth as SynthKey,
       eq: settings.eq,
+      sound,
+      style,
       notes,
+      arpeggio: prefs.arpeggio,
+      humanize: prefs.humanize,
       volume: settings.volume,
-      delay: isTouchDevice() ? 0.15 : 0.03,
-      duration: strum ? "1.0" : "1.1",
-      velocity: 0.7,
-      strum
+      // ahead of any note humanize starts early
+      delay: isTouchDevice() ? 0.15 : 0.03
     })
   } catch (error) {
     console.error('failed to play chord:', error)
   }
 
-  setTimeout(() => endChordPlayback(id), PLAYING_MS)
+  setTimeout(() => endChordPlayback(id), PLAYING_MS + spreadMs)
 
   const released = playingKeys
-  if (released) setTimeout(() => releaseChordKeys(id, released), KEYS_RELEASE_MS)
+  if (released) setTimeout(() => releaseChordKeys(id, released), KEYS_RELEASE_MS + spreadMs)
 }

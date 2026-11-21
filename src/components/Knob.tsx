@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState } from 'react';
 
 interface KnobProps {
   value: number;
@@ -6,15 +6,27 @@ interface KnobProps {
   max: number;
   onChange: (value: number) => void;
   label?: string;
+  // how the value is written under the dial; signed (+3, -2) by default
+  formatValue?: (value: number) => string;
 }
 
-export const Knob: React.FC<KnobProps> = ({ value, min, max, onChange, label }) => {
-  const [isDragging, setIsDragging] = useState(false);
-  const [startY, setStartY] = useState(0);
-  const [startValue, setStartValue] = useState(0);
-  // local state to handle the visual position during dragging
-  const [currentValue, setCurrentValue] = useState(value);
-  const knobRef = useRef<HTMLDivElement>(null);
+interface Drag {
+  pointerId: number
+  startY: number
+  startValue: number
+}
+
+/**
+ * a dial dragged up and down, by mouse, touch or pen. it follows the drag
+ * locally and only calls onChange when it's let go. the pointer is
+ * captured, so the drag carries on outside the dial, and touch-none keeps
+ * a touch drag from scrolling the page
+ */
+export const Knob: React.FC<KnobProps> = ({ value, min, max, onChange, label, formatValue }) => {
+  const [drag, setDrag] = useState<Drag | null>(null);
+  // where the dial points while it's dragged
+  const [draggedValue, setDraggedValue] = useState(value);
+  const currentValue = drag ? draggedValue : value;
 
   // convert value to rotation angle (from -150 to 150 degrees)
   const getRotation = (val: number) => {
@@ -23,111 +35,53 @@ export const Knob: React.FC<KnobProps> = ({ value, min, max, onChange, label }) 
     return -150 + (percentage * 300);
   };
 
-  const handleStart = (clientY: number) => {
-    setIsDragging(true);
-    setStartY(clientY);
-    setStartValue(currentValue);
+  const handlePointerDown = (e: React.PointerEvent<HTMLDivElement>) => {
+    // a second finger doesn't take over a drag under way
+    if (drag) return;
+    e.currentTarget.setPointerCapture(e.pointerId);
+    setDrag({ pointerId: e.pointerId, startY: e.clientY, startValue: value });
+    setDraggedValue(value);
   };
 
-  const handleMove = (clientY: number) => {
-    if (!isDragging) return;
-
-    const deltaY = startY - clientY;
-    const deltaValue = (deltaY / 100) * (max - min);
-    const newValue = Math.min(max, Math.max(min, startValue + deltaValue));
-    
-    setCurrentValue(Math.round(newValue));
+  // a full sweep of the range takes 100px of drag
+  const valueAt = (current: Drag, clientY: number) => {
+    const deltaValue = ((current.startY - clientY) / 100) * (max - min);
+    return Math.round(Math.min(max, Math.max(min, current.startValue + deltaValue)));
   };
 
-  const handleEnd = () => {
-    if (isDragging) {
-      setIsDragging(false);
-      onChange(currentValue);
-    }
+  const handlePointerMove = (e: React.PointerEvent<HTMLDivElement>) => {
+    if (!drag || e.pointerId !== drag.pointerId) return;
+    setDraggedValue(valueAt(drag, e.clientY));
   };
 
-  // mouse event handlers
-  const handleMouseDown = (e: React.MouseEvent) => {
-    handleStart(e.clientY);
+  const handlePointerEnd = (e: React.PointerEvent<HTMLDivElement>) => {
+    if (!drag || e.pointerId !== drag.pointerId) return;
+    setDrag(null);
+    // measured from the release itself, as the last move may not have
+    // rendered yet. a cancelled drag keeps where it got to
+    const final = e.type === 'pointerup' ? valueAt(drag, e.clientY) : draggedValue;
+    if (final !== value) onChange(final);
   };
-
-  // sync the local value with prop when it changes externally
-  useEffect(() => {
-    if (!isDragging) {
-      setCurrentValue(value);
-    }
-  }, [value, isDragging]);
-
-  // setup mouse events
-  useEffect(() => {
-    const handleMouseMove = (e: MouseEvent) => {
-      handleMove(e.clientY);
-    };
-
-    const handleMouseUp = () => {
-      handleEnd();
-    };
-
-    if (isDragging) {
-      window.addEventListener('mousemove', handleMouseMove);
-      window.addEventListener('mouseup', handleMouseUp);
-    }
-
-    return () => {
-      window.removeEventListener('mousemove', handleMouseMove);
-      window.removeEventListener('mouseup', handleMouseUp);
-    };
-  }, [isDragging, startY, startValue, min, max, onChange, currentValue]);
-
-  // setup touch events with non-passive listeners
-  useEffect(() => {
-    const element = knobRef.current;
-    if (!element) return;
-
-    const handleTouchStart = (e: TouchEvent) => {
-      e.preventDefault();
-      const touch = e.touches[0];
-      handleStart(touch.clientY);
-    };
-
-    const handleTouchMove = (e: TouchEvent) => {
-      e.preventDefault();
-      const touch = e.touches[0];
-      handleMove(touch.clientY);
-    };
-
-    const handleTouchEnd = (e: TouchEvent) => {
-      e.preventDefault();
-      handleEnd();
-    };
-
-    // add touch event listeners with { passive: false }
-    element.addEventListener('touchstart', handleTouchStart, { passive: false });
-    element.addEventListener('touchmove', handleTouchMove, { passive: false });
-    element.addEventListener('touchend', handleTouchEnd, { passive: false });
-
-    return () => {
-      element.removeEventListener('touchstart', handleTouchStart);
-      element.removeEventListener('touchmove', handleTouchMove);
-      element.removeEventListener('touchend', handleTouchEnd);
-    };
-  }, [isDragging, startY, startValue, min, max, onChange, currentValue]);
 
   const rotation = getRotation(currentValue);
   const zeroRotation = getRotation(Math.min(max, Math.max(min, 0)));
-  const displayValue = currentValue > 0 ? `+${currentValue}` : `${currentValue}`;
+  const displayValue = formatValue
+    ? formatValue(currentValue)
+    : currentValue > 0 ? `+${currentValue}` : `${currentValue}`;
 
   return (
     <div className="flex flex-col items-center gap-1.5">
       <div
-        ref={knobRef}
         role="slider"
         aria-label={label}
         aria-valuemin={min}
         aria-valuemax={max}
         aria-valuenow={currentValue}
         className="relative h-14 w-14 cursor-ns-resize touch-none select-none"
-        onMouseDown={handleMouseDown}
+        onPointerDown={handlePointerDown}
+        onPointerMove={handlePointerMove}
+        onPointerUp={handlePointerEnd}
+        onPointerCancel={handlePointerEnd}
       >
         <svg viewBox="0 0 56 56" className="absolute inset-0 h-full w-full" aria-hidden="true">
           <path

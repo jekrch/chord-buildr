@@ -1,6 +1,7 @@
 import { isValidChordType } from "../utils/chordManager"
 import { isSlashChord } from "./chord"
 import { CodableChord, SECTION_BREAK_CODE } from "./progression"
+import { debug } from "../utils/debug"
 
 /**
  * the progression as typed in the text editor, e.g. "C G/B / Am7 2F.3":
@@ -25,8 +26,7 @@ export function getProgressionString(chordPianoSet: CodableChord[]): string {
 
   if (!chordPianoSet) return code;
   
-  for (let i = 0; i < chordPianoSet.length; i++) {
-    const chordPiano = chordPianoSet[i]
+  for (const chordPiano of chordPianoSet) {
     const selectedChord = chordPiano.selectedChord
 
     if (!selectedChord) continue
@@ -85,7 +85,7 @@ export function convertChordStrToCode(chordStr: string): string {
   // extract position if present
   let position = ''
   const positionMatch = chordStr.match(/\.(\d+)$/)
-  if (positionMatch) {
+  if (positionMatch?.[1]) {
     position = `.${parseInt(positionMatch[1])}`
     chordStr = chordStr.replace(/\.\d+$/, '')
   }
@@ -111,7 +111,7 @@ function getTypeAndSlash(chord: string, letter: string): { type: string; slash: 
       .substring(0, lastSlashPos);
     }
   } catch {
-    console.log('Error while extracting slash');
+    debug('could not extract slash');
     slash = '';
   }
 
@@ -162,7 +162,7 @@ function sanitizeType(type: string): string {
       return newType;  
     }
   } catch {
-    console.log('Error while extracting type');
+    debug('could not extract type');
     return 'x';
   }
 }
@@ -177,7 +177,7 @@ function getLetter(chord: string | undefined): string {
     }
     return letter;
   } catch {
-    console.log("Error while extracting letter");
+    debug('could not extract letter');
     return 'C';
   }
 }
@@ -201,7 +201,7 @@ function getOctave(chordStr: string): string {
       }
     }
   } catch {
-    console.log('Error while extracting octave');
+    debug('could not extract octave');
   }
   return octave
 }

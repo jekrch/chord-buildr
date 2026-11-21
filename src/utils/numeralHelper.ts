@@ -24,10 +24,10 @@ export function getChordNumeral(
     return "I";
   }
 
-  const chordLetter = getScaleAdjustedNoteLetter(key, chord.noteLetter!);
+  const chordLetter = getScaleAdjustedNoteLetter(key, chord.noteLetter);
 
   let numeral: string | undefined = Progression.toRomanNumerals(
-    key.noteLetter!,
+    key.noteLetter,
     [chordLetter]
   )?.[0];
 

@@ -44,5 +44,5 @@ export function getPianoKeys(selectedKeys: readonly number[]): NoteKey[][] {
  */
 export function getKeyNoteName(keyIndex: number): string {
   const octave = Math.floor(keyIndex / 12)
-  return `${pianoKeys[keyIndex % 12].note}${octave + 3}`
+  return `${pianoKeys[keyIndex % 12]?.note ?? ""}${octave + 3}`
 }

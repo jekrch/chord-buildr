@@ -39,3 +39,15 @@ vi.mock('tone', () => {
     }))
   }
 })
+
+// jsdom does no layout, so stub what the components measure and scroll
+// with. every size reads as zero, which the board and header take in stride
+class ResizeObserverStub {
+  observe() {}
+  unobserve() {}
+  disconnect() {}
+}
+globalThis.ResizeObserver ??= ResizeObserverStub as unknown as typeof ResizeObserver
+Element.prototype.scrollIntoView ??= function () {}
+// jsdom's own logs "not implemented" on every call
+window.scrollTo = (() => {}) as typeof window.scrollTo

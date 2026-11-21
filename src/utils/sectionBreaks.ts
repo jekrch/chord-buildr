@@ -89,10 +89,14 @@ export function toggleBreakAfter(set: ChordPiano[], id: number): ChordPiano[] {
  * end closes the last section rather than opening an empty one
  */
 export function getSections(set: ChordPiano[] | undefined): ChordPiano[][] {
-  const sections: ChordPiano[][] = [[]]
+  let section: ChordPiano[] = []
+  const sections = [section]
   for (const chordPiano of set ?? []) {
-    sections[sections.length - 1].push(chordPiano)
-    if (chordPiano.breakAfter !== undefined) sections.push([])
+    section.push(chordPiano)
+    if (chordPiano.breakAfter !== undefined) {
+      section = []
+      sections.push(section)
+    }
   }
   return sections.filter((section) => section.length)
 }

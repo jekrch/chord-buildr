@@ -1,18 +1,10 @@
-import React, { createContext, useContext, useMemo } from "react"
+import React, { useContext, useMemo } from "react"
 import { useSortable } from "@dnd-kit/sortable"
 import { CSS } from "@dnd-kit/utilities"
 import { GripVertical } from "lucide-react"
 import { cn } from "../lib/utils"
 import { prefersReducedMotion } from "../utils/chordTransitions"
-
-// dnd-kit treats an id of 0 as missing in places, so cards sort by string
-// ids and carry the piano id along as data
-export const getSortableId = (pianoId: number): string => `chord-${pianoId}`
-
-type HandleProps = Pick<ReturnType<typeof useSortable>, "attributes" | "listeners" | "setActivatorNodeRef">
-
-// lets a DragHandle anywhere inside a sortable item start its drag
-export const DragHandleContext = createContext<HandleProps | null>(null)
+import { DragHandleContext, getSortableId } from "./board/sortable"
 
 interface SortableChordCardProps {
   pianoId: number

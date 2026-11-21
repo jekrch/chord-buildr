@@ -27,7 +27,7 @@ it("dragging a break moves where the section ends, keeping its id", () => {
   const items = getProgressionItems(set)
   const arranged = arrangeProgression(set, arrayMove(items, 2, 3))
   expect(getProgressionString(arranged).trim()).toBe("C G Am / F")
-  expect(arranged[2].breakAfter).toBe(set[1].breakAfter)
+  expect(arranged[2]!.breakAfter).toBe(set[1]!.breakAfter)
 })
 
 it("a section emptied by a drag closes up", () => {
@@ -47,17 +47,17 @@ it("a break at the start or next to another one is stray", () => {
 it("removing a chord keeps the sections around it apart", () => {
   expect(text("(1C)(1G)(-)(1Am)")).toBe("C G / Am")
   const set = progression("(1C)(1G)(-)(1Am)")
-  expect(getProgressionString(removeChord(set, set[1].id)).trim()).toBe("C / Am")
-  expect(getProgressionString(removeChord(set, set[2].id)).trim()).toBe("C G /")
+  expect(getProgressionString(removeChord(set, set[1]!.id)).trim()).toBe("C / Am")
+  expect(getProgressionString(removeChord(set, set[2]!.id)).trim()).toBe("C G /")
 
   const lone = progression("(1C)(-)(1G)(-)(1Am)")
-  expect(getProgressionString(removeChord(lone, lone[1].id)).trim()).toBe("C / Am")
+  expect(getProgressionString(removeChord(lone, lone[1]!.id)).trim()).toBe("C / Am")
 })
 
 it("toggling a break after a chord", () => {
   const set = progression("(1C)(1G)(-)(1Am)")
-  expect(getProgressionString(toggleBreakAfter(set, set[0].id)).trim()).toBe("C / G / Am")
-  expect(getProgressionString(toggleBreakAfter(set, set[1].id)).trim()).toBe("C G Am")
+  expect(getProgressionString(toggleBreakAfter(set, set[0]!.id)).trim()).toBe("C / G / Am")
+  expect(getProgressionString(toggleBreakAfter(set, set[1]!.id)).trim()).toBe("C G Am")
 })
 
 it("grid strategy: a break closes its row and takes one of its own", () => {

@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { Button } from '../../components/ui/button';
 import {
     Dialog,
@@ -33,14 +33,21 @@ export const ProgressionEditorModal: React.FC<ProgressionEditorModalProps> = ({
     // the main thread and the dialog would vanish instead of fading out
     const pendingSave = useRef<string | null>(null);
 
-    const flushPendingSave = () => {
+    // the latest onSave, so flushing doesn't depend on the parent
+    // passing the same callback every render
+    const onSaveRef = useRef(onSave);
+    useEffect(() => {
+        onSaveRef.current = onSave;
+    }, [onSave]);
+
+    const flushPendingSave = useCallback(() => {
         if (pendingSave.current === null) return;
         const saved = pendingSave.current;
         pendingSave.current = null;
-        onSave(saved);
-    };
+        onSaveRef.current(saved);
+    }, []);
 
-    // When the modal opens, this effect syncs the textarea's content 
+    // When the modal opens, this effect syncs the textarea's content
     // with the current progression from the app state.
     useEffect(() => {
         if (open) {
@@ -48,7 +55,7 @@ export const ProgressionEditorModal: React.FC<ProgressionEditorModalProps> = ({
             flushPendingSave();
             setProgression(initialProgression);
         }
-    }, [initialProgression, open]);
+    }, [initialProgression, open, flushPendingSave]);
 
     // Closes the modal; onSave runs once it has animated out
     const handleSaveClick = () => {

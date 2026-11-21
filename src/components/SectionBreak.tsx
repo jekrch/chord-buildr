@@ -5,9 +5,8 @@ import { X } from "lucide-react"
 import { useActions } from "../store/progressionStore"
 import { withFlipTransition, prefersReducedMotion } from "../utils/chordTransitions"
 import { cn } from "../lib/utils"
-import { DragHandle, DragHandleContext } from "./SortableChordCard"
-
-export const getSortableBreakId = (breakId: number): string => `break-${breakId}`
+import { DragHandle } from "./SortableChordCard"
+import { DragHandleContext, getSortableBreakId } from "./board/sortable"
 
 interface SectionBreakProps {
   // the chord the break comes after

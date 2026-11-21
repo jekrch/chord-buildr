@@ -29,8 +29,9 @@ type Spot = { left: number; top: number }
 function layOut(rects: ClientRect[], order: number[], layout: GridLayout): Spot[] {
   const { columns, columnGap, rowGap, fullRow } = layout
   // the first item is always a chord, so it marks the first column
-  const left = rects[0].left
-  const top = rects[0].top
+  const first = rects[0]
+  if (!first) return []
+  const { left, top } = first
   const cardRect = rects.find((_, i) => !fullRow[i])
   const step = (cardRect?.width ?? 0) + columnGap
 
@@ -47,13 +48,14 @@ function layOut(rects: ClientRect[], order: number[], layout: GridLayout): Spot[
   }
 
   for (const i of order) {
+    const height = rects[i]?.height ?? 0
     if (fullRow[i]) {
       endRow()
       spots[i] = { left, top: y }
-      y += rects[i].height + rowGap
+      y += height + rowGap
     } else {
       spots[i] = { left: left + column * step, top: y }
-      rowHeight = Math.max(rowHeight, rects[i].height)
+      rowHeight = Math.max(rowHeight, height)
       column++
       if (column === columns) endRow()
     }
@@ -74,7 +76,8 @@ export function createSectionGridStrategy(getLayout: () => GridLayout | null): S
 
   return ({ rects, activeIndex, overIndex, index }) => {
     const layout = getLayout()
-    if (!layout || !rects[index] || layout.fullRow.length !== rects.length) return null
+    const rect = rects[index]
+    if (!layout || !rect || layout.fullRow.length !== rects.length) return null
 
     if (!cache || cache.rects !== rects || cache.activeIndex !== activeIndex || cache.overIndex !== overIndex) {
       const order = arrayMove(rects.map((_, i) => i), activeIndex, overIndex)
@@ -82,9 +85,10 @@ export function createSectionGridStrategy(getLayout: () => GridLayout | null): S
     }
 
     const spot = cache.spots[index]
+    if (!spot) return null
     return {
-      x: spot.left - rects[index].left,
-      y: spot.top - rects[index].top,
+      x: spot.left - rect.left,
+      y: spot.top - rect.top,
       scaleX: 1,
       scaleY: 1
     }
